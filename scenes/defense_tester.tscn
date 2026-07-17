@@ -8,6 +8,7 @@ size = Vector2(63, 160)
 
 [node name="DefenseTester" type="CharacterBody2D" unique_id=1927824239 groups=["players"]]
 script = ExtResource("1_tester")
+always_block = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1322149552]
 position = Vector2(0, -80)

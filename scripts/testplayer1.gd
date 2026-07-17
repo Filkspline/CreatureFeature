@@ -4,9 +4,12 @@ class_name Player
 # ── Movement constants ──────────────────────────────────────────
 const WALK_FORWARD_SPEED: float = 200.0
 const WALK_BACKWARD_SPEED: float = 130.0
-const JUMP_VELOCITY: float = -400.0
+const JUMP_VELOCITY: float = -450.0
 const GRAVITY: float = 980.0
 const JUMP_APEX_THRESHOLD: float = 60.0
+
+# ── Pushback ────────────────────────────────────────────────────
+const PUSHBACK_DECELERATION: float = 600.0   # how fast pushback comes to a stop (pixels/sec²)
 
 # ── Animation frame durations ───────────────────────────────────
 const IDLE_FRAME_DURATION: float = 0.2
@@ -37,7 +40,7 @@ const CROUCH_LOOP_FRAMES: PackedInt32Array = [2, 3]
 const CROUCH_STAND_UP_FRAMES: PackedInt32Array = [4, 5]
 
 # ── Hurtbox vertical shrink ─────────────────────────────────────
-const HURTBOX_VERTICAL_REDUCTION: float = 50.0
+const HURTBOX_VERTICAL_REDUCTION: float = 100.0
 
 # ── Gatling buffer window ──────────────────────────────────────
 const GATLING_BUFFER_FRAMES: int = 16
@@ -74,6 +77,9 @@ var opponent = null
 var hit_connected: bool = false
 var gatling_input_buffered: StringName = ""
 var gatling_buffer_timer: int = 0
+
+# ── Pushback state (active during attack) ──────────────────────
+var pushback_velocity_x: float = 0.0   # current horizontal pushback speed
 
 # ── Animation state ────────────────────────────────────────────
 @onready var idle_sprite: Sprite2D = $Idle
@@ -180,6 +186,7 @@ func _start_attack(move: MoveData) -> void:
 	hit_connected = false
 	gatling_input_buffered = ""
 	gatling_buffer_timer = 0
+	pushback_velocity_x = 0.0   # clear any leftover pushback
 	
 	# Hide locomotion sprites
 	idle_sprite.visible = false
@@ -209,7 +216,20 @@ func _start_attack(move: MoveData) -> void:
 
 
 func _attack_process(delta: float) -> void:
-	velocity = Vector2.ZERO
+	# Build base velocity from advancing / pushback
+	var move_velocity := Vector2.ZERO
+	
+	# Advancing move forward speed
+	if current_move and current_move.is_advancing:
+		move_velocity.x = current_move.advance_speed   # always forward (+x)
+	
+	# Pushback overrides advancing (so if blocked, you get pushed back)
+	if pushback_velocity_x != 0.0:
+		move_velocity.x = pushback_velocity_x
+		# Decelerate pushback
+		pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, PUSHBACK_DECELERATION * delta)
+	
+	velocity = move_velocity
 	move_and_slide()
 	
 	attack_frame += 1
@@ -268,6 +288,7 @@ func _end_attack() -> void:
 	current_move = null
 	gatling_input_buffered = ""
 	gatling_buffer_timer = 0
+	pushback_velocity_x = 0.0
 	n5_sprite.visible = false
 	n52_sprite.visible = false
 	
@@ -306,11 +327,31 @@ func _check_hit() -> void:
 		print("Found area: ", area.name, " parent: ", area.get_parent().name)
 		if area == opponent.get_node("Hurtbox") or area.get_parent() == opponent.get_node("Hurtbox"):
 			print("HIT CONFIRMED!")
-			opponent.take_hit(current_move, self)
+			var was_blocked = opponent.take_hit(current_move, self)
 			hit_connected = true
+			
+			# If the opponent blocked, apply pushback to the attacker
+			if was_blocked:
+				_apply_pushback()
 			return
 	
 	print("No valid hurtbox overlap")
+
+
+func _apply_pushback() -> void:
+	if not current_move or not opponent:
+		return
+	
+	# Direction away from opponent
+	var dir_to_opponent = opponent.global_position.x - global_position.x
+	var pushback_dir: float
+	if dir_to_opponent > 0:
+		pushback_dir = -1.0   # opponent is to the right, push left
+	else:
+		pushback_dir = 1.0    # opponent is to the left, push right
+	
+	pushback_velocity_x = pushback_dir * current_move.pushback_on_block
+	print("Pushback applied with velocity: ", pushback_velocity_x)
 
 
 # ── Block state ──────────────────────────────────────────────────
@@ -341,11 +382,14 @@ func _knockdown_process(delta: float) -> void:
 
 
 # ── Taking a hit ─────────────────────────────────────────────────
-func take_hit(move_data: MoveData, attacker) -> void:
+# Returns true if the hit was blocked (so attacker can apply pushback)
+func take_hit(move_data: MoveData, attacker) -> bool:
 	if state == State.BLOCK:
 		state = State.BLOCKSTUN
+		return true
 	else:
 		state = State.HITSTUN
+		return false
 
 
 # ── Gravity ──────────────────────────────────────────────────────

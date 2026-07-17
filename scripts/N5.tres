@@ -11,4 +11,4 @@ active = 0
 recovery = 0
 damage = 5.0
 animation_name = &"N5"
-gatlings_into = Array[StringName]([&"N52", &"N52"])
+gatlings_into = Array[StringName]([&"N52"])

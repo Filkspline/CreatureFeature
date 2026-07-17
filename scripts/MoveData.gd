@@ -22,6 +22,13 @@ enum Kind { NORMAL, SPECIAL, GRAB }
 @export_group("Animation")
 @export var animation_name: StringName = ""
 
+@export_group("Pushback")
+@export var pushback_on_block: float = 200.0
+
+@export_group("Advancing move")
+@export var is_advancing: bool = false
+@export var advance_speed: float = 0.0
+
 @export_group("Special properties")
 @export var low_profile: bool = false
 @export var is_charge_move: bool = false
