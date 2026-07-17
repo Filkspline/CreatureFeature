@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3 uid="uid://cn5move000001"]
+
+[ext_resource type="Script" uid="uid://bnyng45sqmhga" path="res://scripts/MoveData.gd" id="1_move"]
+
+[resource]
+script = ExtResource("1_move")
+move_name = "N5"
+hit_level = 1
+startup = 0
+active = 0
+recovery = 0
+damage = 5.0
+animation_name = &"N5"
+gatlings_into = Array[StringName]([&"N52", &"N52"])

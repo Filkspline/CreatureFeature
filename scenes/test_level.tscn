@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://d3ut0h0xplbsv"]
+
+[ext_resource type="PackedScene" uid="uid://bq7x2m8k5n3wf" path="res://scenes/player.tscn" id="1_2venv"]
+[ext_resource type="Texture2D" uid="uid://dbo0605k6w15r" path="res://assets/be1background.png" id="1_j6w7d"]
+[ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="3_j6w7d"]
+[ext_resource type="Resource" uid="uid://c8rk12jj8pgm1" path="res://scripts/N52.tres" id="3_x4b8f"]
+[ext_resource type="PackedScene" uid="uid://ctester000001" path="res://scenes/defense_tester.tscn" id="5_tmr53"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
+size = Vector2(1257, 154)
+
+[node name="TestLevel" type="Node2D" unique_id=92995186]
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1867496629]
+modulate = Color(1, 1, 1, 0.627451)
+offset_left = -8.0
+offset_top = -9.0
+offset_right = 641.0
+offset_bottom = 333.0
+texture = ExtResource("1_j6w7d")
+expand_mode = 1
+
+[node name="TextureRect2" type="TextureRect" parent="." unique_id=1900181332]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TextureRect3" type="TextureRect" parent="." unique_id=376712738]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1393003880]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=935934337]
+position = Vector2(380, 391)
+shape = SubResource("RectangleShape2D_g4v7s")
+
+[node name="DefenseTester" parent="." unique_id=950290544 instance=ExtResource("5_tmr53")]
+position = Vector2(460, 300)
+
+[node name="Player" parent="." unique_id=786033213 instance=ExtResource("1_2venv")]
+scale = Vector2(0.75, 0.75)
+n52_move_data = ExtResource("3_x4b8f")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=73426657]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("3_j6w7d")
+curvature = 0.001
+scanline_intensity = 0.05
+scanline_count = 200.0
+brightness = 1.1
+distortion = 0.002
+flicker = 0.001
+noise_amount = 0.002
+current_preset = 1

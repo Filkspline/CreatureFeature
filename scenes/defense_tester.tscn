@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://ctester000001"]
+
+[ext_resource type="Script" uid="uid://jmbc8netnwuy" path="res://scripts/DefenseTester.gd" id="1_tester"]
+[ext_resource type="Texture2D" uid="uid://2uogjwdmwmjk" path="res://assets/idle.png" id="2_3k5bf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(63, 160)
+
+[node name="DefenseTester" type="CharacterBody2D" unique_id=1927824239 groups=["players"]]
+script = ExtResource("1_tester")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1322149552]
+position = Vector2(0, -80)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=435260767]
+position = Vector2(0.99999994, -80.00001)
+scale = Vector2(-0.815, 0.85)
+texture = ExtResource("2_3k5bf")
+hframes = 2
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1376002568]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1968565811]
+position = Vector2(8.5, -80)
+shape = SubResource("RectangleShape2D_body")

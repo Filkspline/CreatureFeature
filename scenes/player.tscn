@@ -1,0 +1,351 @@
+[gd_scene format=3 uid="uid://bq7x2m8k5n3wf"]
+
+[ext_resource type="Script" uid="uid://b1q73d0u8j2hl" path="res://scripts/testplayer1.gd" id="1_g2els"]
+[ext_resource type="Texture2D" uid="uid://2uogjwdmwmjk" path="res://assets/idle.png" id="2_qlg0r"]
+[ext_resource type="Resource" uid="uid://cn5move000001" path="res://scripts/N5.tres" id="2_smehm"]
+[ext_resource type="Texture2D" uid="uid://b7lw5ylgyk7pn" path="res://assets/backwalkt.png" id="3_tuyoq"]
+[ext_resource type="Texture2D" uid="uid://dcwskapvo58m" path="res://assets/fowardwalkt.png" id="4_fjrip"]
+[ext_resource type="Texture2D" uid="uid://cwonda7l23k8t" path="res://assets/jump.png" id="5_smehm"]
+[ext_resource type="Texture2D" uid="uid://dpeavktcslus8" path="res://assets/crouch.png" id="6_tuyoq"]
+[ext_resource type="Texture2D" uid="uid://p0xaqqctbsqi" path="res://assets/N5.png" id="7_fjrip"]
+[ext_resource type="Texture2D" uid="uid://c55r2q4sqrkmp" path="res://assets/N52.png" id="9_ur7pv"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
+size = Vector2(89, 194.5)
+
+[sub_resource type="Animation" id="Animation_smehm"]
+resource_name = "N5"
+length = 0.23333333
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("N5:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.15, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hitbox/CollisionShape2D:shape:size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.15, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [Vector2(92, 90), Vector2(124.75, 31), Vector2(67.5, 46), Vector2(34.5, 74)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hitbox/CollisionShape2D:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.21666667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [true, false, true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hurtbox/SubHurtbox:disabled")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.20000002),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [true, false, true]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hurtbox/SubHurtbox:shape:size")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.15),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(79.5, 70), Vector2(135.75, 48), Vector2(101.75, 48)]
+}
+
+[sub_resource type="Animation" id="Animation_y4r1p"]
+resource_name = "N52"
+length = 0.3
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Hitbox/CollisionShape2D:shape:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.15),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(92, 90), Vector2(124.75, 31), Vector2(153.125, 65)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hitbox/CollisionShape2D:disabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.15, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [true, true, false, true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hurtbox/SubHurtbox:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.15, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [true, true, false, true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hurtbox/SubHurtbox:shape:size")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.15),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(79.5, 70), Vector2(135.75, 48), Vector2(168.25, 48)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("N52:frame")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.15, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_a38lo"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Hurtbox/CollisionShape2D:shape:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(115, 162)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("N5:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hitbox/CollisionShape2D:shape:size")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(92, 90)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hitbox/CollisionShape2D:disabled")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hurtbox/SubHurtbox:disabled")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hurtbox/SubHurtbox:shape:size")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(79.5, 70)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("N52:frame")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_4ni07"]
+resource_name = "jump"
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Hurtbox/CollisionShape2D:shape:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0013552074, 0.016666666, 0.41666666),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(115, 162), Vector2(115, 52), Vector2(115, 162)]
+}
+
+[sub_resource type="Animation" id="Animation_ur7pv"]
+resource_name = "jump_rise"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_l71n6"]
+_data = {
+&"N5": SubResource("Animation_smehm"),
+&"N52": SubResource("Animation_y4r1p"),
+&"RESET": SubResource("Animation_a38lo"),
+&"jump": SubResource("Animation_4ni07"),
+&"jump_rise": SubResource("Animation_ur7pv")
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yf5fn"]
+size = Vector2(115, 162)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d0u6y"]
+size = Vector2(79.5, 70)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_57qmd"]
+size = Vector2(92, 90)
+
+[node name="Player" type="CharacterBody2D" unique_id=786033213]
+script = ExtResource("1_g2els")
+n5_move_data = ExtResource("2_smehm")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1285333219]
+position = Vector2(3, -97.75)
+shape = SubResource("RectangleShape2D_g4v7s")
+debug_color = Color(0.26929268, 0.6220697, 0.34595335, 0.41960785)
+
+[node name="Idle" type="Sprite2D" parent="." unique_id=1433543744]
+position = Vector2(0, -84)
+texture = ExtResource("2_qlg0r")
+hframes = 2
+
+[node name="WalkBackward" type="Sprite2D" parent="." unique_id=238224075]
+position = Vector2(7, -83)
+texture = ExtResource("3_tuyoq")
+hframes = 10
+
+[node name="WalkFoward" type="Sprite2D" parent="." unique_id=1193558726]
+position = Vector2(-2, -87)
+texture = ExtResource("4_fjrip")
+hframes = 10
+
+[node name="Jump" type="Sprite2D" parent="." unique_id=1642846395]
+position = Vector2(-1.5000014, -97.47058)
+scale = Vector2(0.745, 0.93529415)
+texture = ExtResource("5_smehm")
+hframes = 8
+frame = 4
+
+[node name="Crouch" type="Sprite2D" parent="." unique_id=1722677170]
+position = Vector2(1, -85)
+scale = Vector2(0.885, 1)
+texture = ExtResource("6_tuyoq")
+hframes = 6
+
+[node name="N5" type="Sprite2D" parent="." unique_id=33740490]
+position = Vector2(0, -84)
+texture = ExtResource("7_fjrip")
+hframes = 4
+
+[node name="N52" type="Sprite2D" parent="." unique_id=828199933]
+position = Vector2(-1, -84)
+texture = ExtResource("9_ur7pv")
+hframes = 4
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
+libraries/ = SubResource("AnimationLibrary_l71n6")
+
+[node name="StateMachine" type="Node" parent="." unique_id=1451762402]
+
+[node name="Neutral" type="Node" parent="StateMachine" unique_id=92795662]
+
+[node name="Attack" type="Node" parent="StateMachine" unique_id=1494321616]
+
+[node name="Block" type="Node" parent="StateMachine" unique_id=1775216225]
+
+[node name="Hitstun" type="Node" parent="StateMachine" unique_id=1918846928]
+
+[node name="Grab" type="Node" parent="StateMachine" unique_id=1364033460]
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=797087521]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=582007271]
+position = Vector2(4, -81)
+shape = SubResource("RectangleShape2D_yf5fn")
+debug_color = Color(0, 0.6, 0.69803923, 0.25882354)
+
+[node name="SubHurtbox" type="CollisionShape2D" parent="Hurtbox" unique_id=34310652]
+position = Vector2(70.875, -124)
+shape = SubResource("RectangleShape2D_d0u6y")
+disabled = true
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=208180516]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=65929063]
+position = Vector2(82.4375, -125.5)
+shape = SubResource("RectangleShape2D_57qmd")
+debug_color = Color(0.8734848, 0.3135745, 0.39617598, 0.41960785)
+
+[node name="MoveDatabase" type="Node" parent="." unique_id=650387511]
