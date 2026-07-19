@@ -30,7 +30,7 @@ const WALK_BACKWARD_START_FRAME: int = 3
 
 # ── Jump spritesheet frames ─────────────────────────────────────
 const JUMP_RISE_FRAMES: PackedInt32Array = [0, 1]
-const JUMP_PEAK_FRAMES: PackedInt32Array = [2,3,4]
+const JUMP_PEAK_FRAMES: PackedInt32Array = [2, 3, 4]
 const JUMP_FALL_FRAME: PackedInt32Array = [4]
 const JUMP_LAND_FRAMES: PackedInt32Array = [5, 6, 7]
 
@@ -43,7 +43,7 @@ const CROUCH_STAND_UP_FRAMES: PackedInt32Array = [4, 5]
 const HURTBOX_VERTICAL_REDUCTION: float = 100.0
 
 # ── Gatling buffer window ──────────────────────────────────────
-const GATLING_BUFFER_FRAMES: int = 36
+const GATLING_BUFFER_FRAMES: int = 16
 
 # ── Input buffer for direction changes ────────────────────────
 const DIRECTION_BUFFER_TIME: float = 0.1
@@ -68,22 +68,23 @@ var direction_buffer_timer: float = 0.0
 var pending_direction: int = Direction.NONE
 
 # ── Attack state ────────────────────────────────────────────────
-# All move slots (drag .tres files here in the inspector)
 @export var N5: MoveData
 @export var N52: MoveData
 @export var N4: MoveData
 @export var N8: MoveData
 @export var N6: MoveData
 @export var N2: MoveData
+@export var NA: MoveData
 @export var S5: MoveData
 @export var S4: MoveData
 @export var S8: MoveData
 @export var S6: MoveData
 @export var S2: MoveData
+@export var SA: MoveData
 
-var all_moves: Dictionary = {}                     # move_name -> MoveData (for gatlings)
-var normal_moves: Dictionary = {}                  # "neutral"/"forward"/"back"/"crouching"/"jumping" -> MoveData
-var special_moves: Dictionary = {}                 # same keys, for specials
+var all_moves: Dictionary = {}
+var normal_moves: Dictionary = {}
+var special_moves: Dictionary = {}
 
 var current_move: MoveData = null
 var attack_frame: int = 0
@@ -104,6 +105,7 @@ var pushback_velocity_x: float = 0.0
 @onready var n5_sprite: Sprite2D = $N5
 @onready var n52_sprite: Sprite2D = $N52
 @onready var s5_sprite: Sprite2D = $S5
+@onready var na_sprite: Sprite2D = $NA
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
 # Hurtbox shape will be duplicated at runtime so we can resize it safely.
@@ -135,6 +137,7 @@ func _ready() -> void:
 	n5_sprite.visible = false
 	n52_sprite.visible = false
 	s5_sprite.visible = false
+	na_sprite.visible = false
 
 	_build_move_lookup()
 
@@ -147,8 +150,8 @@ func _ready() -> void:
 	if not opponent:
 		print("No opponent found in 'players' group!")
 
+
 func _build_move_lookup() -> void:
-	# Helper to add move to all_moves and the appropriate input dictionary
 	var _add_move = func(move: MoveData, dict: Dictionary, key: String):
 		if move:
 			all_moves[move.move_name] = move
@@ -160,7 +163,8 @@ func _build_move_lookup() -> void:
 	_add_move.call(N6, normal_moves, "forward")
 	_add_move.call(N2, normal_moves, "crouching")
 	_add_move.call(N8, normal_moves, "jumping")
-	_add_move.call(N52, normal_moves, "")   # N52 is a gatling follow-up, not a direct input
+	_add_move.call(NA, normal_moves, "aerial")
+	_add_move.call(N52, normal_moves, "")
 
 	# Specials
 	_add_move.call(S5, special_moves, "neutral")
@@ -168,6 +172,7 @@ func _build_move_lookup() -> void:
 	_add_move.call(S6, special_moves, "forward")
 	_add_move.call(S2, special_moves, "crouching")
 	_add_move.call(S8, special_moves, "jumping")
+	_add_move.call(SA, special_moves, "aerial")
 
 
 func _physics_process(delta: float) -> void:
@@ -198,17 +203,14 @@ func _neutral_process(delta: float) -> void:
 	_update_animation(delta, just_landed)
 	_update_hurtbox()
 
-	# Only allow attacks if we're not in a landing/crouch transition etc.
 	if is_landing or crouch_phase == CrouchPhase.TRANSITION_DOWN or crouch_phase == CrouchPhase.STAND_UP:
 		return
 
-	# Normal button
 	if Input.is_action_just_pressed("NormalP1"):
 		var move = _resolve_move("normal")
 		if move:
 			_start_attack(move)
 
-	# Special button
 	if Input.is_action_just_pressed("SpecialP1"):
 		var move = _resolve_move("special")
 		if move:
@@ -220,15 +222,17 @@ func _resolve_move(type: String) -> MoveData:
 	var dict = normal_moves if type == "normal" else special_moves
 	var key = ""
 	if not is_on_floor():
+		var aerial_move = dict.get("aerial", null)
+		if aerial_move:
+			return aerial_move
 		key = "jumping"
 	elif crouch_phase == CrouchPhase.LOOP:
 		key = "crouching"
 	else:
-		# Grounded, not crouching
 		var dir = _get_horizontal_input()
 		if dir == 0.0:
 			key = "neutral"
-		elif (dir > 0.0) == facing_right:   # moving forward
+		elif (dir > 0.0) == facing_right:
 			key = "forward"
 		else:
 			key = "back"
@@ -236,7 +240,6 @@ func _resolve_move(type: String) -> MoveData:
 
 
 # ── Attack state ─────────────────────────────────────────────────
-
 func _start_attack(move: MoveData) -> void:
 	if not move:
 		return
@@ -260,6 +263,7 @@ func _start_attack(move: MoveData) -> void:
 	n5_sprite.visible = false
 	n52_sprite.visible = false
 	s5_sprite.visible = false
+	na_sprite.visible = false
 
 	# Show the correct attack sprite
 	match move.move_name:
@@ -269,6 +273,8 @@ func _start_attack(move: MoveData) -> void:
 			n52_sprite.visible = true
 		"S5":
 			s5_sprite.visible = true
+		"NA":
+			na_sprite.visible = true
 
 	current_animation_name = ""
 
@@ -277,17 +283,22 @@ func _start_attack(move: MoveData) -> void:
 		animation_player.seek(0, true)
 
 
-
 func _attack_process(delta: float) -> void:
-	var move_velocity := Vector2.ZERO
+	var move_velocity := velocity
 
-	# Advancing move forward speed
-	# ── Advancing move with burst then fade ───────────────────
+	# Slow fall during aerial attacks
+	if not is_on_floor() and current_move:
+		move_velocity.y *= 0.85
+		move_velocity.y += GRAVITY * delta * 0.6
+	else:
+		move_velocity.y = 0.0
+
+	# Advancing move with burst then fade
 	if current_move and current_move.is_advancing and pushback_velocity_x == 0.0:
 		if attack_frame == 1:
 			move_velocity.x = current_move.advance_speed
 		else:
-			move_velocity.x = velocity.x * 0.85
+			move_velocity.x = move_velocity.x * 0.85
 
 	# Pushback overrides advancing
 	if pushback_velocity_x != 0.0:
@@ -347,11 +358,12 @@ func _end_attack() -> void:
 	gatling_input_buffered = ""
 	gatling_buffer_timer = 0
 	pushback_velocity_x = 0.0
-	
+
 	# Hide all attack sprites
 	n5_sprite.visible = false
 	n52_sprite.visible = false
 	s5_sprite.visible = false
+	na_sprite.visible = false
 
 	current_animation_name = ""
 	current_sprite = null
@@ -360,7 +372,12 @@ func _end_attack() -> void:
 	frame_timer = 0.0
 	animation_finished = false
 
-	_update_grounded_animation()
+	# Restore correct sprite based on current state
+	if is_on_floor():
+		_update_grounded_animation()
+	else:
+		_update_jump_animation()
+
 
 func _check_hit() -> void:
 	if not opponent:
