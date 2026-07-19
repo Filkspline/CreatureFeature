@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MoveData" format=3 uid="uid://clikuihe6gu1i"]
+
+[ext_resource type="Script" uid="uid://bnyng45sqmhga" path="res://scripts/MoveData.gd" id="1_g50tn"]
+
+[resource]
+script = ExtResource("1_g50tn")
+move_name = "S5"
+kind = 1
+hit_level = 1
+startup = 0
+active = 0
+recovery = 0
+block_advantage = -4
+hitstun = 14
+damage = 5.0
+animation_name = &"S5"
+pushback_on_block = 300.0
+is_advancing = true
+advance_speed = 200.0

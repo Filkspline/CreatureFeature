@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="BBBOTS"
+config/name="CFFC"
 run/main_scene="uid://d3ut0h0xplbsv"
 config/features=PackedStringArray("4.7", "Forward Plus")
 run/max_fps=60

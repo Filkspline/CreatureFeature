@@ -16,3 +16,4 @@ animation_name = &"N52"
 is_advancing = true
 advance_speed = 50.0
 low_profile = true
+gatlings_into = Array[StringName]([&"S5", &"S5"])
