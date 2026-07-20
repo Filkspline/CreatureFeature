@@ -19,6 +19,7 @@ const LAND_FRAME_DURATION: float = 0.12
 const CROUCH_TRANSITION_DURATION: float = 0.08
 const CROUCH_LOOP_DURATION: float = 0.15
 const CROUCH_STAND_DURATION: float = 0.08
+const BLOCK_WARNING_FRAME_DURATION: float = 0.04
 
 # ── Sprite frame counts ────────────────────────────────────────
 const IDLE_FRAME_COUNT: int = 2
@@ -39,6 +40,10 @@ const CROUCH_TRANSITION_DOWN_FRAMES: PackedInt32Array = [0, 1]
 const CROUCH_LOOP_FRAMES: PackedInt32Array = [2, 3]
 const CROUCH_STAND_UP_FRAMES: PackedInt32Array = [4, 5]
 
+# ── Block warning frames ───────────────────────────────────────
+const BLOCK_WARNING_START_FRAMES: PackedInt32Array = [0, 1]
+const BLOCK_WARNING_END_FRAME: int = 2
+
 # ── Hurtbox vertical shrink ─────────────────────────────────────
 const HURTBOX_VERTICAL_REDUCTION: float = 100.0
 
@@ -49,11 +54,12 @@ const GATLING_BUFFER_FRAMES: int = 16
 const DIRECTION_BUFFER_TIME: float = 0.1
 
 # ── States ──────────────────────────────────────────────────────
-enum State { NEUTRAL, ATTACK, BLOCK, HITSTUN, BLOCKSTUN, KNOCKDOWN }
+enum State { NEUTRAL, ATTACK, HITSTUN, BLOCKSTUN, KNOCKDOWN }
 
 enum JumpPhase { RISE, PEAK, FALL }
 enum Direction { NONE, LEFT, RIGHT }
 enum CrouchPhase { NONE, TRANSITION_DOWN, LOOP, STAND_UP }
+enum BlockWarningPhase { NONE, START, HOLD, END }
 
 # Player always faces right; LEFT input = backward, RIGHT = forward.
 var facing_right: bool = true
@@ -96,6 +102,14 @@ var gatling_buffer_timer: int = 0
 # Pushback state (active during attack)
 var pushback_velocity_x: float = 0.0
 
+# ── Stun timers ──────────────────────────────────────────────────
+var stun_timer: float = 0.0
+
+# ── Block warning state ────────────────────────────────────────
+var block_warning_phase: int = BlockWarningPhase.NONE
+var block_warning_frame_index: int = 0
+var block_warning_timer: float = 0.0
+
 # ── Animation state ────────────────────────────────────────────
 @onready var idle_sprite: Sprite2D = $Idle
 @onready var walk_backward_sprite: Sprite2D = $WalkBackward
@@ -106,6 +120,8 @@ var pushback_velocity_x: float = 0.0
 @onready var n52_sprite: Sprite2D = $N52
 @onready var s5_sprite: Sprite2D = $S5
 @onready var na_sprite: Sprite2D = $NA
+@onready var mid_block_warning: Sprite2D = $MidBlockWarning
+@onready var low_block_warning: Sprite2D = $LowBlockWarning
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
 # Hurtbox shape will be duplicated at runtime so we can resize it safely.
@@ -138,6 +154,8 @@ func _ready() -> void:
 	n52_sprite.visible = false
 	s5_sprite.visible = false
 	na_sprite.visible = false
+	mid_block_warning.visible = false
+	low_block_warning.visible = false
 
 	_build_move_lookup()
 
@@ -181,8 +199,6 @@ func _physics_process(delta: float) -> void:
 			_neutral_process(delta)
 		State.ATTACK:
 			_attack_process(delta)
-		State.BLOCK:
-			_block_process(delta)
 		State.HITSTUN:
 			_hitstun_process(delta)
 		State.BLOCKSTUN:
@@ -203,6 +219,9 @@ func _neutral_process(delta: float) -> void:
 	_update_animation(delta, just_landed)
 	_update_hurtbox()
 
+	# Always update block‑ready visuals, even during crouch transitions
+	_update_block_warning_visuals(delta)
+
 	if is_landing or crouch_phase == CrouchPhase.TRANSITION_DOWN or crouch_phase == CrouchPhase.STAND_UP:
 		return
 
@@ -216,6 +235,86 @@ func _neutral_process(delta: float) -> void:
 		if move:
 			_start_attack(move)
 
+
+# ── Block‑ready check ────────────────────────────────────────────
+func _is_block_ready() -> bool:
+	if not is_on_floor():
+		return false
+	var left_held = Input.is_action_pressed("LeftP1")
+	if not left_held:
+		return false
+	# During crouch transition or loop, need Down+Back for low block
+	if crouch_phase != CrouchPhase.NONE:
+		return Input.is_action_pressed("DownP1")
+	# Standing: back alone is standing block
+	return true
+
+# ── Block warning visuals (appear when block‑ready) ─────────────
+func _update_block_warning_visuals(delta: float) -> void:
+	var should_show = _is_block_ready()
+	var is_crouching = crouch_phase != CrouchPhase.NONE
+	var warning_sprite = low_block_warning if is_crouching else mid_block_warning
+	var other_sprite = mid_block_warning if is_crouching else low_block_warning
+
+	# Hide the other warning at all times
+	other_sprite.visible = false
+
+	# If the stance changed (crouch ↔ stand), reset the warning completely
+	if should_show and block_warning_phase != BlockWarningPhase.NONE:
+		# Check if the currently visible sprite is the wrong one for this stance
+		if is_crouching and mid_block_warning.visible:
+			mid_block_warning.visible = false
+			block_warning_phase = BlockWarningPhase.NONE
+		elif not is_crouching and low_block_warning.visible:
+			low_block_warning.visible = false
+			block_warning_phase = BlockWarningPhase.NONE
+
+	# Not blocking and not already showing — nothing to do
+	if not should_show and block_warning_phase == BlockWarningPhase.NONE:
+		return
+
+	# Start the warning animation
+	if should_show and block_warning_phase == BlockWarningPhase.NONE:
+		block_warning_phase = BlockWarningPhase.START
+		block_warning_frame_index = 0
+		block_warning_timer = 0.0
+		warning_sprite.visible = true
+		warning_sprite.frame = BLOCK_WARNING_START_FRAMES[0]
+
+	# Continue through the animation phases
+	elif should_show:
+		match block_warning_phase:
+			BlockWarningPhase.START:
+				block_warning_timer += delta
+				if block_warning_timer >= BLOCK_WARNING_FRAME_DURATION:
+					block_warning_timer = 0.0
+					block_warning_frame_index += 1
+					if block_warning_frame_index >= BLOCK_WARNING_START_FRAMES.size():
+						block_warning_phase = BlockWarningPhase.HOLD
+						warning_sprite.frame = BLOCK_WARNING_START_FRAMES[BLOCK_WARNING_START_FRAMES.size() - 1]
+					else:
+						warning_sprite.frame = BLOCK_WARNING_START_FRAMES[block_warning_frame_index]
+
+			BlockWarningPhase.HOLD:
+				warning_sprite.frame = BLOCK_WARNING_START_FRAMES[BLOCK_WARNING_START_FRAMES.size() - 1]
+
+			BlockWarningPhase.END:
+				block_warning_phase = BlockWarningPhase.NONE
+				_update_block_warning_visuals(0.0)
+				return
+
+	# Stop showing — play end frame
+	elif not should_show and block_warning_phase != BlockWarningPhase.NONE:
+		if block_warning_phase != BlockWarningPhase.END:
+			block_warning_phase = BlockWarningPhase.END
+			block_warning_timer = 0.0
+			warning_sprite.frame = BLOCK_WARNING_END_FRAME
+			warning_sprite.visible = true
+
+		block_warning_timer += delta
+		if block_warning_timer >= BLOCK_WARNING_FRAME_DURATION:
+			warning_sprite.visible = false
+			block_warning_phase = BlockWarningPhase.NONE
 
 # ── Move resolver ────────────────────────────────────────────────
 func _resolve_move(type: String) -> MoveData:
@@ -252,12 +351,15 @@ func _start_attack(move: MoveData) -> void:
 	gatling_buffer_timer = 0
 	pushback_velocity_x = 0.0
 
-	# Hide locomotion sprites
+	# Hide locomotion sprites and block warnings
 	idle_sprite.visible = false
 	walk_backward_sprite.visible = false
 	walk_forward_sprite.visible = false
 	jump_sprite.visible = false
 	crouch_sprite.visible = false
+	mid_block_warning.visible = false
+	low_block_warning.visible = false
+	block_warning_phase = BlockWarningPhase.NONE
 
 	# Hide all attack sprites
 	n5_sprite.visible = false
@@ -407,23 +509,35 @@ func _apply_pushback() -> void:
 	pushback_velocity_x = pushback_dir * current_move.pushback_on_block
 
 
-# ── Block state ──────────────────────────────────────────────────
-func _block_process(delta: float) -> void:
-	velocity = Vector2.ZERO
-	move_and_slide()
-	if not Input.is_action_pressed("BlockP1"):
-		state = State.NEUTRAL
-
-
-# ── Hitstun / Blockstun / Knockdown states ──────────────────────
+# ── Hitstun state ────────────────────────────────────────────────
 func _hitstun_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
+	stun_timer -= delta
+	if stun_timer <= 0.0:
+		state = State.NEUTRAL
+		_restore_from_stun()
+
 
 func _blockstun_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
+	stun_timer -= delta
+	if stun_timer <= 0.0:
+		state = State.NEUTRAL
+		_restore_from_stun()
 
+
+func _restore_from_stun() -> void:
+	# Re‑enable locomotion sprites and reset block warning if needed
+	if is_on_floor():
+		_update_grounded_animation()
+	else:
+		_update_jump_animation()
+	# Block warning will be handled by next _neutral_process
+
+
+# ── Knockdown state ──────────────────────────────────────────────
 func _knockdown_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
@@ -431,11 +545,18 @@ func _knockdown_process(delta: float) -> void:
 
 # ── Taking a hit ─────────────────────────────────────────────────
 func take_hit(move_data: MoveData, attacker) -> bool:
-	if state == State.BLOCK:
+	var block_ready = _is_block_ready()
+	if block_ready:
 		state = State.BLOCKSTUN
+		# blockstun = recovery + block_advantage (frames)
+		var stun_frames = move_data.recovery + move_data.block_advantage
+		if stun_frames < 0:
+			stun_frames = 0
+		stun_timer = stun_frames / 60.0
 		return true
 	else:
 		state = State.HITSTUN
+		stun_timer = move_data.hitstun / 60.0
 		return false
 
 

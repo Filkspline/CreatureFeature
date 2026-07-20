@@ -2,11 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b1q73d0u8j2hl" path="res://scripts/testplayer1.gd" id="1_g2els"]
 [ext_resource type="Texture2D" uid="uid://2uogjwdmwmjk" path="res://assets/idle.png" id="2_qlg0r"]
-[ext_resource type="Resource" uid="uid://cn5move000001" path="res://scripts/N5.tres" id="2_smehm"]
-[ext_resource type="Resource" uid="uid://c8rk12jj8pgm1" path="res://scripts/N52.tres" id="3_d2wvv"]
 [ext_resource type="Texture2D" uid="uid://b7lw5ylgyk7pn" path="res://assets/backwalkt.png" id="3_tuyoq"]
-[ext_resource type="Resource" uid="uid://clikuihe6gu1i" path="res://scripts/S5.tres" id="4_3v2ag"]
-[ext_resource type="Resource" uid="uid://dvt1xmle7oulb" path="res://scripts/NA.tres" id="4_f1ej7"]
 [ext_resource type="Texture2D" uid="uid://dcwskapvo58m" path="res://assets/fowardwalkt.png" id="4_fjrip"]
 [ext_resource type="Texture2D" uid="uid://dpeavktcslus8" path="res://assets/crouch.png" id="6_tuyoq"]
 [ext_resource type="Texture2D" uid="uid://p0xaqqctbsqi" path="res://assets/N5.png" id="7_fjrip"]
@@ -14,6 +10,8 @@
 [ext_resource type="Texture2D" uid="uid://c55r2q4sqrkmp" path="res://assets/N52.png" id="9_ur7pv"]
 [ext_resource type="Texture2D" uid="uid://c5ucj2gpuyupt" path="res://assets/S5.png" id="10_y4r1p"]
 [ext_resource type="Texture2D" uid="uid://e41b8qb1bkm0" path="res://assets/NA.png" id="13_jej6c"]
+[ext_resource type="Texture2D" uid="uid://bg3bam4iw4yln" path="res://assets/MidBlockWarning.png" id="15_a8ls1"]
+[ext_resource type="Texture2D" uid="uid://dl6cf0733hdm" path="res://assets/LowBlockWarning.png" id="16_qfm1y"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(89, 194.5)
@@ -430,11 +428,6 @@ size = Vector2(92, 90)
 
 [node name="Player" type="CharacterBody2D" unique_id=786033213]
 script = ExtResource("1_g2els")
-N5 = ExtResource("2_smehm")
-N52 = ExtResource("3_d2wvv")
-N6 = ExtResource("3_d2wvv")
-NA = ExtResource("4_f1ej7")
-S5 = ExtResource("4_3v2ag")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1285333219]
 position = Vector2(3, -97.75)
@@ -458,7 +451,7 @@ hframes = 10
 
 [node name="Jump" type="Sprite2D" parent="." unique_id=1642846395]
 position = Vector2(-1.5000015, -77.47058)
-scale = Vector2(0.745, 0.93529415)
+scale = Vector2(0.745, 0.835)
 texture = ExtResource("8_3v2ag")
 hframes = 8
 frame = 4
@@ -488,6 +481,16 @@ hframes = 9
 position = Vector2(1, -53)
 texture = ExtResource("13_jej6c")
 hframes = 8
+
+[node name="MidBlockWarning" type="Sprite2D" parent="." unique_id=1345917801]
+position = Vector2(0, -95)
+texture = ExtResource("15_a8ls1")
+hframes = 3
+
+[node name="LowBlockWarning" type="Sprite2D" parent="." unique_id=273525979]
+position = Vector2(-1, -95)
+texture = ExtResource("16_qfm1y")
+hframes = 3
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")
