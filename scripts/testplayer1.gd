@@ -109,6 +109,7 @@ var stun_timer: float = 0.0
 var block_warning_phase: int = BlockWarningPhase.NONE
 var block_warning_frame_index: int = 0
 var block_warning_timer: float = 0.0
+var block_warning_is_crouching: bool = false
 
 # ── Animation state ────────────────────────────────────────────
 @onready var idle_sprite: Sprite2D = $Idle
@@ -219,12 +220,10 @@ func _neutral_process(delta: float) -> void:
 	_update_animation(delta, just_landed)
 	_update_hurtbox()
 
-	# Always update block‑ready visuals, even during crouch transitions
+	# Always update block‑ready visuals
 	_update_block_warning_visuals(delta)
 
-	if is_landing or crouch_phase == CrouchPhase.TRANSITION_DOWN or crouch_phase == CrouchPhase.STAND_UP:
-		return
-
+	# Allow attacks even during crouch transitions and landing
 	if Input.is_action_just_pressed("NormalP1"):
 		var move = _resolve_move("normal")
 		if move:
@@ -243,45 +242,39 @@ func _is_block_ready() -> bool:
 	var left_held = Input.is_action_pressed("LeftP1")
 	if not left_held:
 		return false
-	# During crouch transition or loop, need Down+Back for low block
 	if crouch_phase != CrouchPhase.NONE:
 		return Input.is_action_pressed("DownP1")
-	# Standing: back alone is standing block
 	return true
 
-# ── Block warning visuals (appear when block‑ready) ─────────────
+
+# ── Block warning visuals ───────────────────────────────────────
 func _update_block_warning_visuals(delta: float) -> void:
 	var should_show = _is_block_ready()
 	var is_crouching = crouch_phase != CrouchPhase.NONE
-	var warning_sprite = low_block_warning if is_crouching else mid_block_warning
-	var other_sprite = mid_block_warning if is_crouching else low_block_warning
 
-	# Hide the other warning at all times
-	other_sprite.visible = false
+	# Stance changed while warning was showing — reset completely
+	if block_warning_phase != BlockWarningPhase.NONE and is_crouching != block_warning_is_crouching:
+		_reset_block_warning()
 
-	# If the stance changed (crouch ↔ stand), reset the warning completely
-	if should_show and block_warning_phase != BlockWarningPhase.NONE:
-		# Check if the currently visible sprite is the wrong one for this stance
-		if is_crouching and mid_block_warning.visible:
-			mid_block_warning.visible = false
-			block_warning_phase = BlockWarningPhase.NONE
-		elif not is_crouching and low_block_warning.visible:
-			low_block_warning.visible = false
-			block_warning_phase = BlockWarningPhase.NONE
-
-	# Not blocking and not already showing — nothing to do
+	# Not blocking and no warning active — nothing to do
 	if not should_show and block_warning_phase == BlockWarningPhase.NONE:
 		return
 
-	# Start the warning animation
+	# Determine which sprite to use
+	var warning_sprite = low_block_warning if is_crouching else mid_block_warning
+	var other_sprite = mid_block_warning if is_crouching else low_block_warning
+	other_sprite.visible = false
+
+	# Start warning
 	if should_show and block_warning_phase == BlockWarningPhase.NONE:
 		block_warning_phase = BlockWarningPhase.START
 		block_warning_frame_index = 0
 		block_warning_timer = 0.0
+		block_warning_is_crouching = is_crouching
 		warning_sprite.visible = true
 		warning_sprite.frame = BLOCK_WARNING_START_FRAMES[0]
 
-	# Continue through the animation phases
+	# Continue animation
 	elif should_show:
 		match block_warning_phase:
 			BlockWarningPhase.START:
@@ -299,9 +292,7 @@ func _update_block_warning_visuals(delta: float) -> void:
 				warning_sprite.frame = BLOCK_WARNING_START_FRAMES[BLOCK_WARNING_START_FRAMES.size() - 1]
 
 			BlockWarningPhase.END:
-				block_warning_phase = BlockWarningPhase.NONE
-				_update_block_warning_visuals(0.0)
-				return
+				_reset_block_warning()
 
 	# Stop showing — play end frame
 	elif not should_show and block_warning_phase != BlockWarningPhase.NONE:
@@ -313,10 +304,17 @@ func _update_block_warning_visuals(delta: float) -> void:
 
 		block_warning_timer += delta
 		if block_warning_timer >= BLOCK_WARNING_FRAME_DURATION:
-			warning_sprite.visible = false
-			block_warning_phase = BlockWarningPhase.NONE
+			_reset_block_warning()
 
-# ── Move resolver ────────────────────────────────────────────────
+
+func _reset_block_warning() -> void:
+	mid_block_warning.visible = false
+	low_block_warning.visible = false
+	block_warning_phase = BlockWarningPhase.NONE
+	block_warning_is_crouching = false
+
+
+# ── Move resolver (with fallback to neutral for direction‑specific slots) ─
 func _resolve_move(type: String) -> MoveData:
 	var dict = normal_moves if type == "normal" else special_moves
 	var key = ""
@@ -335,7 +333,13 @@ func _resolve_move(type: String) -> MoveData:
 			key = "forward"
 		else:
 			key = "back"
-	return dict.get(key, null)
+
+	var move = dict.get(key, null)
+	# Fallback: if the direction‑specific slot is empty, use the neutral move instead.
+	# This prevents holding back from silently eating attack inputs when no command normal is assigned.
+	if move == null and key != "neutral" and is_on_floor():
+		move = dict.get("neutral", null)
+	return move
 
 
 # ── Attack state ─────────────────────────────────────────────────
@@ -351,23 +355,23 @@ func _start_attack(move: MoveData) -> void:
 	gatling_buffer_timer = 0
 	pushback_velocity_x = 0.0
 
-	# Hide locomotion sprites and block warnings
+	# Exit any crouch / landing state so visuals and mechanics stay consistent
+	crouch_phase = CrouchPhase.NONE
+	wants_to_crouch = false
+	is_landing = false
+
 	idle_sprite.visible = false
 	walk_backward_sprite.visible = false
 	walk_forward_sprite.visible = false
 	jump_sprite.visible = false
 	crouch_sprite.visible = false
-	mid_block_warning.visible = false
-	low_block_warning.visible = false
-	block_warning_phase = BlockWarningPhase.NONE
+	_reset_block_warning()
 
-	# Hide all attack sprites
 	n5_sprite.visible = false
 	n52_sprite.visible = false
 	s5_sprite.visible = false
 	na_sprite.visible = false
 
-	# Show the correct attack sprite
 	match move.move_name:
 		"N5":
 			n5_sprite.visible = true
@@ -388,21 +392,18 @@ func _start_attack(move: MoveData) -> void:
 func _attack_process(delta: float) -> void:
 	var move_velocity := velocity
 
-	# Slow fall during aerial attacks
 	if not is_on_floor() and current_move:
 		move_velocity.y *= 0.85
 		move_velocity.y += GRAVITY * delta * 0.6
 	else:
 		move_velocity.y = 0.0
 
-	# Advancing move with burst then fade
 	if current_move and current_move.is_advancing and pushback_velocity_x == 0.0:
 		if attack_frame == 1:
 			move_velocity.x = current_move.advance_speed
 		else:
 			move_velocity.x = move_velocity.x * 0.85
 
-	# Pushback overrides advancing
 	if pushback_velocity_x != 0.0:
 		move_velocity.x = pushback_velocity_x
 		pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, PUSHBACK_DECELERATION * delta)
@@ -461,7 +462,6 @@ func _end_attack() -> void:
 	gatling_buffer_timer = 0
 	pushback_velocity_x = 0.0
 
-	# Hide all attack sprites
 	n5_sprite.visible = false
 	n52_sprite.visible = false
 	s5_sprite.visible = false
@@ -474,7 +474,6 @@ func _end_attack() -> void:
 	frame_timer = 0.0
 	animation_finished = false
 
-	# Restore correct sprite based on current state
 	if is_on_floor():
 		_update_grounded_animation()
 	else:
@@ -516,7 +515,6 @@ func _hitstun_process(delta: float) -> void:
 	stun_timer -= delta
 	if stun_timer <= 0.0:
 		state = State.NEUTRAL
-		_restore_from_stun()
 
 
 func _blockstun_process(delta: float) -> void:
@@ -525,16 +523,6 @@ func _blockstun_process(delta: float) -> void:
 	stun_timer -= delta
 	if stun_timer <= 0.0:
 		state = State.NEUTRAL
-		_restore_from_stun()
-
-
-func _restore_from_stun() -> void:
-	# Re‑enable locomotion sprites and reset block warning if needed
-	if is_on_floor():
-		_update_grounded_animation()
-	else:
-		_update_jump_animation()
-	# Block warning will be handled by next _neutral_process
 
 
 # ── Knockdown state ──────────────────────────────────────────────
@@ -545,10 +533,13 @@ func _knockdown_process(delta: float) -> void:
 
 # ── Taking a hit ─────────────────────────────────────────────────
 func take_hit(move_data: MoveData, attacker) -> bool:
+	# Reset any crouch state so we don't carry it into stun
+	crouch_phase = CrouchPhase.NONE
+	wants_to_crouch = false
+
 	var block_ready = _is_block_ready()
 	if block_ready:
 		state = State.BLOCKSTUN
-		# blockstun = recovery + block_advantage (frames)
 		var stun_frames = move_data.recovery + move_data.block_advantage
 		if stun_frames < 0:
 			stun_frames = 0

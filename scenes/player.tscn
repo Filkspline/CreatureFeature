@@ -2,7 +2,11 @@
 
 [ext_resource type="Script" uid="uid://b1q73d0u8j2hl" path="res://scripts/testplayer1.gd" id="1_g2els"]
 [ext_resource type="Texture2D" uid="uid://2uogjwdmwmjk" path="res://assets/idle.png" id="2_qlg0r"]
+[ext_resource type="Resource" uid="uid://cn5move000001" path="res://scripts/N5.tres" id="2_smehm"]
+[ext_resource type="Resource" uid="uid://c8rk12jj8pgm1" path="res://scripts/N52.tres" id="3_d2wvv"]
 [ext_resource type="Texture2D" uid="uid://b7lw5ylgyk7pn" path="res://assets/backwalkt.png" id="3_tuyoq"]
+[ext_resource type="Resource" uid="uid://clikuihe6gu1i" path="res://scripts/S5.tres" id="4_3v2ag"]
+[ext_resource type="Resource" uid="uid://dvt1xmle7oulb" path="res://scripts/NA.tres" id="4_f1ej7"]
 [ext_resource type="Texture2D" uid="uid://dcwskapvo58m" path="res://assets/fowardwalkt.png" id="4_fjrip"]
 [ext_resource type="Texture2D" uid="uid://dpeavktcslus8" path="res://assets/crouch.png" id="6_tuyoq"]
 [ext_resource type="Texture2D" uid="uid://p0xaqqctbsqi" path="res://assets/N5.png" id="7_fjrip"]
@@ -428,6 +432,11 @@ size = Vector2(92, 90)
 
 [node name="Player" type="CharacterBody2D" unique_id=786033213]
 script = ExtResource("1_g2els")
+N5 = ExtResource("2_smehm")
+N52 = ExtResource("3_d2wvv")
+N6 = ExtResource("3_d2wvv")
+NA = ExtResource("4_f1ej7")
+S5 = ExtResource("4_3v2ag")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1285333219]
 position = Vector2(3, -97.75)
