@@ -432,6 +432,7 @@ size = Vector2(92, 90)
 script = ExtResource("1_g2els")
 N5 = ExtResource("2_smehm")
 N52 = ExtResource("3_d2wvv")
+N6 = ExtResource("3_d2wvv")
 NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
 
