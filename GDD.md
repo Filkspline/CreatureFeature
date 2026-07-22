@@ -17,7 +17,7 @@
 
 ## 1.1 Hook
 
-For people who like the *idea* of fighting games but get discouraged getting outplayed by better players, **The Creature's Features** is a local-multiplayer 2D fighting game where losing makes you stronger. Two goofy, smiling creatures fight best-of-five. Every round you lose, you pick **two** things: a **Creature** (a permanent stat upgrade, move speed, health, gravity, etc., named after the creature type it evokes) and a **Feature** (either unlocking a new special move input, or upgrading a special move you've already unlocked). No motion inputs, no combos to memorize. By the last round, an 0-2 underdog is a heavily customized "boss" and the fight has become something neither player planned.
+For people who like the *idea* of fighting games but get discouraged getting outplayed by better players, **The Creature's Features** is a local-multiplayer 2D fighting game where losing makes you stronger. Two goofy, smiling creatures fight best-of-five. Every round you lose, you pick **two** things: a **Creature** (a permanent stat upgrade, move speed, health, gravity, etc., named after the creature type it evokes) and a **Feature** (either unlocking a new special move input, or upgrading a special move you've already unlocked). No motion inputs, no combos to memorize. 
 
 ## 1.2 Design pillars
 

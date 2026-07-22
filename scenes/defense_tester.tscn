@@ -3,12 +3,35 @@
 [ext_resource type="Script" uid="uid://jmbc8netnwuy" path="res://scripts/DefenseTester.gd" id="1_tester"]
 [ext_resource type="Texture2D" uid="uid://2uogjwdmwmjk" path="res://assets/idle.png" id="2_3k5bf"]
 
+[sub_resource type="Gradient" id="Gradient_3k5bf"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.6025641)
+colors = PackedColorArray(0.24840015, 0.24840018, 0.24840015, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sa65p"]
+gradient = SubResource("Gradient_3k5bf")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(63, 160)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
+size = Vector2(111, 105.5)
+
 [node name="DefenseTester" type="CharacterBody2D" unique_id=1927824239 groups=["players"]]
 script = ExtResource("1_tester")
-always_block = true
+can_jump = false
+attack_chance = 0.8
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=384881438]
+modulate = Color(1, 1, 1, 0.4509804)
+offset_left = -68.0
+offset_top = -24.0
+offset_right = 80.0
+offset_bottom = 12.0
+texture = SubResource("GradientTexture2D_sa65p")
+expand_mode = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1322149552]
 position = Vector2(0, -80)
@@ -25,3 +48,10 @@ hframes = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1968565811]
 position = Vector2(8.5, -80)
 shape = SubResource("RectangleShape2D_body")
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=1965830932]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=741837025]
+position = Vector2(-50.5, -75.75)
+shape = SubResource("RectangleShape2D_g4v7s")
+debug_color = Color(0.94618505, 0.13649032, 0.478485, 0.41960785)

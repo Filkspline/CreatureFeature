@@ -16,9 +16,22 @@
 [ext_resource type="Texture2D" uid="uid://e41b8qb1bkm0" path="res://assets/NA.png" id="13_jej6c"]
 [ext_resource type="Texture2D" uid="uid://bg3bam4iw4yln" path="res://assets/MidBlockWarning.png" id="15_a8ls1"]
 [ext_resource type="Texture2D" uid="uid://dl6cf0733hdm" path="res://assets/LowBlockWarning.png" id="16_qfm1y"]
+[ext_resource type="Texture2D" uid="uid://bjwujbmk5k2i7" path="res://assets/StandingBlockIdle.png" id="17_4r5pv"]
+[ext_resource type="Texture2D" uid="uid://b6aw4u0e2ot4i" path="res://assets/CrouchBlockIdle.png" id="18_60mlk"]
+[ext_resource type="Texture2D" uid="uid://do7t4a6aj3ryv" path="res://assets/BlockEffect.png" id="19_i4ail"]
+
+[sub_resource type="Gradient" id="Gradient_4r5pv"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.6025641)
+colors = PackedColorArray(0.24840015, 0.24840018, 0.24840015, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_57qmd"]
+gradient = SubResource("Gradient_4r5pv")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(89, 194.5)
+size = Vector2(102.5, 194.5)
 
 [sub_resource type="Animation" id="Animation_smehm"]
 resource_name = "N5"
@@ -83,6 +96,18 @@ tracks/4/keys = {
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [Vector2(79.5, 70), Vector2(135.75, 48), Vector2(101.75, 48)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hitbox/CollisionShape2D:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(78, -117.5)]
 }
 
 [sub_resource type="Animation" id="Animation_y4r1p"]
@@ -149,6 +174,18 @@ tracks/4/keys = {
 "update": 1,
 "values": [0, 1, 2, 3]
 }
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hitbox/CollisionShape2D:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(78, -117.5)]
+}
 
 [sub_resource type="Animation" id="Animation_f1ej7"]
 resource_name = "NA"
@@ -213,6 +250,18 @@ tracks/4/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(134, 97)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hitbox/CollisionShape2D:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.10000001),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(45, -51)]
 }
 
 [sub_resource type="Animation" id="Animation_a38lo"]
@@ -325,6 +374,30 @@ tracks/8/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Hitbox/CollisionShape2D:position")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(78, -117.5)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Jump:frame")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
 [sub_resource type="Animation" id="Animation_d2wvv"]
 resource_name = "S5"
@@ -390,6 +463,18 @@ tracks/4/keys = {
 "update": 1,
 "values": [Vector2(92, 90)]
 }
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hitbox/CollisionShape2D:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(78, -117.5)]
+}
 
 [sub_resource type="Animation" id="Animation_4ni07"]
 resource_name = "jump"
@@ -407,8 +492,39 @@ tracks/0/keys = {
 "values": [Vector2(115, 162), Vector2(115, 52), Vector2(115, 162)]
 }
 
+[sub_resource type="Animation" id="Animation_4r5pv"]
+resource_name = "jump_peak"
+length = 0.15
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Jump:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [2, 3, 4]
+}
+
 [sub_resource type="Animation" id="Animation_ur7pv"]
 resource_name = "jump_rise"
+length = 0.06666667
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Jump:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.033333335),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_l71n6"]
 _data = {
@@ -418,6 +534,7 @@ _data = {
 &"RESET": SubResource("Animation_a38lo"),
 &"S5": SubResource("Animation_d2wvv"),
 &"jump": SubResource("Animation_4ni07"),
+&"jump_peak": SubResource("Animation_4r5pv"),
 &"jump_rise": SubResource("Animation_ur7pv")
 }
 
@@ -430,7 +547,7 @@ size = Vector2(79.5, 70)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_57qmd"]
 size = Vector2(92, 90)
 
-[node name="Player" type="CharacterBody2D" unique_id=786033213]
+[node name="Player" type="CharacterBody2D" unique_id=786033213 groups=["players"]]
 script = ExtResource("1_g2els")
 N5 = ExtResource("2_smehm")
 N52 = ExtResource("3_d2wvv")
@@ -438,8 +555,17 @@ N6 = ExtResource("3_d2wvv")
 NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
 
+[node name="TextureRect" type="TextureRect" parent="." unique_id=342766280]
+modulate = Color(1, 1, 1, 0.48235294)
+offset_left = -74.0
+offset_top = -14.0
+offset_right = 74.0
+offset_bottom = 22.0
+texture = SubResource("GradientTexture2D_57qmd")
+expand_mode = 1
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1285333219]
-position = Vector2(3, -97.75)
+position = Vector2(-0.25, -97.75)
 shape = SubResource("RectangleShape2D_g4v7s")
 debug_color = Color(0.26929268, 0.6220697, 0.34595335, 0.41960785)
 
@@ -449,56 +575,92 @@ texture = ExtResource("2_qlg0r")
 hframes = 2
 
 [node name="WalkBackward" type="Sprite2D" parent="." unique_id=238224075]
+visible = false
 position = Vector2(7, -83)
 texture = ExtResource("3_tuyoq")
 hframes = 10
 
 [node name="WalkFoward" type="Sprite2D" parent="." unique_id=1193558726]
+visible = false
 position = Vector2(-2, -87)
 texture = ExtResource("4_fjrip")
 hframes = 10
 
 [node name="Jump" type="Sprite2D" parent="." unique_id=1642846395]
-position = Vector2(-1.5000015, -77.47058)
+visible = false
+position = Vector2(-1.5, -71.931)
 scale = Vector2(0.745, 0.835)
 texture = ExtResource("8_3v2ag")
 hframes = 8
-frame = 4
 
 [node name="Crouch" type="Sprite2D" parent="." unique_id=1722677170]
+visible = false
 position = Vector2(1, -85)
 scale = Vector2(0.885, 1)
 texture = ExtResource("6_tuyoq")
 hframes = 6
 
 [node name="N5" type="Sprite2D" parent="." unique_id=33740490]
+visible = false
 position = Vector2(0, -84)
 texture = ExtResource("7_fjrip")
 hframes = 4
 
 [node name="N52" type="Sprite2D" parent="." unique_id=828199933]
+visible = false
 position = Vector2(-1, -84)
 texture = ExtResource("9_ur7pv")
 hframes = 4
 
 [node name="S5" type="Sprite2D" parent="." unique_id=801907664]
+visible = false
 position = Vector2(0, -84)
 texture = ExtResource("10_y4r1p")
 hframes = 9
 
 [node name="NA" type="Sprite2D" parent="." unique_id=1426456731]
+visible = false
 position = Vector2(1, -53)
 texture = ExtResource("13_jej6c")
 hframes = 8
 
 [node name="MidBlockWarning" type="Sprite2D" parent="." unique_id=1345917801]
+visible = false
+modulate = Color(18.892157, 18.892157, 18.892157, 1)
 position = Vector2(0, -95)
 texture = ExtResource("15_a8ls1")
 hframes = 3
 
 [node name="LowBlockWarning" type="Sprite2D" parent="." unique_id=273525979]
+visible = false
 position = Vector2(-1, -95)
 texture = ExtResource("16_qfm1y")
+hframes = 3
+
+[node name="BlockIdle" type="Sprite2D" parent="." unique_id=243597257]
+visible = false
+position = Vector2(-1, -84)
+texture = ExtResource("17_4r5pv")
+hframes = 2
+
+[node name="CrouchBlockIdle" type="Sprite2D" parent="." unique_id=1693265720]
+visible = false
+position = Vector2(-1, -84)
+texture = ExtResource("18_60mlk")
+hframes = 2
+
+[node name="BlockEffect" type="Sprite2D" parent="." unique_id=2052634037]
+visible = false
+z_index = 2
+position = Vector2(0, -87)
+texture = ExtResource("19_i4ail")
+hframes = 3
+
+[node name="CrouchBlockEffect" type="Sprite2D" parent="." unique_id=1130608840]
+visible = false
+z_index = 2
+position = Vector2(20, -6)
+texture = ExtResource("19_i4ail")
 hframes = 3
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]

@@ -20,10 +20,14 @@ const CROUCH_TRANSITION_DURATION: float = 0.08
 const CROUCH_LOOP_DURATION: float = 0.15
 const CROUCH_STAND_DURATION: float = 0.08
 const BLOCK_WARNING_FRAME_DURATION: float = 0.04
+const BLOCK_IDLE_FRAME_DURATION: float = 0.15
+const BLOCK_EFFECT_FRAME_DURATION: float = 0.08
 
 # ── Sprite frame counts ────────────────────────────────────────
 const IDLE_FRAME_COUNT: int = 2
 const WALK_FRAME_COUNT: int = 10
+const BLOCK_IDLE_FRAME_COUNT: int = 2
+const BLOCK_EFFECT_FRAME_COUNT: int = 3
 
 # ── Walk starting frames ──────────────────────────────────────
 const WALK_FORWARD_START_FRAME: int = 6
@@ -45,7 +49,7 @@ const BLOCK_WARNING_START_FRAMES: PackedInt32Array = [0, 1]
 const BLOCK_WARNING_END_FRAME: int = 2
 
 # ── Hurtbox vertical shrink ─────────────────────────────────────
-const HURTBOX_VERTICAL_REDUCTION: float = 100.0
+const HURTBOX_VERTICAL_REDUCTION: float = 50.0
 
 # ── Gatling buffer window ──────────────────────────────────────
 const GATLING_BUFFER_FRAMES: int = 16
@@ -102,8 +106,19 @@ var gatling_buffer_timer: int = 0
 # Pushback state (active during attack)
 var pushback_velocity_x: float = 0.0
 
+# ── Aerial attack tracking ──────────────────────────────────────
+var has_used_aerial: bool = false
+
 # ── Stun timers ──────────────────────────────────────────────────
 var stun_timer: float = 0.0
+
+# ── Block state tracking ────────────────────────────────────────
+var is_blocking_low: bool = false
+var block_effect_playing: bool = false
+var block_effect_timer: float = 0.0
+var block_effect_frame: int = 0
+var block_idle_frame_timer: float = 0.0
+var block_idle_frame_index: int = 0
 
 # ── Block warning state ────────────────────────────────────────
 var block_warning_phase: int = BlockWarningPhase.NONE
@@ -123,6 +138,10 @@ var block_warning_is_crouching: bool = false
 @onready var na_sprite: Sprite2D = $NA
 @onready var mid_block_warning: Sprite2D = $MidBlockWarning
 @onready var low_block_warning: Sprite2D = $LowBlockWarning
+@onready var block_idle_sprite: Sprite2D = $BlockIdle
+@onready var crouch_block_idle_sprite: Sprite2D = $CrouchBlockIdle
+@onready var block_effect_sprite: Sprite2D = $BlockEffect
+@onready var crouch_block_effect_sprite: Sprite2D = $CrouchBlockEffect
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
 # Hurtbox shape will be duplicated at runtime so we can resize it safely.
@@ -157,6 +176,10 @@ func _ready() -> void:
 	na_sprite.visible = false
 	mid_block_warning.visible = false
 	low_block_warning.visible = false
+	block_idle_sprite.visible = false
+	crouch_block_idle_sprite.visible = false
+	block_effect_sprite.visible = false
+	crouch_block_effect_sprite.visible = false
 
 	_build_move_lookup()
 
@@ -217,13 +240,14 @@ func _neutral_process(delta: float) -> void:
 	_handle_horizontal_movement(delta)
 	move_and_slide()
 	var just_landed := is_on_floor() and not was_on_floor
+	
+	if just_landed:
+		has_used_aerial = false
+	
 	_update_animation(delta, just_landed)
 	_update_hurtbox()
-
-	# Always update block‑ready visuals
 	_update_block_warning_visuals(delta)
 
-	# Allow attacks even during crouch transitions and landing
 	if Input.is_action_just_pressed("NormalP1"):
 		var move = _resolve_move("normal")
 		if move:
@@ -235,7 +259,6 @@ func _neutral_process(delta: float) -> void:
 			_start_attack(move)
 
 
-# ── Block‑ready check ────────────────────────────────────────────
 func _is_block_ready() -> bool:
 	if not is_on_floor():
 		return false
@@ -247,25 +270,20 @@ func _is_block_ready() -> bool:
 	return true
 
 
-# ── Block warning visuals ───────────────────────────────────────
 func _update_block_warning_visuals(delta: float) -> void:
 	var should_show = _is_block_ready()
 	var is_crouching = crouch_phase != CrouchPhase.NONE
 
-	# Stance changed while warning was showing — reset completely
 	if block_warning_phase != BlockWarningPhase.NONE and is_crouching != block_warning_is_crouching:
 		_reset_block_warning()
 
-	# Not blocking and no warning active — nothing to do
 	if not should_show and block_warning_phase == BlockWarningPhase.NONE:
 		return
 
-	# Determine which sprite to use
 	var warning_sprite = low_block_warning if is_crouching else mid_block_warning
 	var other_sprite = mid_block_warning if is_crouching else low_block_warning
 	other_sprite.visible = false
 
-	# Start warning
 	if should_show and block_warning_phase == BlockWarningPhase.NONE:
 		block_warning_phase = BlockWarningPhase.START
 		block_warning_frame_index = 0
@@ -274,7 +292,6 @@ func _update_block_warning_visuals(delta: float) -> void:
 		warning_sprite.visible = true
 		warning_sprite.frame = BLOCK_WARNING_START_FRAMES[0]
 
-	# Continue animation
 	elif should_show:
 		match block_warning_phase:
 			BlockWarningPhase.START:
@@ -294,7 +311,6 @@ func _update_block_warning_visuals(delta: float) -> void:
 			BlockWarningPhase.END:
 				_reset_block_warning()
 
-	# Stop showing — play end frame
 	elif not should_show and block_warning_phase != BlockWarningPhase.NONE:
 		if block_warning_phase != BlockWarningPhase.END:
 			block_warning_phase = BlockWarningPhase.END
@@ -314,13 +330,15 @@ func _reset_block_warning() -> void:
 	block_warning_is_crouching = false
 
 
-# ── Move resolver (with fallback to neutral for direction‑specific slots) ─
 func _resolve_move(type: String) -> MoveData:
 	var dict = normal_moves if type == "normal" else special_moves
 	var key = ""
 	if not is_on_floor():
+		if has_used_aerial:
+			return null
 		var aerial_move = dict.get("aerial", null)
 		if aerial_move:
+			has_used_aerial = true
 			return aerial_move
 		key = "jumping"
 	elif crouch_phase == CrouchPhase.LOOP:
@@ -333,16 +351,13 @@ func _resolve_move(type: String) -> MoveData:
 			key = "forward"
 		else:
 			key = "back"
-
+	
 	var move = dict.get(key, null)
-	# Fallback: if the direction‑specific slot is empty, use the neutral move instead.
-	# This prevents holding back from silently eating attack inputs when no command normal is assigned.
-	if move == null and key != "neutral" and is_on_floor():
+	if move == null and key != "neutral" and key != "crouching" and key != "jumping":
 		move = dict.get("neutral", null)
 	return move
 
 
-# ── Attack state ─────────────────────────────────────────────────
 func _start_attack(move: MoveData) -> void:
 	if not move:
 		return
@@ -353,24 +368,16 @@ func _start_attack(move: MoveData) -> void:
 	hit_connected = false
 	gatling_input_buffered = ""
 	gatling_buffer_timer = 0
-	pushback_velocity_x = 0.0
+	
+	if is_on_floor():
+		pushback_velocity_x = 0.0
 
-	# Exit any crouch / landing state so visuals and mechanics stay consistent
 	crouch_phase = CrouchPhase.NONE
 	wants_to_crouch = false
 	is_landing = false
 
-	idle_sprite.visible = false
-	walk_backward_sprite.visible = false
-	walk_forward_sprite.visible = false
-	jump_sprite.visible = false
-	crouch_sprite.visible = false
+	_hide_all_sprites()
 	_reset_block_warning()
-
-	n5_sprite.visible = false
-	n52_sprite.visible = false
-	s5_sprite.visible = false
-	na_sprite.visible = false
 
 	match move.move_name:
 		"N5":
@@ -455,17 +462,18 @@ func _try_gatling() -> void:
 
 
 func _end_attack() -> void:
+	var was_airborne := not is_on_floor()
+	
 	state = State.NEUTRAL
 	attack_frame = 0
 	current_move = null
 	gatling_input_buffered = ""
 	gatling_buffer_timer = 0
-	pushback_velocity_x = 0.0
+	
+	if was_airborne:
+		air_horizontal_velocity = velocity.x
 
-	n5_sprite.visible = false
-	n52_sprite.visible = false
-	s5_sprite.visible = false
-	na_sprite.visible = false
+	_hide_attack_sprites()
 
 	current_animation_name = ""
 	current_sprite = null
@@ -506,48 +514,123 @@ func _apply_pushback() -> void:
 	var dir_to_opponent = opponent.global_position.x - global_position.x
 	var pushback_dir = -1.0 if dir_to_opponent > 0 else 1.0
 	pushback_velocity_x = pushback_dir * current_move.pushback_on_block
+	
+	if not is_on_floor():
+		air_horizontal_velocity = pushback_velocity_x
 
 
-# ── Hitstun state ────────────────────────────────────────────────
 func _hitstun_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
 	stun_timer -= delta
 	if stun_timer <= 0.0:
 		state = State.NEUTRAL
+		_update_grounded_animation()
 
 
 func _blockstun_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
+	
+	_update_block_idle(delta)
+	
+	if block_effect_playing:
+		_update_block_effect(delta)
+	
 	stun_timer -= delta
 	if stun_timer <= 0.0:
 		state = State.NEUTRAL
+		block_effect_playing = false
+		block_effect_sprite.visible = false
+		crouch_block_effect_sprite.visible = false
+		block_idle_sprite.visible = false
+		crouch_block_idle_sprite.visible = false
+		_update_grounded_animation()
 
 
-# ── Knockdown state ──────────────────────────────────────────────
+func _update_block_idle(delta: float) -> void:
+	_hide_all_sprites()
+	
+	if is_blocking_low:
+		crouch_block_idle_sprite.visible = true
+		block_idle_frame_timer += delta
+		if block_idle_frame_timer >= BLOCK_IDLE_FRAME_DURATION:
+			block_idle_frame_timer = 0.0
+			block_idle_frame_index = (block_idle_frame_index + 1) % BLOCK_IDLE_FRAME_COUNT
+			crouch_block_idle_sprite.frame = block_idle_frame_index
+	else:
+		block_idle_sprite.visible = true
+		block_idle_frame_timer += delta
+		if block_idle_frame_timer >= BLOCK_IDLE_FRAME_DURATION:
+			block_idle_frame_timer = 0.0
+			block_idle_frame_index = (block_idle_frame_index + 1) % BLOCK_IDLE_FRAME_COUNT
+			block_idle_sprite.frame = block_idle_frame_index
+
+
+func _update_block_effect(delta: float) -> void:
+	block_effect_timer += delta
+	if block_effect_timer >= BLOCK_EFFECT_FRAME_DURATION:
+		block_effect_timer = 0.0
+		block_effect_frame += 1
+		if block_effect_frame >= BLOCK_EFFECT_FRAME_COUNT:
+			block_effect_playing = false
+			block_effect_sprite.visible = false
+			crouch_block_effect_sprite.visible = false
+		else:
+			if is_blocking_low:
+				crouch_block_effect_sprite.frame = block_effect_frame
+			else:
+				block_effect_sprite.frame = block_effect_frame
+
+
 func _knockdown_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
 
 
-# ── Taking a hit ─────────────────────────────────────────────────
 func take_hit(move_data: MoveData, attacker) -> bool:
-	# Reset any crouch state so we don't carry it into stun
+	# Capture crouch state BEFORE resetting
+	var was_crouching = (crouch_phase != CrouchPhase.NONE)
+	
 	crouch_phase = CrouchPhase.NONE
 	wants_to_crouch = false
 
 	var block_ready = _is_block_ready()
 	if block_ready:
 		state = State.BLOCKSTUN
+		is_blocking_low = was_crouching
 		var stun_frames = move_data.recovery + move_data.block_advantage
 		if stun_frames < 0:
 			stun_frames = 0
 		stun_timer = stun_frames / 60.0
+		
+		# Debug print to check values
+		print("Player blocked! stun_frames: ", stun_frames, " stun_timer: ", stun_timer)
+		
+		block_idle_frame_timer = 0.0
+		block_idle_frame_index = 0
+		
+		block_effect_playing = true
+		block_effect_timer = 0.0
+		block_effect_frame = 0
+		
+		_hide_all_sprites()
+		if is_blocking_low:
+			crouch_block_idle_sprite.visible = true
+			crouch_block_idle_sprite.frame = 0
+			crouch_block_effect_sprite.visible = true
+			crouch_block_effect_sprite.frame = 0
+		else:
+			block_idle_sprite.visible = true
+			block_idle_sprite.frame = 0
+			block_effect_sprite.visible = true
+			block_effect_sprite.frame = 0
+		
 		return true
 	else:
 		state = State.HITSTUN
 		stun_timer = move_data.hitstun / 60.0
+		print("Player hit! hitstun frames: ", move_data.hitstun, " stun_timer: ", stun_timer)
 		return false
 
 
@@ -591,6 +674,9 @@ func _start_crouch_stand_up() -> void:
 # ── Horizontal movement ─────────────────────────────────────────
 func _handle_horizontal_movement(delta: float) -> void:
 	if not is_on_floor():
+		if pushback_velocity_x != 0.0:
+			pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, PUSHBACK_DECELERATION * delta)
+			air_horizontal_velocity = pushback_velocity_x
 		velocity.x = air_horizontal_velocity
 		return
 	if crouch_phase != CrouchPhase.NONE:
@@ -598,6 +684,11 @@ func _handle_horizontal_movement(delta: float) -> void:
 		return
 	if is_landing:
 		velocity.x = _get_horizontal_input() * _current_walk_speed()
+		return
+
+	if pushback_velocity_x != 0.0:
+		pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, PUSHBACK_DECELERATION * delta)
+		velocity.x = pushback_velocity_x
 		return
 
 	var raw_direction := _get_raw_direction()
@@ -716,7 +807,23 @@ func _handle_crouch_phase_transitions() -> void:
 				crouch_phase = CrouchPhase.NONE
 
 
-# ── Generic frame player ─────────────────────────────────────────
+func _hide_all_sprites() -> void:
+	idle_sprite.visible = false
+	walk_backward_sprite.visible = false
+	walk_forward_sprite.visible = false
+	jump_sprite.visible = false
+	crouch_sprite.visible = false
+	_hide_attack_sprites()
+	block_idle_sprite.visible = false
+	crouch_block_idle_sprite.visible = false
+
+func _hide_attack_sprites() -> void:
+	n5_sprite.visible = false
+	n52_sprite.visible = false
+	s5_sprite.visible = false
+	na_sprite.visible = false
+
+
 func _make_sequential_frames(count: int, start_frame: int = 0) -> PackedInt32Array:
 	var frames := PackedInt32Array()
 	for i in range(count):
@@ -750,6 +857,8 @@ func _show_only(sprite: Sprite2D) -> void:
 	walk_forward_sprite.visible = sprite == walk_forward_sprite
 	jump_sprite.visible = sprite == jump_sprite
 	crouch_sprite.visible = sprite == crouch_sprite
+	block_idle_sprite.visible = false
+	crouch_block_idle_sprite.visible = false
 
 func _step_current_frame(delta: float) -> void:
 	if current_frame_indices.is_empty():
@@ -771,7 +880,6 @@ func _apply_current_frame() -> void:
 	current_sprite.frame = current_frame_indices[frame_index]
 
 
-# ── Hurtbox reshaping ────────────────────────────────────────────
 func _update_hurtbox() -> void:
 	var new_size := base_hurtbox_size
 	var new_pos := base_hurtbox_position
