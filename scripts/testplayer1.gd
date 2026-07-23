@@ -281,7 +281,13 @@ func _update_block_warning_visuals(delta: float) -> void:
 	var should_show = _is_block_ready()
 	var is_crouching = crouch_phase != CrouchPhase.NONE
 
+	print("[BLOCK WARN] should_show=%s is_crouching=%s phase=%s bw_is_crouching=%s mid.vis=%s low.vis=%s" % [
+		should_show, is_crouching, BlockWarningPhase.keys()[block_warning_phase],
+		block_warning_is_crouching, mid_block_warning.visible, low_block_warning.visible
+	])
+
 	if block_warning_phase != BlockWarningPhase.NONE and is_crouching != block_warning_is_crouching:
+		print("[BLOCK WARN] crouch state changed mid-warning (was crouching=%s, now=%s) -> reset" % [block_warning_is_crouching, is_crouching])
 		_reset_block_warning()
 
 	if not should_show and block_warning_phase == BlockWarningPhase.NONE:
@@ -298,8 +304,17 @@ func _update_block_warning_visuals(delta: float) -> void:
 		block_warning_is_crouching = is_crouching
 		warning_sprite.visible = true
 		warning_sprite.frame = BLOCK_WARNING_START_FRAMES[0]
+		print("[BLOCK WARN] START new warning (crouching=%s)" % is_crouching)
 
 	elif should_show:
+		# BUGFIX: _play_anim() calls _hide_all_sprites() on every animation switch
+		# elsewhere in the script (e.g. crouch_idle kicking in via the
+		# animation_finished signal), which force-hides this sprite without us
+		# knowing. Re-assert visibility every frame we should be showing, instead
+		# of relying on it having been set once during START.
+		if not warning_sprite.visible:
+			print("[BLOCK WARN] warning_sprite was hidden externally (likely by _hide_all_sprites) -> forcing visible again")
+		warning_sprite.visible = true
 		match block_warning_phase:
 			BlockWarningPhase.START:
 				block_warning_timer += delta
@@ -309,6 +324,7 @@ func _update_block_warning_visuals(delta: float) -> void:
 					if block_warning_frame_index >= BLOCK_WARNING_START_FRAMES.size():
 						block_warning_phase = BlockWarningPhase.HOLD
 						warning_sprite.frame = BLOCK_WARNING_START_FRAMES[BLOCK_WARNING_START_FRAMES.size() - 1]
+						print("[BLOCK WARN] START -> HOLD")
 					else:
 						warning_sprite.frame = BLOCK_WARNING_START_FRAMES[block_warning_frame_index]
 
@@ -316,6 +332,7 @@ func _update_block_warning_visuals(delta: float) -> void:
 				warning_sprite.frame = BLOCK_WARNING_START_FRAMES[BLOCK_WARNING_START_FRAMES.size() - 1]
 
 			BlockWarningPhase.END:
+				print("[BLOCK WARN] should_show became true again while still in END -> reset")
 				_reset_block_warning()
 
 	elif not should_show and block_warning_phase != BlockWarningPhase.NONE:
@@ -324,11 +341,12 @@ func _update_block_warning_visuals(delta: float) -> void:
 			block_warning_timer = 0.0
 			warning_sprite.frame = BLOCK_WARNING_END_FRAME
 			warning_sprite.visible = true
+			print("[BLOCK WARN] HOLD -> END")
 
 		block_warning_timer += delta
 		if block_warning_timer >= BLOCK_WARNING_FRAME_DURATION:
+			print("[BLOCK WARN] END finished -> reset")
 			_reset_block_warning()
-
 
 func _reset_block_warning() -> void:
 	mid_block_warning.visible = false
@@ -473,6 +491,7 @@ func _try_gatling() -> void:
 
 func _end_attack() -> void:
 	var was_airborne := not is_on_floor()
+	print("[END ATTACK] current_anim was '%s' | was_airborne=%s velocity.y=%.1f" % [current_anim, was_airborne, velocity.y])
 
 	state = State.NEUTRAL
 	attack_frame = 0
@@ -716,12 +735,27 @@ func _update_animation(just_landed: bool = false) -> void:
 			JumpPhase.FALL:
 				# Hold the last frame of jump_peak
 				if current_anim != "jump_peak":
-					_play_anim("jump_peak", jump_sprite)
+					# BUGFIX: this used to just _play_anim("jump_peak", jump_sprite),
+					# which plays the WHOLE peak animation from frame 0 again. That's
+					# correct if we're freshly entering fall from rise/peak, but wrong
+					# if current_anim is something else because an attack (e.g. an
+					# aerial NA) just ended mid-fall via _end_attack() — in that case
+					# current_anim is still the attack's name, not "jump_peak", so we'd
+					# wrongly replay the full peak animation instead of snapping
+					# straight to the held last (falling) frame.
+					print("[JUMP FALL] entering FALL from '%s' (not jump_peak) -> snapping straight to held last frame" % current_anim)
+					_play_anim("jump_peak", jump_sprite, true)
+					var anim2 = animation_player.get_animation("jump_peak")
+					animation_player.seek(anim2.length - 0.001, true)
+					animation_player.pause()
+					print("[JUMP FALL] snapped to frame=%d" % jump_sprite.frame)
 				elif animation_player.is_playing():
 					# jump_peak is still playing (just entered fall), seek to end
+					print("[JUMP FALL] jump_peak mid-playback, skipping ahead to held last frame")
 					var anim = animation_player.get_animation("jump_peak")
 					animation_player.seek(anim.length - 0.001, true)
 					animation_player.pause()
+					print("[JUMP FALL] snapped to frame=%d" % jump_sprite.frame)
 				# else: already paused on last frame, do nothing
 	else:
 		if is_landing:
