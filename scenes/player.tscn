@@ -19,13 +19,13 @@
 [ext_resource type="Texture2D" uid="uid://bjwujbmk5k2i7" path="res://assets/StandingBlockIdle.png" id="17_4r5pv"]
 [ext_resource type="Texture2D" uid="uid://b6aw4u0e2ot4i" path="res://assets/CrouchBlockIdle.png" id="18_60mlk"]
 
-[sub_resource type="Gradient" id="Gradient_4r5pv"]
+[sub_resource type="Gradient" id="Gradient_fulsm"]
 interpolation_mode = 1
 offsets = PackedFloat32Array(0, 0.6025641)
 colors = PackedColorArray(0.24840015, 0.24840018, 0.24840015, 1, 1, 1, 1, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_57qmd"]
-gradient = SubResource("Gradient_4r5pv")
+gradient = SubResource("Gradient_fulsm")
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 
@@ -188,7 +188,7 @@ tracks/5/keys = {
 
 [sub_resource type="Animation" id="Animation_f1ej7"]
 resource_name = "NA"
-length = 0.36666667
+length = 0.43333334
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -197,7 +197,7 @@ tracks/0/path = NodePath("NA:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.033333335, 0.06666667, 0.1, 0.15, 0.21666667, 0.28333333, 0.33333334),
+"times": PackedFloat32Array(0, 0.040000003, 0.080000006, 0.120000005, 0.18, 0.26000002, 0.34, 0.40000004),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3, 4, 5, 6, 7]
@@ -209,7 +209,7 @@ tracks/1/path = NodePath("Hitbox/CollisionShape2D:disabled")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.10000001, 0.28333336),
+"times": PackedFloat32Array(0, 0.12000001, 0.34000003),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
@@ -221,7 +221,7 @@ tracks/2/path = NodePath("Hitbox/CollisionShape2D:shape:size")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.10000001, 0.15, 0.21666668),
+"times": PackedFloat32Array(0, 0.12000001, 0.18, 0.26000002),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [Vector2(92, 90), Vector2(136, 135), Vector2(162, 148), Vector2(91, 94)]
@@ -233,7 +233,7 @@ tracks/3/path = NodePath("Hurtbox/SubHurtbox:disabled")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.10000001, 0.21666668),
+"times": PackedFloat32Array(0, 0.12000001, 0.26000002),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
@@ -245,7 +245,7 @@ tracks/4/path = NodePath("Hurtbox/SubHurtbox:shape:size")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0.10000001),
+"times": PackedFloat32Array(0.12000001),
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(134, 97)]
@@ -257,7 +257,7 @@ tracks/5/path = NodePath("Hitbox/CollisionShape2D:position")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0.10000001),
+"times": PackedFloat32Array(0.12000001),
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(45, -51)]
@@ -681,7 +681,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_60mlk"]
 resource_name = "jump_land"
-length = 0.1
+length = 0.26666668
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -690,7 +690,7 @@ tracks/0/path = NodePath("Jump:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.033333335, 0.06666667),
+"times": PackedFloat32Array(0, 0.083333336, 0.16666667),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [5, 6, 7]
@@ -805,6 +805,7 @@ NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
 
 [node name="Shadow" type="TextureRect" parent="." unique_id=342766280]
+visible = false
 modulate = Color(1, 1, 1, 0.48235294)
 offset_left = -74.0
 offset_top = -14.0

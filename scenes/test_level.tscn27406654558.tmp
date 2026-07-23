@@ -73,6 +73,13 @@ script = ExtResource("6_qcd3b")
 [node name="Player" parent="." unique_id=786033213 instance=ExtResource("1_2venv")]
 scale = Vector2(0.75, 0.75)
 
+[node name="ProjectileTest" type="ColorRect" parent="." unique_id=1504789431]
+offset_left = -56.0
+offset_top = 62.0
+offset_right = 61.0
+offset_bottom = 172.0
+script = ExtResource("7_88ety")
+
 [node name="ColorRect" type="ColorRect" parent="." unique_id=73426657]
 offset_right = 40.0
 offset_bottom = 40.0
@@ -91,11 +98,3 @@ offset_left = 229.0
 offset_top = 191.0
 offset_right = 269.0
 offset_bottom = 231.0
-
-[node name="ProjectileTest" type="ColorRect" parent="." unique_id=1504789431]
-offset_left = 12.0
-offset_top = 128.0
-offset_right = 61.0
-offset_bottom = 172.0
-color = Color(1, 0.21568628, 1, 1)
-script = ExtResource("7_88ety")

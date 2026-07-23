@@ -4,8 +4,8 @@ class_name Player
 # ── Movement constants ──────────────────────────────────────────
 const WALK_FORWARD_SPEED: float = 200.0
 const WALK_BACKWARD_SPEED: float = 130.0
-const JUMP_VELOCITY: float = -450.0
-const GRAVITY: float = 980.0
+const JUMP_VELOCITY: float = -550.0
+const GRAVITY: float = 1180.0
 const JUMP_APEX_THRESHOLD: float = 60.0
 
 # ── Pushback ────────────────────────────────────────────────────
