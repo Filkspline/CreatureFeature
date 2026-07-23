@@ -398,6 +398,90 @@ tracks/10/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("WalkFoward:frame")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [5]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("WalkBackward:frame")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [3]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("Crouch:frame")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Idle:frame")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("MidBlockWarning:frame")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/16/type = "value"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("BlockIdle:frame")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("CrouchBlockIdle:frame")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
 [sub_resource type="Animation" id="Animation_d2wvv"]
 resource_name = "S5"
@@ -476,6 +560,110 @@ tracks/5/keys = {
 "values": [Vector2(78, -117.5)]
 }
 
+[sub_resource type="Animation" id="Animation_dt7fs"]
+resource_name = "block_idle"
+length = 0.23333501216936856
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BlockIdle:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.116666675),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
+
+[sub_resource type="Animation" id="Animation_wqfne"]
+resource_name = "crouch_block_idle"
+length = 0.23333501216936856
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CrouchBlockIdle:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.116666675),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
+
+[sub_resource type="Animation" id="Animation_ke2ow"]
+resource_name = "crouch_down"
+length = 0.13333334
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Crouch:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
+
+[sub_resource type="Animation" id="Animation_ujl30"]
+resource_name = "crouch_idle"
+length = 0.26666668
+loop_mode = 1
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Crouch:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.13333334),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_31cv2"]
+resource_name = "crouch_up"
+length = 0.13333500695396214
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Crouch:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [4, 5]
+}
+
+[sub_resource type="Animation" id="Animation_pf23h"]
+resource_name = "idle"
+length = 0.23333501216936856
+loop_mode = 1
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Idle:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.116666675),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
+
 [sub_resource type="Animation" id="Animation_4ni07"]
 resource_name = "jump"
 step = 0.016666668
@@ -490,6 +678,23 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [Vector2(115, 162), Vector2(115, 52), Vector2(115, 162)]
+}
+
+[sub_resource type="Animation" id="Animation_60mlk"]
+resource_name = "jump_land"
+length = 0.1
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Jump:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.033333335, 0.06666667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [5, 6, 7]
 }
 
 [sub_resource type="Animation" id="Animation_4r5pv"]
@@ -526,6 +731,42 @@ tracks/0/keys = {
 "values": [0, 1]
 }
 
+[sub_resource type="Animation" id="Animation_l71n6"]
+resource_name = "walk_backward"
+length = 0.96666664
+loop_mode = 1
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WalkBackward:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.09600001, 0.19200002, 0.28800002, 0.38400003, 0.48000002, 0.57600003, 0.67200005, 0.76800007, 0.864),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [3, 4, 5, 6, 7, 8, 9, 0, 1, 2]
+}
+
+[sub_resource type="Animation" id="Animation_i4ail"]
+resource_name = "walk_foward"
+length = 0.96666664
+loop_mode = 1
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WalkFoward:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.16666667, 0.26666668, 0.36666667, 0.4666667, 0.5666667, 0.6666667, 0.7666667, 0.86666673),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [5, 6, 7, 8, 9, 0, 1, 2, 3, 4]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_l71n6"]
 _data = {
 &"N5": SubResource("Animation_smehm"),
@@ -533,9 +774,18 @@ _data = {
 &"NA": SubResource("Animation_f1ej7"),
 &"RESET": SubResource("Animation_a38lo"),
 &"S5": SubResource("Animation_d2wvv"),
+&"block_idle": SubResource("Animation_dt7fs"),
+&"crouch_block_idle": SubResource("Animation_wqfne"),
+&"crouch_down": SubResource("Animation_ke2ow"),
+&"crouch_idle": SubResource("Animation_ujl30"),
+&"crouch_up": SubResource("Animation_31cv2"),
+&"idle": SubResource("Animation_pf23h"),
 &"jump": SubResource("Animation_4ni07"),
+&"jump_land": SubResource("Animation_60mlk"),
 &"jump_peak": SubResource("Animation_4r5pv"),
-&"jump_rise": SubResource("Animation_ur7pv")
+&"jump_rise": SubResource("Animation_ur7pv"),
+&"walk_backward": SubResource("Animation_l71n6"),
+&"walk_foward": SubResource("Animation_i4ail")
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yf5fn"]
@@ -555,7 +805,7 @@ N6 = ExtResource("3_d2wvv")
 NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
 
-[node name="TextureRect" type="TextureRect" parent="." unique_id=342766280]
+[node name="Shadow" type="TextureRect" parent="." unique_id=342766280]
 modulate = Color(1, 1, 1, 0.48235294)
 offset_left = -74.0
 offset_top = -14.0
@@ -579,12 +829,14 @@ visible = false
 position = Vector2(7, -83)
 texture = ExtResource("3_tuyoq")
 hframes = 10
+frame = 3
 
 [node name="WalkFoward" type="Sprite2D" parent="." unique_id=1193558726]
 visible = false
 position = Vector2(-2, -87)
 texture = ExtResource("4_fjrip")
 hframes = 10
+frame = 5
 
 [node name="Jump" type="Sprite2D" parent="." unique_id=1642846395]
 visible = false
@@ -625,7 +877,6 @@ texture = ExtResource("13_jej6c")
 hframes = 8
 
 [node name="MidBlockWarning" type="Sprite2D" parent="." unique_id=1345917801]
-visible = false
 modulate = Color(18.892157, 18.892157, 18.892157, 1)
 position = Vector2(0, -95)
 texture = ExtResource("15_a8ls1")
@@ -633,6 +884,7 @@ hframes = 3
 
 [node name="LowBlockWarning" type="Sprite2D" parent="." unique_id=273525979]
 visible = false
+self_modulate = Color(18.892157, 18.892157, 18.892157, 1)
 position = Vector2(-1, -95)
 texture = ExtResource("16_qfm1y")
 hframes = 3
@@ -644,7 +896,6 @@ texture = ExtResource("17_4r5pv")
 hframes = 2
 
 [node name="CrouchBlockIdle" type="Sprite2D" parent="." unique_id=1693265720]
-visible = false
 position = Vector2(-1, -84)
 texture = ExtResource("18_60mlk")
 hframes = 2
@@ -665,6 +916,8 @@ hframes = 3
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=614902659]
 
 [node name="StateMachine" type="Node" parent="." unique_id=1451762402]
 

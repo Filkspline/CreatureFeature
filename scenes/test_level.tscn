@@ -62,3 +62,9 @@ distortion = 0.002
 flicker = 0.001
 noise_amount = 0.002
 current_preset = 1
+
+[node name="ColorRect2" type="ColorRect" parent="." unique_id=1087262227]
+offset_left = 229.0
+offset_top = 191.0
+offset_right = 269.0
+offset_bottom = 231.0
