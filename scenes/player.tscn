@@ -18,7 +18,6 @@
 [ext_resource type="Texture2D" uid="uid://dl6cf0733hdm" path="res://assets/LowBlockWarning.png" id="16_qfm1y"]
 [ext_resource type="Texture2D" uid="uid://bjwujbmk5k2i7" path="res://assets/StandingBlockIdle.png" id="17_4r5pv"]
 [ext_resource type="Texture2D" uid="uid://b6aw4u0e2ot4i" path="res://assets/CrouchBlockIdle.png" id="18_60mlk"]
-[ext_resource type="Texture2D" uid="uid://do7t4a6aj3ryv" path="res://assets/BlockEffect.png" id="19_i4ail"]
 
 [sub_resource type="Gradient" id="Gradient_4r5pv"]
 interpolation_mode = 1
@@ -401,7 +400,7 @@ tracks/10/keys = {
 tracks/11/type = "value"
 tracks/11/imported = false
 tracks/11/enabled = true
-tracks/11/path = NodePath("WalkFoward:frame")
+tracks/11/path = NodePath("WalkForward:frame")
 tracks/11/interp = 1
 tracks/11/loop_wrap = true
 tracks/11/keys = {
@@ -596,7 +595,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_ke2ow"]
 resource_name = "crouch_down"
-length = 0.13333334
+length = 0.23333333
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -605,7 +604,7 @@ tracks/0/path = NodePath("Crouch:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.06666667),
+"times": PackedFloat32Array(0, 0.11666667),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [0, 1]
@@ -750,14 +749,14 @@ tracks/0/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_i4ail"]
-resource_name = "walk_foward"
+resource_name = "walk_forward"
 length = 0.96666664
 loop_mode = 1
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("WalkFoward:frame")
+tracks/0/path = NodePath("WalkForward:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -785,7 +784,7 @@ _data = {
 &"jump_peak": SubResource("Animation_4r5pv"),
 &"jump_rise": SubResource("Animation_ur7pv"),
 &"walk_backward": SubResource("Animation_l71n6"),
-&"walk_foward": SubResource("Animation_i4ail")
+&"walk_forward": SubResource("Animation_i4ail")
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yf5fn"]
@@ -825,21 +824,18 @@ texture = ExtResource("2_qlg0r")
 hframes = 2
 
 [node name="WalkBackward" type="Sprite2D" parent="." unique_id=238224075]
-visible = false
 position = Vector2(7, -83)
 texture = ExtResource("3_tuyoq")
 hframes = 10
 frame = 3
 
-[node name="WalkFoward" type="Sprite2D" parent="." unique_id=1193558726]
-visible = false
+[node name="WalkForward" type="Sprite2D" parent="." unique_id=1193558726]
 position = Vector2(-2, -87)
 texture = ExtResource("4_fjrip")
 hframes = 10
 frame = 5
 
 [node name="Jump" type="Sprite2D" parent="." unique_id=1642846395]
-visible = false
 position = Vector2(-1.5, -71.931)
 scale = Vector2(0.745, 0.835)
 texture = ExtResource("8_3v2ag")
@@ -877,6 +873,7 @@ texture = ExtResource("13_jej6c")
 hframes = 8
 
 [node name="MidBlockWarning" type="Sprite2D" parent="." unique_id=1345917801]
+visible = false
 modulate = Color(18.892157, 18.892157, 18.892157, 1)
 position = Vector2(0, -95)
 texture = ExtResource("15_a8ls1")
@@ -896,40 +893,13 @@ texture = ExtResource("17_4r5pv")
 hframes = 2
 
 [node name="CrouchBlockIdle" type="Sprite2D" parent="." unique_id=1693265720]
+visible = false
 position = Vector2(-1, -84)
 texture = ExtResource("18_60mlk")
 hframes = 2
 
-[node name="BlockEffect" type="Sprite2D" parent="." unique_id=2052634037]
-visible = false
-z_index = 2
-position = Vector2(0, -87)
-texture = ExtResource("19_i4ail")
-hframes = 3
-
-[node name="CrouchBlockEffect" type="Sprite2D" parent="." unique_id=1130608840]
-visible = false
-z_index = 2
-position = Vector2(20, -6)
-texture = ExtResource("19_i4ail")
-hframes = 3
-
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")
-
-[node name="AnimationTree" type="AnimationTree" parent="." unique_id=614902659]
-
-[node name="StateMachine" type="Node" parent="." unique_id=1451762402]
-
-[node name="Neutral" type="Node" parent="StateMachine" unique_id=92795662]
-
-[node name="Attack" type="Node" parent="StateMachine" unique_id=1494321616]
-
-[node name="Block" type="Node" parent="StateMachine" unique_id=1775216225]
-
-[node name="Hitstun" type="Node" parent="StateMachine" unique_id=1918846928]
-
-[node name="Grab" type="Node" parent="StateMachine" unique_id=1364033460]
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=797087521]
 
@@ -949,5 +919,3 @@ disabled = true
 position = Vector2(78, -117.5)
 shape = SubResource("RectangleShape2D_57qmd")
 debug_color = Color(0.8734848, 0.3135745, 0.39617598, 0.41960785)
-
-[node name="MoveDatabase" type="Node" parent="." unique_id=650387511]
