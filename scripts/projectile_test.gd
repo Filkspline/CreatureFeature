@@ -10,11 +10,11 @@ extends ColorRect
 @export var loop: bool = true
 
 @export_category("Look")
-@export var ball_core_radius: float = 0.09:
+@export var ball_core_radius: float = 0.0:
 	set(value):
 		ball_core_radius = value
 		update_shader_param("ball_core_radius", value)
-@export var ball_glow_radius: float = 0.4:
+@export var ball_glow_radius: float = 0.3:
 	set(value):
 		ball_glow_radius = value
 		update_shader_param("ball_glow_radius", value)
@@ -26,7 +26,7 @@ extends ColorRect
 	set(value):
 		tear_radius = value
 		update_shader_param("tear_radius", value)
-@export var trail_length: float = 0.4:
+@export var trail_length: float = 0.0:
 	set(value):
 		trail_length = value
 		update_shader_param("trail_length", value)

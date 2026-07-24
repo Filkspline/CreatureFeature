@@ -20,6 +20,10 @@ const GATLING_BUFFER_FRAMES: int = 16
 # ── Input buffer for direction changes ────────────────────────
 const DIRECTION_BUFFER_TIME: float = 0.1
 
+# ── Debug ────────────────────────────────────────────────────────
+# Flip this to false to silence all debug output at once.
+const DEBUG: bool = true
+
 # ── States ──────────────────────────────────────────────────────
 enum State { NEUTRAL, ATTACK, HITSTUN, BLOCKSTUN, KNOCKDOWN }
 enum JumpPhase { RISE, PEAK, FALL }
@@ -30,7 +34,8 @@ enum BlockWarningPhase { NONE, START, HOLD, END }
 # Animations that should NOT loop (will be paused on finish)
 const HOLD_ON_FINISH_ANIMS: Array[String] = [
 	"jump_rise", "jump_peak", "jump_land",
-	"crouch_down", "crouch_up"
+	"crouch_down", "crouch_up",
+	"crouch_hit", "mid_hit"
 ]
 
 # Player always faces right; LEFT input = backward, RIGHT = forward.
@@ -38,8 +43,12 @@ var facing_right: bool = true
 var state: State = State.NEUTRAL :
 	set(new_state):
 		if state != new_state:
+			_dbg("[STATE] %s -> %s" % [State.keys()[state], State.keys()[new_state]])
 			state = new_state
 			EventBus.player_state_changed.emit(state)
+
+signal landed
+signal hitstun_finished
 
 # Horizontal speed locked in at jump start, ignores input while airborne.
 var air_horizontal_velocity: float = 0.0
@@ -83,6 +92,11 @@ var has_used_aerial: bool = false
 
 # ── Stun timers ──────────────────────────────────────────────────
 var stun_timer: float = 0.0
+# True for exactly the physics frame a hit/block stun starts. Prevents the
+# stun timer from being decremented on the same frame it was set, which
+# could otherwise let very short stuns (e.g. plus-on-block normals) expire
+# before the block/hit reaction animation ever gets a frame to render.
+var stun_just_started: bool = false
 
 # ── Block state tracking ────────────────────────────────────────
 var is_blocking_low: bool = false
@@ -111,9 +125,11 @@ const BLOCK_WARNING_END_FRAME: int = 2
 @onready var low_block_warning: Sprite2D = $LowBlockWarning
 @onready var block_idle_sprite: Sprite2D = $BlockIdle
 @onready var crouch_block_idle_sprite: Sprite2D = $CrouchBlockIdle
+@onready var crouch_hit_sprite: Sprite2D = $CrouchHit
+@onready var mid_hit_sprite: Sprite2D = $MidHit
 
 # Hurtbox shape duplicated at runtime
-@onready var hurtbox_shape: RectangleShape2D = $Hurtbox/CollisionShape2D.shape
+@onready var hurtbox_shape: RectangleShape2D = $Hurtbox/MainHurtbox.shape
 var base_hurtbox_size: Vector2
 var base_hurtbox_position: Vector2
 
@@ -121,6 +137,8 @@ var base_hurtbox_position: Vector2
 var is_landing: bool = false
 var crouch_phase: int = CrouchPhase.NONE :
 	set(new_phase):
+		if crouch_phase != new_phase:
+			_dbg("[CROUCH PHASE] %s -> %s" % [CrouchPhase.keys()[crouch_phase], CrouchPhase.keys()[new_phase]])
 		crouch_phase = new_phase
 		EventBus.player_crouching = (new_phase != CrouchPhase.NONE)
 
@@ -130,11 +148,19 @@ var wants_to_crouch: bool = false
 var current_anim: String = ""
 
 
+# ── Debug helper ──────────────────────────────────────────────────
+# Central choke point for all debug logging so it can be silenced with a
+# single flag instead of being sprinkled across every frame.
+func _dbg(msg: String) -> void:
+	if DEBUG:
+		print(msg)
+
+
 func _ready() -> void:
-	$Hurtbox/CollisionShape2D.shape = hurtbox_shape.duplicate()
-	hurtbox_shape = $Hurtbox/CollisionShape2D.shape
+	$Hurtbox/MainHurtbox.shape = hurtbox_shape.duplicate()
+	hurtbox_shape = $Hurtbox/MainHurtbox.shape
 	base_hurtbox_size = hurtbox_shape.size
-	base_hurtbox_position = $Hurtbox/CollisionShape2D.position
+	base_hurtbox_position = $Hurtbox/MainHurtbox.position
 
 	# Hide attack sprites initially
 	n5_sprite.visible = false
@@ -146,6 +172,9 @@ func _ready() -> void:
 	low_block_warning.visible = false
 	block_idle_sprite.visible = false
 	crouch_block_idle_sprite.visible = false
+	# Hit-reaction sprites off
+	crouch_hit_sprite.visible = false
+	mid_hit_sprite.visible = false
 
 	_build_move_lookup()
 
@@ -153,10 +182,10 @@ func _ready() -> void:
 	for p in players:
 		if p != self:
 			opponent = p
-			print("Opponent found: ", opponent.name)
+			_dbg("[SETUP] Opponent found: %s" % opponent.name)
 			break
 	if not opponent:
-		print("No opponent found in 'players' group!")
+		push_warning("[SETUP] No opponent found in 'players' group!")
 
 	# Configure loop modes for all animations
 	for anim_name in animation_player.get_animation_list():
@@ -166,7 +195,7 @@ func _ready() -> void:
 				anim.loop_mode = Animation.LOOP_NONE
 			elif anim_name in ["block_idle", "crouch_block_idle", "crouch_idle", "idle", "walk_forward", "walk_backward"]:
 				anim.loop_mode = Animation.LOOP_LINEAR
-			print("[ANIM SETUP] '%s' -> loop_mode=%s length=%.4f" % [anim_name, anim.loop_mode, anim.length])
+			_dbg("[ANIM SETUP] '%s' -> loop_mode=%s length=%.4f" % [anim_name, anim.loop_mode, anim.length])
 		else:
 			push_warning("[ANIM SETUP] '%s' returned null Animation resource!" % anim_name)
 
@@ -240,19 +269,13 @@ func _neutral_process(delta: float) -> void:
 	if just_landed:
 		has_used_aerial = false
 		is_landing = true
+		_dbg("[LANDED] emitting landed signal")
+		landed.emit()
 		_play_anim("jump_land", jump_sprite, true)
 
 	_update_animation(just_landed)
 	_update_hurtbox()
 	_update_block_warning_visuals(delta)
-
-	if crouch_phase != CrouchPhase.NONE:
-		print("[CROUCH FRAME] phase=%s anim=%s pos=%.4f playing=%s | Crouch.frame=%d Crouch.vis=%s Idle.vis=%s WalkF.vis=%s WalkB.vis=%s" % [
-			CrouchPhase.keys()[crouch_phase], current_anim,
-			animation_player.current_animation_position, animation_player.is_playing(),
-			crouch_sprite.frame, crouch_sprite.visible,
-			idle_sprite.visible, walk_forward_sprite.visible, walk_backward_sprite.visible
-		])
 
 	if Input.is_action_just_pressed("NormalP1"):
 		var move = _resolve_move("normal")
@@ -281,13 +304,8 @@ func _update_block_warning_visuals(delta: float) -> void:
 	var should_show = _is_block_ready()
 	var is_crouching = crouch_phase != CrouchPhase.NONE
 
-	print("[BLOCK WARN] should_show=%s is_crouching=%s phase=%s bw_is_crouching=%s mid.vis=%s low.vis=%s" % [
-		should_show, is_crouching, BlockWarningPhase.keys()[block_warning_phase],
-		block_warning_is_crouching, mid_block_warning.visible, low_block_warning.visible
-	])
-
 	if block_warning_phase != BlockWarningPhase.NONE and is_crouching != block_warning_is_crouching:
-		print("[BLOCK WARN] crouch state changed mid-warning (was crouching=%s, now=%s) -> reset" % [block_warning_is_crouching, is_crouching])
+		_dbg("[BLOCK WARN] crouch state changed mid-warning (was crouching=%s, now=%s) -> reset" % [block_warning_is_crouching, is_crouching])
 		_reset_block_warning()
 
 	if not should_show and block_warning_phase == BlockWarningPhase.NONE:
@@ -304,16 +322,9 @@ func _update_block_warning_visuals(delta: float) -> void:
 		block_warning_is_crouching = is_crouching
 		warning_sprite.visible = true
 		warning_sprite.frame = BLOCK_WARNING_START_FRAMES[0]
-		print("[BLOCK WARN] START new warning (crouching=%s)" % is_crouching)
+		_dbg("[BLOCK WARN] START new warning (crouching=%s)" % is_crouching)
 
 	elif should_show:
-		# BUGFIX: _play_anim() calls _hide_all_sprites() on every animation switch
-		# elsewhere in the script (e.g. crouch_idle kicking in via the
-		# animation_finished signal), which force-hides this sprite without us
-		# knowing. Re-assert visibility every frame we should be showing, instead
-		# of relying on it having been set once during START.
-		if not warning_sprite.visible:
-			print("[BLOCK WARN] warning_sprite was hidden externally (likely by _hide_all_sprites) -> forcing visible again")
 		warning_sprite.visible = true
 		match block_warning_phase:
 			BlockWarningPhase.START:
@@ -324,7 +335,7 @@ func _update_block_warning_visuals(delta: float) -> void:
 					if block_warning_frame_index >= BLOCK_WARNING_START_FRAMES.size():
 						block_warning_phase = BlockWarningPhase.HOLD
 						warning_sprite.frame = BLOCK_WARNING_START_FRAMES[BLOCK_WARNING_START_FRAMES.size() - 1]
-						print("[BLOCK WARN] START -> HOLD")
+						_dbg("[BLOCK WARN] START -> HOLD")
 					else:
 						warning_sprite.frame = BLOCK_WARNING_START_FRAMES[block_warning_frame_index]
 
@@ -332,7 +343,7 @@ func _update_block_warning_visuals(delta: float) -> void:
 				warning_sprite.frame = BLOCK_WARNING_START_FRAMES[BLOCK_WARNING_START_FRAMES.size() - 1]
 
 			BlockWarningPhase.END:
-				print("[BLOCK WARN] should_show became true again while still in END -> reset")
+				_dbg("[BLOCK WARN] should_show became true again while still in END -> reset")
 				_reset_block_warning()
 
 	elif not should_show and block_warning_phase != BlockWarningPhase.NONE:
@@ -341,11 +352,11 @@ func _update_block_warning_visuals(delta: float) -> void:
 			block_warning_timer = 0.0
 			warning_sprite.frame = BLOCK_WARNING_END_FRAME
 			warning_sprite.visible = true
-			print("[BLOCK WARN] HOLD -> END")
+			_dbg("[BLOCK WARN] HOLD -> END")
 
 		block_warning_timer += delta
 		if block_warning_timer >= BLOCK_WARNING_FRAME_DURATION:
-			print("[BLOCK WARN] END finished -> reset")
+			_dbg("[BLOCK WARN] END finished -> reset")
 			_reset_block_warning()
 
 func _reset_block_warning() -> void:
@@ -387,6 +398,8 @@ func _resolve_move(type: String) -> MoveData:
 func _start_attack(move: MoveData) -> void:
 	if not move:
 		return
+
+	_dbg("[ATTACK] starting move '%s'" % move.move_name)
 
 	state = State.ATTACK
 	current_move = move
@@ -486,12 +499,13 @@ func _try_gatling() -> void:
 	if gatling_input_buffered == "NormalP1" and current_move.gatlings_into.size() > 0:
 		var gatling_name = current_move.gatlings_into[0]
 		if all_moves.has(gatling_name):
+			_dbg("[GATLING] buffered input confirmed -> canceling into '%s'" % gatling_name)
 			_start_attack(all_moves[gatling_name])
 
 
 func _end_attack() -> void:
 	var was_airborne := not is_on_floor()
-	print("[END ATTACK] current_anim was '%s' | was_airborne=%s velocity.y=%.1f" % [current_anim, was_airborne, velocity.y])
+	_dbg("[END ATTACK] current_anim was '%s' | was_airborne=%s velocity.y=%.1f" % [current_anim, was_airborne, velocity.y])
 
 	state = State.NEUTRAL
 	attack_frame = 0
@@ -511,7 +525,7 @@ func _check_hit() -> void:
 		return
 
 	var hitbox = $Hitbox
-	var hitbox_shape = hitbox.get_node("CollisionShape2D")
+	var hitbox_shape = hitbox.get_node("MainHitbox")
 	if hitbox_shape.disabled:
 		return
 
@@ -520,6 +534,7 @@ func _check_hit() -> void:
 		if area == opponent.get_node("Hurtbox") or area.get_parent() == opponent.get_node("Hurtbox"):
 			var was_blocked = opponent.take_hit(current_move, self)
 			hit_connected = true
+			_dbg("[HIT] '%s' connected on opponent | blocked=%s" % [current_move.move_name, was_blocked])
 			EventBus.player_hit_landed.emit(current_move.move_name, was_blocked)
 			if was_blocked:
 				_apply_pushback()
@@ -533,6 +548,7 @@ func _apply_pushback() -> void:
 	var dir_to_opponent = opponent.global_position.x - global_position.x
 	var pushback_dir = -1.0 if dir_to_opponent > 0 else 1.0
 	pushback_velocity_x = pushback_dir * current_move.pushback_on_block
+	_dbg("[PUSHBACK] applying %.1f px/s (dir=%.0f)" % [pushback_velocity_x, pushback_dir])
 
 	if not is_on_floor():
 		air_horizontal_velocity = pushback_velocity_x
@@ -542,9 +558,18 @@ func _apply_pushback() -> void:
 func _hitstun_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
-	stun_timer -= delta
+
+	# Skip the decrement on the very frame stun started — see comment on
+	# stun_just_started for why this matters.
+	if stun_just_started:
+		stun_just_started = false
+	else:
+		stun_timer -= delta
+
 	if stun_timer <= 0.0:
+		_dbg("[HITSTUN] timer expired -> emitting hitstun_finished")
 		state = State.NEUTRAL
+		hitstun_finished.emit()  # wakes freeze_until_hitstun_recovery() if crouch_hit/mid_hit is paused there
 		_update_animation(false)
 
 
@@ -559,12 +584,39 @@ func _blockstun_process(delta: float) -> void:
 		_play_anim("block_idle", block_idle_sprite)
 		EventBus.player_blocking_low = false
 
-	stun_timer -= delta
+	# Skip the decrement on the very frame stun started. Without this, a
+	# short blockstun (e.g. a plus-on-block poke) could have its timer set
+	# in take_hit() and then immediately decremented past zero in this same
+	# physics tick — because take_hit() can be called from the *attacker's*
+	# _physics_process earlier in the same frame — ending BLOCKSTUN before
+	# the block_idle/crouch_block_idle animation ever got a chance to be
+	# seen, making it look like the block reaction never played.
+	if stun_just_started:
+		stun_just_started = false
+	else:
+		stun_timer -= delta
+
 	if stun_timer <= 0.0:
+		_dbg("[BLOCKSTUN] timer expired")
 		state = State.NEUTRAL
 		block_idle_sprite.visible = false
 		crouch_block_idle_sprite.visible = false
-		_update_animation(false)
+
+		# take_hit() clears crouch_phase to NONE so the block-idle sprite can
+		# take over cleanly, but that means the player LOOKS like they never
+		# stood up. If they're still holding Down when blockstun ends, drop
+		# straight back into the crouch loop instead of letting
+		# _handle_crouch_input() treat this as a brand-new crouch press
+		# (which would play the full crouch_down "stand up then crouch
+		# again" transition even though the player was crouching the whole
+		# time).
+		if is_blocking_low and is_on_floor() and Input.is_action_pressed("DownP1"):
+			_dbg("[BLOCKSTUN] Down still held after crouch-block -> staying crouched, skipping crouch_down transition")
+			wants_to_crouch = true
+			crouch_phase = CrouchPhase.LOOP
+			_play_anim("crouch_idle", crouch_sprite, true)
+		else:
+			_update_animation(false)
 
 
 func _knockdown_process(_delta: float) -> void:
@@ -572,9 +624,25 @@ func _knockdown_process(_delta: float) -> void:
 	move_and_slide()
 
 
+# ── Minimum visible stun duration ────────────────────────────────
+# A move can be plus enough on block/hit that the calculated stun is only
+# a couple of frames — shorter than the reaction animation itself. In that
+# case BLOCKSTUN/HITSTUN would end (and _update_animation would switch back
+# to idle/walk) before the block/hit animation ever finished even one
+# playthrough, which looks like it "didn't play" even though it briefly
+# did. This floors the stun to however many frames the relevant animation
+# actually needs, so the reaction is always fully visible. Gameplay-wise
+# this only ever adds frames, never removes stun the move data specified.
+func _min_visible_stun_frames(anim_name: String) -> int:
+	if not animation_player.has_animation(anim_name):
+		return 0
+	return int(ceil(animation_player.get_animation(anim_name).length * 60.0))
+
+
 # ── When the player is hit ───────────────────────────────────────
 func take_hit(move_data: MoveData, _attacker) -> bool:
 	var was_crouching = (crouch_phase != CrouchPhase.NONE)
+	_dbg("[TAKE HIT] was_crouching=%s incoming move='%s'" % [was_crouching, move_data.move_name])
 
 	crouch_phase = CrouchPhase.NONE
 	wants_to_crouch = false
@@ -586,24 +654,68 @@ func take_hit(move_data: MoveData, _attacker) -> bool:
 		var stun_frames = move_data.recovery + move_data.block_advantage
 		if stun_frames < 0:
 			stun_frames = 0
+
+		var reaction_anim := "crouch_block_idle" if is_blocking_low else "block_idle"
+		var min_frames := _min_visible_stun_frames(reaction_anim)
+		if stun_frames < min_frames:
+			_dbg("[TAKE HIT] stun_frames=%d shorter than '%s' (%d frames) -> flooring to %d" % [stun_frames, reaction_anim, min_frames, min_frames])
+			stun_frames = min_frames
+
 		stun_timer = stun_frames / 60.0
+		stun_just_started = true
 
-		print("Player blocked! stun_frames: ", stun_frames, " stun_timer: ", stun_timer)
+		_dbg("[TAKE HIT] BLOCKED! stun_frames=%d stun_timer=%.4f is_blocking_low=%s" % [stun_frames, stun_timer, is_blocking_low])
 
-		_hide_all_sprites()
-		if is_blocking_low:
-			crouch_block_idle_sprite.visible = true
-			_play_anim("crouch_block_idle", crouch_block_idle_sprite, true)
-		else:
-			block_idle_sprite.visible = true
-			_play_anim("block_idle", block_idle_sprite, true)
+		# Deferred: take_hit() can be called from inside an Area2D
+		# area_entered signal (e.g. a signal-based hit detector), which
+		# fires while the physics engine is mid-flush of its collision
+		# queries. _play_anim() plays/stops animations that include tracks
+		# toggling hitbox/hurtbox "disabled" flags, and touching an Area2D's
+		# monitoring state during that flush throws
+		# "Can't change this state while flushing queries." Deferring
+		# pushes the actual animation/sprite work to right after the
+		# physics step finishes, which is safe.
+		call_deferred("_apply_block_reaction_visuals")
 
 		return true
 	else:
 		state = State.HITSTUN
-		stun_timer = move_data.hitstun / 60.0
-		print("Player hit! hitstun frames: ", move_data.hitstun, " stun_timer: ", stun_timer)
+		var hitstun_frames = move_data.hitstun
+
+		var reaction_anim := "crouch_hit" if was_crouching else "mid_hit"
+		var min_frames := _min_visible_stun_frames(reaction_anim)
+		if hitstun_frames < min_frames:
+			_dbg("[TAKE HIT] hitstun_frames=%d shorter than '%s' (%d frames) -> flooring to %d" % [hitstun_frames, reaction_anim, min_frames, min_frames])
+			hitstun_frames = min_frames
+
+		stun_timer = hitstun_frames / 60.0
+		stun_just_started = true
+		_dbg("[TAKE HIT] HIT (not blocked)! hitstun_frames=%d stun_timer=%.4f was_crouching=%s" % [hitstun_frames, stun_timer, was_crouching])
+
+		# See comment above — deferred for the same physics-query-flush reason.
+		call_deferred("_apply_hit_reaction_visuals", was_crouching)
+
 		return false
+
+
+func _apply_block_reaction_visuals() -> void:
+	_hide_all_sprites()
+	if is_blocking_low:
+		crouch_block_idle_sprite.visible = true
+		_play_anim("crouch_block_idle", crouch_block_idle_sprite, true)
+	else:
+		block_idle_sprite.visible = true
+		_play_anim("block_idle", block_idle_sprite, true)
+
+
+func _apply_hit_reaction_visuals(was_crouching: bool) -> void:
+	_hide_all_sprites()
+	if was_crouching:
+		crouch_hit_sprite.visible = true
+		_play_anim("crouch_hit", crouch_hit_sprite, true)
+	else:
+		mid_hit_sprite.visible = true
+		_play_anim("mid_hit", mid_hit_sprite, true)
 
 
 # ── Gravity / Jump / Crouch / Movement ───────────────────────────
@@ -621,6 +733,7 @@ func _handle_jump() -> void:
 	velocity.y = JUMP_VELOCITY
 	air_horizontal_velocity = _get_horizontal_input() * _current_walk_speed()
 	is_landing = false
+	_dbg("[JUMP] launched with air_horizontal_velocity=%.1f" % air_horizontal_velocity)
 
 
 func _handle_crouch_input() -> void:
@@ -630,27 +743,20 @@ func _handle_crouch_input() -> void:
 	if down_pressed and crouch_phase == CrouchPhase.NONE:
 		wants_to_crouch = true
 		crouch_phase = CrouchPhase.TRANSITION_DOWN
-		print("[CROUCH] DOWN pressed -> TRANSITION_DOWN, playing crouch_down")
+		_dbg("[CROUCH] DOWN pressed -> TRANSITION_DOWN, playing crouch_down")
 		_play_anim("crouch_down", crouch_sprite, true)  # force restart
 	elif not down_pressed and crouch_phase == CrouchPhase.LOOP:
 		wants_to_crouch = false
 		crouch_phase = CrouchPhase.STAND_UP
-		print("[CROUCH] DOWN released from LOOP -> STAND_UP, playing crouch_up")
+		_dbg("[CROUCH] DOWN released from LOOP -> STAND_UP, playing crouch_up")
 		_play_anim("crouch_up", crouch_sprite, true)    # force restart
 	elif not down_pressed and crouch_phase == CrouchPhase.TRANSITION_DOWN and wants_to_crouch:
-		# BUGFIX: previously nothing set wants_to_crouch=false here, so the
-		# "changed mind" cancel branch in _on_animation_finished("crouch_down")
-		# was unreachable — quick-tapping Down always fully completed the
-		# crouch_down animation before standing back up, no matter how fast
-		# you released the key. Now we flag the cancel; crouch_down still
-		# plays out (it's mid-flight and can't be safely cut), but the
-		# finished-callback will correctly route to crouch_up instead of LOOP.
 		wants_to_crouch = false
-		print("[CROUCH] DOWN released mid-TRANSITION_DOWN -> will stand up once crouch_down finishes")
+		_dbg("[CROUCH] DOWN released mid-TRANSITION_DOWN -> will stand up once crouch_down finishes")
 	elif down_pressed and crouch_phase == CrouchPhase.TRANSITION_DOWN and not wants_to_crouch:
 		# Re-pressed Down again before crouch_down even finished
 		wants_to_crouch = true
-		print("[CROUCH] DOWN re-pressed mid-TRANSITION_DOWN -> will crouch once crouch_down finishes")
+		_dbg("[CROUCH] DOWN re-pressed mid-TRANSITION_DOWN -> will crouch once crouch_down finishes")
 
 
 func _handle_horizontal_movement(delta: float) -> void:
@@ -733,30 +839,17 @@ func _update_animation(just_landed: bool = false) -> void:
 			JumpPhase.PEAK:
 				_play_anim("jump_peak", jump_sprite)
 			JumpPhase.FALL:
-				# Hold the last frame of jump_peak
 				if current_anim != "jump_peak":
-					# BUGFIX: this used to just _play_anim("jump_peak", jump_sprite),
-					# which plays the WHOLE peak animation from frame 0 again. That's
-					# correct if we're freshly entering fall from rise/peak, but wrong
-					# if current_anim is something else because an attack (e.g. an
-					# aerial NA) just ended mid-fall via _end_attack() — in that case
-					# current_anim is still the attack's name, not "jump_peak", so we'd
-					# wrongly replay the full peak animation instead of snapping
-					# straight to the held last (falling) frame.
-					print("[JUMP FALL] entering FALL from '%s' (not jump_peak) -> snapping straight to held last frame" % current_anim)
+					_dbg("[JUMP FALL] entering FALL from '%s' -> snapping to held last frame" % current_anim)
 					_play_anim("jump_peak", jump_sprite, true)
 					var anim2 = animation_player.get_animation("jump_peak")
 					animation_player.seek(anim2.length - 0.001, true)
 					animation_player.pause()
-					print("[JUMP FALL] snapped to frame=%d" % jump_sprite.frame)
 				elif animation_player.is_playing():
-					# jump_peak is still playing (just entered fall), seek to end
-					print("[JUMP FALL] jump_peak mid-playback, skipping ahead to held last frame")
+					_dbg("[JUMP FALL] jump_peak mid-playback, skipping ahead to held last frame")
 					var anim = animation_player.get_animation("jump_peak")
 					animation_player.seek(anim.length - 0.001, true)
 					animation_player.pause()
-					print("[JUMP FALL] snapped to frame=%d" % jump_sprite.frame)
-				# else: already paused on last frame, do nothing
 	else:
 		if is_landing:
 			return
@@ -781,7 +874,7 @@ func _get_jump_phase() -> JumpPhase:
 
 # ── Animation finished callback ──────────────────────────────────
 func _on_animation_finished(anim_name: String) -> void:
-	print("[ANIM FINISHED] '%s' | crouch_phase=%s wants_to_crouch=%s" % [
+	_dbg("[ANIM FINISHED] '%s' | crouch_phase=%s wants_to_crouch=%s" % [
 		anim_name, CrouchPhase.keys()[crouch_phase], wants_to_crouch
 	])
 
@@ -797,19 +890,37 @@ func _on_animation_finished(anim_name: String) -> void:
 		"crouch_down":
 			if wants_to_crouch:
 				crouch_phase = CrouchPhase.LOOP
-				print("[CROUCH] crouch_down finished, still wanted -> LOOP, playing crouch_idle")
+				_dbg("[CROUCH] crouch_down finished, still wanted -> LOOP, playing crouch_idle")
 				_play_anim("crouch_idle", crouch_sprite, true)
 			else:
 				# Changed mind mid-animation (Down was released before crouch_down finished)
 				crouch_phase = CrouchPhase.STAND_UP
-				print("[CROUCH] crouch_down finished, cancelled -> STAND_UP, playing crouch_up")
+				_dbg("[CROUCH] crouch_down finished, cancelled -> STAND_UP, playing crouch_up")
 				_play_anim("crouch_up", crouch_sprite, true)
 
 		"crouch_up":
 			crouch_phase = CrouchPhase.NONE
 			wants_to_crouch = false
-			print("[CROUCH] crouch_up finished -> NONE")
+			_dbg("[CROUCH] crouch_up finished -> NONE")
 			_update_animation(false)
+
+
+# ── Animation Event Freeze Pattern ────────────────────────────────
+func freeze_until_landing() -> void:
+	_dbg("[FREEZE] jump_peak reached its hold frame -> pausing, awaiting 'landed'")
+	animation_player.pause()
+	await landed
+	_dbg("[FREEZE] 'landed' received -> resuming jump_peak")
+	if animation_player.current_animation == "jump_peak":
+		animation_player.play()
+
+func freeze_until_hitstun_recovery() -> void:
+	_dbg("[FREEZE] hit-reaction (%s) reached its hold frame -> pausing, awaiting 'hitstun_finished'" % current_anim)
+	animation_player.pause()
+	await hitstun_finished
+	_dbg("[FREEZE] 'hitstun_finished' received -> resuming %s" % current_anim)
+	if current_anim in ["crouch_hit", "mid_hit"]:
+		animation_player.play()
 
 
 # ── Utility: play an animation and show the correct sprite ──────
@@ -827,7 +938,7 @@ func _play_anim(anim_name: String, sprite_to_show: Sprite2D = null, force_restar
 			return
 
 	var anim_res := animation_player.get_animation(anim_name)
-	print("[PLAY ANIM] '%s' (was '%s') force_restart=%s loop_mode=%s length=%.4f" % [
+	_dbg("[PLAY ANIM] '%s' (was '%s') force_restart=%s loop_mode=%s length=%.4f" % [
 		anim_name, current_anim, force_restart,
 		anim_res.loop_mode if anim_res else "N/A",
 		anim_res.length if anim_res else -1.0
@@ -847,7 +958,7 @@ func _play_anim(anim_name: String, sprite_to_show: Sprite2D = null, force_restar
 									   # shows the PREVIOUS animation's last frame for one
 									   # tick before snapping to the new one (the flicker)
 	if sprite_to_show == crouch_sprite:
-		print("[PLAY ANIM] after seek: Crouch.frame=%d" % crouch_sprite.frame)
+		_dbg("[PLAY ANIM] after seek: Crouch.frame=%d" % crouch_sprite.frame)
 
 
 func _hide_all_sprites() -> void:
@@ -861,6 +972,8 @@ func _hide_all_sprites() -> void:
 	crouch_block_idle_sprite.visible = false
 	mid_block_warning.visible = false
 	low_block_warning.visible = false
+	crouch_hit_sprite.visible = false
+	mid_hit_sprite.visible = false
 
 func _hide_attack_sprites() -> void:
 	n5_sprite.visible = false
@@ -882,4 +995,4 @@ func _update_hurtbox() -> void:
 		new_pos.y = base_hurtbox_position.y + reduction * 0.5
 
 	hurtbox_shape.size = new_size
-	$Hurtbox/CollisionShape2D.position = new_pos
+	$Hurtbox/MainHurtbox.position = new_pos

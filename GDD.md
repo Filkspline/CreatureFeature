@@ -7,7 +7,7 @@
 |**Team**|Unpitched, solo dev currently|
 |**Members & roles**|@leo (design lead, programmer) · unassigned, need: upgrade system programmer · unassigned, need: online multiplayer programmer · unassigned, need: animator|
 |**Engine / platform**|Godot 4.7 / PC (Windows)|
-|**Repo**|[link]|
+|**Miro board link**|[https://miro.com/app/board/uXjVH87XTnA=/?share_link_id=489810323431]|
 |**Doc version**|v1.1|
 |**Last updated**|2026-07-20|
 

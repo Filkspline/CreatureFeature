@@ -8,18 +8,18 @@ uniform vec2 ball_pos = vec2(0.5, 0.5);
 uniform float ball_core_radius : hint_range(0.0, 0.5) = 0.06;
 uniform float ball_glow_radius : hint_range(0.0, 0.5) = 0.3;
 
-uniform vec3 core_color : source_color = vec3(1.0, 0.95, 0.85);
-uniform vec3 rim_color : source_color = vec3(0.2, 0.9, 1.0);
-uniform vec3 trail_color : source_color = vec3(0.7, 0.15, 1.0);
+uniform vec3 core_color : source_color = vec3(0.0, 0.0, 0.0);
+uniform vec3 rim_color : source_color = vec3(0, 0, 0);
+uniform vec3 trail_color : source_color = vec3(0, 0, 0);
 
 uniform float tear_strength : hint_range(0.0, 0.1) = 0.02;
 uniform float tear_band_count : hint_range(10.0, 300.0) = 40.0;
 uniform float tear_radius : hint_range(0.02, 0.6) = 0.4;
 uniform float tear_falloff : hint_range(0.5, 20.0) = 5.0;
-uniform float flicker_speed : hint_range(1.0, 30.0) = 12.0;
+uniform float flicker_speed : hint_range(1.0, 30.0) = 18.0;
 
-uniform float chrom_strength : hint_range(0.0, 0.05) = 0.012;
-uniform float crack_amount : hint_range(0.0, 1.0) = 0.4;
+uniform float chrom_strength : hint_range(0.0, 0.05) = 0.019;
+uniform float crack_amount : hint_range(0.0, 1.0) = 0.0;
 
 uniform float trail_length : hint_range(0.0, 1.0) = 0.4;
 uniform float trail_height : hint_range(1.0, 30.0) = 4.0;
@@ -36,7 +36,7 @@ uniform float crt_brightness : hint_range(0.5, 2.0) = 1.04;
 uniform float crt_contrast : hint_range(0.5, 2.0) = 1.03;
 uniform float crt_saturation : hint_range(0.0, 2.0) = 1.04;
 uniform float crt_flicker : hint_range(0.0, 0.03) = 0.0015;
-uniform float crt_noise_amount : hint_range(0.0, 0.05) = 0.003;
+uniform float crt_noise_amount : hint_range(0.0, 0.05) = 0.03;
 
 float random(vec2 uv) {
 	return fract(sin(dot(uv.xy, vec2(12.9898, 78.233))) * 43758.5453);
