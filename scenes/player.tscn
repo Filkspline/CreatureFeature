@@ -8,6 +8,7 @@
 [ext_resource type="Resource" uid="uid://clikuihe6gu1i" path="res://scripts/S5.tres" id="4_3v2ag"]
 [ext_resource type="Resource" uid="uid://dvt1xmle7oulb" path="res://scripts/NA.tres" id="4_f1ej7"]
 [ext_resource type="Texture2D" uid="uid://dcwskapvo58m" path="res://assets/fowardwalkt.png" id="4_fjrip"]
+[ext_resource type="Resource" uid="uid://bn8afhhfe2u55" path="res://scripts/SA.tres" id="6_a38lo"]
 [ext_resource type="Texture2D" uid="uid://dpeavktcslus8" path="res://assets/crouch.png" id="6_tuyoq"]
 [ext_resource type="Texture2D" uid="uid://p0xaqqctbsqi" path="res://assets/N5.png" id="7_fjrip"]
 [ext_resource type="Texture2D" uid="uid://vtbth14ooh30" path="res://assets/jumpv2.png" id="8_3v2ag"]
@@ -20,6 +21,7 @@
 [ext_resource type="Texture2D" uid="uid://b6aw4u0e2ot4i" path="res://assets/CrouchBlockIdle.png" id="18_60mlk"]
 [ext_resource type="Texture2D" uid="uid://puao4hso5e43" path="res://assets/midhit.png" id="19_60mlk"]
 [ext_resource type="Texture2D" uid="uid://gnt8lrqdqscq" path="res://assets/crouchhit.png" id="20_i4ail"]
+[ext_resource type="Texture2D" uid="uid://88swive8pstq" path="res://assets/SA.png" id="21_i4ail"]
 
 [sub_resource type="Gradient" id="Gradient_fulsm"]
 interpolation_mode = 1
@@ -555,6 +557,18 @@ tracks/20/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/21/type = "value"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("SA:frame")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
 [sub_resource type="Animation" id="Animation_d2wvv"]
 resource_name = "S5"
@@ -633,6 +647,23 @@ tracks/5/keys = {
 "values": [Vector2(78, -117.5)]
 }
 
+[sub_resource type="Animation" id="Animation_487ah"]
+resource_name = "SA"
+length = 0.53333336
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("SA:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.15, 0.21666668, 0.3, 0.38333336, 0.4666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6]
+}
+
 [sub_resource type="Animation" id="Animation_dt7fs"]
 resource_name = "block_idle"
 length = 0.23333501216936856
@@ -669,7 +700,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_ke2ow"]
 resource_name = "crouch_down"
-length = 0.23333333
+length = 0.1
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -678,7 +709,7 @@ tracks/0/path = NodePath("Crouch:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.11666667),
+"times": PackedFloat32Array(0, 0.05),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [0, 1]
@@ -923,6 +954,7 @@ _data = {
 &"NA": SubResource("Animation_f1ej7"),
 &"RESET": SubResource("Animation_a38lo"),
 &"S5": SubResource("Animation_d2wvv"),
+&"SA": SubResource("Animation_487ah"),
 &"block_idle": SubResource("Animation_dt7fs"),
 &"crouch_block_idle": SubResource("Animation_wqfne"),
 &"crouch_down": SubResource("Animation_ke2ow"),
@@ -955,6 +987,7 @@ N52 = ExtResource("3_d2wvv")
 N6 = ExtResource("3_d2wvv")
 NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
+SA = ExtResource("6_a38lo")
 
 [node name="Shadow" type="TextureRect" parent="." unique_id=342766280]
 visible = false
@@ -991,7 +1024,6 @@ hframes = 10
 frame = 5
 
 [node name="Jump" type="Sprite2D" parent="." unique_id=1642846395]
-visible = false
 position = Vector2(-1.5, -71.931)
 scale = Vector2(0.745, 0.835)
 texture = ExtResource("8_3v2ag")
@@ -1005,7 +1037,6 @@ texture = ExtResource("6_tuyoq")
 hframes = 6
 
 [node name="N5" type="Sprite2D" parent="." unique_id=33740490]
-visible = false
 position = Vector2(0, -84)
 texture = ExtResource("7_fjrip")
 hframes = 4
@@ -1055,14 +1086,22 @@ texture = ExtResource("18_60mlk")
 hframes = 2
 
 [node name="MidHit" type="Sprite2D" parent="." unique_id=508553594]
+visible = false
 position = Vector2(0, -85)
 texture = ExtResource("19_60mlk")
 hframes = 3
 
 [node name="CrouchHit" type="Sprite2D" parent="." unique_id=1883046277]
+visible = false
 position = Vector2(-1, -86)
 texture = ExtResource("20_i4ail")
 hframes = 3
+
+[node name="SA" type="Sprite2D" parent="." unique_id=2100174608]
+visible = false
+position = Vector2(0, -56)
+texture = ExtResource("21_i4ail")
+hframes = 7
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")

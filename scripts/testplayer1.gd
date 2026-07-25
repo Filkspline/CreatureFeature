@@ -90,6 +90,16 @@ var pushback_velocity_x: float = 0.0
 # ── Aerial attack tracking ──────────────────────────────────────
 var has_used_aerial: bool = false
 
+# ── Animation bounce (squash and stretch) ────────────────────────
+const BOUNCE_SQUASH_SCALE: Vector2 = Vector2(1.2, 0.8)
+const BOUNCE_NORMAL_SCALE: Vector2 = Vector2(1.0, 1.0)
+const BOUNCE_DURATION: float = 0.15
+# Animations that should NOT bounce when they start playing.
+const BOUNCE_EXCLUDED_ANIMS: Array[String] = ["crouch_down","crouch_idle"]
+
+var active_sprite: Sprite2D = null
+var bounce_tween: Tween = null
+
 # ── Stun timers ──────────────────────────────────────────────────
 var stun_timer: float = 0.0
 # True on the frame stun starts, so the timer skips its first decrement.
@@ -118,6 +128,7 @@ const BLOCK_WARNING_END_FRAME: int = 2
 @onready var n52_sprite: Sprite2D = $N52
 @onready var s5_sprite: Sprite2D = $S5
 @onready var na_sprite: Sprite2D = $NA
+@onready var sa_sprite: Sprite2D = $SA
 @onready var mid_block_warning: Sprite2D = $MidBlockWarning
 @onready var low_block_warning: Sprite2D = $LowBlockWarning
 @onready var block_idle_sprite: Sprite2D = $BlockIdle
@@ -164,6 +175,7 @@ func _ready() -> void:
 	n52_sprite.visible = false
 	s5_sprite.visible = false
 	na_sprite.visible = false
+	sa_sprite.visible = false
 	# Blocking sprites off
 	mid_block_warning.visible = false
 	low_block_warning.visible = false
@@ -198,6 +210,7 @@ func _ready() -> void:
 
 	# Connect signal for animation finished
 	animation_player.animation_finished.connect(_on_animation_finished)
+	animation_player.animation_started.connect(_on_animation_started)
 
 	# Reset everything to default frame states
 	animation_player.play("RESET")
@@ -424,6 +437,8 @@ func _start_attack(move: MoveData) -> void:
 			s5_sprite.visible = true
 		"NA":
 			na_sprite.visible = true
+		"SA":
+			sa_sprite.visible = true
 
 	EventBus.player_attack_started.emit(move.move_name)
 
@@ -877,6 +892,22 @@ func _on_animation_finished(anim_name: String) -> void:
 			_update_animation(false)
 
 
+# ── Animation bounce ──────────────────────────────────────────────
+func _on_animation_started(anim_name: StringName) -> void:
+	if String(anim_name) in BOUNCE_EXCLUDED_ANIMS:
+		return
+	if not active_sprite:
+		return
+
+	if bounce_tween:
+		bounce_tween.kill()
+
+	active_sprite.scale = BOUNCE_SQUASH_SCALE
+	bounce_tween = create_tween()
+	bounce_tween.tween_property(active_sprite, "scale", BOUNCE_NORMAL_SCALE, BOUNCE_DURATION) \
+		.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+
 # ── Animation Event Freeze Pattern ────────────────────────────────
 func freeze_until_landing() -> void:
 	_dbg("[FREEZE] jump_peak reached its hold frame -> pausing, awaiting 'landed'")
@@ -923,6 +954,7 @@ func _play_anim(anim_name: String, sprite_to_show: Sprite2D = null, force_restar
 	# Show the correct sprite if provided
 	if sprite_to_show:
 		sprite_to_show.visible = true
+	active_sprite = sprite_to_show
 
 	current_anim = anim_name
 	animation_player.play(anim_name)
@@ -950,6 +982,8 @@ func _hide_attack_sprites() -> void:
 	n52_sprite.visible = false
 	s5_sprite.visible = false
 	na_sprite.visible = false
+	sa_sprite.visible = false
+
 
 
 func _update_hurtbox() -> void:
