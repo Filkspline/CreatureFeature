@@ -55,8 +55,8 @@ position = Vector2(551, 323)
 scale = Vector2(0.855, 0.855)
 can_idle = false
 can_crouch = false
-can_block_stand = false
 can_block_crouch = false
+can_attack = false
 
 [node name="Shadow" type="TextureRect" parent="." unique_id=1822879755]
 modulate = Color(1, 1, 1, 0.48235294)

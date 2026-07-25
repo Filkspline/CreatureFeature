@@ -17,7 +17,7 @@ fill_from = Vector2(0.5, 0.5)
 size = Vector2(63, 160)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(111, 105.5)
+size = Vector2(61.5, 103.75)
 
 [node name="DefenseTester" type="CharacterBody2D" unique_id=1927824239 groups=["players"]]
 script = ExtResource("1_tester")
@@ -52,6 +52,6 @@ shape = SubResource("RectangleShape2D_body")
 [node name="Hitbox" type="Area2D" parent="." unique_id=1965830932]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=741837025]
-position = Vector2(-94, -80)
+position = Vector2(-118.75, -80.875)
 shape = SubResource("RectangleShape2D_g4v7s")
 debug_color = Color(0.94618505, 0.13649032, 0.478485, 0.41960785)

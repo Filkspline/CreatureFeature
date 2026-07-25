@@ -92,10 +92,7 @@ var has_used_aerial: bool = false
 
 # ── Stun timers ──────────────────────────────────────────────────
 var stun_timer: float = 0.0
-# True for exactly the physics frame a hit/block stun starts. Prevents the
-# stun timer from being decremented on the same frame it was set, which
-# could otherwise let very short stuns (e.g. plus-on-block normals) expire
-# before the block/hit reaction animation ever gets a frame to render.
+# True on the frame stun starts, so the timer skips its first decrement.
 var stun_just_started: bool = false
 
 # ── Block state tracking ────────────────────────────────────────
@@ -559,8 +556,7 @@ func _hitstun_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
 
-	# Skip the decrement on the very frame stun started — see comment on
-	# stun_just_started for why this matters.
+	# Skip decrement on the frame stun started (see stun_just_started)
 	if stun_just_started:
 		stun_just_started = false
 	else:
@@ -584,13 +580,7 @@ func _blockstun_process(delta: float) -> void:
 		_play_anim("block_idle", block_idle_sprite)
 		EventBus.player_blocking_low = false
 
-	# Skip the decrement on the very frame stun started. Without this, a
-	# short blockstun (e.g. a plus-on-block poke) could have its timer set
-	# in take_hit() and then immediately decremented past zero in this same
-	# physics tick — because take_hit() can be called from the *attacker's*
-	# _physics_process earlier in the same frame — ending BLOCKSTUN before
-	# the block_idle/crouch_block_idle animation ever got a chance to be
-	# seen, making it look like the block reaction never played.
+	# Skip decrement on the frame stun started (see stun_just_started)
 	if stun_just_started:
 		stun_just_started = false
 	else:
@@ -602,14 +592,8 @@ func _blockstun_process(delta: float) -> void:
 		block_idle_sprite.visible = false
 		crouch_block_idle_sprite.visible = false
 
-		# take_hit() clears crouch_phase to NONE so the block-idle sprite can
-		# take over cleanly, but that means the player LOOKS like they never
-		# stood up. If they're still holding Down when blockstun ends, drop
-		# straight back into the crouch loop instead of letting
-		# _handle_crouch_input() treat this as a brand-new crouch press
-		# (which would play the full crouch_down "stand up then crouch
-		# again" transition even though the player was crouching the whole
-		# time).
+		# Still holding Down when blockstun ends? Go straight back into the
+		# crouch loop instead of replaying the full crouch_down transition.
 		if is_blocking_low and is_on_floor() and Input.is_action_pressed("DownP1"):
 			_dbg("[BLOCKSTUN] Down still held after crouch-block -> staying crouched, skipping crouch_down transition")
 			wants_to_crouch = true
@@ -625,14 +609,8 @@ func _knockdown_process(_delta: float) -> void:
 
 
 # ── Minimum visible stun duration ────────────────────────────────
-# A move can be plus enough on block/hit that the calculated stun is only
-# a couple of frames — shorter than the reaction animation itself. In that
-# case BLOCKSTUN/HITSTUN would end (and _update_animation would switch back
-# to idle/walk) before the block/hit animation ever finished even one
-# playthrough, which looks like it "didn't play" even though it briefly
-# did. This floors the stun to however many frames the relevant animation
-# actually needs, so the reaction is always fully visible. Gameplay-wise
-# this only ever adds frames, never removes stun the move data specified.
+# Floors stun to however long the reaction animation needs, so a very
+# plus move can't end stun before the animation gets to play at all.
 func _min_visible_stun_frames(anim_name: String) -> int:
 	if not animation_player.has_animation(anim_name):
 		return 0
@@ -666,15 +644,9 @@ func take_hit(move_data: MoveData, _attacker) -> bool:
 
 		_dbg("[TAKE HIT] BLOCKED! stun_frames=%d stun_timer=%.4f is_blocking_low=%s" % [stun_frames, stun_timer, is_blocking_low])
 
-		# Deferred: take_hit() can be called from inside an Area2D
-		# area_entered signal (e.g. a signal-based hit detector), which
-		# fires while the physics engine is mid-flush of its collision
-		# queries. _play_anim() plays/stops animations that include tracks
-		# toggling hitbox/hurtbox "disabled" flags, and touching an Area2D's
-		# monitoring state during that flush throws
-		# "Can't change this state while flushing queries." Deferring
-		# pushes the actual animation/sprite work to right after the
-		# physics step finishes, which is safe.
+		# Deferred because take_hit() can fire mid physics-query-flush, and
+		# _play_anim() touches hitbox/hurtbox monitoring state, which Godot
+		# doesn't allow until the flush is done.
 		call_deferred("_apply_block_reaction_visuals")
 
 		return true
@@ -692,7 +664,7 @@ func take_hit(move_data: MoveData, _attacker) -> bool:
 		stun_just_started = true
 		_dbg("[TAKE HIT] HIT (not blocked)! hitstun_frames=%d stun_timer=%.4f was_crouching=%s" % [hitstun_frames, stun_timer, was_crouching])
 
-		# See comment above — deferred for the same physics-query-flush reason.
+		# Same deferred-call reason as above.
 		call_deferred("_apply_hit_reaction_visuals", was_crouching)
 
 		return false
@@ -954,9 +926,7 @@ func _play_anim(anim_name: String, sprite_to_show: Sprite2D = null, force_restar
 
 	current_anim = anim_name
 	animation_player.play(anim_name)
-	animation_player.seek(0.0, true)  # force immediate apply — without this, the sprite
-									   # shows the PREVIOUS animation's last frame for one
-									   # tick before snapping to the new one (the flicker)
+	animation_player.seek(0.0, true)  # force immediate apply, avoids one frame of flicker
 	if sprite_to_show == crouch_sprite:
 		_dbg("[PLAY ANIM] after seek: Crouch.frame=%d" % crouch_sprite.frame)
 
