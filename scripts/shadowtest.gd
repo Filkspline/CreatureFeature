@@ -1,8 +1,7 @@
 # Shadow.gd
 extends TextureRect
 
-# Set this to whatever y-value corresponds to "on the ground" in your scene.
-# Defaults to the node's own starting y so you can just place it in the editor.
+
 @export var ground_y: float = 0.0
 
 # How far up (in pixels) counts as "fully airborne" for scale/fade purposes.

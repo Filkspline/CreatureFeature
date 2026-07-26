@@ -73,6 +73,7 @@ script = ExtResource("6_qcd3b")
 scale = Vector2(0.75, 0.75)
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=73426657]
+z_index = 4
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("3_j6w7d")
@@ -93,6 +94,7 @@ offset_right = 269.0
 offset_bottom = 231.0
 
 [node name="ProjectileTest" type="ColorRect" parent="." unique_id=1504789431]
+z_index = 6
 offset_left = 12.0
 offset_top = 128.0
 offset_right = 61.0

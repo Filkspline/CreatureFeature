@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://c1hitfxmgr01"]
+
+[ext_resource type="Script" uid="uid://dxeb4bppcb2c4" path="res://scripts/HitEffectManager.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://d1hitprtcl01" path="res://scenes/hit_particle.tscn" id="2_xiumo"]
+
+[node name="HitEffectManager" type="Node" unique_id=1335451131]
+script = ExtResource("1")
+default_hit_effect = ExtResource("2_xiumo")

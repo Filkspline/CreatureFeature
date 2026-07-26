@@ -393,6 +393,7 @@ func _check_hit() -> void:
 			hit_connected = true
 			_dbg("[HIT] '%s' connected on opponent | blocked=%s" % [current_move.move_name, was_blocked])
 			EventBus.player_hit_landed.emit(current_move.move_name, was_blocked)
+			EventBus.hit_confirmed.emit(hitbox_shape.global_position, current_move, self, opponent, was_blocked)
 			if was_blocked:
 				_apply_pushback()
 			return
