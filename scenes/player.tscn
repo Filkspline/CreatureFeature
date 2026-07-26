@@ -22,6 +22,7 @@
 [ext_resource type="Texture2D" uid="uid://puao4hso5e43" path="res://assets/midhit.png" id="19_60mlk"]
 [ext_resource type="Texture2D" uid="uid://gnt8lrqdqscq" path="res://assets/crouchhit.png" id="20_i4ail"]
 [ext_resource type="Texture2D" uid="uid://88swive8pstq" path="res://assets/SA.png" id="21_i4ail"]
+[ext_resource type="Script" uid="uid://dqthlu7xsfxsy" path="res://scripts/PlayerVisuals.gd" id="30_visuals"]
 
 [sub_resource type="Gradient" id="Gradient_fulsm"]
 interpolation_mode = 1
@@ -43,7 +44,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("N5:frame")
+tracks/0/path = NodePath("Sprites/N5:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -180,7 +181,7 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("N52:frame")
+tracks/4/path = NodePath("Sprites/N52:frame")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -221,7 +222,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("NA:frame")
+tracks/0/path = NodePath("Sprites/NA:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -320,7 +321,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("N5:frame")
+tracks/1/path = NodePath("Sprites/N5:frame")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -380,7 +381,7 @@ tracks/5/keys = {
 tracks/6/type = "value"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("N52:frame")
+tracks/6/path = NodePath("Sprites/N52:frame")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
@@ -392,7 +393,7 @@ tracks/6/keys = {
 tracks/7/type = "value"
 tracks/7/imported = false
 tracks/7/enabled = true
-tracks/7/path = NodePath("S5:frame")
+tracks/7/path = NodePath("Sprites/S5:frame")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
@@ -404,7 +405,7 @@ tracks/7/keys = {
 tracks/8/type = "value"
 tracks/8/imported = false
 tracks/8/enabled = true
-tracks/8/path = NodePath("NA:frame")
+tracks/8/path = NodePath("Sprites/NA:frame")
 tracks/8/interp = 1
 tracks/8/loop_wrap = true
 tracks/8/keys = {
@@ -428,7 +429,7 @@ tracks/9/keys = {
 tracks/10/type = "value"
 tracks/10/imported = false
 tracks/10/enabled = true
-tracks/10/path = NodePath("Jump:frame")
+tracks/10/path = NodePath("Sprites/Jump:frame")
 tracks/10/interp = 1
 tracks/10/loop_wrap = true
 tracks/10/keys = {
@@ -440,7 +441,7 @@ tracks/10/keys = {
 tracks/11/type = "value"
 tracks/11/imported = false
 tracks/11/enabled = true
-tracks/11/path = NodePath("WalkForward:frame")
+tracks/11/path = NodePath("Sprites/WalkForward:frame")
 tracks/11/interp = 1
 tracks/11/loop_wrap = true
 tracks/11/keys = {
@@ -452,7 +453,7 @@ tracks/11/keys = {
 tracks/12/type = "value"
 tracks/12/imported = false
 tracks/12/enabled = true
-tracks/12/path = NodePath("WalkBackward:frame")
+tracks/12/path = NodePath("Sprites/WalkBackward:frame")
 tracks/12/interp = 1
 tracks/12/loop_wrap = true
 tracks/12/keys = {
@@ -464,7 +465,7 @@ tracks/12/keys = {
 tracks/13/type = "value"
 tracks/13/imported = false
 tracks/13/enabled = true
-tracks/13/path = NodePath("Crouch:frame")
+tracks/13/path = NodePath("Sprites/Crouch:frame")
 tracks/13/interp = 1
 tracks/13/loop_wrap = true
 tracks/13/keys = {
@@ -476,7 +477,7 @@ tracks/13/keys = {
 tracks/14/type = "value"
 tracks/14/imported = false
 tracks/14/enabled = true
-tracks/14/path = NodePath("Idle:frame")
+tracks/14/path = NodePath("Sprites/Idle:frame")
 tracks/14/interp = 1
 tracks/14/loop_wrap = true
 tracks/14/keys = {
@@ -488,7 +489,7 @@ tracks/14/keys = {
 tracks/15/type = "value"
 tracks/15/imported = false
 tracks/15/enabled = true
-tracks/15/path = NodePath("MidBlockWarning:frame")
+tracks/15/path = NodePath("Sprites/MidBlockWarning:frame")
 tracks/15/interp = 1
 tracks/15/loop_wrap = true
 tracks/15/keys = {
@@ -500,7 +501,7 @@ tracks/15/keys = {
 tracks/16/type = "value"
 tracks/16/imported = false
 tracks/16/enabled = true
-tracks/16/path = NodePath("BlockIdle:frame")
+tracks/16/path = NodePath("Sprites/BlockIdle:frame")
 tracks/16/interp = 1
 tracks/16/loop_wrap = true
 tracks/16/keys = {
@@ -512,7 +513,7 @@ tracks/16/keys = {
 tracks/17/type = "value"
 tracks/17/imported = false
 tracks/17/enabled = true
-tracks/17/path = NodePath("CrouchBlockIdle:frame")
+tracks/17/path = NodePath("Sprites/CrouchBlockIdle:frame")
 tracks/17/interp = 1
 tracks/17/loop_wrap = true
 tracks/17/keys = {
@@ -536,7 +537,7 @@ tracks/18/keys = {
 tracks/19/type = "value"
 tracks/19/imported = false
 tracks/19/enabled = true
-tracks/19/path = NodePath("MidHit:frame")
+tracks/19/path = NodePath("Sprites/MidHit:frame")
 tracks/19/interp = 1
 tracks/19/loop_wrap = true
 tracks/19/keys = {
@@ -548,7 +549,7 @@ tracks/19/keys = {
 tracks/20/type = "value"
 tracks/20/imported = false
 tracks/20/enabled = true
-tracks/20/path = NodePath("CrouchHit:frame")
+tracks/20/path = NodePath("Sprites/CrouchHit:frame")
 tracks/20/interp = 1
 tracks/20/loop_wrap = true
 tracks/20/keys = {
@@ -560,7 +561,7 @@ tracks/20/keys = {
 tracks/21/type = "value"
 tracks/21/imported = false
 tracks/21/enabled = true
-tracks/21/path = NodePath("SA:frame")
+tracks/21/path = NodePath("Sprites/SA:frame")
 tracks/21/interp = 1
 tracks/21/loop_wrap = true
 tracks/21/keys = {
@@ -577,7 +578,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("S5:frame")
+tracks/0/path = NodePath("Sprites/S5:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -654,7 +655,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("SA:frame")
+tracks/0/path = NodePath("Sprites/SA:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -671,7 +672,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("BlockIdle:frame")
+tracks/0/path = NodePath("Sprites/BlockIdle:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -688,7 +689,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("CrouchBlockIdle:frame")
+tracks/0/path = NodePath("Sprites/CrouchBlockIdle:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -705,7 +706,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Crouch:frame")
+tracks/0/path = NodePath("Sprites/Crouch:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -722,7 +723,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("CrouchHit:frame")
+tracks/0/path = NodePath("Sprites/CrouchHit:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -754,7 +755,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Crouch:frame")
+tracks/0/path = NodePath("Sprites/Crouch:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -771,7 +772,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Crouch:frame")
+tracks/0/path = NodePath("Sprites/Crouch:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -789,7 +790,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Idle:frame")
+tracks/0/path = NodePath("Sprites/Idle:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -822,7 +823,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Jump:frame")
+tracks/0/path = NodePath("Sprites/Jump:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -839,7 +840,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Jump:frame")
+tracks/0/path = NodePath("Sprites/Jump:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -870,7 +871,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Jump:frame")
+tracks/0/path = NodePath("Sprites/Jump:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -887,7 +888,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("MidHit:frame")
+tracks/0/path = NodePath("Sprites/MidHit:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -919,7 +920,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("WalkBackward:frame")
+tracks/0/path = NodePath("Sprites/WalkBackward:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -937,7 +938,7 @@ step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("WalkForward:frame")
+tracks/0/path = NodePath("Sprites/WalkForward:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -1004,100 +1005,103 @@ position = Vector2(-0.25, -97.75)
 shape = SubResource("RectangleShape2D_g4v7s")
 debug_color = Color(0.26929268, 0.6220697, 0.34595335, 0.41960785)
 
-[node name="Idle" type="Sprite2D" parent="." unique_id=1433543744]
+[node name="Sprites" type="Node2D" parent="." unique_id=999888777]
+script = ExtResource("30_visuals")
+
+[node name="Idle" type="Sprite2D" parent="Sprites" unique_id=1433543744]
 position = Vector2(0, -84)
 texture = ExtResource("2_qlg0r")
 hframes = 2
 
-[node name="WalkBackward" type="Sprite2D" parent="." unique_id=238224075]
+[node name="WalkBackward" type="Sprite2D" parent="Sprites" unique_id=238224075]
 visible = false
 position = Vector2(7, -83)
 texture = ExtResource("3_tuyoq")
 hframes = 10
 frame = 3
 
-[node name="WalkForward" type="Sprite2D" parent="." unique_id=1193558726]
+[node name="WalkForward" type="Sprite2D" parent="Sprites" unique_id=1193558726]
 visible = false
 position = Vector2(-2, -87)
 texture = ExtResource("4_fjrip")
 hframes = 10
 frame = 5
 
-[node name="Jump" type="Sprite2D" parent="." unique_id=1642846395]
+[node name="Jump" type="Sprite2D" parent="Sprites" unique_id=1642846395]
 position = Vector2(-1.5, -71.931)
 scale = Vector2(0.745, 0.835)
 texture = ExtResource("8_3v2ag")
 hframes = 8
 
-[node name="Crouch" type="Sprite2D" parent="." unique_id=1722677170]
+[node name="Crouch" type="Sprite2D" parent="Sprites" unique_id=1722677170]
 visible = false
 position = Vector2(1, -85)
 scale = Vector2(0.885, 1)
 texture = ExtResource("6_tuyoq")
 hframes = 6
 
-[node name="N5" type="Sprite2D" parent="." unique_id=33740490]
+[node name="N5" type="Sprite2D" parent="Sprites" unique_id=33740490]
 position = Vector2(0, -84)
 texture = ExtResource("7_fjrip")
 hframes = 4
 
-[node name="N52" type="Sprite2D" parent="." unique_id=828199933]
+[node name="N52" type="Sprite2D" parent="Sprites" unique_id=828199933]
 visible = false
 position = Vector2(-1, -84)
 texture = ExtResource("9_ur7pv")
 hframes = 4
 
-[node name="S5" type="Sprite2D" parent="." unique_id=801907664]
+[node name="S5" type="Sprite2D" parent="Sprites" unique_id=801907664]
 visible = false
 position = Vector2(0, -84)
 texture = ExtResource("10_y4r1p")
 hframes = 9
 
-[node name="NA" type="Sprite2D" parent="." unique_id=1426456731]
+[node name="NA" type="Sprite2D" parent="Sprites" unique_id=1426456731]
 visible = false
 position = Vector2(1, -53)
 texture = ExtResource("13_jej6c")
 hframes = 8
 
-[node name="MidBlockWarning" type="Sprite2D" parent="." unique_id=1345917801]
+[node name="MidBlockWarning" type="Sprite2D" parent="Sprites" unique_id=1345917801]
 visible = false
 modulate = Color(18.892157, 18.892157, 18.892157, 1)
 position = Vector2(0, -95)
 texture = ExtResource("15_a8ls1")
 hframes = 3
 
-[node name="LowBlockWarning" type="Sprite2D" parent="." unique_id=273525979]
+[node name="LowBlockWarning" type="Sprite2D" parent="Sprites" unique_id=273525979]
 visible = false
 self_modulate = Color(18.892157, 18.892157, 18.892157, 1)
 position = Vector2(-1, -95)
 texture = ExtResource("16_qfm1y")
 hframes = 3
 
-[node name="BlockIdle" type="Sprite2D" parent="." unique_id=243597257]
+[node name="BlockIdle" type="Sprite2D" parent="Sprites" unique_id=243597257]
 visible = false
 position = Vector2(-1, -84)
 texture = ExtResource("17_4r5pv")
 hframes = 2
 
-[node name="CrouchBlockIdle" type="Sprite2D" parent="." unique_id=1693265720]
+[node name="CrouchBlockIdle" type="Sprite2D" parent="Sprites" unique_id=1693265720]
 visible = false
 position = Vector2(-1, -84)
 texture = ExtResource("18_60mlk")
 hframes = 2
 
-[node name="MidHit" type="Sprite2D" parent="." unique_id=508553594]
+[node name="MidHit" type="Sprite2D" parent="Sprites" unique_id=508553594]
 visible = false
 position = Vector2(0, -85)
 texture = ExtResource("19_60mlk")
 hframes = 3
 
-[node name="CrouchHit" type="Sprite2D" parent="." unique_id=1883046277]
+[node name="CrouchHit" type="Sprite2D" parent="Sprites" unique_id=1883046277]
 visible = false
 position = Vector2(-1, -86)
 texture = ExtResource("20_i4ail")
 hframes = 3
 
-[node name="SA" type="Sprite2D" parent="." unique_id=2100174608]
+[node name="SA" type="Sprite2D" parent="Sprites" unique_id=2100174608]
 visible = false
 position = Vector2(0, -56)
 texture = ExtResource("21_i4ail")
