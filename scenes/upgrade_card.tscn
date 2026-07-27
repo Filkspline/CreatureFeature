@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://b3bhqw8t6cad"]
+
+[ext_resource type="Texture2D" uid="uid://c8ojo8uo6yhcx" path="res://assets/card_assets/temp_card.png" id="1_62kwj"]
+[ext_resource type="Script" uid="uid://jhexjuiasdka" path="res://scripts/upgrade_card.gd" id="1_ew4bf"]
+
+[node name="UpgradeCard" type="Node2D" unique_id=1225995245]
+script = ExtResource("1_ew4bf")
+
+[node name="Control" type="Control" parent="." unique_id=1645003108]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(0.12, 0.12)
+
+[node name="TextureRect" type="TextureRect" parent="Control" unique_id=1066505189]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -375.0
+offset_top = -525.0
+offset_right = 375.0
+offset_bottom = 525.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_62kwj")
+
+[connection signal="mouse_entered" from="Control/TextureRect" to="." method="_on_texture_rect_mouse_entered"]
+[connection signal="mouse_exited" from="Control/TextureRect" to="." method="_on_texture_rect_mouse_exited"]
