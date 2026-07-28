@@ -1,24 +1,22 @@
 extends Node2D
 
-@export var distance : int = 20
+@onready var selection_icon = $Control/selection_icon
+@onready var parent_node = self.get_parent()
 
-# Called when the node enters the scene tree for the first time.
+
 func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	
-	pass
-
-
+	selection_icon.hide()
 
 func _on_texture_rect_mouse_entered() -> void:
-	self.position.y -= 20
-	pass
-
+	selection_icon.show()
+	
 
 func _on_texture_rect_mouse_exited() -> void:
-	self.position.y += 20
-	pass
+	selection_icon.hide()
+ 
+
+func _on_texture_rect_gui_input(event: InputEvent) -> void:
+	# TODO This will need to be edited to handle controller input eventually
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			parent_node._handle_clicked_card(self)

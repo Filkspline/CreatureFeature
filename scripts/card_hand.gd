@@ -2,23 +2,44 @@ extends Node2D
 
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 
-var hand = self
-
-var tween_matrix : Array[Array] # Continue this tomorrow, matrix of tweens etc
-
-@export var hand_limit : int = 5
-@export var hand_width : float = 150.0
+@export var hand_limit : int
+@export var hand_width : float = 200 # Measured in pixels 200 is good for 5 cards
 @export var spread_curve: Curve
 @export var height_curve: Curve
 @export var rotation_curve: Curve
 
-func draw_hand() -> void:
+var card_default_z_index : int = hand_limit
+var hand = self
+var current_z_index : int
+var card_default_transform : Transform2D
+var card_default_rotation : float
+var defaults_set : bool
+
+##------------------------------------------------------------------------
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	_draw_hand()
+
+
+func _draw_hand() -> void:
+	current_z_index = card_default_z_index
 	for _x in hand_limit:
 		var upgarde_card = UPGRADE_CARD.instantiate()
+		if defaults_set != true:
+			card_default_transform = upgarde_card.transform
+			card_default_rotation = upgarde_card.rotation
+			defaults_set = true
+		
 		add_child(upgarde_card)
-	spread_cards()
+		upgarde_card.z_index = current_z_index
+		current_z_index -= 1
+	
+	await get_tree().create_timer(0.5).timeout
+	_spread_cards()
 
-func spread_cards() -> void:
+
+func _spread_cards() -> void:
 	for card in hand.get_children():
 		var hand_ratio = float(card.get_index())/float(self.get_child_count()-1)
 		var destination = hand.global_transform
@@ -28,14 +49,21 @@ func spread_cards() -> void:
 		destination.origin += height_curve.sample(hand_ratio) * (Vector2.UP * 15)
 		
 		# Sets the card locations the the assigned destinations
-		card.transform = destination
-		card.rotation = rotation_curve.sample(hand_ratio) * -0.3
+		var tween = create_tween()
+		tween.tween_property(card, "transform", destination, 0.4)
+		tween.parallel().tween_property(card, "rotation", rotation_curve.sample(hand_ratio) * -0.3, 0.4)
+		await get_tree().create_timer(0.5).timeout
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	draw_hand()
-	pass # Replace with function body.
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func _handle_clicked_card(clicked_card : Node2D):
+	for card in hand.get_children():
+		if card != clicked_card:
+			hand.remove_child(card)
+			card.queue_free()
+	
+	# Handles moving the selected card to the center of the screen,
+	# can be changed to move to a specific node down the line
+	var tween = create_tween()
+	tween.tween_property(clicked_card, "transform", card_default_transform, 0.4)
+	tween.parallel().tween_property(clicked_card, "rotation", card_default_rotation, 0.4)
+	# TODO to handle vfx if wanted or any other processes do so after the above code

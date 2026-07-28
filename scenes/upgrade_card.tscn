@@ -3,15 +3,17 @@
 [ext_resource type="Texture2D" uid="uid://c8ojo8uo6yhcx" path="res://assets/card_assets/temp_card.png" id="1_62kwj"]
 [ext_resource type="Script" uid="uid://jhexjuiasdka" path="res://scripts/upgrade_card.gd" id="1_ew4bf"]
 
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_t2dwb"]
+
 [node name="UpgradeCard" type="Node2D" unique_id=1225995245]
 script = ExtResource("1_ew4bf")
 
 [node name="Control" type="Control" parent="." unique_id=1645003108]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
 scale = Vector2(0.12, 0.12)
+size_flags_horizontal = 4
+size_flags_vertical = 6
 
 [node name="TextureRect" type="TextureRect" parent="Control" unique_id=1066505189]
 layout_mode = 1
@@ -28,5 +30,22 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("1_62kwj")
 
+[node name="selection_icon" type="TextureRect" parent="Control" unique_id=1030056475]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -90.0
+offset_top = -650.0
+offset_right = 93.33333
+offset_bottom = -466.6667
+grow_horizontal = 2
+grow_vertical = 0
+texture = SubResource("PlaceholderTexture2D_t2dwb")
+
+[connection signal="gui_input" from="Control/TextureRect" to="." method="_on_texture_rect_gui_input"]
 [connection signal="mouse_entered" from="Control/TextureRect" to="." method="_on_texture_rect_mouse_entered"]
 [connection signal="mouse_exited" from="Control/TextureRect" to="." method="_on_texture_rect_mouse_exited"]
