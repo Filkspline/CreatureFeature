@@ -56,6 +56,7 @@ enum BlockWarningPhase { NONE, START, HOLD, END }
 @onready var jump_sprite: Sprite2D = $Jump
 @onready var crouch_sprite: Sprite2D = $Crouch
 @onready var n5_sprite: Sprite2D = $N5
+@onready var n4_sprite: Sprite2D = $N4
 @onready var n52_sprite: Sprite2D = $N52
 @onready var s5_sprite: Sprite2D = $S5
 @onready var na_sprite: Sprite2D = $NA
@@ -90,6 +91,7 @@ func setup(anim_player: AnimationPlayer) -> void:
 	# Hide attack sprites initially
 	n5_sprite.visible = false
 	n52_sprite.visible = false
+	n4_sprite.visible = false
 	s5_sprite.visible = false
 	na_sprite.visible = false
 	sa_sprite.visible = false
@@ -196,6 +198,8 @@ func show_attack_sprite(move_name: String) -> void:
 	match move_name:
 		"N5":
 			n5_sprite.visible = true
+		"N4":
+			n4_sprite.visible = true
 		"N52":
 			n52_sprite.visible = true
 		"S5":
@@ -274,6 +278,7 @@ func hide_attack_sprites() -> void:
 	s5_sprite.visible = false
 	na_sprite.visible = false
 	sa_sprite.visible = false
+	n4_sprite.visible = false
 
 
 func hide_block_sprites() -> void:

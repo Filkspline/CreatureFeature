@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3 uid="uid://b6lkixus5q5rc"]
+
+[ext_resource type="Script" uid="uid://bnyng45sqmhga" path="res://scripts/MoveData.gd" id="1_0i2p6"]
+
+[resource]
+script = ExtResource("1_0i2p6")
+move_name = "N4"
+input_dir = 2
+hit_level = 1
+startup = 0
+active = 0
+recovery = 0
+damage = 5.0
+animation_name = &"N4"
+is_advancing = true
+advance_speed = -200.0

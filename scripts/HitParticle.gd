@@ -16,7 +16,7 @@ func play() -> void:
 
 func _configure_particles() -> void:
 	amount = 24
-	lifetime = 0.35
+	lifetime = 0.15
 	explosiveness = 1.0
 	randomness = 0.5
 	direction = Vector2(0, -1)
