@@ -26,6 +26,13 @@ func _ready() -> void:
 func _on_player_hit_landed(_move_name: String, was_blocked: bool) -> void:
 	if not enabled:
 		return
+	
+	# Trigger camera shake
+	if was_blocked:
+		EventBus.camera_shake.emit(1.0)
+	else:
+		EventBus.camera_shake.emit(2.0)
+	
 	var duration := hitstop_duration_blocked if was_blocked else hitstop_duration_hit
 	_apply_hitstop(duration)
 

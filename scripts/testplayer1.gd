@@ -96,7 +96,8 @@ var is_blocking_low: bool = false
 # ── AnimationPlayer / visuals ──────────────────────────────────────
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var sprites: PlayerVisuals = $Sprites
-
+# Camera grab to stop players leaving bounds
+@onready var camera: Camera2D = get_viewport().get_camera_2d()
 # Hurtbox shape duplicated at runtime
 @onready var hurtbox_shape: RectangleShape2D = $Hurtbox/MainHurtbox.shape
 var base_hurtbox_size: Vector2
@@ -200,6 +201,7 @@ func _neutral_process(delta: float) -> void:
 	_handle_crouch_input()
 	_handle_horizontal_movement(delta)
 	move_and_slide()
+	_clamp_to_camera_bounds()
 	var just_landed := is_on_floor() and not was_on_floor
 
 	if just_landed:
@@ -745,3 +747,19 @@ func _update_hurtbox() -> void:
 
 	hurtbox_shape.size = new_size
 	$Hurtbox/MainHurtbox.position = new_pos
+	
+# Making sure player cant leave camera view 
+func _clamp_to_camera_bounds():
+	if not camera:
+		return
+
+	var left_limit = camera.global_position.x - (get_viewport_rect().size.x / (2 * camera.zoom.x))
+	var right_limit = camera.global_position.x + (get_viewport_rect().size.x / (2 * camera.zoom.x))
+
+	var padding = 40.0
+
+	global_position.x = clamp(
+		global_position.x,
+		left_limit + padding,
+		right_limit - padding
+	)
