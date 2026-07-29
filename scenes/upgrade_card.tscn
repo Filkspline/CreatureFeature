@@ -48,4 +48,3 @@ texture = SubResource("PlaceholderTexture2D_t2dwb")
 
 [connection signal="gui_input" from="Control/TextureRect" to="." method="_on_texture_rect_gui_input"]
 [connection signal="mouse_entered" from="Control/TextureRect" to="." method="_on_texture_rect_mouse_entered"]
-[connection signal="mouse_exited" from="Control/TextureRect" to="." method="_on_texture_rect_mouse_exited"]

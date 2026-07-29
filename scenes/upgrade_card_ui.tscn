@@ -30,7 +30,6 @@ grow_vertical = 2
 
 [node name="hand" type="Node2D" parent="Camera2D" unique_id=1895491932]
 script = ExtResource("1_l8650")
-hand_limit = 5
 spread_curve = SubResource("Curve_l8650")
 height_curve = SubResource("Curve_ncbw7")
 rotation_curve = SubResource("Curve_vdyfn")
