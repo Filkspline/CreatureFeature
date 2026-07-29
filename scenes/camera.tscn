@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://b7v6u5m0v7s48"]
+
+[ext_resource type="Script" uid="uid://l7dfrfu6c727" path="res://scripts/DynamicCamera.gd" id="1_cvpoc"]
+
+[node name="Camera2D" type="Camera2D" unique_id=56861049]
+process_mode = 3
+zoom = Vector2(1.05, 1.05)
+limit_enabled = false
+script = ExtResource("1_cvpoc")

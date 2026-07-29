@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://ctester000001" path="res://scenes/defense_tester.tscn" id="5_tmr53"]
 [ext_resource type="Script" uid="uid://dmsxu4iefeks6" path="res://scripts/shadowtest.gd" id="6_qcd3b"]
 [ext_resource type="Script" uid="uid://ddupk7aj7bm26" path="res://scripts/projectile_test.gd" id="7_88ety"]
-[ext_resource type="Script" uid="uid://l7dfrfu6c727" path="res://scripts/DynamicCamera.gd" id="8_ahbqi"]
+[ext_resource type="PackedScene" uid="uid://b7v6u5m0v7s48" path="res://scenes/camera.tscn" id="8_ahbqi"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(1257, 154)
@@ -103,9 +103,5 @@ offset_bottom = 172.0
 color = Color(1, 0.21568628, 1, 1)
 script = ExtResource("7_88ety")
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=868957768]
-process_mode = 3
+[node name="Camera2D" parent="." unique_id=56861049 instance=ExtResource("8_ahbqi")]
 position = Vector2(317, 165)
-zoom = Vector2(1.05, 1.05)
-limit_enabled = false
-script = ExtResource("8_ahbqi")
