@@ -4,7 +4,6 @@
 [ext_resource type="Texture2D" uid="uid://dbo0605k6w15r" path="res://assets/be1background.png" id="1_j6w7d"]
 [ext_resource type="Texture2D" uid="uid://csdgfoc5idmoq" path="res://assets/MockUp.png" id="2_tmr53"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="3_j6w7d"]
-[ext_resource type="PackedScene" uid="uid://ctester000001" path="res://scenes/defense_tester.tscn" id="5_tmr53"]
 [ext_resource type="Script" uid="uid://dmsxu4iefeks6" path="res://scripts/shadowtest.gd" id="6_qcd3b"]
 [ext_resource type="Script" uid="uid://ddupk7aj7bm26" path="res://scripts/projectile_test.gd" id="7_88ety"]
 [ext_resource type="PackedScene" uid="uid://b7v6u5m0v7s48" path="res://scenes/camera.tscn" id="8_ahbqi"]
@@ -51,14 +50,6 @@ offset_bottom = 40.0
 position = Vector2(380, 391)
 shape = SubResource("RectangleShape2D_g4v7s")
 
-[node name="DefenseTester" parent="." unique_id=950290544 instance=ExtResource("5_tmr53")]
-position = Vector2(551, 323)
-scale = Vector2(0.855, 0.855)
-can_idle = false
-can_crouch = false
-can_block_crouch = false
-can_attack = false
-
 [node name="Shadow" type="TextureRect" parent="." unique_id=1822879755]
 modulate = Color(1, 1, 1, 0.48235294)
 self_modulate = Color(1, 1, 1, 0.5372549)
@@ -73,7 +64,13 @@ script = ExtResource("6_qcd3b")
 [node name="Player" parent="." unique_id=786033213 instance=ExtResource("1_2venv")]
 scale = Vector2(0.75, 0.75)
 
+[node name="Player2" parent="." unique_id=1307935800 instance=ExtResource("1_2venv")]
+position = Vector2(583, 7)
+scale = Vector2(0.75, 0.75)
+player_id = 2
+
 [node name="ColorRect" type="ColorRect" parent="." unique_id=73426657]
+visible = false
 z_index = 4
 offset_right = 40.0
 offset_bottom = 40.0
@@ -103,5 +100,7 @@ offset_bottom = 172.0
 color = Color(1, 0.21568628, 1, 1)
 script = ExtResource("7_88ety")
 
-[node name="Camera2D" parent="." unique_id=56861049 instance=ExtResource("8_ahbqi")]
+[node name="Camera2D" parent="." unique_id=56861049 node_paths=PackedStringArray("player_1", "player_2") instance=ExtResource("8_ahbqi")]
 position = Vector2(317, 165)
+player_1 = NodePath("../Player")
+player_2 = NodePath("../Player2")

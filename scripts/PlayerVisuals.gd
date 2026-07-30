@@ -123,6 +123,9 @@ func setup(anim_player: AnimationPlayer) -> void:
 	animation_player.play("RESET")
 	animation_player.seek(0.0, true)
 
+# Add anywhere in player_visuals.gd, e.g. near get_current_anim()
+func set_facing(facing_right: bool) -> void:
+	scale.x = 1.0 if facing_right else -1.0
 
 func get_current_anim() -> String:
 	return current_anim

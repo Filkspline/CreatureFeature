@@ -1,21 +1,43 @@
 extends Camera2D
 
-var players = []
+# ── Players ──────────────────────────────────────────────────────
+# Assigned directly in the Inspector rather than found via the
+# "players" group at runtime. Two reasons:
+#  1. Godot doesn't guarantee _ready() order across sibling nodes, so
+#     fetching the group in the camera's own _ready() could run
+#     before both players have added themselves to it.
+#  2. Explicit slots let you pick exactly which node is P1 and which
+#     is P2 instead of trusting whatever order the group returns.
+@export_group("Players")
+@export var player_1: Node2D
+@export var player_2: Node2D
+
+@export_group("Framing")
 @export var player_padding := 50.0
-# Screen shake variables
+
+@export_group("Shake")
+@export var shake_decay: float = 20.0
+
 var shake_amount: float = 0.0
-var shake_decay: float = 20.0
 
 
 func _ready():
 	# Camera still works during hitstop
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	
-	# Find all current fighters
-	players = get_tree().get_nodes_in_group("players")
-	
-	# Listen for hit shake events
+
 	EventBus.camera_shake.connect(_on_camera_shake)
+
+	if not player_1 or not player_2:
+		push_warning("[Camera] player_1 and/or player_2 not assigned in the Inspector — camera won't track anyone until both are set.")
+
+
+func _get_tracked_players() -> Array:
+	var tracked := []
+	if player_1:
+		tracked.append(player_1)
+	if player_2:
+		tracked.append(player_2)
+	return tracked
 
 
 func _on_camera_shake(amount: float):
@@ -23,18 +45,18 @@ func _on_camera_shake(amount: float):
 
 
 func move():
-	if players.size() == 0:
+	var tracked = _get_tracked_players()
+	if tracked.is_empty():
 		return
 
 	var average_position := Vector2.ZERO
-
-	for player in players:
+	for player in tracked:
 		average_position += player.position
-
-	average_position /= players.size()
+	average_position /= tracked.size()
 
 	# Only follow horizontally (fighting game style)
 	position.x = average_position.x
+
 
 # Next two functions are so the player cant walk off screen
 func get_left_boundary():
@@ -44,7 +66,8 @@ func get_left_boundary():
 func get_right_boundary():
 	return global_position.x + get_viewport_rect().size.x / (2 * zoom.x) - player_padding
 
-# Camera shake on hits 
+
+# Camera shake on hits
 func apply_shake():
 	if shake_amount > 0:
 		offset = Vector2(

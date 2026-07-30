@@ -1,6 +1,13 @@
 extends CharacterBody2D
 class_name Player
 
+# ── Multiplayer ──────────────────────────────────────────────────
+# player_id determines both input mapping ("LeftP1" vs "LeftP2") and
+# facing. Player 1 always faces right, Player 2 always faces left —
+# fixed at _ready(), never recalculated during play.
+@export_group("Multiplayer")
+@export var player_id: int = 1
+
 # ── Movement ─────────────────────────────────────────────────────
 @export_group("Movement")
 @export var walk_forward_speed: float = 200.0
@@ -32,22 +39,21 @@ enum JumpPhase { RISE, PEAK, FALL }
 enum Direction { NONE, LEFT, RIGHT }
 enum CrouchPhase { NONE, TRANSITION_DOWN, LOOP, STAND_UP }
 
-# Player always faces right; LEFT input = backward, RIGHT = forward.
+# Fixed at _ready() from player_id — P1 = true (faces right), P2 = false.
 var facing_right: bool = true
 var state: State = State.NEUTRAL :
 	set(new_state):
 		if state != new_state:
 			_dbg("[STATE] %s -> %s" % [State.keys()[state], State.keys()[new_state]])
 			state = new_state
-			EventBus.player_state_changed.emit(state)
+			EventBus.player_state[player_id] = state
+			EventBus.player_state_changed.emit(player_id, state)
 
 signal landed
 signal hitstun_finished
 
-# Horizontal speed locked in at jump start, ignores input while airborne.
 var air_horizontal_velocity: float = 0.0
 
-# Direction buffer to prevent idle flicker
 var last_direction: int = Direction.NONE
 var direction_buffer_timer: float = 0.0
 var pending_direction: int = Direction.NONE
@@ -79,71 +85,94 @@ var hit_connected: bool = false
 var gatling_input_buffered: StringName = ""
 var gatling_buffer_timer: int = 0
 
-# Pushback state (active during attack)
 var pushback_velocity_x: float = 0.0
-
-# ── Aerial attack tracking ────────────────────────────────────────
 var has_used_aerial: bool = false
 
-# ── Stun timers ────────────────────────────────────────────────────
 var stun_timer: float = 0.0
-# True on the frame stun starts, so the timer skips its first decrement.
 var stun_just_started: bool = false
 
-# ── Block state tracking ──────────────────────────────────────────
 var is_blocking_low: bool = false
 
-# ── AnimationPlayer / visuals ──────────────────────────────────────
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var sprites: PlayerVisuals = $Sprites
-# Camera grab to stop players leaving bounds
 @onready var camera: Camera2D = get_viewport().get_camera_2d()
-# Hurtbox shape duplicated at runtime
 @onready var hurtbox_shape: RectangleShape2D = $Hurtbox/MainHurtbox.shape
+@onready var hitbox_shape: RectangleShape2D = $Hitbox/MainHitbox.shape
 var base_hurtbox_size: Vector2
 var base_hurtbox_position: Vector2
 
-# Landing & crouch logic
 var is_landing: bool = false
 var crouch_phase: int = CrouchPhase.NONE :
 	set(new_phase):
 		if crouch_phase != new_phase:
 			_dbg("[CROUCH PHASE] %s -> %s" % [CrouchPhase.keys()[crouch_phase], CrouchPhase.keys()[new_phase]])
 		crouch_phase = new_phase
-		EventBus.player_crouching = (new_phase != CrouchPhase.NONE)
+		EventBus.player_crouching[player_id] = (new_phase != CrouchPhase.NONE)
 
 var wants_to_crouch: bool = false
 
 
-# ── Debug helper ──────────────────────────────────────────────────
-# Central choke point for all debug logging so it can be silenced with a
-# single flag instead of being sprinkled across every frame.
 func _dbg(msg: String) -> void:
 	if debug:
-		print(msg)
+		print("[P%d] %s" % [player_id, msg])
+
+
+# Builds "LeftP1"/"LeftP2" etc. from player_id, so every input check
+# routes through here instead of a hardcoded "...P1" literal.
+func _action(name: String) -> StringName:
+	return StringName("%sP%d" % [name, player_id])
 
 
 func _ready() -> void:
+	# Fixed facing: P1 faces right, everyone else faces left. Not live —
+	# set once and never recalculated.
+	facing_right = (player_id == 1)
+	_dbg("[SETUP] player_id=%d facing_right=%s groups=%s" % [player_id, facing_right, get_groups()])
+
+	# Hitbox/Hurtbox positions are driven per-frame by AnimationPlayer
+	# keyframes authored assuming "always faces right." Rather than
+	# mirroring each keyframe (which would just get overwritten by the
+	# animation on the next play anyway), flip the parent Area2D's scale —
+	# every local position the animation sets on MainHitbox/MainHurtbox
+	# gets mirrored into world space automatically, every frame, with no
+	# keyframe edits needed.
+	if not facing_right:
+		$Hitbox.scale.x = -1.0
+		$Hurtbox.scale.x = -1.0
+		_dbg("[SETUP] mirrored Hitbox/Hurtbox via scale.x = -1")
+
+	# Shape resources embedded in the scene are shared across every
+	# instance unless duplicated — without this, one player's attack
+	# animation resizing/moving MainHitbox's (or MainHurtbox's) shape
+	# also mutates the other player's, since they'd be the same
+	# Resource object under the hood.
 	$Hurtbox/MainHurtbox.shape = hurtbox_shape.duplicate()
 	hurtbox_shape = $Hurtbox/MainHurtbox.shape
+	$Hitbox/MainHitbox.shape = hitbox_shape.duplicate()
+	hitbox_shape = $Hitbox/MainHitbox.shape
+
 	base_hurtbox_size = hurtbox_shape.size
 	base_hurtbox_position = $Hurtbox/MainHurtbox.position
 
 	sprites.setup(animation_player)
+	sprites.set_facing(facing_right)
 	sprites.animation_finished.connect(_on_sprites_animation_finished)
 
 	_build_move_lookup()
 
 	var players = get_tree().get_nodes_in_group("players")
+	_dbg("[SETUP] 'players' group has %d node(s): %s" % [players.size(), players.map(func(p): return p.name)])
 	for p in players:
-		if p != self:
+		# Only match actual Player instances — anything else sharing the
+		# "players" group (dummies, testers, etc.) should not be picked
+		# up as an opponent.
+		if p != self and p is Player:
 			opponent = p
-			_dbg("[SETUP] Opponent found: %s" % opponent.name)
+			_dbg("[SETUP] Opponent found: %s (player_id=%d)" % [opponent.name, opponent.player_id])
 			break
 	if not opponent:
-		push_warning("[SETUP] No opponent found in 'players' group!")
+		push_warning("[SETUP] No opponent found in 'players' group! Check this node is in the group in the editor's Node > Groups tab, and that it's a Player instance.")
 
-	# Start in idle
 	sprites.play_idle()
 
 
@@ -153,7 +182,6 @@ func _build_move_lookup() -> void:
 			all_moves[move.move_name] = move
 			dict[key] = move
 
-	# Normals
 	_add_move.call(N5, normal_moves, "neutral")
 	_add_move.call(N4, normal_moves, "back")
 	_add_move.call(N6, normal_moves, "forward")
@@ -162,7 +190,6 @@ func _build_move_lookup() -> void:
 	_add_move.call(NA, normal_moves, "aerial")
 	_add_move.call(N52, normal_moves, "")
 
-	# Specials
 	_add_move.call(S5, special_moves, "neutral")
 	_add_move.call(S4, special_moves, "back")
 	_add_move.call(S6, special_moves, "forward")
@@ -187,10 +214,9 @@ func _physics_process(delta: float) -> void:
 		State.KNOCKDOWN:
 			_knockdown_process(delta)
 
-	# Update EventBus with live data
-	EventBus.player_position = global_position
-	EventBus.player_velocity = velocity
-	EventBus.player_is_airborne = not is_on_floor()
+	EventBus.player_position[player_id] = global_position
+	EventBus.player_velocity[player_id] = velocity
+	EventBus.player_is_airborne[player_id] = not is_on_floor()
 
 
 # ── Neutral state ────────────────────────────────────────────────
@@ -215,25 +241,32 @@ func _neutral_process(delta: float) -> void:
 	_update_hurtbox()
 	sprites.update_block_warning(delta, _is_block_ready(), crouch_phase != CrouchPhase.NONE)
 
-	if Input.is_action_just_pressed("NormalP1"):
+	if Input.is_action_just_pressed(_action("Normal")):
 		var move = _resolve_move("normal")
 		if move:
 			_start_attack(move)
 
-	if Input.is_action_just_pressed("SpecialP1"):
+	if Input.is_action_just_pressed(_action("Special")):
 		var move = _resolve_move("special")
 		if move:
 			_start_attack(move)
 
 
+# "Backward" is relative to facing, not a fixed world direction — for
+# P1 (faces right) backward is Left, for P2 (faces left) backward is
+# Right. Same pattern as the walk-animation forward/backward fix.
+func _get_backward_action() -> StringName:
+	return _action("Left") if facing_right else _action("Right")
+
+
 func _is_block_ready() -> bool:
 	if not is_on_floor():
 		return false
-	var left_held = Input.is_action_pressed("LeftP1")
-	if not left_held:
+	var backward_held = Input.is_action_pressed(_get_backward_action())
+	if not backward_held:
 		return false
 	if crouch_phase != CrouchPhase.NONE:
-		return Input.is_action_pressed("DownP1")
+		return Input.is_action_pressed(_action("Down"))
 	return true
 
 
@@ -270,7 +303,7 @@ func _start_attack(move: MoveData) -> void:
 	if not move:
 		return
 
-	_dbg("[ATTACK] starting move '%s'" % move.move_name)
+	_dbg("[ATTACK] starting move '%s' facing_right=%s" % [move.move_name, facing_right])
 
 	state = State.ATTACK
 	current_move = move
@@ -290,7 +323,7 @@ func _start_attack(move: MoveData) -> void:
 	sprites.reset_block_warning()
 	sprites.show_attack_sprite(move.move_name)
 
-	EventBus.player_attack_started.emit(move.move_name)
+	EventBus.player_attack_started.emit(player_id, move.move_name)
 
 	sprites.play_attack_anim(move.animation_name)
 
@@ -307,7 +340,9 @@ func _attack_process(delta: float) -> void:
 
 	if current_move and current_move.is_advancing and pushback_velocity_x == 0.0:
 		if attack_frame == 1:
-			move_velocity.x = current_move.advance_speed
+			# Advance in the direction this player actually faces, not
+			# always world-right.
+			move_velocity.x = current_move.advance_speed * (1.0 if facing_right else -1.0)
 		else:
 			move_velocity.x = move_velocity.x * 0.85
 
@@ -344,8 +379,8 @@ func _attack_process(delta: float) -> void:
 
 
 func _try_gatling() -> void:
-	if Input.is_action_just_pressed("NormalP1"):
-		gatling_input_buffered = "NormalP1"
+	if Input.is_action_just_pressed(_action("Normal")):
+		gatling_input_buffered = _action("Normal")
 		gatling_buffer_timer = gatling_buffer_frames
 
 	if gatling_input_buffered != "":
@@ -355,7 +390,7 @@ func _try_gatling() -> void:
 			gatling_buffer_timer = 0
 			return
 
-	if gatling_input_buffered == "NormalP1" and current_move.gatlings_into.size() > 0:
+	if gatling_input_buffered == _action("Normal") and current_move.gatlings_into.size() > 0:
 		var gatling_name = current_move.gatlings_into[0]
 		if all_moves.has(gatling_name):
 			_dbg("[GATLING] buffered input confirmed -> canceling into '%s'" % gatling_name)
@@ -381,24 +416,36 @@ func _end_attack() -> void:
 
 func _check_hit() -> void:
 	if not opponent:
+		_dbg("[CHECK HIT] no opponent set — skipping (this is why nothing ever connects)")
 		return
 
 	var hitbox = $Hitbox
-	var hitbox_shape = hitbox.get_node("MainHitbox")
-	if hitbox_shape.disabled:
+	var hitbox_area_shape = hitbox.get_node("MainHitbox")
+	if hitbox_area_shape.disabled:
+		_dbg("[CHECK HIT] MainHitbox is disabled this frame — skipping")
 		return
 
 	var overlapping = hitbox.get_overlapping_areas()
+	_dbg("[CHECK HIT] frame=%d hitbox.global_position=%s overlapping_areas=%s" % [
+		attack_frame, hitbox_area_shape.global_position, overlapping.map(func(a): return a.get_path())
+	])
+
+	if overlapping.is_empty():
+		return
+
+	var opponent_hurtbox = opponent.get_node("Hurtbox")
 	for area in overlapping:
-		if area == opponent.get_node("Hurtbox") or area.get_parent() == opponent.get_node("Hurtbox"):
+		if area == opponent_hurtbox or area.get_parent() == opponent_hurtbox:
 			var was_blocked = opponent.take_hit(current_move, self)
 			hit_connected = true
 			_dbg("[HIT] '%s' connected on opponent | blocked=%s" % [current_move.move_name, was_blocked])
-			EventBus.player_hit_landed.emit(current_move.move_name, was_blocked)
-			EventBus.hit_confirmed.emit(hitbox_shape.global_position, current_move, self, opponent, was_blocked)
+			EventBus.player_hit_landed.emit(player_id, current_move.move_name, was_blocked)
+			EventBus.hit_confirmed.emit(hitbox_area_shape.global_position, current_move, self, opponent, was_blocked)
 			if was_blocked:
 				_apply_pushback()
 			return
+
+	_dbg("[CHECK HIT] overlaps found but none matched opponent's Hurtbox (expected %s)" % opponent_hurtbox.get_path())
 
 
 func _apply_pushback() -> void:
@@ -419,7 +466,6 @@ func _hitstun_process(delta: float) -> void:
 	velocity = Vector2.ZERO
 	move_and_slide()
 
-	# Skip decrement on the frame stun started (see stun_just_started)
 	if stun_just_started:
 		stun_just_started = false
 	else:
@@ -428,7 +474,7 @@ func _hitstun_process(delta: float) -> void:
 	if stun_timer <= 0.0:
 		_dbg("[HITSTUN] timer expired -> emitting hitstun_finished")
 		state = State.NEUTRAL
-		hitstun_finished.emit()  # wakes freeze_until_hitstun_recovery() if crouch_hit/mid_hit is paused there
+		hitstun_finished.emit()
 		_update_animation(false)
 
 
@@ -438,12 +484,11 @@ func _blockstun_process(delta: float) -> void:
 
 	if is_blocking_low:
 		sprites.play_block_idle(true)
-		EventBus.player_blocking_low = true
+		EventBus.player_blocking_low[player_id] = true
 	else:
 		sprites.play_block_idle(false)
-		EventBus.player_blocking_low = false
+		EventBus.player_blocking_low[player_id] = false
 
-	# Skip decrement on the frame stun started (see stun_just_started)
 	if stun_just_started:
 		stun_just_started = false
 	else:
@@ -454,9 +499,7 @@ func _blockstun_process(delta: float) -> void:
 		state = State.NEUTRAL
 		sprites.hide_block_sprites()
 
-		# Still holding Down when blockstun ends? Go straight back into the
-		# crouch loop instead of replaying the full crouch_down transition.
-		if is_blocking_low and is_on_floor() and Input.is_action_pressed("DownP1"):
+		if is_blocking_low and is_on_floor() and Input.is_action_pressed(_action("Down")):
 			_dbg("[BLOCKSTUN] Down still held after crouch-block -> staying crouched, skipping crouch_down transition")
 			wants_to_crouch = true
 			crouch_phase = CrouchPhase.LOOP
@@ -470,16 +513,12 @@ func _knockdown_process(_delta: float) -> void:
 	move_and_slide()
 
 
-# ── Minimum visible stun duration ────────────────────────────────
-# Floors stun to however long the reaction animation needs, so a very
-# plus move can't end stun before the animation gets to play at all.
 func _min_visible_stun_frames(anim_name: String) -> int:
 	if not animation_player.has_animation(anim_name):
 		return 0
 	return int(ceil(animation_player.get_animation(anim_name).length * 60.0))
 
 
-# ── When the player is hit ───────────────────────────────────────
 func take_hit(move_data: MoveData, _attacker) -> bool:
 	var was_crouching = (crouch_phase != CrouchPhase.NONE)
 	_dbg("[TAKE HIT] was_crouching=%s incoming move='%s'" % [was_crouching, move_data.move_name])
@@ -506,9 +545,6 @@ func take_hit(move_data: MoveData, _attacker) -> bool:
 
 		_dbg("[TAKE HIT] BLOCKED! stun_frames=%d stun_timer=%.4f is_blocking_low=%s" % [stun_frames, stun_timer, is_blocking_low])
 
-		# Deferred because take_hit() can fire mid physics-query-flush, and
-		# the visuals touch hitbox/hurtbox monitoring state, which Godot
-		# doesn't allow until the flush is done.
 		call_deferred("_apply_block_reaction_visuals")
 
 		return true
@@ -526,7 +562,6 @@ func take_hit(move_data: MoveData, _attacker) -> bool:
 		stun_just_started = true
 		_dbg("[TAKE HIT] HIT (not blocked)! hitstun_frames=%d stun_timer=%.4f was_crouching=%s" % [hitstun_frames, stun_timer, was_crouching])
 
-		# Same deferred-call reason as above.
 		call_deferred("_apply_hit_reaction_visuals", was_crouching)
 
 		return false
@@ -550,7 +585,7 @@ func _apply_gravity(delta: float) -> void:
 func _handle_jump() -> void:
 	if not is_on_floor() or crouch_phase != CrouchPhase.NONE:
 		return
-	if not Input.is_action_just_pressed("JumpP1"):
+	if not Input.is_action_just_pressed(_action("Jump")):
 		return
 	velocity.y = jump_velocity
 	air_horizontal_velocity = _get_horizontal_input() * _current_walk_speed()
@@ -559,9 +594,8 @@ func _handle_jump() -> void:
 
 
 func _handle_crouch_input() -> void:
-	var down_pressed = is_on_floor() and Input.is_action_pressed("DownP1")
+	var down_pressed = is_on_floor() and Input.is_action_pressed(_action("Down"))
 
-	# Only act on state transitions
 	if down_pressed and crouch_phase == CrouchPhase.NONE:
 		wants_to_crouch = true
 		crouch_phase = CrouchPhase.TRANSITION_DOWN
@@ -576,7 +610,6 @@ func _handle_crouch_input() -> void:
 		wants_to_crouch = false
 		_dbg("[CROUCH] DOWN released mid-TRANSITION_DOWN -> will stand up once crouch_down finishes")
 	elif down_pressed and crouch_phase == CrouchPhase.TRANSITION_DOWN and not wants_to_crouch:
-		# Re-pressed Down again before crouch_down even finished
 		wants_to_crouch = true
 		_dbg("[CROUCH] DOWN re-pressed mid-TRANSITION_DOWN -> will crouch once crouch_down finishes")
 
@@ -618,9 +651,9 @@ func _handle_horizontal_movement(delta: float) -> void:
 
 
 func _get_raw_direction() -> int:
-	if Input.is_action_pressed("LeftP1"):
+	if Input.is_action_pressed(_action("Left")):
 		return Direction.LEFT
-	elif Input.is_action_pressed("RightP1"):
+	elif Input.is_action_pressed(_action("Right")):
 		return Direction.RIGHT
 	return Direction.NONE
 
@@ -632,8 +665,8 @@ func _direction_to_float(dir: int) -> float:
 
 func _get_horizontal_input() -> float:
 	var dir := 0.0
-	if Input.is_action_pressed("LeftP1"): dir -= 1.0
-	if Input.is_action_pressed("RightP1"): dir += 1.0
+	if Input.is_action_pressed(_action("Left")): dir -= 1.0
+	if Input.is_action_pressed(_action("Right")): dir += 1.0
 	return dir
 
 func _current_walk_speed() -> float:
@@ -644,12 +677,15 @@ func _speed_for_direction(dir: int) -> float:
 
 
 # ── Animation selection ──────────────────────────────────────────
+# NOTE: "walk_forward" / "walk_backward" are relative to which way this
+# player is FACING, not raw world direction. For P1 (faces right) those
+# happen to be the same thing, which is why this bug was invisible until
+# P2 (faces left) started walking right (backward) and got the forward
+# animation instead.
 func _update_animation(just_landed: bool = false) -> void:
-	# Let the landing animation finish first
 	if is_landing and not just_landed:
 		return
 
-	# Crouch transitions handled by _on_sprites_animation_finished, don't interrupt
 	if crouch_phase != CrouchPhase.NONE:
 		return
 
@@ -670,7 +706,9 @@ func _update_animation(just_landed: bool = false) -> void:
 			sprites.play_idle()
 			last_direction = Direction.NONE
 		else:
-			sprites.play_walk(direction > 0.0)
+			var moving_right := direction > 0.0
+			var is_forward := (moving_right == facing_right)
+			sprites.play_walk(is_forward)
 
 
 func _get_jump_phase() -> JumpPhase:
@@ -681,9 +719,6 @@ func _get_jump_phase() -> JumpPhase:
 	return JumpPhase.PEAK
 
 
-# ── Reacting to visuals finishing an animation ───────────────────
-# PlayerVisuals handles pausing hold-on-finish animations itself; this
-# is purely the game-logic side (crouch phase transitions, landing).
 func _on_sprites_animation_finished(anim_name: String) -> void:
 	_dbg("[ANIM FINISHED] '%s' | crouch_phase=%s wants_to_crouch=%s" % [
 		anim_name, CrouchPhase.keys()[crouch_phase], wants_to_crouch
@@ -700,7 +735,6 @@ func _on_sprites_animation_finished(anim_name: String) -> void:
 				_dbg("[CROUCH] crouch_down finished, still wanted -> LOOP, playing crouch_idle")
 				sprites.play_crouch_idle()
 			else:
-				# Changed mind mid-animation (Down was released before crouch_down finished)
 				crouch_phase = CrouchPhase.STAND_UP
 				_dbg("[CROUCH] crouch_down finished, cancelled -> STAND_UP, playing crouch_up")
 				sprites.play_crouch_up()
@@ -712,10 +746,6 @@ func _on_sprites_animation_finished(anim_name: String) -> void:
 			_update_animation(false)
 
 
-# ── Animation Event Freeze Pattern ────────────────────────────────
-# These stay on Player (rather than PlayerVisuals) because the
-# AnimationPlayer's method-call tracks target NodePath(".") — i.e. the
-# AnimationPlayer's parent, which is Player, not the Sprites node.
 func freeze_until_landing() -> void:
 	_dbg("[FREEZE] jump_peak reached its hold frame -> pausing, awaiting 'landed'")
 	animation_player.pause()
@@ -747,8 +777,7 @@ func _update_hurtbox() -> void:
 
 	hurtbox_shape.size = new_size
 	$Hurtbox/MainHurtbox.position = new_pos
-	
-# Making sure player cant leave camera view 
+
 func _clamp_to_camera_bounds():
 	if not camera:
 		return
