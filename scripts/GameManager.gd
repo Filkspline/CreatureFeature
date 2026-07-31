@@ -22,8 +22,7 @@ var _hitstop_token: int = 0
 func _ready() -> void:
 	EventBus.player_hit_landed.connect(_on_player_hit_landed)
 
-
-func _on_player_hit_landed(_move_name: String, was_blocked: bool) -> void:
+func _on_player_hit_landed(player_id: int, _move_name: String, was_blocked: bool) -> void:
 	if not enabled:
 		return
 	
