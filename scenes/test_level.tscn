@@ -120,5 +120,3 @@ crt_node_path = NodePath("../TempCrtShader")
 position = Vector2(317, 165)
 player_1 = NodePath("../Player")
 player_2 = NodePath("../Player2")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=913379112]

@@ -1150,7 +1150,6 @@ debug_color = Color(0.26929268, 0.6220697, 0.34595335, 0.41960785)
 script = ExtResource("30_visuals")
 
 [node name="Idle" type="Sprite2D" parent="Sprites" unique_id=1433543744]
-visible = false
 position = Vector2(0, -84)
 texture = ExtResource("2_qlg0r")
 hframes = 2
@@ -1170,6 +1169,7 @@ hframes = 10
 frame = 5
 
 [node name="Jump" type="Sprite2D" parent="Sprites" unique_id=1642846395]
+visible = false
 position = Vector2(-1.5, -71.931)
 scale = Vector2(0.745, 0.835)
 texture = ExtResource("12_ke2ow")
