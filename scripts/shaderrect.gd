@@ -85,24 +85,70 @@ enum Presets {CUSTOM, SUBTLE_RETRO, VERY_LIGHT, ARCADE_LIGHT, FIGHTING_GAME}
 		current_preset = value
 		apply_preset(value)
 
+# Layer this gets moved into. Higher than the implicit base layer (0) that
+# everything outside a CanvasLayer draws on — including your gameplay world
+# and the hit/block particle effects — so this always draws last, on top,
+# with a clean SCREEN_TEXTURE snapshot of everything below it.
+const CRT_LAYER := 10
+
+
 func _ready():
 	# Make sure the ColorRect covers the entire screen
 	size = get_viewport_rect().size
 	anchor_right = 1.0
 	anchor_bottom = 1.0
-	
+
 	# Create or assign shader material
 	if not shader_material:
 		shader_material = ShaderMaterial.new()
 		shader_material.shader = preload("res://scripts/testshader.gdshader")
-	
+
 	material = shader_material
-	
+
 	# Apply default preset
 	apply_preset(current_preset)
-	
+
 	# Connect to viewport resize
 	get_viewport().connect("size_changed", _on_viewport_resized)
+
+	# Move into a dedicated CanvasLayer. As a plain node in the 2D world
+	# tree, this rect's "full screen" coverage was computed once in WORLD
+	# space and never updated — so as soon as Camera2D panned horizontally
+	# to track the players, this rect drifted out of alignment with what
+	# was actually on screen. It also meant this rect and the particle
+	# effects (both large opaque SCREEN_TEXTURE-sampling quads) were
+	# competing for z_index-based draw order in the same canvas layer,
+	# which is why particles were disappearing under it. A CanvasLayer is
+	# screen-space by definition, so it always matches the viewport
+	# regardless of camera position, and always draws after the base
+	# layer's content — sidestepping both problems at once.
+	# Deferred because reparenting during our own _ready() (while the
+	# scene is still finishing instantiating siblings) can otherwise hit
+	# "parent node is busy" errors.
+	call_deferred("_move_to_canvas_layer")
+
+
+func _move_to_canvas_layer() -> void:
+	if get_parent() is CanvasLayer:
+		return  # already moved — avoids double-wrapping on scene reload
+
+	var old_parent := get_parent()
+	var layer := CanvasLayer.new()
+	layer.layer = CRT_LAYER
+	old_parent.add_child(layer)
+
+	reparent(layer, false)
+
+	# Re-apply full-screen coverage now that we're in screen space —
+	# belt-and-braces in case reparent() nudged anything.
+	size = get_viewport_rect().size
+	anchor_right = 1.0
+	anchor_bottom = 1.0
+	offset_left = 0.0
+	offset_top = 0.0
+	offset_right = 0.0
+	offset_bottom = 0.0
+
 
 func _on_viewport_resized():
 	size = get_viewport_rect().size
@@ -128,7 +174,7 @@ func apply_preset(preset: Presets):
 			distortion = 0.0004
 			flicker = 0.003
 			noise_amount = 0.005
-			
+
 		Presets.VERY_LIGHT:
 			curvature = 0.02
 			scanline_intensity = 0.05
@@ -144,7 +190,7 @@ func apply_preset(preset: Presets):
 			distortion = 0.002
 			flicker = 0.001
 			noise_amount = 0.002
-			
+
 		Presets.ARCADE_LIGHT:
 			curvature = 0.05
 			scanline_intensity = 0.15
@@ -160,7 +206,7 @@ func apply_preset(preset: Presets):
 			distortion = 0.005
 			flicker = 0.004
 			noise_amount = 0.006
-			
+
 		Presets.FIGHTING_GAME:
 			# Super subtle - barely noticeable but adds atmosphere
 			curvature = 0.025
@@ -182,18 +228,18 @@ func apply_preset(preset: Presets):
 func add_hit_flash(duration: float = 0.08):
 	var original_brightness = brightness
 	var tween = create_tween()
-	tween.tween_method(func(value): 
+	tween.tween_method(func(value):
 		update_shader_param("brightness", value), brightness, brightness * 1.15, duration / 2)
-	tween.tween_method(func(value): 
+	tween.tween_method(func(value):
 		update_shader_param("brightness", value), brightness * 1.15, original_brightness, duration / 2)
 
 # Optional: Subtle screen shake effect
 func add_screen_shake(intensity: float = 0.008, duration: float = 0.15):
 	var original_distortion = distortion
 	var tween = create_tween()
-	tween.tween_method(func(value): 
+	tween.tween_method(func(value):
 		update_shader_param("distortion", value), distortion, distortion + intensity, duration / 2)
-	tween.tween_method(func(value): 
+	tween.tween_method(func(value):
 		update_shader_param("distortion", value), distortion + intensity, original_distortion, duration / 2)
 
 # Optional: Intensify effects during super moves
@@ -202,25 +248,25 @@ func activate_super_move_effects(duration: float = 2.0):
 	var orig_chromatic = chromatic_aberration
 	var orig_glow = glow_intensity
 	var orig_distortion = distortion
-	
+
 	# Ramp up effects
 	var tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_method(func(value): 
+	tween.tween_method(func(value):
 		update_shader_param("chromatic_aberration", value), chromatic_aberration, 0.003, 0.3)
-	tween.tween_method(func(value): 
+	tween.tween_method(func(value):
 		update_shader_param("glow_intensity", value), glow_intensity, 0.2, 0.3)
-	tween.tween_method(func(value): 
+	tween.tween_method(func(value):
 		update_shader_param("distortion", value), distortion, 0.01, 0.3)
-	
+
 	# Return to normal after duration
 	await get_tree().create_timer(duration).timeout
-	
+
 	var return_tween = create_tween()
 	return_tween.set_parallel(true)
-	return_tween.tween_method(func(value): 
+	return_tween.tween_method(func(value):
 		update_shader_param("chromatic_aberration", value), 0.003, orig_chromatic, 0.5)
-	return_tween.tween_method(func(value): 
+	return_tween.tween_method(func(value):
 		update_shader_param("glow_intensity", value), 0.2, orig_glow, 0.5)
-	return_tween.tween_method(func(value): 
+	return_tween.tween_method(func(value):
 		update_shader_param("distortion", value), 0.01, orig_distortion, 0.5)
