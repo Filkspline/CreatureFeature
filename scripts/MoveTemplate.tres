@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" uid="uid://bnyng45sqmhga" path="res://scripts/MoveData.gd" id="1_move"]
+
+[resource]
+script = ExtResource("1_move")
+move_name = "MoveName"
+input_dir = 0
+kind = 0
+hit_level = 1
+startup = 5
+active = 3
+recovery = 10
+block_advantage = -2
+hitstun = 12
+damage = 0.0
+animation_name = &""
+pushback_on_block = 200.0
+knock_back = 0.0
+block_knock_back = 0.0
+is_launcher = false
+launcher_strength = 0.0
+is_advancing = false
+advance_speed = 0.0
+low_profile = false
+is_charge_move = false
+charge_frames = 0
+fires_projectile = false
+gatlings_into = Array[StringName]([])
+upgrade_slot_id = &""
+is_upgraded = false
+upgrade_property_id = &""

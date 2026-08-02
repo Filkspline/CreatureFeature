@@ -1,11 +1,24 @@
 extends CPUParticles2D
+# Attached directly to the root CPUParticles2D node — this node IS the
+# particle emitter. The flashy part of the effect is now the shared
+# impact_tear shader (res://shaders/impact_tear.gdshader) instead of a
+# hand-drawn _Flash class, so this script only configures a small burst
+# of sparks and spawns one ColorRect running that shader on top.
+#
+# Does NOT auto-emit on _ready(). add_child() calls _ready() synchronously,
+# before the caller (HitEffectManager) gets a chance to set global_position
+# — so starting emission here would fire the whole one-shot burst at the
+# node's default (0, 0) position every time, regardless of where it was
+# spawned. Call play() explicitly once the node's position is set instead.
+
+const TEAR_SHADER := preload("res://scripts/impact_tear.gdshader")
 
 
 func _ready() -> void:
 	one_shot = true
 	emitting = false
 	_configure_particles()
-	add_child(_Flash.new())
+	add_child(_make_tear_effect())
 
 
 func play() -> void:
@@ -15,85 +28,36 @@ func play() -> void:
 
 
 func _configure_particles() -> void:
-	amount = 24
+	amount = 16
 	lifetime = 0.15
 	explosiveness = 1.0
 	randomness = 0.5
 	direction = Vector2(0, -1)
 	spread = 180.0
 	gravity = Vector2(0, 260)
-	initial_velocity_min = 140.0
-	initial_velocity_max = 380.0
-	angular_velocity_min = -720.0
-	angular_velocity_max = 720.0
-	scale_amount_min = 0.6
-	scale_amount_max = 1.4
-	hue_variation_min = -0.03
-	hue_variation_max = 0.03
-
-	texture = _make_spark_texture()
-
-	# Shrink to nothing over the lifetime instead of just popping out —
-	# reads as sparks fizzling rather than blinking off.
-	var scale_curve := Curve.new()
-	scale_curve.add_point(Vector2(0.0, 1.0))
-	scale_curve.add_point(Vector2(0.7, 0.6))
-	scale_curve.add_point(Vector2(1.0, 0.0))
-	scale_amount_curve = scale_curve
-
-	# Hot white core cooling through orange to red, fading at the tail.
-	var gradient := Gradient.new()
-	gradient.offsets = PackedFloat32Array([0.0, 0.35, 1.0])
-	gradient.colors = PackedColorArray([
-		Color(0.855, 0.91, 0.984, 0.706),
-		Color(0.863, 0.898, 0.996, 0.733),
-		Color(1.0, 0.15, 0.05, 0.0),
-	])
-	color_ramp = gradient
+	initial_velocity_min = 100.0
+	initial_velocity_max = 260.0
+	scale_amount_min = 0.5
+	scale_amount_max = 1.0
+	color = Color(0.9, 0.95, 1.0, 0.9)
 
 
-	var mat := CanvasItemMaterial.new()
-	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-	material = mat
+func _make_tear_effect() -> ColorRect:
+	var rect := ColorRect.new()
+	rect.size = Vector2(200, 200)
+	rect.position = -rect.size * 0.5
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+	var mat := ShaderMaterial.new()
+	mat.shader = TEAR_SHADER
+	mat.set_shader_parameter("core_color", Color(1.0, 1.0, 1.0))
+	mat.set_shader_parameter("rim_color", Color(1.0, 1.0, 1.0))
+	rect.material = mat
 
-# Soft radial dot, generated at runtime — no image asset required.
-func _make_spark_texture() -> GradientTexture2D:
-	var gradient := Gradient.new()
-	gradient.colors = PackedColorArray([Color(1, 1, 1, 1), Color(1, 1, 1, 0)])
-	var tex := GradientTexture2D.new()
-	tex.gradient = gradient
-	tex.width = 32
-	tex.height = 32
-	tex.fill = GradientTexture2D.FILL_RADIAL
-	tex.fill_from = Vector2(0.5, 0.5)
-	tex.fill_to = Vector2(1.0, 0.5)
-	return tex
+	var tween := create_tween()
+	tween.tween_method(
+		func(v): mat.set_shader_parameter("effect_alpha", v),
+		1.0, 0.0, 0.18
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 
-
-class _Flash:
-	extends Node2D
-
-	var _radius: float = 3.0
-	var _alpha: float = 1.0
-	var _max_radius: float = 46.0
-	var _duration: float = 0.18
-
-	func _ready() -> void:
-		var tween := create_tween()
-		tween.set_parallel(true)
-		tween.tween_property(self, "_radius", _max_radius, _duration)\
-			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		tween.tween_property(self, "_alpha", 0.0, _duration)\
-			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-		tween.chain().tween_callback(queue_free)
-
-	func _process(_delta: float) -> void:
-		queue_redraw()
-
-	func _draw() -> void:
-		var ring_col := Color(1.0, 1.0, 1.0, _alpha)
-		draw_arc(Vector2.ZERO, _radius, 0.0, TAU, 32, ring_col, 6.0, true)
-		var core_radius: float = max(_max_radius - _radius, 0.0) * 0.3
-		var core_col := Color(1, 1, 1, _alpha * 0.9)
-		draw_circle(Vector2.ZERO, core_radius, core_col)
+	return rect

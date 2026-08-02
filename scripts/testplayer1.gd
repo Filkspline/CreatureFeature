@@ -270,6 +270,29 @@ func _is_block_ready() -> bool:
 	return true
 
 
+# _is_block_ready() only checks "is the player holding the block input
+# correctly" — it says nothing about whether that posture actually stops
+# THIS move. That check was missing entirely, which is why OVERHEAD moves
+# never beat crouch-block (and LOW moves never beat standing block) —
+# every blocked hit was treated as a successful block regardless of
+# hit_level. This is that missing check:
+#   - OVERHEAD must be blocked standing (crouch-block does not stop it)
+#   - LOW must be blocked crouching (standing block does not stop it)
+#   - MID is blocked by either posture
+func _block_posture_beats_hit_level(hit_level: MoveData.HitLevel, was_crouching: bool) -> bool:
+	match hit_level:
+		MoveData.HitLevel.OVERHEAD:
+			if was_crouching:
+				_dbg("[BLOCK] OVERHEAD move beats crouch-block")
+			return not was_crouching
+		MoveData.HitLevel.LOW:
+			if not was_crouching:
+				_dbg("[BLOCK] LOW move beats standing block")
+			return was_crouching
+		_: # MID
+			return true
+
+
 # ── Attack resolve / start ───────────────────────────────────────
 func _resolve_move(type: String) -> MoveData:
 	var dict = normal_moves if type == "normal" else special_moves
@@ -513,6 +536,31 @@ func _knockdown_process(_delta: float) -> void:
 	move_and_slide()
 
 
+# Warns (once per move, not once per hit) if a move has been tuned with
+# a tag that has no gameplay implementation yet, so a designer setting
+# knock_back/launcher_strength on a MoveData resource gets told "this
+# won't do anything" instead of silently wondering why nothing happens.
+var _warned_unimplemented_moves: Dictionary = {}
+
+func _warn_unimplemented_tags(move_data: MoveData) -> void:
+	if _warned_unimplemented_moves.has(move_data.move_name):
+		return
+
+	var messages: Array[String] = []
+	if move_data.knock_back != 0.0:
+		messages.append("knock_back=%.1f" % move_data.knock_back)
+	if move_data.block_knock_back != 0.0:
+		messages.append("block_knock_back=%.1f" % move_data.block_knock_back)
+	if move_data.is_launcher:
+		messages.append("is_launcher=true (launcher_strength=%.1f)" % move_data.launcher_strength)
+
+	if not messages.is_empty():
+		_warned_unimplemented_moves[move_data.move_name] = true
+		push_warning("[MoveData] '%s' has %s set, but this tag is not implemented yet in take_hit()/_apply_pushback() — it currently has no gameplay effect." % [
+			move_data.move_name, ", ".join(messages)
+		])
+
+
 func _min_visible_stun_frames(anim_name: String) -> int:
 	if not animation_player.has_animation(anim_name):
 		return 0
@@ -521,12 +569,16 @@ func _min_visible_stun_frames(anim_name: String) -> int:
 
 func take_hit(move_data: MoveData, _attacker) -> bool:
 	var was_crouching = (crouch_phase != CrouchPhase.NONE)
-	_dbg("[TAKE HIT] was_crouching=%s incoming move='%s'" % [was_crouching, move_data.move_name])
+	_dbg("[TAKE HIT] was_crouching=%s incoming move='%s' hit_level=%s" % [
+		was_crouching, move_data.move_name, MoveData.HitLevel.keys()[move_data.hit_level]
+	])
 
 	crouch_phase = CrouchPhase.NONE
 	wants_to_crouch = false
 
-	var block_ready = _is_block_ready()
+	_warn_unimplemented_tags(move_data)
+
+	var block_ready = _is_block_ready() and _block_posture_beats_hit_level(move_data.hit_level, was_crouching)
 	if block_ready:
 		state = State.BLOCKSTUN
 		is_blocking_low = was_crouching

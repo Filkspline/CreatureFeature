@@ -25,6 +25,21 @@ enum Kind { NORMAL, SPECIAL, GRAB }
 @export_group("Pushback")
 @export var pushback_on_block: float = 200.0
 
+# ── Knockback / Launcher ─────────────────────────────────────────
+# NOTE: These tags are DATA-ONLY right now. testplayer1.gd does not yet
+# apply them — it still uses pushback_on_block for everything. They exist
+# so moves can be authored/tuned now without waiting on the knockback
+# system. Setting any of these to a non-default value will print a
+# runtime warning (see _warn_unimplemented_tags() in testplayer1.gd)
+# so a "tuned" move doesn't silently do nothing once it's live.
+@export_group("Knockback (not yet implemented)")
+@export var knock_back: float = 0.0        # distance opponent is pushed on a HIT
+@export var block_knock_back: float = 0.0  # distance opponent is pushed on a BLOCKED hit
+
+@export_group("Launcher (not yet implemented)")
+@export var is_launcher: bool = false      # does this move pop the opponent into the air on hit?
+@export var launcher_strength: float = 0.0 # how high (launch velocity) if is_launcher is true
+
 @export_group("Advancing move")
 @export var is_advancing: bool = false
 @export var advance_speed: float = 0.0

@@ -1,9 +1,27 @@
 [gd_scene format=3 uid="uid://d1hitprtcl01"]
 
 [ext_resource type="Script" uid="uid://bg0k4pg5m1jsr" path="res://scripts/HitParticle.gd" id="1"]
+[ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/impact_tear.gdshader" id="1_si4ve"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_l506i"]
+shader = ExtResource("1_si4ve")
+shader_parameter/impact_pos = Vector2(0.5, 0.5)
+shader_parameter/core_radius = 0.08
+shader_parameter/glow_radius = 0.35
+shader_parameter/core_color = Color(0, 0, 0, 1)
+shader_parameter/rim_color = Color(0, 0, 0, 1)
+shader_parameter/tear_strength = 0.02
+shader_parameter/tear_band_count = 40.0
+shader_parameter/tear_radius = 0.4
+shader_parameter/flicker_speed = 18.0
+shader_parameter/chrom_strength = 0.019
+shader_parameter/fade_start = 0.35
+shader_parameter/fade_end = 0.65
+shader_parameter/effect_alpha = 1.0
 
 [node name="HitParticle" type="CPUParticles2D" unique_id=657205917]
 z_index = 1
+material = SubResource("ShaderMaterial_l506i")
 emitting = false
 amount = 16
 lifetime = 0.3

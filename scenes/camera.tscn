@@ -6,4 +6,5 @@
 process_mode = 3
 zoom = Vector2(1.05, 1.05)
 limit_enabled = false
+position_smoothing_enabled = true
 script = ExtResource("1_cvpoc")
