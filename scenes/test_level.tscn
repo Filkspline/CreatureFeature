@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://dmsxu4iefeks6" path="res://scripts/shadowtest.gd" id="6_qcd3b"]
 [ext_resource type="Script" uid="uid://ddupk7aj7bm26" path="res://scripts/projectile_test.gd" id="7_88ety"]
 [ext_resource type="PackedScene" uid="uid://b7v6u5m0v7s48" path="res://scenes/camera.tscn" id="8_ahbqi"]
+[ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/impact_tear.gdshader" id="10_4asn1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(1257, 154)
@@ -36,6 +37,25 @@ shader_parameter/chromatic_aberration = 0.0004
 shader_parameter/noise_amount = 0.0015
 shader_parameter/flicker = 0.0008
 shader_parameter/distortion = 0.005
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dw7u0"]
+shader = ExtResource("10_4asn1")
+shader_parameter/impact_pos = Vector2(0.5, 0.5)
+shader_parameter/core_radius = 0.08
+shader_parameter/glow_radius = 0.35
+shader_parameter/core_color = Color(0, 0, 0, 1)
+shader_parameter/rim_color = Color(0, 0, 0, 1)
+shader_parameter/tear_strength = 0.05600000266
+shader_parameter/tear_band_count = 126.0490055123275
+shader_parameter/tear_radius = 0.60000002384186
+shader_parameter/flicker_speed = 20.3850009207875
+shader_parameter/chrom_strength = 0.05000000074506
+shader_parameter/fade_start = 0.5550000263625
+shader_parameter/fade_end = 0.80000001192093
+shader_parameter/effect_alpha = 1.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yf5fn"]
+size = Vector2(294, 471)
 
 [node name="TestLevel" type="Node2D" unique_id=92995186]
 
@@ -125,3 +145,45 @@ crt_node_path = NodePath("../TempCrtShader")
 position = Vector2(317, 165)
 player_1 = NodePath("../Player")
 player_2 = NodePath("../Player2")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=650156962]
+material = SubResource("ShaderMaterial_dw7u0")
+offset_left = -508.0
+offset_top = -27.0
+offset_right = -228.0
+offset_bottom = 415.0
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="ColorRect" unique_id=332447520]
+z_index = -1
+layout_mode = 0
+offset_right = 280.0
+offset_bottom = 442.0
+color = Color(0, 0, 0, 1)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ColorRect" unique_id=2016972260]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColorRect/StaticBody2D" unique_id=579724733]
+position = Vector2(137, 225.5)
+shape = SubResource("RectangleShape2D_yf5fn")
+
+[node name="ColorRect3" type="ColorRect" parent="." unique_id=883637183]
+material = SubResource("ShaderMaterial_dw7u0")
+offset_left = 769.0
+offset_top = -27.0
+offset_right = 1049.0
+offset_bottom = 415.0
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="ColorRect3" unique_id=95860223]
+z_index = -1
+layout_mode = 0
+offset_right = 280.0
+offset_bottom = 442.0
+color = Color(0, 0, 0, 1)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ColorRect3" unique_id=1319954107]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColorRect3/StaticBody2D" unique_id=1452004597]
+position = Vector2(137, 225.5)
+shape = SubResource("RectangleShape2D_yf5fn")

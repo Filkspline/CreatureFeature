@@ -10,8 +10,8 @@ class_name Player
 
 # ── Movement ─────────────────────────────────────────────────────
 @export_group("Movement")
-@export var walk_forward_speed: float = 200.0
-@export var walk_backward_speed: float = 200.0
+@export var walk_forward_speed: float = 170.0
+@export var walk_backward_speed: float = 170.0
 @export var jump_velocity: float = -550.0
 @export var gravity: float = 1180.0
 @export var jump_apex_threshold: float = 60.0
