@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://d1hitprtcl01"]
 
 [ext_resource type="Script" uid="uid://bg0k4pg5m1jsr" path="res://scripts/HitParticle.gd" id="1"]
-[ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/shaders/impact_tear.gdshader" id="1_si4ve"]
+[ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/impact_tear.gdshader" id="1_si4ve"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_l506i"]
 shader = ExtResource("1_si4ve")

@@ -3,8 +3,7 @@
 [ext_resource type="Script" uid="uid://jhexjuiasdka" path="res://scripts/upgrade_card.gd" id="1_ew4bf"]
 [ext_resource type="Texture2D" uid="uid://ctged1vw73l02" path="res://assets/card_assets/CardBackColour.png" id="2_fk0rn"]
 [ext_resource type="Texture2D" uid="uid://ddyrpm7n6t5li" path="res://assets/card_assets/Card_DesignNoFlairCorruptionBW.png" id="3_fk0rn"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_t2dwb"]
+[ext_resource type="SpriteFrames" uid="uid://0mk8q5j8lmya" path="res://scripts/selector_anim.tres" id="4_0hv3p"]
 
 [sub_resource type="Animation" id="Animation_0hv3p"]
 length = 0.001
@@ -136,21 +135,12 @@ z_index = -1
 scale = Vector2(0.99999994, 0.99999994)
 texture = ExtResource("3_fk0rn")
 
-[node name="selection_icon" type="TextureRect" parent="Control" unique_id=1030056475]
+[node name="selection_icon" type="AnimatedSprite2D" parent="Control" unique_id=375975407]
 visible = false
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -110.0
-offset_top = -700.0
-offset_right = 73.33333
-offset_bottom = -516.6667
-grow_horizontal = 2
-grow_vertical = 0
-texture = SubResource("PlaceholderTexture2D_t2dwb")
+position = Vector2(99.999985, -570)
+scale = Vector2(4, 4)
+sprite_frames = ExtResource("4_0hv3p")
+animation = &"selector_blink"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1204356906]
 libraries/ = SubResource("AnimationLibrary_0hv3p")

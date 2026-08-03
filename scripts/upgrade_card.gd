@@ -22,6 +22,7 @@ func _handle_highlight() -> void:
 				card.currently_highlighted = false
 				card.selection_icon.hide()
 		selection_icon.show()
+		selection_icon.play("selector_blink")
 		if !is_flipped:
 			anim_player.play("card_flip")
 			is_flipped = true

@@ -21,11 +21,13 @@ var currently_handling_card : bool
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	CardDictionary.card_hand = self
 	_draw_hand()
 
 func _draw_hand() -> void:
 	current_z_index = card_default_z_index
 	for _x in hand_limit:
+		# TODO WIll need to be altered for drawing from the dictionary
 		var upgarde_card = UPGRADE_CARD.instantiate()
 		if defaults_set != true:
 			card_default_transform = upgarde_card.transform
