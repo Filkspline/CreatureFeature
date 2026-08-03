@@ -3,18 +3,16 @@ extends Node2D
 @onready var selection_icon = $Control/selection_icon
 @onready var anim_player = $AnimationPlayer
 @onready var parent_node = self.get_parent()
+@onready var card_shader = preload("res://scripts/card_tear.gdshader")
 
 var currently_highlighted : bool
 var is_flipped : bool
 
+# NOTE cleaned up some of the remaining unused functions here
+
 func _ready() -> void:
 	selection_icon.hide()
 	self.material = null
-
-
-#func _on_texture_rect_mouse_entered() -> void:
-#	currently_highlighted = true
-#	_handle_highlight()
 
 
 func _handle_highlight() -> void:
@@ -32,14 +30,12 @@ func _handle_highlight() -> void:
 	else:
 		selection_icon.hide()
 
-# TODO change to handle being the currently selected card
-#func _on_texture_rect_gui_input(event: InputEvent) -> void:
-	# TODO This will need to be edited to handle controller input eventually
-#	if event is InputEventMouseButton:
-#		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-#			parent_node._handle_clicked_card()
-
 # TODO This should handle the shader stuff if we decide to do that
 #func _handle_shader() -> void:
-#	self.material.get_shader_parameter("rect_size", Vector2(0, 500))
-	
+	#var shader_material = ShaderMaterial.new()
+	#print("\n" + str(shader_material))
+	#shader_material.shader = card_shader
+	#print(card_shader)
+	#print(shader_material.shader)
+	#self.material = shader_material
+	#print(str(self.material) + "\n")

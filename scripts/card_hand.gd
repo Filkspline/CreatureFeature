@@ -64,10 +64,13 @@ func _spread_cards() -> void:
 func _input(event: InputEvent) -> void:
 	# TODO handle fix for when inputting a movement action after selection has been made
 	# Handles the input for the ui menu, god help us all
-	if event is InputEventMouseButton or event is InputEventMouseMotion:
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	
+	# NOTE This handles the mouse input, scrapping this as I don't want to deal with clicking
+	# NOTE Probably clean this up if we don't intend to actually use this
+	#if event is InputEventMouseButton or event is InputEventMouseMotion:
+		#Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-	elif event is InputEventKey:
+	if event is InputEventKey:
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 		if event.keycode == KEY_A and event.pressed:
 			if selected_card_idx == 0:
@@ -101,12 +104,15 @@ func _input(event: InputEvent) -> void:
 				hand.get_child(selected_card_idx).currently_highlighted = true
 				hand.get_child(selected_card_idx)._handle_highlight()
 
-	elif event is InputEventJoypadMotion:
+	# NOTE This is for handling using a stick for controlling selection, I have abaondoned this as god has abandoned us
+	# NOTE Probably clean this up if we don't intend to actually use this
+	#elif event is InputEventJoypadMotion:
 		#TODO handle controller stick selection, needs a cursor sprite
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	else:
-		pass 
-
+		#Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	#else:
+		#pass 
+	
+	# Handles selection input as it is
 	if event is InputEventJoypadButton:
 		if event.button_index == JOY_BUTTON_A:
 			if currently_handling_card == false:
@@ -122,18 +128,17 @@ func _handle_clicked_card():
 	currently_handling_card = true
 	for card in hand.get_children():
 		if card.currently_highlighted == false:
-			#card._handle_shader()
+			# card._handle_shader() # NOTE uncomment when shaders actually fucking work
 			var tween = create_tween()
 			tween.tween_property(card, "scale", Vector2(0.01, 0.01), 0.5)
 			tween.parallel().tween_property(card, "modulate", Color.TRANSPARENT, 0.5)
 			tween.tween_callback(card.queue_free)
-			#await get_tree().create_timer(0.5).timeout
-			#hand.remove_child(card)
-			#card.queue_free()
+			
 		else:
 			highlighted_card = card
 	# Handles moving the selected card to the center of the screen,
 	# can be changed to move to a specific node down the line
+	highlighted_card.z_index = card_default_z_index + 1
 	var tween = create_tween()
 	tween.tween_property(highlighted_card, "transform", card_default_transform, 0.4)
 	tween.parallel().tween_property(highlighted_card, "rotation", card_default_rotation, 0.4)
