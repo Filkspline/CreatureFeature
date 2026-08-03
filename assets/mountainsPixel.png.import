@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://it74545u7k0n"
-path="res://.godot/imported/360_F_1562132364_z97PZPIvFl9zAhrsSgvt7h9JwJlqBWxn.jpg-003bec51b8928d5a1aa290a942cdad11.ctex"
+uid="uid://bku1ly2q8eobe"
+path="res://.godot/imported/mountainsPixel.png-e6d25eb667a3fb3ccf6689f2ca59ab97.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/360_F_1562132364_z97PZPIvFl9zAhrsSgvt7h9JwJlqBWxn.jpg"
-dest_files=["res://.godot/imported/360_F_1562132364_z97PZPIvFl9zAhrsSgvt7h9JwJlqBWxn.jpg-003bec51b8928d5a1aa290a942cdad11.ctex"]
+source_file="res://assets/mountainsPixel.png"
+dest_files=["res://.godot/imported/mountainsPixel.png-e6d25eb667a3fb3ccf6689f2ca59ab97.ctex"]
 
 [params]
 

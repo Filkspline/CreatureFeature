@@ -1,13 +1,7 @@
 extends Camera2D
 
 # ── Players ──────────────────────────────────────────────────────
-# Assigned directly in the Inspector rather than found via the
-# "players" group at runtime. Two reasons:
-#  1. Godot doesn't guarantee _ready() order across sibling nodes, so
-#     fetching the group in the camera's own _ready() could run
-#     before both players have added themselves to it.
-#  2. Explicit slots let you pick exactly which node is P1 and which
-#     is P2 instead of trusting whatever order the group returns.
+
 @export_group("Players")
 @export var player_1: Node2D
 @export var player_2: Node2D

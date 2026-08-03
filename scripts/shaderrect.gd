@@ -111,20 +111,6 @@ func _ready():
 	# Connect to viewport resize
 	get_viewport().connect("size_changed", _on_viewport_resized)
 
-	# Move into a dedicated CanvasLayer. As a plain node in the 2D world
-	# tree, this rect's "full screen" coverage was computed once in WORLD
-	# space and never updated — so as soon as Camera2D panned horizontally
-	# to track the players, this rect drifted out of alignment with what
-	# was actually on screen. It also meant this rect and the particle
-	# effects (both large opaque SCREEN_TEXTURE-sampling quads) were
-	# competing for z_index-based draw order in the same canvas layer,
-	# which is why particles were disappearing under it. A CanvasLayer is
-	# screen-space by definition, so it always matches the viewport
-	# regardless of camera position, and always draws after the base
-	# layer's content — sidestepping both problems at once.
-	# Deferred because reparenting during our own _ready() (while the
-	# scene is still finishing instantiating siblings) can otherwise hit
-	# "parent node is busy" errors.
 	call_deferred("_move_to_canvas_layer")
 
 
