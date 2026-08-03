@@ -1,12 +1,5 @@
 extends CPUParticles2D
-# Block-impact effect. Same shared impact_tear shader as HitParticle, but
-# tuned blue and gentler — a block should read as "absorbed" rather than
-# "damaging", so smaller burst, softer spread, weaker tear/chrom.
-#
-# Does NOT auto-emit on _ready() — same reason as HitParticle.gd: add_child()
-# calls _ready() synchronously, before the caller sets global_position, so
-# starting emission here would fire the burst at (0, 0) every time. Call
-# play() explicitly once the node's position is set instead.
+
 
 const TEAR_SHADER := preload("res://scripts/impact_tear.gdshader")
 

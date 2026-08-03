@@ -1,15 +1,5 @@
 extends CPUParticles2D
-# Attached directly to the root CPUParticles2D node — this node IS the
-# particle emitter. The flashy part of the effect is now the shared
-# impact_tear shader (res://shaders/impact_tear.gdshader) instead of a
-# hand-drawn _Flash class, so this script only configures a small burst
-# of sparks and spawns one ColorRect running that shader on top.
-#
-# Does NOT auto-emit on _ready(). add_child() calls _ready() synchronously,
-# before the caller (HitEffectManager) gets a chance to set global_position
-# — so starting emission here would fire the whole one-shot burst at the
-# node's default (0, 0) position every time, regardless of where it was
-# spawned. Call play() explicitly once the node's position is set instead.
+
 
 const TEAR_SHADER := preload("res://scripts/impact_tear.gdshader")
 
@@ -39,7 +29,7 @@ func _configure_particles() -> void:
 	initial_velocity_max = 260.0
 	scale_amount_min = 0.5
 	scale_amount_max = 1.0
-	color = Color(0.9, 0.95, 1.0, 0.9)
+	color = Color(1.0, 0.949, 1.0, 0.902)
 
 
 func _make_tear_effect() -> ColorRect:

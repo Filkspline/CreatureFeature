@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://lfmrny1c1kqn"]
+
+[ext_resource type="Script" uid="uid://by6ot2hngk81s" path="res://scripts/parallax_background.gd" id="1_bg"]
+[ext_resource type="Texture2D" uid="uid://b8hjdf01s1d02" path="res://assets/Skypixel.png" id="2_bpahb"]
+[ext_resource type="Texture2D" uid="uid://bku1ly2q8eobe" path="res://assets/mountainsPixel.png" id="3_bpahb"]
+[ext_resource type="Texture2D" uid="uid://r7gohafo4hks" path="res://assets/BuildingsPixel.png" id="4_bpahb"]
+[ext_resource type="Texture2D" uid="uid://cvmcch1x05ck7" path="res://assets/PlatformPixel.png" id="5_bpahb"]
+
+[node name="ParallaxBackground" type="ParallaxBackground" unique_id=1729271799]
+process_mode = 3
+script = ExtResource("1_bg")
+mountains_speed = 0.25
+buildings_speed = 0.63
+
+[node name="Sky" type="ParallaxLayer" parent="." unique_id=814518616]
+motion_scale = Vector2(0.05, 0.05)
+
+[node name="Texture" type="Sprite2D" parent="Sky" unique_id=83571381]
+position = Vector2(-175, -111)
+scale = Vector2(1.4835356, 1.4271524)
+texture = ExtResource("2_bpahb")
+centered = false
+
+[node name="Mountains" type="ParallaxLayer" parent="." unique_id=241472984]
+motion_scale = Vector2(0.25, 0.25)
+
+[node name="Texture" type="Sprite2D" parent="Mountains" unique_id=1848822888]
+position = Vector2(-231, -16)
+scale = Vector2(1.9229287, 1.220238)
+texture = ExtResource("3_bpahb")
+centered = false
+
+[node name="Buildings" type="ParallaxLayer" parent="." unique_id=257820353]
+motion_scale = Vector2(0.63, 0.63)
+
+[node name="Texture" type="Sprite2D" parent="Buildings" unique_id=88007777]
+position = Vector2(-235, 51.999996)
+scale = Vector2(1.4571823, 1.2157677)
+texture = ExtResource("4_bpahb")
+centered = false
+
+[node name="Platform" type="ParallaxLayer" parent="." unique_id=852107704]
+
+[node name="Texture" type="Sprite2D" parent="Platform" unique_id=1401539385]
+modulate = Color(0.7521368, 0.7521368, 0.7521368, 1)
+self_modulate = Color(1.1755697, 1.1755697, 1.1755697, 1)
+position = Vector2(-433, 68)
+scale = Vector2(2.0433388, 1.3607142)
+texture = ExtResource("5_bpahb")
+centered = false
