@@ -9,9 +9,12 @@
 [ext_resource type="Script" uid="uid://dmsxu4iefeks6" path="res://scripts/shadowtest.gd" id="6_qcd3b"]
 [ext_resource type="Script" uid="uid://ddupk7aj7bm26" path="res://scripts/projectile_test.gd" id="7_88ety"]
 [ext_resource type="PackedScene" uid="uid://b7v6u5m0v7s48" path="res://scenes/camera.tscn" id="8_ahbqi"]
+[ext_resource type="Script" uid="uid://flsoi7tnikv2" path="res://scripts/fogshader.gd" id="8_dw7u0"]
+[ext_resource type="Shader" uid="uid://3webiwpcj0lu" path="res://scripts/fog.gdshader" id="9_fyxdr"]
+[ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/impact_tear.gdshader" id="10_4asn1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(1257, 154)
+size = Vector2(1320.5, 154)
 
 [sub_resource type="Gradient" id="Gradient_4r5pv"]
 interpolation_mode = 1
@@ -36,6 +39,34 @@ shader_parameter/chromatic_aberration = 0.0004
 shader_parameter/noise_amount = 0.0015
 shader_parameter/flicker = 0.0008
 shader_parameter/distortion = 0.005
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kpk0m"]
+shader = ExtResource("9_fyxdr")
+shader_parameter/fog_color = Color(0.8, 0.85, 0.9, 1)
+shader_parameter/opacity = 0.25
+shader_parameter/density = 0.5
+shader_parameter/noise_scale = 8.0
+shader_parameter/scroll_speed = Vector2(0.02, 0.005)
+shader_parameter/softness = 0.4
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dw7u0"]
+shader = ExtResource("10_4asn1")
+shader_parameter/impact_pos = Vector2(0.5, 0.5)
+shader_parameter/core_radius = 0.08
+shader_parameter/glow_radius = 0.35
+shader_parameter/core_color = Color(0, 0, 0, 1)
+shader_parameter/rim_color = Color(0, 0, 0, 1)
+shader_parameter/tear_strength = 0.05600000266
+shader_parameter/tear_band_count = 126.0490055123275
+shader_parameter/tear_radius = 0.60000002384186
+shader_parameter/flicker_speed = 20.3850009207875
+shader_parameter/chrom_strength = 0.05000000074506
+shader_parameter/fade_start = 0.5550000263625
+shader_parameter/fade_end = 0.80000001192093
+shader_parameter/effect_alpha = 0.0990000047025
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yf5fn"]
+size = Vector2(260, 463.5)
 
 [node name="TestLevel" type="Node2D" unique_id=92995186]
 
@@ -67,19 +98,31 @@ camera = NodePath("../Camera2D")
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1393003880]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=935934337]
-position = Vector2(328, 381)
+position = Vector2(296.25, 381)
 shape = SubResource("RectangleShape2D_g4v7s")
 
 [node name="Shadow" type="TextureRect" parent="." unique_id=1822879755]
 modulate = Color(1, 1, 1, 0.3019608)
 self_modulate = Color(1, 1, 1, 0.32941177)
-offset_left = -70.0
-offset_top = 295.0
-offset_right = 61.0
+offset_left = -49.0
+offset_top = 299.0
+offset_right = 63.0
 offset_bottom = 328.0
 texture = SubResource("GradientTexture2D_88ety")
 expand_mode = 1
 script = ExtResource("6_qcd3b")
+
+[node name="Shadow2" type="TextureRect" parent="." unique_id=731939649]
+modulate = Color(1, 1, 1, 0.3019608)
+self_modulate = Color(1, 1, 1, 0.32941177)
+offset_left = 565.0
+offset_top = 299.0
+offset_right = 677.0
+offset_bottom = 327.0
+texture = SubResource("GradientTexture2D_88ety")
+expand_mode = 1
+script = ExtResource("6_qcd3b")
+player_id = 2
 
 [node name="Player" parent="." unique_id=786033213 instance=ExtResource("1_2venv")]
 scale = Vector2(0.75, 0.75)
@@ -104,6 +147,21 @@ flicker = 0.001
 noise_amount = 0.002
 current_preset = 1
 
+[node name="fogshader" type="ColorRect" parent="." unique_id=2145032959]
+visible = false
+offset_left = -894.0
+offset_top = -142.0
+offset_right = 1220.0
+offset_bottom = 567.0
+script = ExtResource("8_dw7u0")
+shader_material = SubResource("ShaderMaterial_kpk0m")
+opacity = 0.14
+density = 0.52
+noise_scale = 31.0
+scroll_speed = Vector2(0.1, 0.65)
+softness = 0.15000000000000002
+full_screen = false
+
 [node name="ColorRect2" type="ColorRect" parent="." unique_id=1087262227]
 visible = false
 offset_left = 229.0
@@ -125,3 +183,31 @@ crt_node_path = NodePath("../TempCrtShader")
 position = Vector2(317, 165)
 player_1 = NodePath("../Player")
 player_2 = NodePath("../Player2")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=650156962]
+material = SubResource("ShaderMaterial_dw7u0")
+offset_left = -888.0
+offset_top = -145.0
+offset_right = -243.0
+offset_bottom = 483.0
+color = Color(0, 0, 0, 1)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ColorRect" unique_id=2016972260]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColorRect/StaticBody2D" unique_id=579724733]
+position = Vector2(363, 291.25)
+shape = SubResource("RectangleShape2D_yf5fn")
+
+[node name="ColorRect3" type="ColorRect" parent="." unique_id=883637183]
+material = SubResource("ShaderMaterial_dw7u0")
+offset_left = 738.0
+offset_top = -62.0
+offset_right = 1252.0
+offset_bottom = 445.0
+color = Color(0, 0, 0, 1)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ColorRect3" unique_id=1319954107]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ColorRect3/StaticBody2D" unique_id=1452004597]
+position = Vector2(201, 242)
+shape = SubResource("RectangleShape2D_yf5fn")

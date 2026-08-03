@@ -15,6 +15,10 @@ extends ParallaxBackground
 	set(value):
 		mountains_speed = value
 		_apply_speeds()
+@export_range(0.0, 1.0, 0.01) var buildingsflying_speed: float = 0.4:
+	set(value):
+		buildingsflying_speed = value
+		_apply_speeds()
 @export_range(0.0, 1.0, 0.01) var buildings_speed: float = 0.4:
 	set(value):
 		buildings_speed = value
@@ -27,6 +31,7 @@ extends ParallaxBackground
 @onready var _layers := {
 	"Sky": $Sky,
 	"Mountains": $Mountains,
+	"BuildingsFlying": $BuildingsFlying,
 	"Buildings": $Buildings,
 	"Platform": $Platform,
 }
@@ -42,6 +47,7 @@ func _apply_speeds():
 		return
 	$Sky.motion_scale = Vector2(sky_speed, sky_speed)
 	$Mountains.motion_scale = Vector2(mountains_speed, mountains_speed)
+	$BuildingsFlying.motion_scale = Vector2(buildingsflying_speed, buildingsflying_speed)
 	$Buildings.motion_scale = Vector2(buildings_speed, buildings_speed)
 	$Platform.motion_scale = Vector2(platform_speed, platform_speed)
 
