@@ -4,13 +4,18 @@
 [ext_resource type="Texture2D" uid="uid://b8hjdf01s1d02" path="res://assets/Skypixel.png" id="2_bpahb"]
 [ext_resource type="Texture2D" uid="uid://bku1ly2q8eobe" path="res://assets/mountainsPixel.png" id="3_bpahb"]
 [ext_resource type="Texture2D" uid="uid://r7gohafo4hks" path="res://assets/BuildingsPixel.png" id="4_bpahb"]
+[ext_resource type="Texture2D" uid="uid://buqnx74178dtl" path="res://assets/buildingshover.png" id="4_qs7dk"]
 [ext_resource type="Texture2D" uid="uid://cvmcch1x05ck7" path="res://assets/PlatformPixel.png" id="5_bpahb"]
 
 [node name="ParallaxBackground" type="ParallaxBackground" unique_id=1729271799]
 process_mode = 3
 script = ExtResource("1_bg")
 mountains_speed = 0.25
+fog_back_1_speed = null
+fog_back_2_speed = null
+buildingsflying_speed = 0.43
 buildings_speed = 0.63
+fog_front_speed = null
 
 [node name="Sky" type="ParallaxLayer" parent="." unique_id=814518616]
 motion_scale = Vector2(0.05, 0.05)
@@ -30,6 +35,17 @@ scale = Vector2(1.9229287, 1.220238)
 texture = ExtResource("3_bpahb")
 centered = false
 
+[node name="BuildingsFlying" type="ParallaxLayer" parent="." unique_id=1588164708]
+motion_scale = Vector2(0.43, 0.43)
+
+[node name="Texture" type="Sprite2D" parent="BuildingsFlying" unique_id=2051872841]
+modulate = Color(0.84947944, 0.84947944, 0.84947944, 1)
+self_modulate = Color(0.9599507, 0.9599507, 0.9599507, 1)
+position = Vector2(-209, -15.000001)
+scale = Vector2(1.826172, 1.3636364)
+texture = ExtResource("4_qs7dk")
+centered = false
+
 [node name="Buildings" type="ParallaxLayer" parent="." unique_id=257820353]
 motion_scale = Vector2(0.63, 0.63)
 
@@ -41,10 +57,46 @@ centered = false
 
 [node name="Platform" type="ParallaxLayer" parent="." unique_id=852107704]
 
+[node name="Texture2" type="Sprite2D" parent="Platform" unique_id=1502550939]
+modulate = Color(0.7521368, 0.7521368, 0.7521368, 1)
+self_modulate = Color(1.1755697, 1.1755697, 1.1755697, 1)
+position = Vector2(805, -122.00001)
+rotation = 1.5707963
+scale = Vector2(1.1061906, 7.1247883)
+texture = ExtResource("5_bpahb")
+centered = false
+
+[node name="Texture5" type="Sprite2D" parent="Platform" unique_id=437984907]
+modulate = Color(0.7521368, 0.7521368, 0.7521368, 1)
+self_modulate = Color(1.1755697, 1.1755697, 1.1755697, 1)
+position = Vector2(-352, -123)
+rotation = 1.5707963
+scale = Vector2(1.106, -7.125)
+texture = ExtResource("5_bpahb")
+centered = false
+
+[node name="Texture4" type="Sprite2D" parent="Platform" unique_id=2142658516]
+modulate = Color(0.7521368, 0.7521368, 0.7521368, 1)
+self_modulate = Color(1.1755697, 1.1755697, 1.1755697, 1)
+position = Vector2(668, -120.00001)
+rotation = 1.5707963
+scale = Vector2(1.1061906, 5.781566)
+texture = ExtResource("5_bpahb")
+centered = false
+
+[node name="Texture3" type="Sprite2D" parent="Platform" unique_id=8605601]
+modulate = Color(0.7521368, 0.7521368, 0.7521368, 1)
+self_modulate = Color(1.1755697, 1.1755697, 1.1755697, 1)
+position = Vector2(-222, -122)
+rotation = 1.5707963
+scale = Vector2(1.106, -5.782)
+texture = ExtResource("5_bpahb")
+centered = false
+
 [node name="Texture" type="Sprite2D" parent="Platform" unique_id=1401539385]
 modulate = Color(0.7521368, 0.7521368, 0.7521368, 1)
 self_modulate = Color(1.1755697, 1.1755697, 1.1755697, 1)
 position = Vector2(-433, 68)
-scale = Vector2(2.0433388, 1.3607142)
+scale = Vector2(2.1123595, 1.3607142)
 texture = ExtResource("5_bpahb")
 centered = false
