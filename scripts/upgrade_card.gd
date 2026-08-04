@@ -7,6 +7,7 @@ extends Node2D
 
 var currently_highlighted : bool
 var is_flipped : bool
+#var assoc_tres_file
 
 # NOTE cleaned up some of the remaining unused functions here
 
@@ -40,3 +41,10 @@ func _handle_highlight() -> void:
 	#print(shader_material.shader)
 	#self.material = shader_material
 	#print(str(self.material) + "\n")
+
+func _handle_tres_file(tres_file_path : String) -> void:
+	var tres_file = load(tres_file_path)
+	# TODO this should be edited to handle more than just grabbing the name, to be done later
+	print(tres_file)
+	print(tres_file.name)
+	#print(tres_file._return_name())

@@ -16,6 +16,7 @@ var card_default_rotation : float
 var defaults_set : bool
 var selected_card_idx : int
 var currently_handling_card : bool
+var card_map : Dictionary[Node2D, String]
 
 ##------------------------------------------------------------------------
 
@@ -25,10 +26,14 @@ func _ready() -> void:
 	_draw_hand()
 
 func _draw_hand() -> void:
+	var tres_file_paths = CardDictionary._draw_from_dict() # Gets an Array[String] of tres file paths
 	current_z_index = card_default_z_index
 	for _x in hand_limit:
 		# TODO WIll need to be altered for drawing from the dictionary
 		var upgarde_card = UPGRADE_CARD.instantiate()
+		var tres_file = tres_file_paths.pop_front()
+		print(tres_file)
+		card_map.set(upgarde_card, tres_file)
 		if defaults_set != true:
 			card_default_transform = upgarde_card.transform
 			card_default_rotation = upgarde_card.rotation
@@ -146,3 +151,5 @@ func _handle_clicked_card():
 	tween.parallel().tween_property(highlighted_card, "rotation", card_default_rotation, 0.4)
 	tween.parallel().tween_property(highlighted_card, "scale", Vector2(2.0, 2.0), 0.4)
 	# TODO to handle vfx if wanted or any other processes do so after the above code
+	
+	highlighted_card._handle_tres_file(card_map.get(highlighted_card))
