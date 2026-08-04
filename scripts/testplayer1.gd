@@ -22,7 +22,7 @@ class_name Player
 
 # ── Hurtbox ──────────────────────────────────────────────────────
 @export_group("Hurtbox")
-@export var hurtbox_vertical_reduction: float = 50.0
+@export var hurtbox_vertical_reduction: float = 80.0
 
 # ── Combat timing ────────────────────────────────────────────────
 @export_group("Combat Timing")
