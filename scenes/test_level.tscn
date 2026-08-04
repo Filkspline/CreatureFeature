@@ -148,7 +148,6 @@ noise_amount = 0.002
 current_preset = 1
 
 [node name="fogshader" type="ColorRect" parent="." unique_id=2145032959]
-visible = false
 offset_left = -894.0
 offset_top = -142.0
 offset_right = 1220.0

@@ -154,11 +154,14 @@ func _ready() -> void:
 	base_hurtbox_size = hurtbox_shape.size
 	base_hurtbox_position = $Hurtbox/MainHurtbox.position
 
-	sprites.setup(animation_player)
+	# Move lookup has to exist before sprites.setup(), since PlayerVisuals
+	# builds its attack-sprite dictionary from all_moves.keys() — only
+	# wiring up sprites for moves that are actually assigned.
+	_build_move_lookup()
+
+	sprites.setup(animation_player, all_moves.keys())
 	sprites.set_facing(facing_right)
 	sprites.animation_finished.connect(_on_sprites_animation_finished)
-
-	_build_move_lookup()
 
 	var players = get_tree().get_nodes_in_group("players")
 	_dbg("[SETUP] 'players' group has %d node(s): %s" % [players.size(), players.map(func(p): return p.name)])
@@ -186,7 +189,7 @@ func _build_move_lookup() -> void:
 	_add_move.call(N4, normal_moves, "back")
 	_add_move.call(N6, normal_moves, "forward")
 	_add_move.call(N2, normal_moves, "crouching")
-	_add_move.call(N8, normal_moves, "jumping")
+	_add_move.call(N8, normal_moves, "up")
 	_add_move.call(NA, normal_moves, "aerial")
 	_add_move.call(N52, normal_moves, "")
 
@@ -194,7 +197,7 @@ func _build_move_lookup() -> void:
 	_add_move.call(S4, special_moves, "back")
 	_add_move.call(S6, special_moves, "forward")
 	_add_move.call(S2, special_moves, "crouching")
-	_add_move.call(S8, special_moves, "jumping")
+	_add_move.call(S8, special_moves, "up")
 	_add_move.call(SA, special_moves, "aerial")
 
 
@@ -294,6 +297,11 @@ func _block_posture_beats_hit_level(hit_level: MoveData.HitLevel, was_crouching:
 
 
 # ── Attack resolve / start ───────────────────────────────────────
+# Move keys: "neutral" / "forward" / "back" / "crouching" / "up" / "aerial".
+# "up" is a grounded input (Up + Normal/Special, e.g. N8/S8) — distinct
+# from the Jump action. It's also reused as the airborne fallback attack
+# when no dedicated "aerial" move is set, since that's the classic
+# fighting-game "jumping normal" behavior.
 func _resolve_move(type: String) -> MoveData:
 	var dict = normal_moves if type == "normal" else special_moves
 	var key = ""
@@ -304,9 +312,11 @@ func _resolve_move(type: String) -> MoveData:
 		if aerial_move:
 			has_used_aerial = true
 			return aerial_move
-		key = "jumping"
+		key = "up"
 	elif crouch_phase == CrouchPhase.LOOP:
 		key = "crouching"
+	elif Input.is_action_pressed(_action("Up")):
+		key = "up"
 	else:
 		var dir = _get_horizontal_input()
 		if dir == 0.0:
@@ -317,7 +327,7 @@ func _resolve_move(type: String) -> MoveData:
 			key = "back"
 
 	var move = dict.get(key, null)
-	if move == null and key != "neutral" and key != "crouching" and key != "jumping":
+	if move == null and key != "neutral" and key != "crouching" and key != "up":
 		move = dict.get("neutral", null)
 	return move
 
