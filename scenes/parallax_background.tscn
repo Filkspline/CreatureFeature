@@ -8,6 +8,8 @@
 [ext_resource type="Texture2D" uid="uid://cvmcch1x05ck7" path="res://assets/PlatformPixel.png" id="5_bpahb"]
 [ext_resource type="Script" uid="uid://flsoi7tnikv2" path="res://scripts/fogshader.gd" id="6_jy56r"]
 [ext_resource type="Shader" uid="uid://3webiwpcj0lu" path="res://scripts/fog.gdshader" id="7_11q5a"]
+[ext_resource type="Texture2D" uid="uid://dqmxf1m8y6i5p" path="res://assets/HandyIdle-Sheet.png" id="8_11q5a"]
+[ext_resource type="Texture2D" uid="uid://bo4riym1x6ofx" path="res://assets/setdressingpixel.png" id="10_cdfjv"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cdfjv"]
 shader = ExtResource("7_11q5a")
@@ -47,7 +49,7 @@ centered = false
 motion_scale = Vector2(0.43, 0.43)
 
 [node name="Texture" type="Sprite2D" parent="BuildingsFlying" unique_id=2051872841]
-modulate = Color(0.84947944, 0.84947944, 0.84947944, 1)
+modulate = Color(0.5157319, 0.5157319, 0.5157319, 0.8901961)
 self_modulate = Color(0.9599507, 0.9599507, 0.9599507, 1)
 position = Vector2(-209, -15.000001)
 scale = Vector2(1.826172, 1.3636364)
@@ -55,14 +57,14 @@ texture = ExtResource("4_qs7dk")
 centered = false
 
 [node name="fogshader" type="ColorRect" parent="BuildingsFlying" unique_id=1593792258]
-offset_left = -894.0
-offset_top = -142.0
+offset_left = -893.99994
+offset_top = -141.99998
 offset_right = 1220.0
 offset_bottom = 567.0
 script = ExtResource("6_jy56r")
 shader_material = SubResource("ShaderMaterial_cdfjv")
 fog_color = Color(0.48441553, 0.5904295, 0.6944377, 1)
-opacity = 0.34
+opacity = 0.39
 density = 0.4
 noise_scale = 37.5
 scroll_speed = Vector2(0.2, 0.65)
@@ -73,10 +75,18 @@ full_screen = false
 motion_scale = Vector2(0.63, 0.63)
 
 [node name="Texture" type="Sprite2D" parent="Buildings" unique_id=88007777]
+modulate = Color(0.72043425, 0.72043425, 0.72043425, 1)
 position = Vector2(-235, 51.999996)
 scale = Vector2(1.4571823, 1.2157677)
 texture = ExtResource("4_bpahb")
 centered = false
+
+[node name="handy" type="Sprite2D" parent="Buildings" unique_id=1736441183]
+modulate = Color(0.8151441, 0.8151441, 0.8151441, 1)
+position = Vector2(288, 217)
+scale = Vector2(0.29333335, 0.29333332)
+texture = ExtResource("8_11q5a")
+hframes = 4
 
 [node name="Platform" type="ParallaxLayer" parent="." unique_id=852107704]
 
@@ -88,6 +98,12 @@ rotation = 1.5707963
 scale = Vector2(1.1061906, 7.1247883)
 texture = ExtResource("5_bpahb")
 centered = false
+
+[node name="Sprite2D" type="Sprite2D" parent="Platform" unique_id=204705655]
+modulate = Color(0.8151441, 0.8151441, 0.8151441, 1)
+position = Vector2(226.2483, 224)
+scale = Vector2(0.5034547, 0.33080113)
+texture = ExtResource("10_cdfjv")
 
 [node name="Texture5" type="Sprite2D" parent="Platform" unique_id=437984907]
 modulate = Color(0.7521368, 0.7521368, 0.7521368, 1)
