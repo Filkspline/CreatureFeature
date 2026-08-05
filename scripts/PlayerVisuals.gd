@@ -55,18 +55,19 @@ enum BlockWarningPhase { NONE, START, HOLD, END }
 @onready var walk_forward_sprite: Sprite2D = $WalkForward
 @onready var jump_sprite: Sprite2D = $Jump
 @onready var crouch_sprite: Sprite2D = $Crouch
-@onready var n5_sprite: Sprite2D = $N5
-@onready var n4_sprite: Sprite2D = $N4
-@onready var n52_sprite: Sprite2D = $N52
-@onready var s5_sprite: Sprite2D = $S5
-@onready var na_sprite: Sprite2D = $NA
-@onready var sa_sprite: Sprite2D = $SA
 @onready var mid_block_warning: Sprite2D = $MidBlockWarning
 @onready var low_block_warning: Sprite2D = $LowBlockWarning
 @onready var block_idle_sprite: Sprite2D = $BlockIdle
 @onready var crouch_block_idle_sprite: Sprite2D = $CrouchBlockIdle
 @onready var crouch_hit_sprite: Sprite2D = $CrouchHit
 @onready var mid_hit_sprite: Sprite2D = $MidHit
+
+# Attack sprites are NOT fixed @onready vars — they're looked up by move
+# name (e.g. "N5", "S6") when setup() runs, so adding a new move later is
+# just: assign the MoveData on Player + add a same-named Sprite2D child
+# here. No script changes, and a move with no sprite yet just shows
+# nothing instead of erroring.
+var attack_sprites: Dictionary = {}
 
 var animation_player: AnimationPlayer
 var active_sprite: Sprite2D = null
@@ -85,16 +86,21 @@ func _dbg(msg: String) -> void:
 
 
 # ── Setup, called once by Player._ready() ─────────────────────────
-func setup(anim_player: AnimationPlayer) -> void:
+# move_names should be Player.all_moves.keys() — only moves that actually
+# have a MoveData assigned get a sprite lookup, so nothing breaks if a
+# future move (e.g. S6) is assigned before its sprite exists, or vice versa.
+func setup(anim_player: AnimationPlayer, move_names: Array = []) -> void:
 	animation_player = anim_player
 
-	# Hide attack sprites initially
-	n5_sprite.visible = false
-	n52_sprite.visible = false
-	n4_sprite.visible = false
-	s5_sprite.visible = false
-	na_sprite.visible = false
-	sa_sprite.visible = false
+	attack_sprites.clear()
+	for move_name in move_names:
+		var node = get_node_or_null(String(move_name))
+		if node and node is Sprite2D:
+			node.visible = false
+			attack_sprites[move_name] = node
+		else:
+			_dbg("[SPRITES] no Sprite2D child named '%s' — that move won't show a sprite until one's added" % move_name)
+
 	# Blocking sprites off
 	mid_block_warning.visible = false
 	low_block_warning.visible = false
@@ -123,7 +129,6 @@ func setup(anim_player: AnimationPlayer) -> void:
 	animation_player.play("RESET")
 	animation_player.seek(0.0, true)
 
-# Add anywhere in player_visuals.gd, e.g. near get_current_anim()
 func set_facing(facing_right: bool) -> void:
 	scale.x = 1.0 if facing_right else -1.0
 
@@ -198,19 +203,11 @@ func play_hit_reaction(was_crouching: bool) -> void:
 
 
 func show_attack_sprite(move_name: String) -> void:
-	match move_name:
-		"N5":
-			n5_sprite.visible = true
-		"N4":
-			n4_sprite.visible = true
-		"N52":
-			n52_sprite.visible = true
-		"S5":
-			s5_sprite.visible = true
-		"NA":
-			na_sprite.visible = true
-		"SA":
-			sa_sprite.visible = true
+	var sprite = attack_sprites.get(move_name, null)
+	if sprite:
+		sprite.visible = true
+	else:
+		_dbg("[SPRITES] show_attack_sprite('%s') — no sprite registered, showing nothing" % move_name)
 
 
 # Attack animations are driven frame-by-frame by Player (attack_frame),
@@ -276,12 +273,8 @@ func hide_all_sprites() -> void:
 
 
 func hide_attack_sprites() -> void:
-	n5_sprite.visible = false
-	n52_sprite.visible = false
-	s5_sprite.visible = false
-	na_sprite.visible = false
-	sa_sprite.visible = false
-	n4_sprite.visible = false
+	for sprite in attack_sprites.values():
+		sprite.visible = false
 
 
 func hide_block_sprites() -> void:

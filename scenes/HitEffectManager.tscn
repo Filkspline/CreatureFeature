@@ -8,3 +8,4 @@
 script = ExtResource("1")
 default_hit_effect = ExtResource("2_xiumo")
 default_block_effect = ExtResource("3_6e0ck")
+impact_x_influence = 0.3

@@ -17,7 +17,7 @@ shader_parameter/flicker_speed = 18.0
 shader_parameter/chrom_strength = 0.019
 shader_parameter/fade_start = 0.30000001425
 shader_parameter/fade_end = 0.53600002546
-shader_parameter/effect_alpha = 0.8470000402325
+shader_parameter/effect_alpha = 0.5270000250325
 
 [node name="HitParticle" type="CPUParticles2D" unique_id=657205917]
 z_index = 1

@@ -7,6 +7,7 @@
 [ext_resource type="Resource" uid="uid://clikuihe6gu1i" path="res://scripts/S5.tres" id="4_3v2ag"]
 [ext_resource type="Resource" uid="uid://dvt1xmle7oulb" path="res://scripts/NA.tres" id="4_f1ej7"]
 [ext_resource type="Resource" uid="uid://b6lkixus5q5rc" path="res://scripts/N4.tres" id="4_ke2ow"]
+[ext_resource type="Resource" uid="uid://cdirqpownqbv0" path="res://scripts/N8.tres" id="5_31cv2"]
 [ext_resource type="Resource" uid="uid://bn8afhhfe2u55" path="res://scripts/SA.tres" id="6_a38lo"]
 [ext_resource type="Texture2D" uid="uid://dpeavktcslus8" path="res://assets/crouch.png" id="6_tuyoq"]
 [ext_resource type="Texture2D" uid="uid://p0xaqqctbsqi" path="res://assets/N5.png" id="7_fjrip"]
@@ -24,6 +25,7 @@
 [ext_resource type="Texture2D" uid="uid://gnt8lrqdqscq" path="res://assets/crouchhit.png" id="20_i4ail"]
 [ext_resource type="Texture2D" uid="uid://88swive8pstq" path="res://assets/SA.png" id="21_i4ail"]
 [ext_resource type="Texture2D" uid="uid://blh70px5vevds" path="res://assets/N4.png" id="24_l71n6"]
+[ext_resource type="Texture2D" uid="uid://dsaxy7p7l1hsx" path="res://assets/N8.png" id="26_ujl30"]
 [ext_resource type="Script" uid="uid://dqthlu7xsfxsy" path="res://scripts/PlayerVisuals.gd" id="30_visuals"]
 
 [sub_resource type="Gradient" id="Gradient_fulsm"]
@@ -154,7 +156,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.06666667, 0.15, 0.2),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [Vector2(92, 90), Vector2(124.75, 31), Vector2(67.5, 46), Vector2(34.5, 74)]
+"values": [Vector2(92, 90), Vector2(124.75, 11), Vector2(67.5, 13.5), Vector2(34.5, 74)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -304,6 +306,95 @@ tracks/6/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(77, -116)]
+}
+
+[sub_resource type="Animation" id="Animation_bj30b"]
+resource_name = "N8"
+length = 0.73333335
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprites/N8:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.11666667, 0.18333334, 0.38333336, 0.46666667, 0.6, 0.6666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hitbox/MainHitbox:shape:size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.38333336, 0.4666667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(92, 90), Vector2(118, 186), Vector2(92, 103)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hitbox/MainHitbox:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.38333336, 0.4666667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(78, -117.5), Vector2(100, -239), Vector2(97, -211.5)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hitbox/MainHitbox:disabled")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.38333336, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [true, false, true]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hurtbox/SubHurtbox:disabled")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.38333336, 0.6666667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [true, false, true]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hurtbox/SubHurtbox:shape:size")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.38333336),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2(81.75, 56)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Hurtbox/SubHurtbox:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0.38333336),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2(76, -129)]
 }
 
 [sub_resource type="Animation" id="Animation_f1ej7"]
@@ -668,6 +759,18 @@ tracks/22/path = NodePath("Sprites/N4:frame")
 tracks/22/interp = 1
 tracks/22/loop_wrap = true
 tracks/22/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/23/type = "value"
+tracks/23/imported = false
+tracks/23/enabled = true
+tracks/23/path = NodePath("Sprites/N8:frame")
+tracks/23/interp = 1
+tracks/23/loop_wrap = true
+tracks/23/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
@@ -1092,6 +1195,7 @@ _data = {
 &"N4": SubResource("Animation_md1ol"),
 &"N5": SubResource("Animation_smehm"),
 &"N52": SubResource("Animation_y4r1p"),
+&"N8": SubResource("Animation_bj30b"),
 &"NA": SubResource("Animation_f1ej7"),
 &"RESET": SubResource("Animation_a38lo"),
 &"S5": SubResource("Animation_d2wvv"),
@@ -1127,6 +1231,7 @@ direction_buffer_time = 0.8
 N5 = ExtResource("2_smehm")
 N52 = ExtResource("3_d2wvv")
 N4 = ExtResource("4_ke2ow")
+N8 = ExtResource("5_31cv2")
 N6 = ExtResource("3_d2wvv")
 NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
@@ -1255,6 +1360,11 @@ visible = false
 position = Vector2(0, -82)
 texture = ExtResource("24_l71n6")
 hframes = 10
+
+[node name="N8" type="Sprite2D" parent="Sprites" unique_id=1362277945]
+position = Vector2(0, -186)
+texture = ExtResource("26_ujl30")
+hframes = 8
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")

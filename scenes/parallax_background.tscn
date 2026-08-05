@@ -6,16 +6,24 @@
 [ext_resource type="Texture2D" uid="uid://r7gohafo4hks" path="res://assets/BuildingsPixel.png" id="4_bpahb"]
 [ext_resource type="Texture2D" uid="uid://buqnx74178dtl" path="res://assets/buildingshover.png" id="4_qs7dk"]
 [ext_resource type="Texture2D" uid="uid://cvmcch1x05ck7" path="res://assets/PlatformPixel.png" id="5_bpahb"]
+[ext_resource type="Script" uid="uid://flsoi7tnikv2" path="res://scripts/fogshader.gd" id="6_jy56r"]
+[ext_resource type="Shader" uid="uid://3webiwpcj0lu" path="res://scripts/fog.gdshader" id="7_11q5a"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cdfjv"]
+shader = ExtResource("7_11q5a")
+shader_parameter/fog_color = Color(0.8, 0.85, 0.9, 1)
+shader_parameter/opacity = 0.25
+shader_parameter/density = 0.5
+shader_parameter/noise_scale = 8.0
+shader_parameter/scroll_speed = Vector2(0.02, 0.005)
+shader_parameter/softness = 0.4
 
 [node name="ParallaxBackground" type="ParallaxBackground" unique_id=1729271799]
 process_mode = 3
 script = ExtResource("1_bg")
 mountains_speed = 0.25
-fog_back_1_speed = null
-fog_back_2_speed = null
 buildingsflying_speed = 0.43
 buildings_speed = 0.63
-fog_front_speed = null
 
 [node name="Sky" type="ParallaxLayer" parent="." unique_id=814518616]
 motion_scale = Vector2(0.05, 0.05)
@@ -45,6 +53,21 @@ position = Vector2(-209, -15.000001)
 scale = Vector2(1.826172, 1.3636364)
 texture = ExtResource("4_qs7dk")
 centered = false
+
+[node name="fogshader" type="ColorRect" parent="BuildingsFlying" unique_id=1593792258]
+offset_left = -894.0
+offset_top = -142.0
+offset_right = 1220.0
+offset_bottom = 567.0
+script = ExtResource("6_jy56r")
+shader_material = SubResource("ShaderMaterial_cdfjv")
+fog_color = Color(0.48441553, 0.5904295, 0.6944377, 1)
+opacity = 0.34
+density = 0.4
+noise_scale = 37.5
+scroll_speed = Vector2(0.2, 0.65)
+softness = 0.1
+full_screen = false
 
 [node name="Buildings" type="ParallaxLayer" parent="." unique_id=257820353]
 motion_scale = Vector2(0.63, 0.63)
