@@ -1227,17 +1227,7 @@ size = Vector2(92, 90)
 
 [node name="Player" type="CharacterBody2D" unique_id=786033213 groups=["players"]]
 script = ExtResource("1_g2els")
-player_id = null
-walk_forward_speed = null
-walk_backward_speed = null
-jump_velocity = null
-gravity = null
-jump_apex_threshold = null
-pushback_deceleration = null
-hurtbox_vertical_reduction = null
-gatling_buffer_frames = null
 direction_buffer_time = 0.8
-debug = null
 N5 = ExtResource("2_smehm")
 N52 = ExtResource("3_d2wvv")
 N4 = ExtResource("4_ke2ow")
