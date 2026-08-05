@@ -22,14 +22,14 @@ var card_map : Dictionary[Node2D, String]
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	CardDictionary.card_hand = self
+	UpgradePoolManager.card_hand = self
 	_draw_hand()
 
 func _draw_hand() -> void:
-	var tres_file_paths = CardDictionary._draw_from_dict() # Gets an Array[String] of tres file paths
+	# TODO Needs to be changed to dynamically call which player lost, currently hard coded to p1
+	var tres_file_paths = UpgradePoolManager._draw_from_pool(true) # Gets an Array[String] of tres file paths
 	current_z_index = card_default_z_index
 	for _x in hand_limit:
-		# TODO WIll need to be altered for drawing from the dictionary
 		var upgarde_card = UPGRADE_CARD.instantiate()
 		var tres_file = tres_file_paths.pop_front()
 		print(tres_file)
@@ -152,4 +152,4 @@ func _handle_clicked_card():
 	tween.parallel().tween_property(highlighted_card, "scale", Vector2(2.0, 2.0), 0.4)
 	# TODO to handle vfx if wanted or any other processes do so after the above code
 	
-	highlighted_card._handle_tres_file(card_map.get(highlighted_card))
+	highlighted_card._handle_tres_file(card_map.get(highlighted_card), true) # TODO needs to be changed to get the actual player that lost

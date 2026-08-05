@@ -42,9 +42,16 @@ func _handle_highlight() -> void:
 	#self.material = shader_material
 	#print(str(self.material) + "\n")
 
-func _handle_tres_file(tres_file_path : String) -> void:
+func _handle_tres_file(tres_file_path : String, p1_selecting : bool) -> void:
 	var tres_file = load(tres_file_path)
 	# TODO this should be edited to handle more than just grabbing the name, to be done later
+	if p1_selecting == true:
+		UpgradePoolManager.p1_current_upgrades.append(tres_file_path)
+	else:
+		UpgradePoolManager.p2_current_upgrades.append(tres_file_path)
+	
+	UpgradePoolManager._remove_from_pool(tres_file_path, p1_selecting)
+	
 	print(tres_file)
 	print(tres_file.name)
 	#print(tres_file._return_name())
