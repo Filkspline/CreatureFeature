@@ -3,10 +3,9 @@ extends Node2D
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 
 @export var hand_limit : int = 5 # Default 5
-@export var hand_width : float = 200 # Measured in pixels 200 is good for 5 cards
-@export var spread_curve: Curve
-@export var height_curve: Curve
-@export var rotation_curve: Curve
+@export var hand_width : float = 500 # Measured in pixels 200 is good for 5 cards
+@export var min_card_spacing : float = 90.0 # Smallest gap allowed between card slots, keeps scatter from overlapping
+@export var vertical_jitter : float = 80.0 # How far up/down cards can randomly sit, tab-scatter feel
 
 var card_default_z_index : int = hand_limit
 var hand = self
@@ -17,6 +16,7 @@ var defaults_set : bool
 var selected_card_idx : int
 var currently_handling_card : bool
 var card_map : Dictionary[Node2D, String]
+var _rng := RandomNumberGenerator.new()
 
 ##------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ func _ready() -> void:
 
 func _draw_hand() -> void:
 	# TODO Needs to be changed to dynamically call which player lost, currently hard coded to p1
-	var tres_file_paths = UpgradePoolManager._draw_from_pool(true) # Gets an Array[String] of tres file paths
+	var tres_file_paths = UpgradePoolManager._draw_from_pool(GameManager.p1_lose) # Gets an Array[String] of tres file paths
 	current_z_index = card_default_z_index
 	for _x in hand_limit:
 		var upgarde_card = UPGRADE_CARD.instantiate()
@@ -48,20 +48,29 @@ func _draw_hand() -> void:
 
 
 func _spread_cards() -> void:
+	# Cards no longer rotate and no longer follow a fan curve. Each card gets
+	# its own slot along hand_width so slots can't cross into each other,
+	# then gets a small random x/y jitter inside that slot for a scattered,
+	# desktop-tab look instead of a neat fan.
+	_rng.randomize()
+	var child_count = hand.get_child_count()
+	var slot_width = hand_width / float(child_count)
+	var max_jitter_x = max((slot_width - min_card_spacing) * 0.5, 0.0)
+	
 	for card in hand.get_children():
-		var hand_ratio = float(card.get_index())/float(self.get_child_count()-1)
+		var slot_index = card.get_index()
+		var slot_center_x = (slot_index + 0.5) * slot_width - hand_width * 0.5
+		var jitter_x = _rng.randf_range(-max_jitter_x, max_jitter_x)
+		var jitter_y = _rng.randf_range(-vertical_jitter, vertical_jitter)
+		
 		var destination = hand.global_transform
-		
-		
-		# Calculates the locations of the card in the hand
-		#destination.origin += Vector2.UP * 450
-		destination.origin.x += spread_curve.sample(hand_ratio) * hand_width
-		destination.origin += height_curve.sample(hand_ratio) * (Vector2.UP * 15)
+		destination.origin.x += slot_center_x + jitter_x
+		destination.origin.y += jitter_y
 		
 		# Sets the card locations the the assigned destinations
 		var tween = create_tween()
+		tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_property(card, "transform", destination, 0.4)
-		tween.parallel().tween_property(card, "rotation", rotation_curve.sample(hand_ratio) * -0.3, 0.4)
 		await get_tree().create_timer(0.5).timeout
 	
 	hand.get_child(0).currently_highlighted = true
@@ -137,6 +146,7 @@ func _handle_clicked_card():
 		if card.currently_highlighted == false:
 			# card._handle_shader() # NOTE uncomment when shaders actually fucking work
 			var tween = create_tween()
+			tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 			tween.tween_property(card, "scale", Vector2(0.01, 0.01), 0.5)
 			tween.parallel().tween_property(card, "modulate", Color.TRANSPARENT, 0.5)
 			tween.tween_callback(card.queue_free)
@@ -147,9 +157,11 @@ func _handle_clicked_card():
 	# can be changed to move to a specific node down the line
 	highlighted_card.z_index = card_default_z_index + 1
 	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(highlighted_card, "transform", card_default_transform, 0.4)
 	tween.parallel().tween_property(highlighted_card, "rotation", card_default_rotation, 0.4)
 	tween.parallel().tween_property(highlighted_card, "scale", Vector2(2.0, 2.0), 0.4)
 	# TODO to handle vfx if wanted or any other processes do so after the above code
 	
-	highlighted_card._handle_tres_file(card_map.get(highlighted_card), true) # TODO needs to be changed to get the actual player that lost
+
+	highlighted_card._handle_tres_file(card_map.get(highlighted_card), GameManager.p1_lose) # TODO needs to be changed to get the actual player that lost
