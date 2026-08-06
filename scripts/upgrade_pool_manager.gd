@@ -27,6 +27,7 @@ func _duplicate_card_pools() -> void:
 
 
 func _draw_from_pool(p1_lose : bool) -> Array[String]:
+	# NOTE Duplication currently for both types 
 	draw_pile.clear()
 	if p1_lose == true:
 		for i in range(0, card_hand.hand_limit):
