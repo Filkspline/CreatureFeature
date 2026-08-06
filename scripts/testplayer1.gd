@@ -9,7 +9,7 @@ class_name Player
 
 @export_group("Movement")
 @export var walk_forward_speed: float = 170.0
-@export var walk_backward_speed: float = 140.0
+@export var walk_backward_speed: float = 170.0
 @export var jump_velocity: float = -550.0
 @export var gravity: float = 1180.0
 @export var jump_apex_threshold: float = 60.0
@@ -425,7 +425,7 @@ func _end_attack() -> void:
 		air_horizontal_velocity = velocity.x
 
 	sprites.hide_attack_sprites()
-	_update_animation(false)
+	_resume_crouch_or_update_animation()
 
 
 func _check_hit() -> void:
@@ -479,7 +479,7 @@ func _hitstun_process(delta: float) -> void:
 		if _tick_stun_timer(delta):
 			state = State.NEUTRAL
 			hitstun_finished.emit()
-			_update_animation(false)
+			_resume_crouch_or_update_animation()
 		return
 
 	# Airborne hitstun, from a launcher or a hit taken mid air, ignores
@@ -512,13 +512,7 @@ func _blockstun_process(delta: float) -> void:
 
 	state = State.NEUTRAL
 	sprites.hide_block_sprites()
-
-	if is_blocking_low and is_on_floor() and Input.is_action_pressed(_action("Down")):
-		wants_to_crouch = true
-		crouch_phase = CrouchPhase.LOOP
-		sprites.play_crouch_idle()
-	else:
-		_update_animation(false)
+	_resume_crouch_or_update_animation()
 
 
 func _knockdown_process(delta: float) -> void:
@@ -534,6 +528,18 @@ func _knockdown_process(delta: float) -> void:
 	_update_animation(false)
 
 
+# If still holding crouch when returning to NEUTRAL, go straight back
+# to crouch idle instead of showing standing idle for one frame and
+# re-triggering the crouch down transition right after.
+func _resume_crouch_or_update_animation() -> void:
+	if is_on_floor() and Input.is_action_pressed(_action("Down")):
+		wants_to_crouch = true
+		crouch_phase = CrouchPhase.LOOP
+		sprites.play_crouch_idle()
+	else:
+		_update_animation(false)
+
+
 func _min_visible_stun_frames(anim_name: String) -> int:
 	if not animation_player.has_animation(anim_name):
 		return 0
@@ -545,6 +551,7 @@ func take_hit(move_data: MoveData, attacker: Node2D) -> bool:
 
 	crouch_phase = CrouchPhase.NONE
 	wants_to_crouch = false
+	is_landing = false
 
 	var block_ready = _is_block_ready() and _block_posture_beats_hit_level(move_data.hit_level, was_crouching)
 	if block_ready:
@@ -668,11 +675,11 @@ func _handle_horizontal_movement(delta: float) -> void:
 
 
 func _get_raw_direction() -> int:
-	if Input.is_action_pressed(_action("Left")):
-		return Direction.LEFT
-	elif Input.is_action_pressed(_action("Right")):
-		return Direction.RIGHT
-	return Direction.NONE
+	var left := Input.is_action_pressed(_action("Left"))
+	var right := Input.is_action_pressed(_action("Right"))
+	if left == right:
+		return Direction.NONE
+	return Direction.LEFT if left else Direction.RIGHT
 
 
 func _direction_to_float(dir: int) -> float:

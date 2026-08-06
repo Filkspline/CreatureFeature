@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_nww57")
 move_name = "SA"
-hit_level = 2
+hit_level = 1
 startup = 0
 active = 0
 recovery = 0

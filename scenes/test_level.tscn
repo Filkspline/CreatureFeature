@@ -128,6 +128,7 @@ player_id = 2
 scale = Vector2(0.75, 0.75)
 
 [node name="Player2" parent="." unique_id=1307935800 instance=ExtResource("1_2venv")]
+modulate = Color(0.43982548, 0.7123791, 0.9336365, 1)
 position = Vector2(583, 7)
 scale = Vector2(0.75, 0.75)
 player_id = 2
@@ -152,6 +153,7 @@ offset_left = -894.0
 offset_top = -142.0
 offset_right = 1220.0
 offset_bottom = 567.0
+color = Color(1, 1, 1, 0.1254902)
 script = ExtResource("8_dw7u0")
 shader_material = SubResource("ShaderMaterial_kpk0m")
 opacity = 0.14

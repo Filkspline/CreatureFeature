@@ -9,6 +9,7 @@
 [ext_resource type="Resource" uid="uid://b6lkixus5q5rc" path="res://scripts/N4.tres" id="4_ke2ow"]
 [ext_resource type="Resource" uid="uid://cdirqpownqbv0" path="res://scripts/N8.tres" id="5_31cv2"]
 [ext_resource type="Resource" uid="uid://bn8afhhfe2u55" path="res://scripts/SA.tres" id="6_a38lo"]
+[ext_resource type="Resource" uid="uid://bohkfx1bmv6t0" path="res://scripts/N2.tres" id="6_dt7fs"]
 [ext_resource type="Texture2D" uid="uid://dpeavktcslus8" path="res://assets/crouch.png" id="6_tuyoq"]
 [ext_resource type="Texture2D" uid="uid://p0xaqqctbsqi" path="res://assets/N5.png" id="7_fjrip"]
 [ext_resource type="Texture2D" uid="uid://c55r2q4sqrkmp" path="res://assets/N52.png" id="9_ur7pv"]
@@ -26,6 +27,7 @@
 [ext_resource type="Texture2D" uid="uid://88swive8pstq" path="res://assets/SA.png" id="21_i4ail"]
 [ext_resource type="Texture2D" uid="uid://blh70px5vevds" path="res://assets/N4.png" id="24_l71n6"]
 [ext_resource type="Texture2D" uid="uid://dsaxy7p7l1hsx" path="res://assets/N8.png" id="26_ujl30"]
+[ext_resource type="Texture2D" uid="uid://dcmtxu3qo1ca5" path="res://assets/N2.png" id="28_pf23h"]
 [ext_resource type="Script" uid="uid://dqthlu7xsfxsy" path="res://scripts/PlayerVisuals.gd" id="30_visuals"]
 
 [sub_resource type="Gradient" id="Gradient_fulsm"]
@@ -40,6 +42,59 @@ fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(102.5, 194.5)
+
+[sub_resource type="Animation" id="Animation_jc3p3"]
+resource_name = "N2"
+length = 0.3
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprites/N2:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.13333334, 0.18333334, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hitbox/MainHitbox:shape:size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.13333334, 0.18333334),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(92, 90), Vector2(119, 16), Vector2(84, 16)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hitbox/MainHitbox:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.13333334, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [true, false, true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hitbox/MainHitbox:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.13333334, 0.18333334),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(78, -117.5), Vector2(84.5, -9), Vector2(73, -9)]
+}
 
 [sub_resource type="Animation" id="Animation_md1ol"]
 resource_name = "N4"
@@ -221,7 +276,7 @@ tracks/6/keys = {
 
 [sub_resource type="Animation" id="Animation_y4r1p"]
 resource_name = "N52"
-length = 0.3
+length = 0.35
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -230,7 +285,7 @@ tracks/0/path = NodePath("Hitbox/MainHitbox:shape:size")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.06666667, 0.15),
+"times": PackedFloat32Array(0, 0.13333334, 0.16666667),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [Vector2(92, 90), Vector2(124.75, 31), Vector2(153.125, 65)]
@@ -242,7 +297,7 @@ tracks/1/path = NodePath("Hitbox/MainHitbox:disabled")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.06666667, 0.15, 0.25),
+"times": PackedFloat32Array(0, 0.13333334, 0.16666667, 0.3),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [true, true, false, true]
@@ -254,7 +309,7 @@ tracks/2/path = NodePath("Hurtbox/SubHurtbox:disabled")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.06666667, 0.15, 0.25),
+"times": PackedFloat32Array(0, 0.13333334, 0.16666667, 0.3),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [true, true, false, true]
@@ -266,7 +321,7 @@ tracks/3/path = NodePath("Hurtbox/SubHurtbox:shape:size")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.06666667, 0.15),
+"times": PackedFloat32Array(0, 0.13333334, 0.16666667),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [Vector2(79.5, 70), Vector2(135.75, 48), Vector2(168.25, 48)]
@@ -278,7 +333,7 @@ tracks/4/path = NodePath("Sprites/N52:frame")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.06666667, 0.15, 0.25),
+"times": PackedFloat32Array(0, 0.13333334, 0.16666667, 0.3),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
@@ -302,7 +357,7 @@ tracks/6/path = NodePath("Hurtbox/SubHurtbox:position")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0.15),
+"times": PackedFloat32Array(0.16666667),
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(77, -116)]
@@ -776,6 +831,18 @@ tracks/23/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/24/type = "value"
+tracks/24/imported = false
+tracks/24/enabled = true
+tracks/24/path = NodePath("Sprites/N2:frame")
+tracks/24/interp = 1
+tracks/24/loop_wrap = true
+tracks/24/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
 [sub_resource type="Animation" id="Animation_d2wvv"]
 resource_name = "S5"
@@ -1192,6 +1259,7 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_l71n6"]
 _data = {
+&"N2": SubResource("Animation_jc3p3"),
 &"N4": SubResource("Animation_md1ol"),
 &"N5": SubResource("Animation_smehm"),
 &"N52": SubResource("Animation_y4r1p"),
@@ -1233,6 +1301,7 @@ N52 = ExtResource("3_d2wvv")
 N4 = ExtResource("4_ke2ow")
 N8 = ExtResource("5_31cv2")
 N6 = ExtResource("3_d2wvv")
+N2 = ExtResource("6_dt7fs")
 NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
 SA = ExtResource("6_a38lo")
@@ -1268,6 +1337,7 @@ hframes = 10
 frame = 3
 
 [node name="WalkForward" type="Sprite2D" parent="Sprites" unique_id=1193558726]
+visible = false
 position = Vector2(-2, -87)
 texture = ExtResource("11_ke2ow")
 hframes = 10
@@ -1294,7 +1364,6 @@ texture = ExtResource("7_fjrip")
 hframes = 4
 
 [node name="N52" type="Sprite2D" parent="Sprites" unique_id=828199933]
-visible = false
 position = Vector2(-1, -84)
 texture = ExtResource("9_ur7pv")
 hframes = 4
@@ -1313,13 +1382,14 @@ hframes = 8
 
 [node name="MidBlockWarning" type="Sprite2D" parent="Sprites" unique_id=1345917801]
 visible = false
-modulate = Color(18.892157, 18.892157, 18.892157, 1)
+modulate = Color(4.9472184, 18.892157, 18.892157, 1)
 position = Vector2(0, -95)
 texture = ExtResource("15_a8ls1")
 hframes = 3
 
 [node name="LowBlockWarning" type="Sprite2D" parent="Sprites" unique_id=273525979]
 visible = false
+modulate = Color(0.27058825, 1, 1, 1)
 self_modulate = Color(18.892157, 18.892157, 18.892157, 1)
 position = Vector2(-1, -95)
 texture = ExtResource("16_qfm1y")
@@ -1362,9 +1432,16 @@ texture = ExtResource("24_l71n6")
 hframes = 10
 
 [node name="N8" type="Sprite2D" parent="Sprites" unique_id=1362277945]
+visible = false
 position = Vector2(0, -186)
 texture = ExtResource("26_ujl30")
 hframes = 8
+
+[node name="N2" type="Sprite2D" parent="Sprites" unique_id=40100497]
+visible = false
+position = Vector2(0, -186)
+texture = ExtResource("28_pf23h")
+hframes = 5
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")
@@ -1372,7 +1449,7 @@ libraries/ = SubResource("AnimationLibrary_l71n6")
 [node name="Hurtbox" type="Area2D" parent="." unique_id=797087521]
 
 [node name="MainHurtbox" type="CollisionShape2D" parent="Hurtbox" unique_id=582007271]
-position = Vector2(4, -81)
+position = Vector2(-6, -81.5)
 shape = SubResource("RectangleShape2D_yf5fn")
 debug_color = Color(0, 0.6, 0.69803923, 0.25882354)
 
