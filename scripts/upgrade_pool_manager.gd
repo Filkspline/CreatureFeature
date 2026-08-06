@@ -16,7 +16,7 @@ var p2_current_upgrades : Array[String]
 
 func _ready() -> void:
 	_get_files_from_dir()
-	_duplicate_card_pools() # NOTE Just here for testing purposes
+	#_duplicate_card_pools() # NOTE Just here for testing purposes
 	
 # NOTE Call this function from the beginning of the match
 func _duplicate_card_pools() -> void:
