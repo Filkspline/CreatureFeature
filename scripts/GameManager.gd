@@ -17,10 +17,11 @@ extends Node
 # current token is allowed to restore time_scale, so a second hit landing
 # mid-hitstop extends the freeze instead of ending it early.
 var _hitstop_token: int = 0
-
+var p1_lose : bool # NOTE this may be changed in the future but currently just uses a bool to decide who wins and loses
 
 func _ready() -> void:
 	EventBus.player_hit_landed.connect(_on_player_hit_landed)
+
 
 func _on_player_hit_landed(player_id: int, _move_name: String, was_blocked: bool) -> void:
 	if not enabled:
@@ -51,3 +52,23 @@ func _apply_hitstop(duration: float) -> void:
 	# Only restore time_scale if nothing re-triggered hitstop while we waited.
 	if this_token == _hitstop_token:
 		Engine.time_scale = 1.0
+
+# ──────────────────────────────────────────────────────────────────
+# Game manager debug items
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		if event.keycode == KEY_1 and event.pressed:
+			print("Test1")
+			UpgradePoolManager._duplicate_card_pools()
+			p1_lose = true
+			get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
+		elif event.keycode == KEY_2 and event.pressed:
+			print("Test2")
+			UpgradePoolManager._duplicate_card_pools()
+			p1_lose = false
+			get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
+		else:
+			pass
+	
+	pass

@@ -4,6 +4,7 @@ extends Node2D
 @onready var anim_player = $AnimationPlayer
 @onready var parent_node = self.get_parent()
 @onready var card_shader = preload("res://scripts/card_tear.gdshader")
+#@onready var fight_scene = preload("res://scenes/test_level.tscn")
 
 var currently_highlighted : bool
 var is_flipped : bool
@@ -54,4 +55,7 @@ func _handle_tres_file(tres_file_path : String, p1_selecting : bool) -> void:
 	
 	print(tres_file)
 	print(tres_file.name)
-	#print(tres_file._return_name())
+	
+	# NOTE this is just going to force a transition to the stage for now
+	await get_tree().create_timer(0.5).timeout
+	get_tree().change_scene_to_file("res://scenes/test_level.tscn")

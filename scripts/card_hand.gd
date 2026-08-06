@@ -27,12 +27,14 @@ func _ready() -> void:
 
 func _draw_hand() -> void:
 	# TODO Needs to be changed to dynamically call which player lost, currently hard coded to p1
-	var tres_file_paths = UpgradePoolManager._draw_from_pool(true) # Gets an Array[String] of tres file paths
+	var tres_file_paths = UpgradePoolManager._draw_from_pool(GameManager.p1_lose) # Gets an Array[String] of tres file paths
 	current_z_index = card_default_z_index
 	for _x in hand_limit:
 		var upgarde_card = UPGRADE_CARD.instantiate()
 		var tres_file = tres_file_paths.pop_front()
 		print(tres_file)
+		# TODO Error thrown when going into the second instance of the draw, need to investigate.
+		# TODO V The offending code, second instance of calling the scene will try to add Nil values to the dict
 		card_map.set(upgarde_card, tres_file)
 		if defaults_set != true:
 			card_default_transform = upgarde_card.transform
@@ -152,4 +154,4 @@ func _handle_clicked_card():
 	tween.parallel().tween_property(highlighted_card, "scale", Vector2(2.0, 2.0), 0.4)
 	# TODO to handle vfx if wanted or any other processes do so after the above code
 	
-	highlighted_card._handle_tres_file(card_map.get(highlighted_card), true) # TODO needs to be changed to get the actual player that lost
+	highlighted_card._handle_tres_file(card_map.get(highlighted_card), GameManager.p1_lose) # TODO needs to be changed to get the actual player that lost
