@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://lfmrny1c1kqn" path="res://scenes/parallax_background.tscn" id="3_7gix3"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="3_j6w7d"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="6_ahbqi"]
+[ext_resource type="PackedScene" uid="uid://dg7n2qh4g2eyd" path="res://scenes/fight_ui.tscn" id="6_kpk0m"]
 [ext_resource type="Script" uid="uid://dmsxu4iefeks6" path="res://scripts/shadowtest.gd" id="6_qcd3b"]
 [ext_resource type="Script" uid="uid://ddupk7aj7bm26" path="res://scripts/projectile_test.gd" id="7_88ety"]
 [ext_resource type="PackedScene" uid="uid://b7v6u5m0v7s48" path="res://scenes/camera.tscn" id="8_ahbqi"]
@@ -132,6 +133,11 @@ modulate = Color(0.43982548, 0.7123791, 0.9336365, 1)
 position = Vector2(583, 7)
 scale = Vector2(0.75, 0.75)
 player_id = 2
+
+[node name="FightUI" parent="." unique_id=994796474 node_paths=PackedStringArray("player_1", "player_2", "camera") instance=ExtResource("6_kpk0m")]
+player_1 = NodePath("../Player")
+player_2 = NodePath("../Player2")
+camera = NodePath("../Camera2D")
 
 [node name="TempCrtShader" type="ColorRect" parent="." unique_id=73426657]
 z_index = 4

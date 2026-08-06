@@ -6,6 +6,7 @@
 script = ExtResource("1_move")
 move_name = "N2"
 input_dir = 3
+damage = 5.0
 animation_name = &"N2"
 pushback_on_block = 100.0
 low_profile = true
