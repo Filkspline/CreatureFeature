@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://dpeavktcslus8" path="res://assets/crouch.png" id="6_tuyoq"]
 [ext_resource type="Texture2D" uid="uid://p0xaqqctbsqi" path="res://assets/N5.png" id="7_fjrip"]
 [ext_resource type="Texture2D" uid="uid://c55r2q4sqrkmp" path="res://assets/N52.png" id="9_ur7pv"]
+[ext_resource type="Resource" uid="uid://dhe38ybk4jg0t" path="res://scripts/S6.tres" id="9_wnwbv"]
 [ext_resource type="Texture2D" uid="uid://b0rhs72x4xgcg" path="res://assets/walkbacknew.png" id="10_ke2ow"]
 [ext_resource type="Texture2D" uid="uid://c5ucj2gpuyupt" path="res://assets/S5.png" id="10_y4r1p"]
 [ext_resource type="Texture2D" uid="uid://3qf07essx4lf" path="res://assets/walkfowardnew.png" id="11_ke2ow"]
@@ -29,6 +30,7 @@
 [ext_resource type="Texture2D" uid="uid://dsaxy7p7l1hsx" path="res://assets/N8.png" id="26_ujl30"]
 [ext_resource type="Texture2D" uid="uid://dcmtxu3qo1ca5" path="res://assets/N2.png" id="28_pf23h"]
 [ext_resource type="Script" uid="uid://dqthlu7xsfxsy" path="res://scripts/PlayerVisuals.gd" id="30_visuals"]
+[ext_resource type="Texture2D" uid="uid://be7acvoi48pnr" path="res://assets/S6.png" id="30_wqfne"]
 
 [sub_resource type="Gradient" id="Gradient_fulsm"]
 interpolation_mode = 1
@@ -273,6 +275,20 @@ tracks/6/keys = {
 "update": 0,
 "values": [Vector2(77, -116)]
 }
+tracks/7/type = "method"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath(".")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0.2),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"open_gatling_cancel_window"
+}]
+}
 
 [sub_resource type="Animation" id="Animation_y4r1p"]
 resource_name = "N52"
@@ -361,6 +377,20 @@ tracks/6/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(77, -116)]
+}
+tracks/7/type = "method"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath(".")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0.3),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"open_gatling_cancel_window"
+}]
 }
 
 [sub_resource type="Animation" id="Animation_bj30b"]
@@ -843,6 +873,18 @@ tracks/24/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/25/type = "value"
+tracks/25/imported = false
+tracks/25/enabled = true
+tracks/25/path = NodePath("Sprites/S6:frame")
+tracks/25/interp = 1
+tracks/25/loop_wrap = true
+tracks/25/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
 [sub_resource type="Animation" id="Animation_d2wvv"]
 resource_name = "S5"
@@ -919,6 +961,61 @@ tracks/5/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(78, -117.5)]
+}
+
+[sub_resource type="Animation" id="Animation_hax0n"]
+resource_name = "S6"
+length = 0.45
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprites/S6:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.13333334, 0.21666667, 0.3, 0.35, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.3),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"open_gatling_cancel_window"
+}]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hitbox/MainHitbox:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.13333334, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [true, false, true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hitbox/MainHitbox:shape:size")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.13333334),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2(95, 51)]
 }
 
 [sub_resource type="Animation" id="Animation_487ah"]
@@ -1267,6 +1364,7 @@ _data = {
 &"NA": SubResource("Animation_f1ej7"),
 &"RESET": SubResource("Animation_a38lo"),
 &"S5": SubResource("Animation_d2wvv"),
+&"S6": SubResource("Animation_hax0n"),
 &"SA": SubResource("Animation_487ah"),
 &"block_idle": SubResource("Animation_dt7fs"),
 &"crouch_block_idle": SubResource("Animation_wqfne"),
@@ -1304,6 +1402,7 @@ N6 = ExtResource("3_d2wvv")
 N2 = ExtResource("6_dt7fs")
 NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
+S6 = ExtResource("9_wnwbv")
 SA = ExtResource("6_a38lo")
 
 [node name="Shadow" type="TextureRect" parent="." unique_id=342766280]
@@ -1442,6 +1541,11 @@ visible = false
 position = Vector2(0, -186)
 texture = ExtResource("28_pf23h")
 hframes = 5
+
+[node name="S6" type="Sprite2D" parent="Sprites" unique_id=35465075]
+position = Vector2(0, -186)
+texture = ExtResource("30_wqfne")
+hframes = 7
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")

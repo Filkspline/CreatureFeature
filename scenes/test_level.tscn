@@ -95,6 +95,9 @@ offset_bottom = 40.0
 
 [node name="ParallaxBackground" parent="." unique_id=1729271799 node_paths=PackedStringArray("camera") instance=ExtResource("3_7gix3")]
 camera = NodePath("../Camera2D")
+bob_amplitude = 3.0
+bob_speed = 0.1
+bob_phase_delay = 0.6
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1393003880]
 
@@ -129,7 +132,8 @@ player_id = 2
 scale = Vector2(0.75, 0.75)
 
 [node name="Player2" parent="." unique_id=1307935800 instance=ExtResource("1_2venv")]
-modulate = Color(0.43982548, 0.7123791, 0.9336365, 1)
+modulate = Color(0.79607844, 0.85882354, 0.9882353, 1)
+self_modulate = Color(0.79607844, 0.85882354, 0.9882353, 1)
 position = Vector2(583, 7)
 scale = Vector2(0.75, 0.75)
 player_id = 2
@@ -188,6 +192,7 @@ crt_node_path = NodePath("../TempCrtShader")
 
 [node name="Camera2D" parent="." unique_id=56861049 node_paths=PackedStringArray("player_1", "player_2") instance=ExtResource("8_ahbqi")]
 position = Vector2(317, 165)
+position_smoothing_speed = 3.0
 player_1 = NodePath("../Player")
 player_2 = NodePath("../Player2")
 
