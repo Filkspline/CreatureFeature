@@ -80,6 +80,7 @@ var opponent = null
 var hit_connected: bool = false
 var gatling_input_buffered: StringName = ""
 var gatling_buffer_timer: int = 0
+var gatling_cancel_window_open: bool = false
 
 var pushback_velocity_x: float = 0.0
 var has_used_aerial: bool = false
@@ -330,6 +331,7 @@ func _start_attack(move: MoveData) -> void:
 	hit_connected = false
 	gatling_input_buffered = ""
 	gatling_buffer_timer = 0
+	gatling_cancel_window_open = false
 
 	if is_on_floor():
 		pushback_velocity_x = 0.0
@@ -384,8 +386,13 @@ func _attack_process(delta: float) -> void:
 
 	animation_player.seek(attack_frame / 60.0, true)
 
-	if hit_connected:
-		_try_gatling()
+	# Buffering runs every attack frame regardless of hit-confirm or the
+	# cancel window, so an early press isn't lost while waiting for
+	# either of those to become true.
+	_update_gatling_buffer()
+
+	if hit_connected and gatling_cancel_window_open:
+		_try_cancel_gatling()
 
 	if not hit_connected:
 		_check_hit()
@@ -394,18 +401,38 @@ func _attack_process(delta: float) -> void:
 		_end_attack()
 
 
-func _try_gatling() -> void:
+func _update_gatling_buffer() -> void:
 	if Input.is_action_just_pressed(_action("Normal")):
 		gatling_input_buffered = _action("Normal")
 		gatling_buffer_timer = gatling_buffer_frames
+		return
 
 	if gatling_input_buffered != "":
 		gatling_buffer_timer -= 1
 		if gatling_buffer_timer <= 0:
 			gatling_input_buffered = ""
 			gatling_buffer_timer = 0
-			return
 
+
+# Call this from an AnimationPlayer "Call Method" track key, placed at
+# whatever frame you want gatling cancels to become legal for this move
+# (typically right as recovery starts). Hit-confirm gated: even with the
+# window open, _try_cancel_gatling() below only fires if hit_connected is
+# already true, so a whiffed move can never cancel — only a hit or a
+# blocked hit opens up the follow-up.
+func open_gatling_cancel_window() -> void:
+	gatling_cancel_window_open = true
+
+
+# Optional companion for a bounded cancel window — add a second Call
+# Method key later in the same animation if you want cancels to stop
+# being legal before the move fully ends. Not required: the window
+# always resets to closed on the next _start_attack() regardless.
+func close_gatling_cancel_window() -> void:
+	gatling_cancel_window_open = false
+
+
+func _try_cancel_gatling() -> void:
 	if gatling_input_buffered == _action("Normal") and current_move.gatlings_into.size() > 0:
 		var gatling_name = current_move.gatlings_into[0]
 		if all_moves.has(gatling_name):
@@ -470,6 +497,10 @@ func _tick_stun_timer(delta: float) -> bool:
 
 
 func _hitstun_process(delta: float) -> void:
+	# This branch only runs for a plain grounded hit (pending_knockdown
+	# false), where zeroing velocity.y is correct/wanted. If a launcher
+	# hit ever ends up in here, its upward velocity gets silently wiped
+	# right here — see the move_is_launcher note in _resolve_hit().
 	if is_on_floor() and not pending_knockdown:
 		pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, pushback_deceleration * delta)
 		velocity.x = pushback_velocity_x
@@ -581,10 +612,24 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) ->
 	current_health = max(current_health - move_data.damage, 0.0)
 	EventBus.player_health_changed.emit(player_id, current_health)
 
-	pending_knockdown = move_data.is_launcher or not is_on_floor()
+	# is_launcher is treated as true if EITHER the checkbox is on OR
+	# launcher_strength is non-zero. This exists because "set
+	# launcher_strength, forget to also tick is_launcher" is a really
+	# easy mistake to make in the inspector, and the failure mode is
+	# silent: pending_knockdown stays false, so the grounded branch of
+	# _hitstun_process runs and its `velocity.y = 0.0` (needed so a
+	# normal ground hit doesn't keep any stray vertical velocity) wipes
+	# out the upward velocity before it's ever visible.
+	var move_is_launcher = move_data.is_launcher or move_data.launcher_strength > 0.0
+
+	pending_knockdown = move_is_launcher or not is_on_floor()
 	pushback_velocity_x = _direction_away_from(attacker) * move_data.knock_back
-	if move_data.is_launcher:
+	if move_is_launcher:
 		velocity.y = -move_data.launcher_strength
+
+	_dbg("[RESOLVE HIT] '%s' is_launcher=%s launcher_strength=%.1f -> move_is_launcher=%s pending_knockdown=%s velocity.y=%.1f" % [
+		move_data.move_name, move_data.is_launcher, move_data.launcher_strength, move_is_launcher, pending_knockdown, velocity.y
+	])
 
 	var hitstun_frames = move_data.hitstun
 	var reaction_anim := "crouch_hit" if was_crouching else "mid_hit"
