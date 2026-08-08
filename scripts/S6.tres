@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3 uid="uid://dhe38ybk4jg0t"]
+
+[ext_resource type="Script" uid="uid://bnyng45sqmhga" path="res://scripts/MoveData.gd" id="1_move"]
+
+[resource]
+script = ExtResource("1_move")
+move_name = "S6"
+input_dir = 1
+kind = 1
+hit_level = 1
+animation_name = &"S6"
+pushback_on_block = 20.0
+is_advancing = true
+advance_speed = 1200.0
+low_profile = true
+gatlings_into = Array[StringName]([&"N52", &"N52"])

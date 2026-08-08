@@ -10,8 +10,8 @@ class_name Player
 @export_group("Movement")
 @export var walk_forward_speed: float = 170.0
 @export var walk_backward_speed: float = 170.0
-@export var jump_velocity: float = -550.0
-@export var gravity: float = 1180.0
+@export var jump_velocity: float = -620.0
+@export var gravity: float = 1580.0
 @export var jump_apex_threshold: float = 60.0
 
 @export_group("Pushback")
@@ -21,7 +21,7 @@ class_name Player
 @export var hurtbox_vertical_reduction: float = 80.0
 
 @export_group("Combat Timing")
-@export var gatling_buffer_frames: int = 16
+@export var gatling_buffer_frames: int = 26
 @export var direction_buffer_time: float = 0.1
 @export var knockdown_duration: float = 1.0
 
