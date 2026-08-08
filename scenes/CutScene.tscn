@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://b0m5dg5lbu7xf"]
+
+[ext_resource type="Texture2D" uid="uid://c6e14ylnln6xs" path="res://assets/Cutscene.png" id="1_0ns5n"]
+
+[node name="Node2D" type="Node2D" unique_id=1050016760]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1322763643]
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1413604277]
+offset_left = -155.0
+offset_top = -120.0
+offset_right = 161.0
+offset_bottom = 111.0
+color = Color(0.1254902, 0.1254902, 0.20392157, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1453480215]
+position = Vector2(0, -1)
+texture = ExtResource("1_0ns5n")
+hframes = 18
+frame = 17
