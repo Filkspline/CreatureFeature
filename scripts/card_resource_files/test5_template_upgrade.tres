@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://cckklmogub76x"]
+
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_4sjg4"]
+
+[resource]
+script = ExtResource("1_4sjg4")
+name = "Test Upgrade - Flat Move Speed"
+description = "Copy this file to make a new upgrade. Fill in name, description, icon, then set effect_type and only the fields under the matching group."
+stat_name = &"move_speed"
+stat_amount = 10.0
