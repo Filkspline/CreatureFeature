@@ -4,9 +4,8 @@ extends Node
 const CARD_RESOURCE_DIR = "res://scripts/card_resource_files/"
 
 var card_hand
-#var rng = RandomNumberGenerator.new()
-var card_array : Array[String] # Will hold the sum of all tres files in the card_resources_files
-var draw_pile : Array[String] # This will hold the cards to be drawn in the card UI
+var card_array : Array[String] ## Will hold the sum of all tres files in the card_resources_files
+var draw_pile : Array[String] ## This will hold the cards to be drawn in the card UI
 
 var p1_upgrade_pool : Array[String]
 var p2_upgrade_pool : Array[String]
@@ -19,8 +18,11 @@ func _ready() -> void:
 	_get_files_from_dir()
 	#_duplicate_card_pools() # NOTE Just here for testing purposes
 	
-# NOTE Call this function from the beginning of the match
+
+## Duplicates the card pools from the global card array that contains all cards.
+## Additionally clears both p1, and p2 upgrade pools beforehand as a precaution.
 func _duplicate_card_pools() -> void:
+	# NOTE Call this function from the beginning of the match
 	p1_upgrade_pool.clear()
 	p2_upgrade_pool.clear()
 	
@@ -30,6 +32,9 @@ func _duplicate_card_pools() -> void:
 	print(p2_upgrade_pool)
 
 
+## Facilitates the card draw from the global card pool for the given player.
+## Currently a bool which denotes which player is currently selecting, true for
+## p1 selecting, false for p2 selecting
 func _draw_from_pool(p1_lose : bool) -> Array[String]:
 	# NOTE Duplication currently for all upgrade types
 	
@@ -59,8 +64,9 @@ func _draw_from_pool(p1_lose : bool) -> Array[String]:
 		return draw_pile
 
 
+## Grabs all tres files from the card_resource_files folder.
+## Currently does not parse file type just grabbing all files in the folder
 func _get_files_from_dir() -> void:
-	# Grabs all tres
 	var dir = DirAccess.open(CARD_RESOURCE_DIR)
 	dir.list_dir_begin()
 	var file_name = dir.get_next()
@@ -70,7 +76,11 @@ func _get_files_from_dir() -> void:
 		file_name = dir.get_next()
 
 
+## Removes the passed resource file in the player upgrade pools, passing in
+## a bool which denotes which player is currently selecting, true for p1
+## selecting, false for p2 selecting
 func _remove_from_pool(tres_path : String, p1_selection : bool) -> void:
+	
 	var upgrade_idx
 	if p1_selection == true:
 		upgrade_idx = p1_upgrade_pool.find(tres_path)
@@ -80,6 +90,8 @@ func _remove_from_pool(tres_path : String, p1_selection : bool) -> void:
 		p2_upgrade_pool.remove_at(upgrade_idx)
 
 
+## Generates an array of unique numbers to be used as the index for the card
+## draw system in _draw_from_pool
 func _generate_unique_numbers() -> Array[int]:
 	var num_pool = []
 	for i in range(0, card_array.size()):

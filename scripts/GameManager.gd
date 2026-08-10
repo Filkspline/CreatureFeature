@@ -19,6 +19,19 @@ extends Node
 var _hitstop_token: int = 0
 var p1_lose : bool # NOTE this may be changed in the future but currently just uses a bool to decide who wins and loses
 
+##@experimental
+## Currently just using as a stopgap for passing through the player info when
+## applying the upgrades
+var p1_node : CharacterBody2D
+
+##@experimental
+## Currently just using as a stopgap for passing through the player info when
+## applying the upgrades
+var p2_node : CharacterBody2D
+
+
+var card_ui_scene = preload("res://scenes/upgrade_card_ui.tscn")
+
 
 func _ready() -> void:
 	EventBus.player_hit_landed.connect(_on_player_hit_landed)
@@ -54,9 +67,9 @@ func _apply_hitstop(duration: float) -> void:
 		Engine.time_scale = 1.0
 		
 		
-# Game manager debug items
-
 func _input(event: InputEvent) -> void:
+	# NOTE this is just a temp dev solution for forcing a transition into the 
+	# card upgrade system
 	if event is InputEventKey:
 		if event.keycode == KEY_1 and event.pressed:
 			print("Test1")
@@ -70,5 +83,6 @@ func _input(event: InputEvent) -> void:
 			get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
 		else:
 			pass
-	
+		
+		
 	pass
