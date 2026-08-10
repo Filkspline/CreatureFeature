@@ -32,24 +32,30 @@ func _duplicate_card_pools() -> void:
 
 func _draw_from_pool(p1_lose : bool) -> Array[String]:
 	# NOTE Duplication currently for all upgrade types
+	
+	# TODO When we implement move unlocks we will need to make adjustments to
+	# this function, we'll need to uncomment the if statements as well as
+	# implement a check for unlock cards to stop them from being added
+	# ALternattively we just nuke them from the upgrade pool when they've been
+	# added.
 	var num_pool = _generate_unique_numbers()
 	draw_pile.clear()
 	if p1_lose == true:
 		for i in range(0, card_hand.hand_limit):
 			var card_to_add = p1_upgrade_pool.get(num_pool.pop_front())
-			if card_to_add not in p1_current_upgrades:
-				draw_pile.append(card_to_add)
-			else:
-				pass
+			#if card_to_add not in p1_current_upgrades:
+			draw_pile.append(card_to_add)
+			#else:
+			#	pass
 		return draw_pile
 	
 	else:
 		for i in range(0, card_hand.hand_limit):
 			var card_to_add = p2_upgrade_pool.get(num_pool.pop_front())
-			if card_to_add not in p2_current_upgrades:
-				draw_pile.append(card_to_add)
-			else:
-				pass
+			#if card_to_add not in p2_current_upgrades:
+			draw_pile.append(card_to_add)
+			#else:
+			#	pass
 		return draw_pile
 
 
