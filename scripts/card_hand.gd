@@ -32,7 +32,7 @@ func _draw_hand() -> void:
 	for _x in hand_limit:
 		var upgarde_card = UPGRADE_CARD.instantiate()
 		var tres_file = tres_file_paths.pop_front()
-		print(tres_file)
+		#print(tres_file)
 		# NOTE card_map.set Currently throws an error when doing cards
 		# NOTE this is an issue with the dupe check in the draw and should be an easy fix, I'll get onto it later - B
 		card_map.set(upgarde_card, tres_file)

@@ -120,5 +120,6 @@ func _handle_tres_file(tres_file_path : String, p1_selecting : bool) -> void:
 	#tres_file.apply_to(player_node)
 	
 	# NOTE this is just going to force a transition to the stage for now
+	# TODO need to change this to run the transition to the next scene using the main logic
 	await get_tree().create_timer(0.75).timeout
 	get_tree().change_scene_to_file("res://scenes/test_level.tscn")

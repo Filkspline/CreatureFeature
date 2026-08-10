@@ -30,8 +30,8 @@ var p1_node : CharacterBody2D
 var p2_node : CharacterBody2D
 
 
-var card_ui_scene = preload("res://scenes/upgrade_card_ui.tscn")
-
+#var card_ui_scene = preload("res://scenes/upgrade_card_ui.tscn")
+var main_scene
 
 func _ready() -> void:
 	EventBus.player_hit_landed.connect(_on_player_hit_landed)
@@ -75,14 +75,19 @@ func _input(event: InputEvent) -> void:
 			print("Test1")
 			UpgradePoolManager._duplicate_card_pools()
 			p1_lose = true
-			get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
+			main_scene.transition_to_card_ui()
+			#get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
 		elif event.keycode == KEY_2 and event.pressed:
 			print("Test2")
 			UpgradePoolManager._duplicate_card_pools()
 			p1_lose = false
-			get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
+			main_scene.transition_to_card_ui()
+			#get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
 		else:
 			pass
-		
-		
 	pass
+	
+#func _transition_to_upgrade() -> void:
+#	var upgarde_ui = card_ui_scene.instantiate()
+#	print("test")
+#	#get_tree().root.get_node("/root/TestLevel")

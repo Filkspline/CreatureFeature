@@ -27,9 +27,9 @@ func _duplicate_card_pools() -> void:
 	p2_upgrade_pool.clear()
 	
 	p1_upgrade_pool = card_array.duplicate()
-	print(p1_upgrade_pool)
+	#print(p1_upgrade_pool)
 	p2_upgrade_pool = card_array.duplicate()
-	print(p2_upgrade_pool)
+	#print(p2_upgrade_pool)
 
 
 ## Facilitates the card draw from the global card pool for the given player.
