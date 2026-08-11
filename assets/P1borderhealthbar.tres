@@ -1,0 +1,39 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://dsmve6fem1clm"]
+
+[ext_resource type="Texture2D" uid="uid://cr2opd0cy7gll" path="res://assets/P1Healthbar-Sheet.png" id="1_koeu6"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_52utn"]
+atlas = ExtResource("1_koeu6")
+region = Rect2(0, 0, 300, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hip1w"]
+atlas = ExtResource("1_koeu6")
+region = Rect2(300, 0, 300, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1kcn8"]
+atlas = ExtResource("1_koeu6")
+region = Rect2(0, 80, 300, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lvybq"]
+atlas = ExtResource("1_koeu6")
+region = Rect2(300, 80, 300, 80)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_52utn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hip1w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1kcn8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lvybq")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 3.0
+}]

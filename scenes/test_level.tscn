@@ -7,9 +7,9 @@
 [ext_resource type="PackedScene" uid="uid://lfmrny1c1kqn" path="res://scenes/parallax_background.tscn" id="3_7gix3"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="3_j6w7d"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="6_ahbqi"]
-[ext_resource type="PackedScene" uid="uid://dg7n2qh4g2eyd" path="res://scenes/fight_ui.tscn" id="6_kpk0m"]
 [ext_resource type="Script" uid="uid://dmsxu4iefeks6" path="res://scripts/shadowtest.gd" id="6_qcd3b"]
 [ext_resource type="Script" uid="uid://ddupk7aj7bm26" path="res://scripts/projectile_test.gd" id="7_88ety"]
+[ext_resource type="PackedScene" uid="uid://bcajiiveqvwwf" path="res://scenes/fight_ui_new2.tscn" id="7_qs1vn"]
 [ext_resource type="PackedScene" uid="uid://b7v6u5m0v7s48" path="res://scenes/camera.tscn" id="8_ahbqi"]
 [ext_resource type="Script" uid="uid://flsoi7tnikv2" path="res://scripts/fogshader.gd" id="8_dw7u0"]
 [ext_resource type="Shader" uid="uid://3webiwpcj0lu" path="res://scripts/fog.gdshader" id="9_fyxdr"]
@@ -140,7 +140,7 @@ position = Vector2(583, 7)
 scale = Vector2(0.75, 0.75)
 player_id = 2
 
-[node name="FightUI" parent="." unique_id=994796474 node_paths=PackedStringArray("player_1", "player_2", "camera") instance=ExtResource("6_kpk0m")]
+[node name="FightUI" parent="." unique_id=374711678 node_paths=PackedStringArray("player_1", "player_2", "camera") instance=ExtResource("7_qs1vn")]
 player_1 = NodePath("../Player")
 player_2 = NodePath("../Player2")
 camera = NodePath("../Camera2D")

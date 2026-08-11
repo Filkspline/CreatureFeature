@@ -1,0 +1,259 @@
+[gd_scene format=3 uid="uid://bcajiiveqvwwf"]
+
+[ext_resource type="Script" uid="uid://00kvlyh53x6h" path="res://scripts/fight_ui.gd" id="1_ui001"]
+[ext_resource type="Texture2D" uid="uid://cqaykxmoj1n1o" path="res://assets/P1Healthbarblack.png" id="2_ylixn"]
+[ext_resource type="Texture2D" uid="uid://cj4ocju65ku4a" path="res://assets/P1Healthbarwhite.png" id="3_ien2i"]
+[ext_resource type="SpriteFrames" uid="uid://dsmve6fem1clm" path="res://assets/P1borderhealthbar.tres" id="4_6go5h"]
+[ext_resource type="Texture2D" uid="uid://cxxot61cucey8" path="res://assets/HealthbarP2black.png" id="5_3khwt"]
+[ext_resource type="Texture2D" uid="uid://cd7acfmdhr0kh" path="res://assets/HealthbarP2white.png" id="6_yejee"]
+[ext_resource type="SpriteFrames" uid="uid://ywie0lkssywj" path="res://assets/P2borderhealthbar.tres" id="7_yicxr"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="8_dnckg"]
+[ext_resource type="SpriteFrames" uid="uid://cn4pews258j2r" path="res://assets/Eyeopenpip.tres" id="8_q3skw"]
+[ext_resource type="SpriteFrames" uid="uid://d2sxaksvdqjkp" path="res://assets/Eyeidlelook.tres" id="9_r81cq"]
+
+[sub_resource type="Theme" id="Theme_ict5u"]
+default_font = ExtResource("8_dnckg")
+default_font_size = 49
+
+[node name="FightUI" type="CanvasLayer" unique_id=374711678]
+layer = 10
+script = ExtResource("1_ui001")
+
+[node name="UIRoot" type="Control" parent="." unique_id=66395814]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="P1BarContainer" type="Control" parent="UIRoot" unique_id=672075524]
+anchors_preset = 0
+anchor_left = 0.02
+anchor_top = 0.03
+anchor_right = 0.47
+anchor_bottom = 0.09
+
+[node name="Fill" type="TextureProgressBar" parent="UIRoot/P1BarContainer" unique_id=2115801777]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.200001
+offset_top = -11.8
+offset_right = 12.200012
+offset_bottom = 42.599995
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+value = 100.0
+fill_mode = 1
+nine_patch_stretch = true
+texture_under = ExtResource("2_ylixn")
+texture_progress = ExtResource("3_ien2i")
+
+[node name="Border" type="AnimatedSprite2D" parent="UIRoot/P1BarContainer" unique_id=1599329031]
+position = Vector2(151.6, 25.699999)
+scale = Vector2(0.984, 1.0125)
+sprite_frames = ExtResource("4_6go5h")
+autoplay = "default"
+frame_progress = 0.9887442
+
+[node name="P2BarContainer" type="Control" parent="UIRoot" unique_id=1720610861]
+anchors_preset = 0
+anchor_left = 0.53
+anchor_top = 0.03
+anchor_right = 0.98
+anchor_bottom = 0.09
+
+[node name="Fill" type="TextureProgressBar" parent="UIRoot/P2BarContainer" unique_id=1766174221]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -4.1999817
+offset_top = -11.8
+offset_right = 7.799988
+offset_bottom = 43.599995
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+value = 100.0
+nine_patch_stretch = true
+texture_under = ExtResource("5_3khwt")
+texture_progress = ExtResource("6_yejee")
+
+[node name="Border" type="AnimatedSprite2D" parent="UIRoot/P2BarContainer" unique_id=1932147127]
+position = Vector2(146.80002, 27.2)
+sprite_frames = ExtResource("7_yicxr")
+autoplay = "default"
+frame_progress = 0.3780907
+
+[node name="P1NameLabel" type="Label" parent="UIRoot" unique_id=56127877]
+layout_mode = 0
+anchor_left = 0.02
+anchor_right = 0.3
+anchor_bottom = 0.03
+text = "Player 1"
+
+[node name="P2NameLabel" type="Label" parent="UIRoot" unique_id=2076001778]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.7
+anchor_right = 0.98
+anchor_bottom = 0.03
+text = "Player 2"
+horizontal_alignment = 2
+
+[node name="P1RoundPips" type="HBoxContainer" parent="UIRoot" unique_id=116484792]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.02
+anchor_top = 0.1
+anchor_right = 0.2
+anchor_bottom = 0.13
+offset_left = 169.2
+offset_top = 7.0
+offset_right = 179.0
+offset_bottom = 16.2
+
+[node name="Pip1" type="Control" parent="UIRoot/P1RoundPips" unique_id=1282197531]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(6.43, 19.13)
+offset_transform_rotation = 0.059341196
+
+[node name="Open" type="AnimatedSprite2D" parent="UIRoot/P1RoundPips/Pip1" unique_id=1345194540]
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("8_q3skw")
+
+[node name="Idle" type="AnimatedSprite2D" parent="UIRoot/P1RoundPips/Pip1" unique_id=428663124]
+visible = false
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("9_r81cq")
+
+[node name="Pip2" type="Control" parent="UIRoot/P1RoundPips" unique_id=277182788]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(17.41, 16.845)
+offset_transform_rotation = -0.059341196
+
+[node name="Open" type="AnimatedSprite2D" parent="UIRoot/P1RoundPips/Pip2" unique_id=1788915476]
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("8_q3skw")
+
+[node name="Idle" type="AnimatedSprite2D" parent="UIRoot/P1RoundPips/Pip2" unique_id=98673025]
+visible = false
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("9_r81cq")
+
+[node name="Pip3" type="Control" parent="UIRoot/P1RoundPips" unique_id=1231718411]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(27.925, 9.795)
+offset_transform_rotation = 0.11868239
+
+[node name="Open" type="AnimatedSprite2D" parent="UIRoot/P1RoundPips/Pip3" unique_id=1002697275]
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("8_q3skw")
+
+[node name="Idle" type="AnimatedSprite2D" parent="UIRoot/P1RoundPips/Pip3" unique_id=287330858]
+visible = false
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("9_r81cq")
+
+[node name="P2RoundPips" type="HBoxContainer" parent="UIRoot" unique_id=2121434816]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.8
+anchor_top = 0.1
+anchor_right = 0.98
+anchor_bottom = 0.13
+offset_left = -182.0
+offset_top = 12.0
+offset_right = -182.0
+offset_bottom = 21.2
+alignment = 2
+
+[node name="Pip1" type="Control" parent="UIRoot/P2RoundPips" unique_id=171342845]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(-25.73, -4.265)
+offset_transform_rotation = -0.059341196
+
+[node name="Open" type="AnimatedSprite2D" parent="UIRoot/P2RoundPips/Pip1" unique_id=1384180189]
+position = Vector2(10, 10)
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("8_q3skw")
+
+[node name="Idle" type="AnimatedSprite2D" parent="UIRoot/P2RoundPips/Pip1" unique_id=744113711]
+visible = false
+position = Vector2(10, 10)
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("9_r81cq")
+
+[node name="Pip2" type="Control" parent="UIRoot/P2RoundPips" unique_id=660979977]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(-11.73, 4.285)
+offset_transform_rotation = 0.059341196
+
+[node name="Open" type="AnimatedSprite2D" parent="UIRoot/P2RoundPips/Pip2" unique_id=631303114]
+position = Vector2(10, 10)
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("8_q3skw")
+
+[node name="Idle" type="AnimatedSprite2D" parent="UIRoot/P2RoundPips/Pip2" unique_id=314359763]
+visible = false
+position = Vector2(10, 10)
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("9_r81cq")
+
+[node name="Pip3" type="Control" parent="UIRoot/P2RoundPips" unique_id=1501490270]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(0.5, 3.17)
+offset_transform_rotation = 0.017453292
+
+[node name="Open" type="AnimatedSprite2D" parent="UIRoot/P2RoundPips/Pip3" unique_id=1881925003]
+position = Vector2(10, 10)
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("8_q3skw")
+
+[node name="Idle" type="AnimatedSprite2D" parent="UIRoot/P2RoundPips/Pip3" unique_id=486455781]
+visible = false
+position = Vector2(10, 10)
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("9_r81cq")
+
+[node name="TimerLabel" type="Label" parent="UIRoot" unique_id=2026644515]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.44
+anchor_right = 0.56
+anchor_bottom = 0.08
+offset_left = -4.600006
+offset_top = 2.0
+offset_right = -2.3411865
+offset_bottom = 8.200001
+theme = SubResource("Theme_ict5u")
+theme_override_font_sizes/font_size = 24
+text = "99"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DamageNumberLayer" type="Control" parent="UIRoot" unique_id=1289727999]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

@@ -15,6 +15,22 @@ extends Node
 ## Freeze duration (seconds, real-time) when a hit is blocked.
 @export var hitstop_duration_blocked: float = 0.02
 
+@export_group("Match")
+## Rounds a player needs to win the match (best-of-5 = 3).
+@export var rounds_to_win: int = 3
+
+# Canonical round score, held here rather than on the UI because
+# FightUI lives inside the fight scene and gets torn down/recreated
+# every time we go to the upgrade draft and back. GameManager is an
+# autoload, so it's the thing that actually survives across that.
+var p1_rounds_won: int = 0
+var p2_rounds_won: int = 0
+
+# Fired the instant a round is won, with the score already updated.
+# Anything (UI, draft flow, etc) can listen instead of polling.
+signal round_won(winner_id: int, p1_rounds: int, p2_rounds: int)
+signal match_over(winner_id: int)
+
 # Bumped every time hitstop is (re)triggered. Only the timer holding the
 # current token is allowed to restore time_scale, so a second hit landing
 # mid-hitstop extends the freeze instead of ending it early.
