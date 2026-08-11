@@ -45,10 +45,11 @@ enum EffectType {
 ## Applies this upgrade to the given player. Player owns the actual
 ## mutation logic this just tells it what kind of change to make.
 func apply_to(player) -> void:
+	# NOTE Just commenting the params for the functions out just for quick testing
 	match effect_type:
 		EffectType.STAT_BOOST:
-			player.apply_stat_boost(stat_name, stat_amount, is_percent)
+			player.apply_stat_boost() # stat_name, stat_amount, is_percent
 		EffectType.UNLOCK_MOVE:
-			player.unlock_move(unlocked_move)
+			player.unlock_move() # unlocked_move
 		EffectType.MOVE_MODIFY:
-			player.modify_move(target_upgrade_slot_id, move_property, move_delta)
+			player.modify_move() # target_upgrade_slot_id, move_property, move_delta

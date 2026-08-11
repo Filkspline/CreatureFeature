@@ -859,3 +859,15 @@ func _clamp_to_camera_bounds() -> void:
 	var padding = 40.0
 
 	global_position.x = clamp(global_position.x, left_limit + padding, right_limit - padding)
+
+
+# ------------------------------------------------------------------------------
+
+func apply_stat_boost() -> void:
+	pass
+	
+func unlock_move() -> void:
+	pass
+	
+func modify_move() -> void:
+	pass
