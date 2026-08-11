@@ -100,23 +100,25 @@ func _play_selection_icon_pop() -> void:
 	#print(str(self.material) + "\n")
 
 func _handle_tres_file(tres_file_path : String, p1_selecting : bool) -> void:
-	var tres_file = load(tres_file_path)
+	
 	## @experimental
 	## This is just some bullshit testing, if this works please god do not leave it in
-	var player_node
+	
+	#var player_node
 	# TODO this should be edited to handle more than just grabbing the name, to be done later
 	if p1_selecting == true:
 		UpgradePoolManager.p1_current_upgrades.append(tres_file_path)
-		player_node = GameManager.p1_node
+		#player_node = GameManager.p1_node
 	else:
 		UpgradePoolManager.p2_current_upgrades.append(tres_file_path)
-		player_node = GameManager.p2_node
+		#player_node = GameManager.p2_node
 	
 	UpgradePoolManager._remove_from_pool(tres_file_path, p1_selecting)
 	
-	print(tres_file)
-	print(tres_file.name)
+	GameManager.tres_file_path = tres_file_path
+
 	# TODO Uncomment when the scene change has been done
+	#GameManager.apply_upgrade(tres_file_path)
 	#tres_file.apply_to(player_node)
 	
 	# NOTE this is just going to force a transition to the stage for now

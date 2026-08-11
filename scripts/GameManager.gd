@@ -30,6 +30,9 @@ var p1_node : CharacterBody2D
 var p2_node : CharacterBody2D
 
 
+var tres_file_path : String
+var fight_first_run : bool = true
+
 var card_ui_scene = preload("res://scenes/upgrade_card_ui.tscn")
 
 
@@ -65,8 +68,18 @@ func _apply_hitstop(duration: float) -> void:
 	# Only restore time_scale if nothing re-triggered hitstop while we waited.
 	if this_token == _hitstop_token:
 		Engine.time_scale = 1.0
-		
-		
+
+
+func apply_upgrade() -> void:		
+	var tres_file = load(tres_file_path)
+	print(tres_file)
+	print(tres_file.name)
+	if p1_lose == true:
+		tres_file.apply_to(p1_node)
+	else:
+		tres_file.apply_to(p2_node)
+
+
 func _input(event: InputEvent) -> void:
 	# NOTE this is just a temp dev solution for forcing a transition into the 
 	# card upgrade system
@@ -83,6 +96,4 @@ func _input(event: InputEvent) -> void:
 			get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
 		else:
 			pass
-		
-		
 	pass
