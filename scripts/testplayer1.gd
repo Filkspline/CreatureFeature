@@ -97,6 +97,7 @@ var pending_knockdown: bool = false
 
 var is_blocking_low: bool = false
 var current_health: float = 0.0
+var is_defeated: bool = false
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var sprites: PlayerVisuals = $Sprites
@@ -232,6 +233,7 @@ func _register_move(move: MoveData, dict: Dictionary, key: String) -> void:
 
 func reset_health() -> void:
 	current_health = max_health
+	is_defeated = false
 	EventBus.player_health_changed.emit(player_id, current_health)
 
 
@@ -679,6 +681,10 @@ func _resolve_block(move_data: MoveData, attacker: Node2D, was_crouching: bool) 
 func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) -> void:
 	current_health = max(current_health - move_data.damage, 0.0)
 	EventBus.player_health_changed.emit(player_id, current_health)
+
+	if current_health <= 0.0 and not is_defeated:
+		is_defeated = true
+		EventBus.player_defeated.emit(player_id)
 
 	# is_launcher is treated as true if EITHER the checkbox is on OR
 	# launcher_strength is non-zero. This exists because "set

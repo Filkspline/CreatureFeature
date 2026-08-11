@@ -91,6 +91,7 @@ autoplay = "default"
 frame_progress = 0.3780907
 
 [node name="P1NameLabel" type="Label" parent="UIRoot" unique_id=56127877]
+visible = false
 layout_mode = 0
 anchor_left = 0.02
 anchor_right = 0.3
@@ -98,6 +99,7 @@ anchor_bottom = 0.03
 text = "Player 1"
 
 [node name="P2NameLabel" type="Label" parent="UIRoot" unique_id=2076001778]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.7
@@ -240,11 +242,11 @@ anchor_left = 0.44
 anchor_right = 0.56
 anchor_bottom = 0.08
 offset_left = -4.600006
-offset_top = 2.0
+offset_top = -9.0
 offset_right = -2.3411865
-offset_bottom = 8.200001
+offset_bottom = 28.2
 theme = SubResource("Theme_ict5u")
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 82
 text = "99"
 horizontal_alignment = 1
 vertical_alignment = 1

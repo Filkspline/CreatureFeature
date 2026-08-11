@@ -5,6 +5,7 @@ signal player_state_changed(player_id: int, new_state: int)
 signal player_health_changed(player_id: int, new_health: float)
 signal player_attack_started(player_id: int, move_name: String)
 signal player_hit_landed(player_id: int, move_name: String, was_blocked: bool)
+signal player_defeated(player_id: int)
 
 # Not player-specific
 signal camera_shake(amount: float)

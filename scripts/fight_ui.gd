@@ -91,9 +91,12 @@ func _ready() -> void:
 
 	EventBus.player_health_changed.connect(_on_health_changed)
 	EventBus.hit_confirmed.connect(_on_hit_confirmed)
+	GameManager.round_won.connect(_on_round_won)
 
 	if EventBus.has_signal("player_registered"):
 		EventBus.player_registered.connect(_on_player_registered)
+
+	_sync_existing_wins()
 
 
 func _collect_bar_refs(container: Control) -> Dictionary:
@@ -257,6 +260,10 @@ func _world_to_screen(world_pos: Vector2) -> Vector2:
 	return (world_pos - cam.global_position) * cam.zoom + vp_size * 0.5
 
 
+func _on_round_won(winner_id: int, _p1_rounds: int, _p2_rounds: int) -> void:
+	award_round_win(winner_id)
+
+
 # ── Round pips (eyes) ────────────────────────────────────────
 # Each pip in the scene is a small Control with two AnimatedSprite2D
 # children: "Open" (closed pose by default, plays its opening animation
@@ -290,6 +297,34 @@ func _open_pip(pip: Dictionary) -> void:
 	pip.open.visible = true
 	pip.idle.visible = false
 	pip.open.play()
+
+
+# Skips straight to the idle "already open" look, used when this FightUI
+# is a fresh instance catching up to wins that happened before it existed.
+func _open_pip_instant(pip: Dictionary) -> void:
+	pip.open.visible = false
+	pip.idle.visible = true
+	pip.idle.play()
+
+
+# GameManager is the autoload holding the real score, so a brand new
+# FightUI (recreated every time the fight scene reloads after a draft)
+# needs to catch its pips up to whatever GameManager already has.
+func _sync_existing_wins() -> void:
+	_sync_slot_wins(1, GameManager.p1_rounds_won)
+	_sync_slot_wins(2, GameManager.p2_rounds_won)
+
+
+func _sync_slot_wins(slot: int, rounds_won: int) -> void:
+	var slot_pips: Array = pips[slot]
+	var pip_count: int = min(rounds_won, slot_pips.size())
+	for i in pip_count:
+		_open_pip_instant(slot_pips[i])
+
+	if slot == 1:
+		p1_wins = rounds_won
+	else:
+		p2_wins = rounds_won
 
 
 func _on_pip_open_finished(pip: Dictionary) -> void:
