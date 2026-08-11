@@ -1,47 +1,63 @@
 extends Node2D
 
+# ──────────────────────────────────────────────────────────────────
+#  CardHand (draft UI)
+#
+#  Fully signal-driven: waits for EventBus.upgrade_draft_ready, fired by
+#  UpgradePoolManager after a round_lost, instead of pulling from the
+#  pool manager directly. Doesn't care whether it's P1 or P2 drafting —
+#  player_id comes in on the signal and rides straight through to the
+#  eventual upgrade_picked emit.
+
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 
-@export var hand_limit : int = 5 # Default 5
-@export var hand_width : float = 500 # Measured in pixels 200 is good for 5 cards
+@export var hand_width : float = 500
 @export var min_card_spacing : float = 90.0 # Smallest gap allowed between card slots, keeps scatter from overlapping
 @export var vertical_jitter : float = 80.0 # How far up/down cards can randomly sit, tab-scatter feel
 
-var card_default_z_index : int = hand_limit
 var hand = self
+var current_player_id : int = 1
+var card_default_z_index : int
 var current_z_index : int
 var card_default_transform : Transform2D
 var card_default_rotation : float
 var defaults_set : bool
 var selected_card_idx : int
 var currently_handling_card : bool
-var card_map : Dictionary[Node2D, String]
+var card_map : Dictionary[Node2D, UpgradeData]
 var _rng := RandomNumberGenerator.new()
 
 ##------------------------------------------------------------------------
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	UpgradePoolManager.card_hand = self
-	_draw_hand()
+	EventBus.upgrade_draft_ready.connect(_on_upgrade_draft_ready)
+	# Handles the normal case: round_lost fires (and UpgradePoolManager
+	# draws the cards) BEFORE this scene finishes loading, since whoever
+	# decides the round ended calls change_scene_to_file right after
+	# emitting. That signal is gone by the time we get here, so check for
+	# an already-drawn offer directly instead of only listening for one.
+	if UpgradePoolManager.last_offer_player_id != -1:
+		_on_upgrade_draft_ready(UpgradePoolManager.last_offer_player_id, UpgradePoolManager.last_offer)
 
-func _draw_hand() -> void:
-	# TODO Needs to be changed to dynamically call which player lost, currently hard coded to p1
-	var tres_file_paths = UpgradePoolManager._draw_from_pool(GameManager.p1_lose) # Gets an Array[String] of tres file paths
+
+func _on_upgrade_draft_ready(player_id: int, offered: Array[UpgradeData]) -> void:
+	current_player_id = player_id
+	_draw_hand(offered)
+
+
+func _draw_hand(offered: Array[UpgradeData]) -> void:
+	card_default_z_index = offered.size()
 	current_z_index = card_default_z_index
-	for _x in hand_limit:
+	for upgrade in offered:
 		var upgarde_card = UPGRADE_CARD.instantiate()
-		var tres_file = tres_file_paths.pop_front()
-		print(tres_file)
-		# NOTE card_map.set Currently throws an error when doing cards
-		# NOTE this is an issue with the dupe check in the draw and should be an easy fix, I'll get onto it later - B
-		card_map.set(upgarde_card, tres_file)
+		card_map.set(upgarde_card, upgrade)
 		if defaults_set != true:
 			card_default_transform = upgarde_card.transform
 			card_default_rotation = upgarde_card.rotation
 			defaults_set = true
 		
 		add_child(upgarde_card)
+		upgarde_card.set_upgrade(upgrade)
 		upgarde_card.z_index = current_z_index
 		current_z_index -= 1
 	
@@ -80,13 +96,17 @@ func _spread_cards() -> void:
 	selected_card_idx = 0
 	
 func _input(event: InputEvent) -> void:
-	# TODO handle fix for when inputting a movement action after selection has been made
-	# Handles the input for the ui menu, god help us all
+	# Once a card's been picked and the rest are queue_free()-ing, don't let
+	# navigation touch them — this was the out-of-bounds crash from before.
+	if currently_handling_card:
+		return
+	if hand.get_child_count() == 0:
+		return
 	
-	# NOTE This handles the mouse input, scrapping this as I don't want to deal with clicking
-	# NOTE Probably clean this up if we don't intend to actually use this
-	#if event is InputEventMouseButton or event is InputEventMouseMotion:
-		#Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# Bound against the hand's actual current child count rather than a
+	# fixed hand_limit, so this can't overshoot if fewer cards were
+	# offered than expected, or a card's already been freed.
+	var last_idx = hand.get_child_count() - 1
 
 	if event is InputEventKey:
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
@@ -98,7 +118,7 @@ func _input(event: InputEvent) -> void:
 				hand.get_child(selected_card_idx).currently_highlighted = true
 				hand.get_child(selected_card_idx)._handle_highlight()
 		elif event.keycode == KEY_D and event.pressed:
-			if selected_card_idx == (hand_limit - 1):
+			if selected_card_idx == last_idx:
 				pass
 			else:
 				selected_card_idx += 1
@@ -115,21 +135,13 @@ func _input(event: InputEvent) -> void:
 				hand.get_child(selected_card_idx).currently_highlighted = true
 				hand.get_child(selected_card_idx)._handle_highlight()
 		elif event.button_index == JOY_BUTTON_DPAD_RIGHT and event.pressed:
-			if selected_card_idx == (hand_limit - 1):
+			if selected_card_idx == last_idx:
 				pass
 			else:
 				selected_card_idx += 1
 				hand.get_child(selected_card_idx).currently_highlighted = true
 				hand.get_child(selected_card_idx)._handle_highlight()
 
-	# NOTE This is for handling using a stick for controlling selection, I have abaondoned this as god has abandoned us
-	# NOTE Probably clean this up if we don't intend to actually use this
-	#elif event is InputEventJoypadMotion:
-		#TODO handle controller stick selection, needs a cursor sprite
-		#Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	#else:
-		#pass 
-	
 	# Handles selection input as it is
 	if event is InputEventJoypadButton:
 		if event.button_index == JOY_BUTTON_A:
@@ -146,7 +158,6 @@ func _handle_clicked_card():
 	currently_handling_card = true
 	for card in hand.get_children():
 		if card.currently_highlighted == false:
-			# card._handle_shader() # NOTE uncomment when shaders actually fucking work
 			var tween = create_tween()
 			tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 			tween.tween_property(card, "scale", Vector2(0.01, 0.01), 0.5)
@@ -163,7 +174,5 @@ func _handle_clicked_card():
 	tween.tween_property(highlighted_card, "transform", card_default_transform, 0.4)
 	tween.parallel().tween_property(highlighted_card, "rotation", card_default_rotation, 0.4)
 	tween.parallel().tween_property(highlighted_card, "scale", Vector2(2.0, 2.0), 0.4)
-	# TODO to handle vfx if wanted or any other processes do so after the above code
 	
-
-	highlighted_card._handle_tres_file(card_map.get(highlighted_card), GameManager.p1_lose) # TODO needs to be changed to get the actual player that lost
+	highlighted_card._handle_upgrade(card_map.get(highlighted_card), current_player_id)

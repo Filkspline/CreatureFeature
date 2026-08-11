@@ -12,6 +12,19 @@ signal camera_shake(amount: float)
 # Already carries attacker/defender node refs directly — no id needed
 signal hit_confirmed(impact_position: Vector2, move_data: MoveData, attacker: Node, defender: Node, was_blocked: bool)
 
+# ── Upgrade draft ──
+# player_registered: a Player fires this in its own _ready() so GameManager
+# can hold a live reference to it. This is what lets the draft apply an
+# upgrade to the right node even after a scene change swaps the Player
+# instance out — nothing needs an @export slot pointing across scenes.
+signal player_registered(player_id: int, player_node: Node)
+
+signal match_started                                          # reset/duplicate both pools
+signal round_lost(loser_id: int)                               # who lost, needs to draft
+signal upgrade_draft_ready(player_id: int, offered: Array[UpgradeData])  # cards to show
+signal upgrade_picked(player_id: int, upgrade: UpgradeData)    # UI -> pool manager
+signal upgrade_applied(player_id: int, upgrade: UpgradeData)   # pool manager -> anyone (vfx, ui)
+
 # ── Continuous per-frame state, keyed by player_id ──
 var player_position: Dictionary = {}     # int -> Vector2
 var player_velocity: Dictionary = {}     # int -> Vector2

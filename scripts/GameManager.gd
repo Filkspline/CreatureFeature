@@ -4,7 +4,9 @@ extends Node
 #  GameManager (Autoload)
 #
 #  Reads from EventBus and reacts to game-wide events. For now: applies
-#  hitstop (a brief freeze-frame) whenever a hit lands.
+#  hitstop (a brief freeze-frame) whenever a hit lands, and holds live
+#  references to both Player nodes so the upgrade system has someone
+#  to apply upgrades to.
 
 @export_group("Hitstop")
 @export var enabled: bool = true
@@ -17,24 +19,30 @@ extends Node
 # current token is allowed to restore time_scale, so a second hit landing
 # mid-hitstop extends the freeze instead of ending it early.
 var _hitstop_token: int = 0
-var p1_lose : bool # NOTE this may be changed in the future but currently just uses a bool to decide who wins and loses
 
-##@experimental
-## Currently just using as a stopgap for passing through the player info when
-## applying the upgrades
-var p1_node : CharacterBody2D
-
-##@experimental
-## Currently just using as a stopgap for passing through the player info when
-## applying the upgrades
-var p2_node : CharacterBody2D
-
+# Populated by EventBus.player_registered, fired from each Player's own
+# _ready(). This survives scene changes — a fresh Player instance just
+# re-registers itself when its new scene loads, no @export wiring needed
+# across scene boundaries.
+var p1_node: CharacterBody2D
+var p2_node: CharacterBody2D
 
 var card_ui_scene = preload("res://scenes/upgrade_card_ui.tscn")
 
 
 func _ready() -> void:
 	EventBus.player_hit_landed.connect(_on_player_hit_landed)
+	EventBus.player_registered.connect(_on_player_registered)
+
+
+func _on_player_registered(player_id: int, player_node: Node) -> void:
+	if player_id == 1:
+		p1_node = player_node
+	elif player_id == 2:
+		p2_node = player_node
+	else:
+		push_warning("GameManager: player_registered fired with unexpected player_id %d" % player_id)
+
 
 func _on_player_hit_landed(player_id: int, _move_name: String, was_blocked: bool) -> void:
 	if not enabled:
@@ -73,16 +81,11 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		if event.keycode == KEY_1 and event.pressed:
 			print("Test1")
-			UpgradePoolManager._duplicate_card_pools()
-			p1_lose = true
+			EventBus.match_started.emit()
+			EventBus.round_lost.emit(1)
 			get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
 		elif event.keycode == KEY_2 and event.pressed:
 			print("Test2")
-			UpgradePoolManager._duplicate_card_pools()
-			p1_lose = false
+			EventBus.match_started.emit()
+			EventBus.round_lost.emit(2)
 			get_tree().change_scene_to_file("res://scenes/upgrade_card_ui.tscn")
-		else:
-			pass
-		
-		
-	pass

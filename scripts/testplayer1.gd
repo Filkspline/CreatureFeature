@@ -31,6 +31,12 @@ class_name Player
 @export_group("Debug")
 @export var debug: bool = true
 
+@export_group("Upgrades")
+## Move names (MoveData.move_name, NOT the slot var name like "S6") that
+## start locked — excluded from all_moves/normal_moves/special_moves
+## until unlock_move() is called with a MoveData sharing that move_name.
+@export var locked_move_names: Array[StringName] = []
+
 enum State { NEUTRAL, ATTACK, HITSTUN, BLOCKSTUN, KNOCKDOWN }
 enum JumpPhase { RISE, PEAK, FALL }
 enum Direction { NONE, LEFT, RIGHT }
@@ -152,6 +158,11 @@ func _ready() -> void:
 
 	sprites.play_idle()
 
+	# Lets GameManager hold a live reference to this instance without any
+	# @export slot pointing across scenes — needed so upgrades picked in
+	# the draft scene have someone to apply to after a scene change.
+	EventBus.player_registered.emit(player_id, self)
+
 
 # Shape resources assigned in the scene are shared across every instance
 # unless duplicated. Without this, one player's attack animation
@@ -190,30 +201,87 @@ func _duplicate_move_data() -> void:
 
 
 func _build_move_lookup() -> void:
-	var add_move = func(move: MoveData, dict: Dictionary, key: String):
-		if move:
-			all_moves[move.move_name] = move
-			dict[key] = move
+	all_moves.clear()
+	normal_moves.clear()
+	special_moves.clear()
 
-	add_move.call(N5, normal_moves, "neutral")
-	add_move.call(N4, normal_moves, "back")
-	add_move.call(N6, normal_moves, "forward")
-	add_move.call(N2, normal_moves, "crouching")
-	add_move.call(N8, normal_moves, "up")
-	add_move.call(NA, normal_moves, "aerial")
-	add_move.call(N52, normal_moves, "")
+	_register_move(N5, normal_moves, "neutral")
+	_register_move(N4, normal_moves, "back")
+	_register_move(N6, normal_moves, "forward")
+	_register_move(N2, normal_moves, "crouching")
+	_register_move(N8, normal_moves, "up")
+	_register_move(NA, normal_moves, "aerial")
+	_register_move(N52, normal_moves, "")
 
-	add_move.call(S5, special_moves, "neutral")
-	add_move.call(S4, special_moves, "back")
-	add_move.call(S6, special_moves, "forward")
-	add_move.call(S2, special_moves, "crouching")
-	add_move.call(S8, special_moves, "up")
-	add_move.call(SA, special_moves, "aerial")
+	_register_move(S5, special_moves, "neutral")
+	_register_move(S4, special_moves, "back")
+	_register_move(S6, special_moves, "forward")
+	_register_move(S2, special_moves, "crouching")
+	_register_move(S8, special_moves, "up")
+	_register_move(SA, special_moves, "aerial")
+
+
+func _register_move(move: MoveData, dict: Dictionary, key: String) -> void:
+	if not move:
+		return
+	if move.move_name in locked_move_names:
+		return
+	all_moves[move.move_name] = move
+	dict[key] = move
 
 
 func reset_health() -> void:
 	current_health = max_health
 	EventBus.player_health_changed.emit(player_id, current_health)
+
+
+# ──────────────────────────────────────────────────────────────────
+#  Upgrade application — called by UpgradeData.apply_to(self)
+#
+#  Player owns the actual mutation. UpgradeData just says what kind of
+#  change to make and with what values.
+
+func apply_stat_boost(stat_name: StringName, amount: float, is_percent: bool) -> void:
+	if not (stat_name in self):
+		push_warning("[P%d] apply_stat_boost: no property named '%s' on Player" % [player_id, stat_name])
+		return
+	var current = get(stat_name)
+	var new_value = current * (1.0 + amount / 100.0) if is_percent else current + amount
+	set(stat_name, new_value)
+	_dbg("[UPGRADE] stat_boost %s: %s -> %s" % [stat_name, current, new_value])
+
+
+## Matches by MoveData.move_name against this Player's own pre-assigned
+## move slots (S6, N5, etc.) rather than injecting the passed-in resource
+## directly — the slot's own duplicated MoveData is what actually gets
+## used elsewhere, so that's what has to be the one that becomes usable.
+func unlock_move(move: MoveData) -> void:
+	if not move:
+		push_warning("[P%d] unlock_move called with a null MoveData" % player_id)
+		return
+	if move.move_name not in locked_move_names:
+		_dbg("[UPGRADE] unlock_move: '%s' wasn't locked, nothing to do" % move.move_name)
+		return
+	locked_move_names.erase(move.move_name)
+	_build_move_lookup()
+	_dbg("[UPGRADE] unlocked move '%s'" % move.move_name)
+
+
+## target_upgrade_slot_id matches MoveData.upgrade_slot_id, so this can
+## target a move's ROLE (e.g. "launcher") without caring which exact move
+## currently fills that role.
+func modify_move(target_upgrade_slot_id: StringName, property_name: StringName, delta: float) -> void:
+	for move in all_moves.values():
+		if move.upgrade_slot_id != target_upgrade_slot_id:
+			continue
+		if not (property_name in move):
+			push_warning("[P%d] modify_move: MoveData '%s' has no property '%s'" % [player_id, move.move_name, property_name])
+			continue
+		var new_value = move.get(property_name) + delta
+		move.set(property_name, new_value)
+		move.is_upgraded = true
+		move.upgrade_property_id = property_name
+		_dbg("[UPGRADE] modify_move %s.%s -> %s" % [move.move_name, property_name, new_value])
 
 
 func _physics_process(delta: float) -> void:
