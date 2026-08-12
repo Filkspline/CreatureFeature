@@ -4,8 +4,8 @@
 
 [resource]
 script = ExtResource("1_83ucx")
-name = "Test Upgrade - Move Speed"
+name = "Test Upgrade - % Move Speed"
 description = "Copy this file to make a new upgrade. Fill in name, description, icon, then set effect_type and only the fields under the matching group."
 stat_name = &"move_speed"
-stat_amount = 15.0
+stat_amount = 7.5
 is_percent = true

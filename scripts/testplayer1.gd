@@ -13,6 +13,10 @@ class_name Player
 @export var jump_velocity: float = -620.0
 @export var gravity: float = 1580.0
 @export var jump_apex_threshold: float = 60.0
+##@experimental: Currently used as a stopgap solution for the stat application.
+## Just used as the variable that is applied to walk_forward_speed, and
+## walk_backward_speed
+@export var move_speed: float = 170.0
 
 @export_group("Pushback")
 @export var pushback_deceleration: float = 600.0
@@ -120,7 +124,7 @@ var wants_to_crouch: bool = false
 
 func _dbg(msg: String) -> void:
 	if debug:
-		print("[P%d] %s" % [player_id, msg])
+		print_rich("[P%d] %s" % [player_id, msg])
 
 
 func _action(name: String) -> StringName:
@@ -245,13 +249,18 @@ func reset_health() -> void:
 
 func apply_stat_boost(stat_name: StringName, amount: float, is_percent: bool) -> void:
 	if not (stat_name in self):
-		push_warning("[P%d] apply_stat_boost: no property named '%s' on Player" % [player_id, stat_name])
+		#push_warning("[P%d] apply_stat_boost: no property named '%s' on Player" % [player_id, stat_name])
+		_dbg("[color=red][P%d] apply_stat_boost: no property named '%s' on Player" % [player_id, stat_name])
 		return
 	var current = get(stat_name)
 	var new_value = current * (1.0 + amount / 100.0) if is_percent else current + amount
+	
 	set(stat_name, new_value)
-	_dbg("[UPGRADE] stat_boost %s: %s -> %s" % [stat_name, current, new_value])
-
+	_dbg("[color=yellow][UPGRADE] stat_boost %s (Is percent?: %s): %s -> %s" % [stat_name, is_percent, current, new_value])
+	# NOTE this is a stopgap solution for now, this will be called every time, so it's bad for runtime
+	current_health = max_health
+	walk_forward_speed = move_speed # Should fix speed option
+	walk_backward_speed = move_speed # ^
 
 ## Matches by MoveData.move_name against this Player's own pre-assigned
 ## move slots (S6, N5, etc.) rather than injecting the passed-in resource
@@ -259,14 +268,15 @@ func apply_stat_boost(stat_name: StringName, amount: float, is_percent: bool) ->
 ## used elsewhere, so that's what has to be the one that becomes usable.
 func unlock_move(move: MoveData) -> void:
 	if not move:
-		push_warning("[P%d] unlock_move called with a null MoveData" % player_id)
+		#push_warning("[P%d] unlock_move called with a null MoveData" % player_id)
+		_dbg("[color=red][P%d] unlock_move called with a null MoveData" % player_id)
 		return
 	if move.move_name not in locked_move_names:
-		_dbg("[UPGRADE] unlock_move: '%s' wasn't locked, nothing to do" % move.move_name)
+		_dbg("[color=yellow][UPGRADE] unlock_move: '%s' wasn't locked, nothing to do" % move.move_name)
 		return
 	locked_move_names.erase(move.move_name)
 	_build_move_lookup()
-	_dbg("[UPGRADE] unlocked move '%s'" % move.move_name)
+	_dbg("[color=yellow][UPGRADE] unlocked move '%s'" % move.move_name)
 
 
 ## target_upgrade_slot_id matches MoveData.upgrade_slot_id, so this can

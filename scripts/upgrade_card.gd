@@ -31,7 +31,7 @@ func _ready() -> void:
 	self.material = null
 	_base_scale = card_control.scale
 	_start_idle_bob()
-
+	
 
 func _start_idle_bob() -> void:
 	# Gentle up/down float so cards don't sit dead still. Runs forever,
