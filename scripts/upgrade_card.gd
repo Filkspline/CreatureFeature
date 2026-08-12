@@ -3,6 +3,9 @@ extends Node2D
 @onready var selection_icon = $Control/selection_icon
 @onready var anim_player = $AnimationPlayer
 @onready var card_control = $Control
+@onready var card_icon : Sprite2D = $Control/card_front/card_icon
+@onready var title_label : Label = $Control/card_front/Title
+@onready var description_label : Label = $Control/card_front/Description
 @onready var parent_node = self.get_parent()
 @onready var card_shader = preload("res://scripts/card_tear.gdshader")
 @onready var fight_scene = preload("res://scenes/test_level.tscn")
@@ -99,25 +102,23 @@ func _play_selection_icon_pop() -> void:
 	#self.material = shader_material
 	#print(str(self.material) + "\n")
 
-func _handle_tres_file(tres_file_path : String, p1_selecting : bool) -> void:
-	var tres_file = load(tres_file_path)
-	## @experimental
-	## This is just some bullshit testing, if this works please god do not leave it in
-	var player_node
-	# TODO this should be edited to handle more than just grabbing the name, to be done later
-	if p1_selecting == true:
-		UpgradePoolManager.p1_current_upgrades.append(tres_file_path)
-		player_node = GameManager.p1_node
-	else:
-		UpgradePoolManager.p2_current_upgrades.append(tres_file_path)
-		player_node = GameManager.p2_node
-	
-	UpgradePoolManager._remove_from_pool(tres_file_path, p1_selecting)
-	
-	print(tres_file)
-	print(tres_file.name)
-	# TODO Uncomment when the scene change has been done
-	#tres_file.apply_to(player_node)
+## Called by CardHand right after add_child, once the @onready refs are
+## actually valid. Icon only overwrites if this upgrade has one assigned —
+## otherwise the placeholder already on the node in the scene stays put.
+func set_upgrade(upgrade : UpgradeData) -> void:
+	if not upgrade:
+		return
+	if upgrade.icon:
+		card_icon.texture = upgrade.icon
+	title_label.text = upgrade.name
+	description_label.text = upgrade.description
+
+
+func _handle_upgrade(upgrade : UpgradeData, player_id : int) -> void:
+	# UpgradePoolManager listens for this and handles removing it from the
+	# pool AND applying it to the right player — this card doesn't need a
+	# reference to either system.
+	EventBus.upgrade_picked.emit(player_id, upgrade)
 	
 	# NOTE this is just going to force a transition to the stage for now
 	await get_tree().create_timer(0.75).timeout

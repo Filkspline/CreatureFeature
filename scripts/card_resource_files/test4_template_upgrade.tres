@@ -7,4 +7,4 @@ script = ExtResource("1_agorg")
 name = "Test Upgrade - Flat Jump Velocity"
 description = "Copy this file to make a new upgrade. Fill in name, description, icon, then set effect_type and only the fields under the matching group."
 stat_name = &"jump_velocity"
-stat_amount = 10.0
+stat_amount = 1000.0

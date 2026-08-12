@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://ce1hi5sqqhmm5"]
 
 [ext_resource type="Script" uid="uid://d3r0cg07c76st" path="res://scripts/card_hand.gd" id="1_l8650"]
+[ext_resource type="Texture2D" uid="uid://qxucesg03rg" path="res://assets/MicrosoftBackgroundWeirdColourTaskbar.png" id="2_ncbw7"]
 
 [node name="UpgradeCardUi" type="Control" unique_id=806021811]
 layout_mode = 3
@@ -14,3 +15,8 @@ grow_vertical = 2
 
 [node name="hand" type="Node2D" parent="Camera2D" unique_id=1895491932]
 script = ExtResource("1_l8650")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1887611312]
+position = Vector2(37, -18)
+scale = Vector2(0.5555555, 0.5555556)
+texture = ExtResource("2_ncbw7")

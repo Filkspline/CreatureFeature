@@ -2,8 +2,14 @@
 
 [ext_resource type="Script" uid="uid://jhexjuiasdka" path="res://scripts/upgrade_card.gd" id="1_ew4bf"]
 [ext_resource type="Texture2D" uid="uid://ctged1vw73l02" path="res://assets/card_assets/CardBackColour.png" id="2_fk0rn"]
+[ext_resource type="Texture2D" uid="uid://b4bbsgtvf8ta1" path="res://assets/icon.svg" id="2_igsks"]
 [ext_resource type="Texture2D" uid="uid://ddyrpm7n6t5li" path="res://assets/card_assets/Card_DesignNoFlairCorruptionBW.png" id="3_fk0rn"]
 [ext_resource type="SpriteFrames" uid="uid://0mk8q5j8lmya" path="res://scripts/selector_anim.tres" id="4_0hv3p"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="4_33rkj"]
+
+[sub_resource type="Theme" id="Theme_g4v7s"]
+default_font = ExtResource("4_33rkj")
+default_font_size = 100
 
 [sub_resource type="Animation" id="Animation_0hv3p"]
 length = 0.001
@@ -134,6 +140,25 @@ texture = ExtResource("2_fk0rn")
 z_index = -1
 scale = Vector2(0.99999994, 0.99999994)
 texture = ExtResource("3_fk0rn")
+
+[node name="Title" type="Label" parent="Control/card_front" unique_id=1676433001]
+offset_left = -150.00002
+offset_top = -500.00003
+offset_right = 24.999985
+offset_bottom = -337.00003
+theme = SubResource("Theme_g4v7s")
+
+[node name="Description" type="Label" parent="Control/card_front" unique_id=1799692244]
+offset_left = -340.00003
+offset_top = 240.00003
+offset_right = -165.00003
+offset_bottom = 403.00003
+theme = SubResource("Theme_g4v7s")
+
+[node name="card_icon" type="Sprite2D" parent="Control/card_front" unique_id=793156833]
+position = Vector2(-2.9999924, -112.99996)
+scale = Vector2(5.6718755, 4.4218745)
+texture = ExtResource("2_igsks")
 
 [node name="selection_icon" type="AnimatedSprite2D" parent="Control" unique_id=375975407]
 visible = false
