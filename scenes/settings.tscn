@@ -36,7 +36,7 @@ text = "Settings"
 [node name="Settings_Tab_Container" parent="." unique_id=576454110 instance=ExtResource("2_r6d6q")]
 layout_mode = 1
 
-[node name="Button" type="Button" parent="." unique_id=2145009842]
+[node name="ExitButton" type="Button" parent="." unique_id=2145009842]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -47,4 +47,4 @@ grow_horizontal = 2
 grow_vertical = 0
 text = "Exit"
 
-[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="ExitButton" to="." method="_on_button_pressed"]
