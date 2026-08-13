@@ -42,9 +42,10 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -27.0
+offset_top = -31.0
 grow_horizontal = 2
 grow_vertical = 0
 text = "Exit"
 
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
 [connection signal="pressed" from="ExitButton" to="." method="_on_button_pressed"]
