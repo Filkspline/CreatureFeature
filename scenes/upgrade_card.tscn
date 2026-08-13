@@ -154,6 +154,8 @@ offset_top = 240.00003
 offset_right = -165.00003
 offset_bottom = 403.00003
 theme = SubResource("Theme_g4v7s")
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(1, 1, 1, 0.3529412)
 
 [node name="card_icon" type="Sprite2D" parent="Control/card_front" unique_id=793156833]
 position = Vector2(-2.9999924, -112.99996)

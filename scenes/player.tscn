@@ -43,7 +43,7 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(102.5, 194.5)
+size = Vector2(102.5, 441.5)
 
 [sub_resource type="Animation" id="Animation_jc3p3"]
 resource_name = "N2"
@@ -1394,6 +1394,7 @@ size = Vector2(92, 90)
 [node name="Player" type="CharacterBody2D" unique_id=786033213 groups=["players"]]
 script = ExtResource("1_g2els")
 direction_buffer_time = 0.8
+locked_move_names = Array[StringName]([&"S6"])
 N5 = ExtResource("2_smehm")
 N52 = ExtResource("3_d2wvv")
 N4 = ExtResource("4_ke2ow")
@@ -1416,7 +1417,7 @@ texture = SubResource("GradientTexture2D_57qmd")
 expand_mode = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1285333219]
-position = Vector2(-0.25, -97.75)
+position = Vector2(-0.25, -221.25)
 shape = SubResource("RectangleShape2D_g4v7s")
 debug_color = Color(0.26929268, 0.6220697, 0.34595335, 0.41960785)
 
@@ -1463,6 +1464,7 @@ texture = ExtResource("7_fjrip")
 hframes = 4
 
 [node name="N52" type="Sprite2D" parent="Sprites" unique_id=828199933]
+visible = false
 position = Vector2(-1, -84)
 texture = ExtResource("9_ur7pv")
 hframes = 4
