@@ -1034,7 +1034,7 @@ tracks/3/keys = {
 
 [sub_resource type="Animation" id="Animation_t4otl"]
 resource_name = "S8"
-length = 0.8
+length = 0.8666667
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -1043,10 +1043,82 @@ tracks/0/path = NodePath("Sprites/S8:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.05, 0.083333336, 0.11666667, 0.16666667, 0.36666667, 0.46666667, 0.6333333, 0.71666664),
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.23333333, 0.4166667, 0.51666665, 0.68333334, 0.76666665),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3, 4, 5, 6, 7, 8]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hitbox/MainHitbox:shape:size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(92, 90), Vector2(320, 220), Vector2(78, 72)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hitbox/MainHitbox:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [true, false, false, true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hitbox/MainHitbox:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [Vector2(78, -117.5), Vector2(94, -113), Vector2(266, -39), Vector2(86, -118)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hurtbox/SubHurtbox:shape:size")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334, 0.7666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [Vector2(79.5, 70), Vector2(393, 130), Vector2(376, 82), Vector2(248, 47), Vector2(102, 95)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hurtbox/SubHurtbox:disabled")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334, 0.7666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [true, false, false, false, true]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Hurtbox/SubHurtbox:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334, 0.7666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [Vector2(77, -116), Vector2(129.5, -68), Vector2(121, -44), Vector2(57, -26.5), Vector2(74, -118.5)]
 }
 
 [sub_resource type="Animation" id="Animation_487ah"]
@@ -1426,7 +1498,7 @@ size = Vector2(92, 90)
 [node name="Player" type="CharacterBody2D" unique_id=786033213 groups=["players"]]
 script = ExtResource("1_g2els")
 direction_buffer_time = 0.8
-locked_move_names = Array[StringName]([&"S6"])
+locked_move_names = Array[StringName]([&"S6", &"S8"])
 N5 = ExtResource("2_smehm")
 N52 = ExtResource("3_d2wvv")
 N4 = ExtResource("4_ke2ow")
@@ -1584,6 +1656,7 @@ texture = ExtResource("30_wqfne")
 hframes = 7
 
 [node name="S8" type="Sprite2D" parent="Sprites" unique_id=1674222297]
+visible = false
 position = Vector2(-2, -185)
 texture = ExtResource("32_gl8cc")
 hframes = 9
