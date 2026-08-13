@@ -1545,6 +1545,7 @@ texture = ExtResource("28_pf23h")
 hframes = 5
 
 [node name="S6" type="Sprite2D" parent="Sprites" unique_id=35465075]
+visible = false
 position = Vector2(0, -186)
 texture = ExtResource("30_wqfne")
 hframes = 7

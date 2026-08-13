@@ -32,6 +32,12 @@ class_name Player
 @export_group("Health")
 @export var max_health: float = 100.0
 
+@export_group("Visuals")
+## Normal draw order, restored any time state leaves ATTACK.
+@export var base_z_index: int = 0
+
+@export var attack_z_index: int = 1
+
 @export_group("Debug")
 @export var debug: bool = true
 
@@ -55,6 +61,12 @@ var state: State = State.NEUTRAL :
 		state = new_state
 		EventBus.player_state[player_id] = state
 		EventBus.player_state_changed.emit(player_id, state)
+		# Overlay whoever is currently attacking on top of their
+		# opponent, temporarily. Tied to the state transition itself
+		# (not to _start_attack/_end_attack) so a trade — getting hit
+		# out of your own attack straight into HITSTUN — still
+		# restores z_index correctly, same as a clean attack finish.
+		z_index = attack_z_index if new_state == State.ATTACK else base_z_index
 
 signal landed
 signal hitstun_finished
@@ -150,7 +162,7 @@ func _ready() -> void:
 
 	_build_move_lookup()
 
-	sprites.setup(animation_player, all_moves.keys())
+	sprites.setup(animation_player, _all_move_sprite_names())
 	sprites.set_facing(facing_right)
 	sprites.animation_finished.connect(_on_sprites_animation_finished)
 
@@ -203,6 +215,13 @@ func _duplicate_move_data() -> void:
 	S6 = S6.duplicate() if S6 else null
 	S2 = S2.duplicate() if S2 else null
 	SA = SA.duplicate() if SA else null
+
+func _all_move_sprite_names() -> Array:
+	var names: Array = []
+	for move in [N5, N52, N4, N8, N6, N2, NA, S5, S4, S8, S6, S2, SA]:
+		if move:
+			names.append(move.move_name)
+	return names
 
 
 func _build_move_lookup() -> void:
@@ -262,10 +281,6 @@ func apply_stat_boost(stat_name: StringName, amount: float, is_percent: bool) ->
 	walk_forward_speed = move_speed # Should fix speed option
 	walk_backward_speed = move_speed # ^
 
-## Matches by MoveData.move_name against this Player's own pre-assigned
-## move slots (S6, N5, etc.) rather than injecting the passed-in resource
-## directly — the slot's own duplicated MoveData is what actually gets
-## used elsewhere, so that's what has to be the one that becomes usable.
 func unlock_move(move: MoveData) -> void:
 	if not move:
 		#push_warning("[P%d] unlock_move called with a null MoveData" % player_id)
