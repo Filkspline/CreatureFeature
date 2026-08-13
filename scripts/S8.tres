@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3 uid="uid://bemo48d5bwff8"]
+
+[ext_resource type="Script" uid="uid://bnyng45sqmhga" path="res://scripts/MoveData.gd" id="1_move"]
+
+[resource]
+script = ExtResource("1_move")
+move_name = "S8"
+input_dir = 4
+kind = 1
+hit_level = 2
+animation_name = &"S8"
+pushback_on_block = 50.0
+knock_back = 300.0
+block_knock_back = 200.0
