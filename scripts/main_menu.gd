@@ -39,7 +39,7 @@ func _process(_delta):
 
 func _on_play_pressed():
 	print("Play pressed")
-	get_tree().change_scene_to_file("res://scenes/test_level.tscn")
+	get_tree().change_scene_to_file("res://scenes/player_select.tscn")
 
 
 func _on_settings_pressed():
