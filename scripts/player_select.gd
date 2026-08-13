@@ -1,7 +1,11 @@
 extends Control
+@onready var start_button = $Button
 
 @onready var p1_cursor = $Cursors/Player1
 @onready var p2_cursor = $Cursors/Player2
+
+@onready var character1_selected = $Characters/Character1/SelectedLabel
+@onready var character2_selected = $Characters/Character2/SelectedLabel
 
 @onready var character1 = $Characters/Character1
 @onready var character2 = $Characters/Character2
@@ -22,7 +26,7 @@ var p2_neutral_position: Vector2
 func _ready():
 	p1_neutral_position = p1_cursor.position
 	p2_neutral_position = p2_cursor.position
-
+	start_button.visible = false
 	update_cursors()
 
 
@@ -30,6 +34,9 @@ func _process(_delta):
 	handle_p1_input()
 	handle_p2_input()
 
+func check_both_locked():
+	if p1_locked and p2_locked:
+		start_button.visible = true
 
 func handle_p1_input():
 
@@ -60,8 +67,12 @@ func handle_p1_input():
 	if Input.is_action_just_pressed("NormalP1"):
 		if p1_selection != 0:
 			p1_locked = true
-			print("P1 locked in character: ", p1_selection)
-
+			if p1_selection == -1:
+				character1_selected.visible = true
+			elif p1_selection == 1:
+				character2_selected.visible = true
+		print("P1 locked in character: ", p1_selection)
+		check_both_locked()
 
 func handle_p2_input():
 
@@ -92,8 +103,12 @@ func handle_p2_input():
 	if Input.is_action_just_pressed("NormalP2"):
 		if p2_selection != 0:
 			p2_locked = true
+			if p2_selection == -1:
+				character1_selected.visible = true
+			elif p2_selection == 1:
+				character2_selected.visible = true
 			print("P2 locked in character: ", p2_selection)
-
+			check_both_locked()
 
 func update_cursors():
 	update_p1_cursor()
@@ -133,3 +148,7 @@ func get_character_position(character: ColorRect, cursor: ColorRect) -> Vector2:
 	var character_center = character.position + character.size / 2.0
 
 	return character_center - cursor.size / 2.0
+
+
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/test_level.tscn")
