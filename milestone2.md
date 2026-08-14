@@ -61,7 +61,9 @@ The GDD is Leonardo's own. No other team member's Milestone 1 design or technolo
 - Braden Thomas: upgrade card UI and the upgrade card effect framework/upgrade system
 - Marlon Gentile: character design and art, card frame design, transition art
 
-*[How we catch a stuck owner: TBD, let me know your actual process and I'll fill this in]*
+*How we catch a stuck owner:*
+
+- By keeping tasks as independent as possible, everyone can work at their own pace, while Discord, the Miro board, weekly calls, and frequent check-ins help identify and resolve blockers.
 
 **Version control, branching and ticket tracking**
 
