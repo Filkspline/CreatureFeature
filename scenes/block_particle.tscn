@@ -3,4 +3,5 @@
 [ext_resource type="Script" uid="uid://br5g38n7h1qfx" path="res://scripts/BlockParticle.gd" id="1_q7r6y"]
 
 [node name="block_particle" type="CPUParticles2D" unique_id=914933827]
+z_as_relative = false
 script = ExtResource("1_q7r6y")

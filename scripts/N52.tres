@@ -15,4 +15,3 @@ damage = 5.0
 animation_name = &"N52"
 is_advancing = true
 advance_speed = 220.0
-gatlings_into = Array[StringName]([&"S5"])

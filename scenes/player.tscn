@@ -12,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://bohkfx1bmv6t0" path="res://scripts/N2.tres" id="6_dt7fs"]
 [ext_resource type="Texture2D" uid="uid://dpeavktcslus8" path="res://assets/crouch.png" id="6_tuyoq"]
 [ext_resource type="Texture2D" uid="uid://p0xaqqctbsqi" path="res://assets/N5.png" id="7_fjrip"]
+[ext_resource type="Resource" uid="uid://bemo48d5bwff8" path="res://scripts/S8.tres" id="9_487ah"]
 [ext_resource type="Texture2D" uid="uid://c55r2q4sqrkmp" path="res://assets/N52.png" id="9_ur7pv"]
 [ext_resource type="Resource" uid="uid://dhe38ybk4jg0t" path="res://scripts/S6.tres" id="9_wnwbv"]
 [ext_resource type="Texture2D" uid="uid://b0rhs72x4xgcg" path="res://assets/walkbacknew.png" id="10_ke2ow"]
@@ -31,6 +32,7 @@
 [ext_resource type="Texture2D" uid="uid://dcmtxu3qo1ca5" path="res://assets/N2.png" id="28_pf23h"]
 [ext_resource type="Script" uid="uid://dqthlu7xsfxsy" path="res://scripts/PlayerVisuals.gd" id="30_visuals"]
 [ext_resource type="Texture2D" uid="uid://be7acvoi48pnr" path="res://assets/S6.png" id="30_wqfne"]
+[ext_resource type="Texture2D" uid="uid://ddx0neslyctld" path="res://assets/S8.png" id="32_gl8cc"]
 
 [sub_resource type="Gradient" id="Gradient_fulsm"]
 interpolation_mode = 1
@@ -43,7 +45,7 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(102.5, 194.5)
+size = Vector2(102.5, 441.5)
 
 [sub_resource type="Animation" id="Animation_jc3p3"]
 resource_name = "N2"
@@ -885,6 +887,18 @@ tracks/25/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/26/type = "value"
+tracks/26/imported = false
+tracks/26/enabled = true
+tracks/26/path = NodePath("Sprites/S8:frame")
+tracks/26/interp = 1
+tracks/26/loop_wrap = true
+tracks/26/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
 [sub_resource type="Animation" id="Animation_d2wvv"]
 resource_name = "S5"
@@ -1016,6 +1030,95 @@ tracks/3/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [Vector2(95, 51)]
+}
+
+[sub_resource type="Animation" id="Animation_t4otl"]
+resource_name = "S8"
+length = 0.8666667
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprites/S8:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.23333333, 0.4166667, 0.51666665, 0.68333334, 0.76666665),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7, 8]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Hitbox/MainHitbox:shape:size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(92, 90), Vector2(320, 220), Vector2(78, 72)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hitbox/MainHitbox:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [true, false, false, true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Hitbox/MainHitbox:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [Vector2(78, -117.5), Vector2(94, -113), Vector2(266, -39), Vector2(86, -118)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hurtbox/SubHurtbox:shape:size")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334, 0.7666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [Vector2(79.5, 70), Vector2(393, 130), Vector2(376, 82), Vector2(248, 47), Vector2(102, 95)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hurtbox/SubHurtbox:disabled")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334, 0.7666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [true, false, false, false, true]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Hurtbox/SubHurtbox:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.4166667, 0.5166667, 0.6833334, 0.7666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [Vector2(77, -116), Vector2(129.5, -68), Vector2(121, -44), Vector2(57, -26.5), Vector2(74, -118.5)]
 }
 
 [sub_resource type="Animation" id="Animation_487ah"]
@@ -1365,6 +1468,7 @@ _data = {
 &"RESET": SubResource("Animation_a38lo"),
 &"S5": SubResource("Animation_d2wvv"),
 &"S6": SubResource("Animation_hax0n"),
+&"S8": SubResource("Animation_t4otl"),
 &"SA": SubResource("Animation_487ah"),
 &"block_idle": SubResource("Animation_dt7fs"),
 &"crouch_block_idle": SubResource("Animation_wqfne"),
@@ -1394,6 +1498,7 @@ size = Vector2(92, 90)
 [node name="Player" type="CharacterBody2D" unique_id=786033213 groups=["players"]]
 script = ExtResource("1_g2els")
 direction_buffer_time = 0.8
+locked_move_names = Array[StringName]([&"S6", &"S8"])
 N5 = ExtResource("2_smehm")
 N52 = ExtResource("3_d2wvv")
 N4 = ExtResource("4_ke2ow")
@@ -1402,6 +1507,7 @@ N6 = ExtResource("3_d2wvv")
 N2 = ExtResource("6_dt7fs")
 NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
+S8 = ExtResource("9_487ah")
 S6 = ExtResource("9_wnwbv")
 SA = ExtResource("6_a38lo")
 
@@ -1416,7 +1522,7 @@ texture = SubResource("GradientTexture2D_57qmd")
 expand_mode = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1285333219]
-position = Vector2(-0.25, -97.75)
+position = Vector2(-0.25, -221.25)
 shape = SubResource("RectangleShape2D_g4v7s")
 debug_color = Color(0.26929268, 0.6220697, 0.34595335, 0.41960785)
 
@@ -1463,6 +1569,7 @@ texture = ExtResource("7_fjrip")
 hframes = 4
 
 [node name="N52" type="Sprite2D" parent="Sprites" unique_id=828199933]
+visible = false
 position = Vector2(-1, -84)
 texture = ExtResource("9_ur7pv")
 hframes = 4
@@ -1543,9 +1650,16 @@ texture = ExtResource("28_pf23h")
 hframes = 5
 
 [node name="S6" type="Sprite2D" parent="Sprites" unique_id=35465075]
+visible = false
 position = Vector2(0, -186)
 texture = ExtResource("30_wqfne")
 hframes = 7
+
+[node name="S8" type="Sprite2D" parent="Sprites" unique_id=1674222297]
+visible = false
+position = Vector2(-2, -185)
+texture = ExtResource("32_gl8cc")
+hframes = 9
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")
