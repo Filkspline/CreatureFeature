@@ -14,4 +14,4 @@ hitstun = 14
 damage = 5.0
 animation_name = &"NA"
 pushback_on_block = 50.0
-advance_speed = 300.0
+advance_speed = 900.0
