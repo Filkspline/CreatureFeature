@@ -41,7 +41,7 @@ signal animation_finished(anim_name: String)
 @export var bounce_squash_scale: Vector2 = Vector2(1.2, 0.8)
 @export var bounce_normal_scale: Vector2 = Vector2(1.0, 1.0)
 @export var bounce_duration: float = 0.15
-@export var bounce_excluded_anims: Array[String] = ["crouch_down", "crouch_idle"]
+@export var bounce_excluded_anims: Array[String] = ["crouch_down", "crouch_idle","jump_land","SA","jump_peak"]
 
 # ── Block warning (manual frame-stepping, no Animation resource) ──
 @export var block_warning_frame_duration: float = 0.04

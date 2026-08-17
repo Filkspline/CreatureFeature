@@ -8,10 +8,12 @@
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="3_j6w7d"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="6_ahbqi"]
 [ext_resource type="Script" uid="uid://dmsxu4iefeks6" path="res://scripts/shadowtest.gd" id="6_qcd3b"]
+[ext_resource type="PackedScene" uid="uid://dcox8so5p3utt" path="res://scenes/projectile.tscn" id="7_13hs1"]
 [ext_resource type="Script" uid="uid://ddupk7aj7bm26" path="res://scripts/projectile_test.gd" id="7_88ety"]
 [ext_resource type="PackedScene" uid="uid://bcajiiveqvwwf" path="res://scenes/fight_ui_new2.tscn" id="7_qs1vn"]
 [ext_resource type="PackedScene" uid="uid://b7v6u5m0v7s48" path="res://scenes/camera.tscn" id="8_ahbqi"]
 [ext_resource type="Script" uid="uid://flsoi7tnikv2" path="res://scripts/fogshader.gd" id="8_dw7u0"]
+[ext_resource type="Resource" uid="uid://cn5move000001" path="res://scripts/N5.tres" id="8_fptmo"]
 [ext_resource type="Shader" uid="uid://3webiwpcj0lu" path="res://scripts/fog.gdshader" id="9_fyxdr"]
 [ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/impact_tear.gdshader" id="10_4asn1"]
 
@@ -140,6 +142,12 @@ position = Vector2(583, 7)
 scale = Vector2(0.75, 0.75)
 player_id = 2
 
+[node name="Projectile" parent="." unique_id=1784449240 instance=ExtResource("7_13hs1")]
+position = Vector2(108.7, 208.64)
+returnable = false
+impact_move_data = ExtResource("8_fptmo")
+max_lifetime = 20.0
+
 [node name="FightUI" parent="." unique_id=374711678 node_paths=PackedStringArray("player_1", "player_2", "camera") instance=ExtResource("7_qs1vn")]
 player_1 = NodePath("../Player")
 player_2 = NodePath("../Player2")
@@ -161,10 +169,10 @@ noise_amount = 0.002
 current_preset = 1
 
 [node name="fogshader" type="ColorRect" parent="." unique_id=2145032959]
-offset_left = -894.0
-offset_top = -142.0
-offset_right = 1220.0
-offset_bottom = 567.0
+offset_left = -868.0
+offset_top = -98.0
+offset_right = 1246.0
+offset_bottom = 611.0
 color = Color(1, 1, 1, 0.1254902)
 script = ExtResource("8_dw7u0")
 shader_material = SubResource("ShaderMaterial_kpk0m")

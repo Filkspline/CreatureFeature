@@ -18,17 +18,17 @@
 [ext_resource type="Texture2D" uid="uid://b0rhs72x4xgcg" path="res://assets/walkbacknew.png" id="10_ke2ow"]
 [ext_resource type="Texture2D" uid="uid://c5ucj2gpuyupt" path="res://assets/S5.png" id="10_y4r1p"]
 [ext_resource type="Texture2D" uid="uid://3qf07essx4lf" path="res://assets/walkfowardnew.png" id="11_ke2ow"]
-[ext_resource type="Texture2D" uid="uid://cojnc761wife5" path="res://assets/jumpMv2png.png" id="12_ke2ow"]
 [ext_resource type="Texture2D" uid="uid://e41b8qb1bkm0" path="res://assets/NA.png" id="13_jej6c"]
 [ext_resource type="Texture2D" uid="uid://bg3bam4iw4yln" path="res://assets/MidBlockWarning.png" id="15_a8ls1"]
+[ext_resource type="Texture2D" uid="uid://g2dnqvboos1o" path="res://assets/NewJump.png" id="16_487ah"]
 [ext_resource type="Texture2D" uid="uid://dl6cf0733hdm" path="res://assets/LowBlockWarning.png" id="16_qfm1y"]
 [ext_resource type="Texture2D" uid="uid://bjwujbmk5k2i7" path="res://assets/StandingBlockIdle.png" id="17_4r5pv"]
 [ext_resource type="Texture2D" uid="uid://b6aw4u0e2ot4i" path="res://assets/CrouchBlockIdle.png" id="18_60mlk"]
 [ext_resource type="Texture2D" uid="uid://puao4hso5e43" path="res://assets/midhit.png" id="19_60mlk"]
 [ext_resource type="Texture2D" uid="uid://gnt8lrqdqscq" path="res://assets/crouchhit.png" id="20_i4ail"]
-[ext_resource type="Texture2D" uid="uid://88swive8pstq" path="res://assets/SA.png" id="21_i4ail"]
 [ext_resource type="Texture2D" uid="uid://blh70px5vevds" path="res://assets/N4.png" id="24_l71n6"]
 [ext_resource type="Texture2D" uid="uid://dsaxy7p7l1hsx" path="res://assets/N8.png" id="26_ujl30"]
+[ext_resource type="Texture2D" uid="uid://cojvgki756ps8" path="res://assets/SAnew.png" id="28_487ah"]
 [ext_resource type="Texture2D" uid="uid://dcmtxu3qo1ca5" path="res://assets/N2.png" id="28_pf23h"]
 [ext_resource type="Script" uid="uid://dqthlu7xsfxsy" path="res://scripts/PlayerVisuals.gd" id="30_visuals"]
 [ext_resource type="Texture2D" uid="uid://be7acvoi48pnr" path="res://assets/S6.png" id="30_wqfne"]
@@ -159,10 +159,10 @@ tracks/4/path = NodePath("Hurtbox/SubHurtbox:disabled")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0.28333336, 0.3166667, 0.5),
-"transitions": PackedFloat32Array(1, 1, 1),
+"times": PackedFloat32Array(0.3166667, 0.5),
+"transitions": PackedFloat32Array(1, 1),
 "update": 1,
-"values": [true, false, true]
+"values": [false, true]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
@@ -239,7 +239,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0, 0.06666667, 0.20000002),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [true, false, true]
+"values": [true, true, true]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -486,7 +486,7 @@ tracks/6/keys = {
 
 [sub_resource type="Animation" id="Animation_f1ej7"]
 resource_name = "NA"
-length = 0.43333334
+length = 0.38333333
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -495,10 +495,10 @@ tracks/0/path = NodePath("Sprites/NA:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.05, 0.083333336, 0.11666667, 0.18, 0.26000002, 0.34, 0.40000004),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.05, 0.083333336, 0.11666667, 0.18333334, 0.26000002, 0.34),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 2, 3, 4, 5, 6, 7]
+"values": [0, 1, 2, 3, 4, 5, 6]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -519,10 +519,10 @@ tracks/2/path = NodePath("Hitbox/MainHitbox:shape:size")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.11666667, 0.18, 0.26000002),
+"times": PackedFloat32Array(0, 0.116666675, 0.18333334, 0.26000002),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [Vector2(92, 90), Vector2(136, 135), Vector2(162, 148), Vector2(91, 94)]
+"values": [Vector2(92, 90), Vector2(54, 46), Vector2(43, 39), Vector2(91, 94)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -555,10 +555,10 @@ tracks/5/path = NodePath("Hitbox/MainHitbox:position")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0.11666667),
+"times": PackedFloat32Array(0.116666675),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(45, -51)]
+"values": [Vector2(76, -53)]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -899,6 +899,18 @@ tracks/26/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/27/type = "value"
+tracks/27/imported = false
+tracks/27/enabled = true
+tracks/27/path = NodePath("Hurtbox/MainHurtbox:position")
+tracks/27/interp = 1
+tracks/27/loop_wrap = true
+tracks/27/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-6, -81.5)]
+}
 
 [sub_resource type="Animation" id="Animation_d2wvv"]
 resource_name = "S5"
@@ -1031,6 +1043,30 @@ tracks/3/keys = {
 "update": 1,
 "values": [Vector2(95, 51)]
 }
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hurtbox/MainHurtbox:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0.050000004, 0.13333334, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(-6, -81.5), Vector2(-6, -24.75), Vector2(-6, -83.25)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hurtbox/MainHurtbox:shape:size")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.050000004, 0.13333334, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(115, 162), Vector2(115, 48.5), Vector2(115, 165.5)]
+}
 
 [sub_resource type="Animation" id="Animation_t4otl"]
 resource_name = "S8"
@@ -1132,7 +1168,7 @@ tracks/0/path = NodePath("Sprites/SA:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.05, 0.16666667, 0.21666668, 0.31666666, 0.38333336, 0.4666667),
+"times": PackedFloat32Array(0, 0.05, 0.18333334, 0.21666668, 0.31666666, 0.38333336, 0.4666667),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3, 4, 5, 6]
@@ -1159,7 +1195,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0, 0.21666668, 0.3166667),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [Vector2(78, -117.5), Vector2(111.5, -46.5), Vector2(131.5, -27.5)]
+"values": [Vector2(78, -117.5), Vector2(90.5, -83), Vector2(106, -71.5)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -1171,7 +1207,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0.21666668, 0.3166667),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
-"values": [Vector2(121, 99), Vector2(127, 117)]
+"values": [Vector2(103, 66), Vector2(90, 73)]
 }
 
 [sub_resource type="Animation" id="Animation_dt7fs"]
@@ -1327,7 +1363,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_60mlk"]
 resource_name = "jump_land"
-length = 0.26666668
+length = 0.083333336
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -1336,15 +1372,15 @@ tracks/0/path = NodePath("Sprites/Jump:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.083333336, 0.16666667, 0.21666668),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [5, 6, 7, 2]
+"values": [7]
 }
 
 [sub_resource type="Animation" id="Animation_4r5pv"]
 resource_name = "jump_peak"
-length = 0.15
+length = 0.21666667
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -1353,10 +1389,10 @@ tracks/0/path = NodePath("Sprites/Jump:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.05, 0.1),
-"transitions": PackedFloat32Array(1, 1, 1),
+"times": PackedFloat32Array(0, 0.06666667, 0.13333334, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [2, 3, 4]
+"values": [2, 3, 4, 5]
 }
 tracks/1/type = "method"
 tracks/1/imported = false
@@ -1365,7 +1401,7 @@ tracks/1/path = NodePath(".")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0.1),
+"times": PackedFloat32Array(0.2),
 "transitions": PackedFloat32Array(1),
 "values": [{
 "args": [],
@@ -1375,7 +1411,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_ur7pv"]
 resource_name = "jump_rise"
-length = 0.06666667
+length = 0.05
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -1384,10 +1420,10 @@ tracks/0/path = NodePath("Sprites/Jump:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.033333335),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0, 0.016666668, 0.033333335),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [0, 1]
+"values": [0, 1, 2]
 }
 
 [sub_resource type="Animation" id="Animation_gl8cc"]
@@ -1550,9 +1586,8 @@ frame = 5
 
 [node name="Jump" type="Sprite2D" parent="Sprites" unique_id=1642846395]
 visible = false
-position = Vector2(-1.5, -71.931)
-scale = Vector2(0.745, 0.835)
-texture = ExtResource("12_ke2ow")
+position = Vector2(-1.5000001, -186.931)
+texture = ExtResource("16_487ah")
 hframes = 9
 
 [node name="Crouch" type="Sprite2D" parent="Sprites" unique_id=1722677170]
@@ -1582,7 +1617,7 @@ hframes = 9
 
 [node name="NA" type="Sprite2D" parent="Sprites" unique_id=1426456731]
 visible = false
-position = Vector2(1, -53)
+position = Vector2(1, -95)
 texture = ExtResource("13_jej6c")
 hframes = 8
 
@@ -1627,8 +1662,8 @@ hframes = 3
 
 [node name="SA" type="Sprite2D" parent="Sprites" unique_id=2100174608]
 visible = false
-position = Vector2(0, -56)
-texture = ExtResource("21_i4ail")
+position = Vector2(0, -189)
+texture = ExtResource("28_487ah")
 hframes = 7
 
 [node name="N4" type="Sprite2D" parent="Sprites" unique_id=1565227416]
@@ -1650,7 +1685,6 @@ texture = ExtResource("28_pf23h")
 hframes = 5
 
 [node name="S6" type="Sprite2D" parent="Sprites" unique_id=35465075]
-visible = false
 position = Vector2(0, -186)
 texture = ExtResource("30_wqfne")
 hframes = 7
