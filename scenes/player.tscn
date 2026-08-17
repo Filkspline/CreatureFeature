@@ -159,10 +159,10 @@ tracks/4/path = NodePath("Hurtbox/SubHurtbox:disabled")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0.28333336, 0.3166667, 0.5),
-"transitions": PackedFloat32Array(1, 1, 1),
+"times": PackedFloat32Array(0.3166667, 0.5),
+"transitions": PackedFloat32Array(1, 1),
 "update": 1,
-"values": [true, false, true]
+"values": [false, true]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
@@ -239,7 +239,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0, 0.06666667, 0.20000002),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [true, false, true]
+"values": [true, true, true]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -899,6 +899,18 @@ tracks/26/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/27/type = "value"
+tracks/27/imported = false
+tracks/27/enabled = true
+tracks/27/path = NodePath("Hurtbox/MainHurtbox:position")
+tracks/27/interp = 1
+tracks/27/loop_wrap = true
+tracks/27/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-6, -81.5)]
+}
 
 [sub_resource type="Animation" id="Animation_d2wvv"]
 resource_name = "S5"
@@ -1030,6 +1042,30 @@ tracks/3/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [Vector2(95, 51)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Hurtbox/MainHurtbox:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0.050000004, 0.13333334, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(-6, -81.5), Vector2(-6, -24.75), Vector2(-6, -83.25)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Hurtbox/MainHurtbox:shape:size")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.050000004, 0.13333334, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [Vector2(115, 162), Vector2(115, 48.5), Vector2(115, 165.5)]
 }
 
 [sub_resource type="Animation" id="Animation_t4otl"]
@@ -1549,6 +1585,7 @@ hframes = 10
 frame = 5
 
 [node name="Jump" type="Sprite2D" parent="Sprites" unique_id=1642846395]
+visible = false
 position = Vector2(-1.5000001, -186.931)
 texture = ExtResource("16_487ah")
 hframes = 9
@@ -1579,6 +1616,7 @@ texture = ExtResource("10_y4r1p")
 hframes = 9
 
 [node name="NA" type="Sprite2D" parent="Sprites" unique_id=1426456731]
+visible = false
 position = Vector2(1, -95)
 texture = ExtResource("13_jej6c")
 hframes = 8
@@ -1623,6 +1661,7 @@ texture = ExtResource("20_i4ail")
 hframes = 3
 
 [node name="SA" type="Sprite2D" parent="Sprites" unique_id=2100174608]
+visible = false
 position = Vector2(0, -189)
 texture = ExtResource("28_487ah")
 hframes = 7
@@ -1646,7 +1685,6 @@ texture = ExtResource("28_pf23h")
 hframes = 5
 
 [node name="S6" type="Sprite2D" parent="Sprites" unique_id=35465075]
-visible = false
 position = Vector2(0, -186)
 texture = ExtResource("30_wqfne")
 hframes = 7

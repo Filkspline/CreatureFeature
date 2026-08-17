@@ -4,9 +4,9 @@ extends Node
 #  GameManager (Autoload)
 #
 #  Reads from EventBus and reacts to game-wide events. For now: applies
-#  hitstop (a brief freeze-frame) whenever a hit lands, and holds live
-#  references to both Player nodes so the upgrade system has someone
-#  to apply upgrades to.
+#  hitstop (a brief freeze-frame) and camera shake whenever a hit lands,
+#  and holds live references to both Player nodes so the upgrade system
+#  has someone to apply upgrades to.
 
 @export_group("Hitstop")
 @export var enabled: bool = true
@@ -14,6 +14,20 @@ extends Node
 @export var hitstop_duration_hit: float = 0.1
 ## Freeze duration (seconds, real-time) when a hit is blocked.
 @export var hitstop_duration_blocked: float = 0.02
+
+@export_group("Camera Shake")
+## Shake amount added per point of move damage. A 10-damage hit gives
+## 10 * this much shake before the min/max clamp and blocked multiplier
+## below are applied.
+@export var shake_damage_scale: float = 0.15
+## Floor and ceiling for the final shake amount, so a 1-damage poke
+## still reads as a hit and a huge combo finisher doesn't fling the
+## camera off screen.
+@export var shake_min: float = 2.0
+@export var shake_max: float = 1000.0
+## Blocked hits shake less than the same move landing clean, same as
+## the reduced hitstop below.
+@export var shake_blocked_multiplier: float = 8.35
 
 @export_group("Match")
 ## Rounds a player needs to win the match (best-of-5 = 3).
@@ -47,7 +61,11 @@ var p2_node: CharacterBody2D
 
 
 func _ready() -> void:
-	EventBus.player_hit_landed.connect(_on_player_hit_landed)
+	# hit_confirmed (rather than player_hit_landed) is what we want here
+	# specifically because it already carries the MoveData that landed —
+	# player_hit_landed only gives a move *name*, which would mean doing
+	# a lookup just to get at .damage for the shake scaling below.
+	EventBus.hit_confirmed.connect(_on_hit_confirmed)
 	EventBus.player_registered.connect(_on_player_registered)
 	EventBus.player_defeated.connect(_on_player_defeated)
 
@@ -116,18 +134,26 @@ func _has_won_match(player_id: int) -> bool:
 	return rounds_won >= rounds_to_win
 
 
-func _on_player_hit_landed(player_id: int, _move_name: String, was_blocked: bool) -> void:
+func _on_hit_confirmed(_impact_position: Vector2, move_data: MoveData, _attacker: Node, _defender: Node, was_blocked: bool) -> void:
 	if not enabled:
 		return
-	
-	# Trigger camera shake
-	if was_blocked:
-		EventBus.camera_shake.emit(1.0)
-	else:
-		EventBus.camera_shake.emit(2.0)
-	
+
+	_apply_shake_for_hit(move_data, was_blocked)
+
 	var duration := hitstop_duration_blocked if was_blocked else hitstop_duration_hit
 	_apply_hitstop(duration)
+
+
+# Scales shake off move_data.damage rather than a flat blocked/unblocked
+# value, so a light poke barely rattles the camera while a heavy hit
+# lands with real weight. Clamped so 1-damage jabs are still felt and
+# nothing sends the camera flying.
+func _apply_shake_for_hit(move_data: MoveData, was_blocked: bool) -> void:
+	var shake_amount := move_data.damage * shake_damage_scale
+	if was_blocked:
+		shake_amount *= shake_blocked_multiplier
+	shake_amount = clamp(shake_amount, shake_min, shake_max)
+	EventBus.camera_shake.emit(shake_amount)
 
 
 func _apply_hitstop(duration: float) -> void:

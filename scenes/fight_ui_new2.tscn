@@ -85,7 +85,8 @@ texture_under = ExtResource("5_3khwt")
 texture_progress = ExtResource("6_yejee")
 
 [node name="Border" type="AnimatedSprite2D" parent="UIRoot/P2BarContainer" unique_id=1932147127]
-position = Vector2(146.80002, 27.2)
+position = Vector2(146.80002, 26.7)
+scale = Vector2(1, 0.9875)
 sprite_frames = ExtResource("7_yicxr")
 autoplay = "default"
 frame_progress = 0.3780907

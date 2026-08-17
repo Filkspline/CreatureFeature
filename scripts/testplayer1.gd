@@ -26,8 +26,16 @@ class_name Player
 
 @export_group("Combat Timing")
 @export var gatling_buffer_frames: int = 26
-@export var direction_buffer_time: float = 0.1
+@export var direction_buffer_time: float = 0.6
 @export var knockdown_duration: float = 1.0
+## How many physics frames a Jump/Normal/Special press is "remembered"
+## for after being pressed. Captured every frame regardless of state,
+## so pressing e.g. Jump a few frames before an attack's recovery ends
+## still buffers it, and it fires the instant NEUTRAL can act on it
+## instead of being silently dropped like a raw is_action_just_pressed
+## check would be. Standard fighting-game buffer windows are roughly
+## 3-10 frames; keep this on the low end so it doesn't feel laggy.
+@export var input_buffer_frames: int = 10
 
 @export_group("Health")
 @export var max_health: float = 100.0
@@ -76,6 +84,15 @@ var air_horizontal_velocity: float = 0.0
 var last_direction: int = Direction.NONE
 var direction_buffer_timer: float = 0.0
 var pending_direction: int = Direction.NONE
+
+# Generic "remembered" inputs. Keys are the base action names ("Jump",
+# "Normal", "Special" — before _action() appends "P1"/"P2"), values are
+# frames remaining before the press expires. Captured once per physics
+# frame in _capture_buffered_inputs() regardless of current state, and
+# consumed via _consume_buffer() wherever that action becomes legal
+# again. This is separate from the gatling-cancel buffer below, which
+# has its own hit-confirm-gated semantics.
+var input_buffer: Dictionary = {}
 
 @export_group("Moves")
 @export var N5: MoveData
@@ -311,7 +328,50 @@ func modify_move(target_upgrade_slot_id: StringName, property_name: StringName, 
 		_dbg("[UPGRADE] modify_move %s.%s -> %s" % [move.move_name, property_name, new_value])
 
 
+# ──────────────────────────────────────────────────────────────────
+#  Input buffering
+#
+#  Captures Jump/Normal/Special presses every physics frame no matter
+#  what state the player is in, and lets that state (or whichever state
+#  is entered next) pull them back out with _consume_buffer(). This is
+#  what makes "press jump right as an attack's recovery ends" actually
+#  jump instead of doing nothing, since the raw is_action_just_pressed
+#  frame would otherwise happen while state != NEUTRAL and be lost.
+
+func _capture_buffered_inputs() -> void:
+	for action in ["Jump", "Normal", "Special"]:
+		if Input.is_action_just_pressed(_action(action)):
+			input_buffer[action] = input_buffer_frames
+
+
+func _decay_input_buffer() -> void:
+	# Only ticks down while NEUTRAL. While ATTACK/HITSTUN/BLOCKSTUN/
+	# KNOCKDOWN, a buffered press just sits fully "hot" and waits —
+	# otherwise a press captured early during a long attack (recovery
+	# frequently runs well past input_buffer_frames) would expire
+	# before the attack ever ends, and the buffer would never fire.
+	# Once NEUTRAL is reached, _neutral_process()/_handle_jump() get a
+	# chance to consume it that same frame (this runs after the match
+	# statement); if it's still unconsumed after that it decays away
+	# normally so a stale press doesn't linger forever.
+	if state != State.NEUTRAL:
+		return
+	for action in input_buffer.keys():
+		input_buffer[action] -= 1
+		if input_buffer[action] <= 0:
+			input_buffer.erase(action)
+
+
+func _consume_buffer(action: String) -> bool:
+	if input_buffer.get(action, 0) > 0:
+		input_buffer.erase(action)
+		return true
+	return false
+
+
 func _physics_process(delta: float) -> void:
+	_capture_buffered_inputs()
+
 	match state:
 		State.NEUTRAL:
 			_neutral_process(delta)
@@ -327,6 +387,8 @@ func _physics_process(delta: float) -> void:
 	EventBus.player_position[player_id] = global_position
 	EventBus.player_velocity[player_id] = velocity
 	EventBus.player_is_airborne[player_id] = not is_on_floor()
+
+	_decay_input_buffer()
 
 
 func _neutral_process(delta: float) -> void:
@@ -349,15 +411,22 @@ func _neutral_process(delta: float) -> void:
 	_update_hurtbox()
 	sprites.update_block_warning(delta, _is_block_ready(), crouch_phase != CrouchPhase.NONE)
 
-	if Input.is_action_just_pressed(_action("Normal")):
+	# Consuming from the buffer instead of checking is_action_just_pressed
+	# directly means a Normal/Special pressed during the previous ATTACK,
+	# HITSTUN or BLOCKSTUN still comes out here as long as it's within
+	# input_buffer_frames. Return immediately after starting an attack so
+	# a same-frame Special buffer entry can't also fire and stomp it.
+	if _consume_buffer("Normal"):
 		var move = _resolve_move("normal")
 		if move:
 			_start_attack(move)
+			return
 
-	if Input.is_action_just_pressed(_action("Special")):
+	if _consume_buffer("Special"):
 		var move = _resolve_move("special")
 		if move:
 			_start_attack(move)
+			return
 
 
 func _get_backward_action() -> StringName:
@@ -672,6 +741,27 @@ func _min_visible_stun_frames(anim_name: String) -> int:
 	return int(ceil(animation_player.get_animation(anim_name).length * 60.0))
 
 
+# Whenever this player is hit (blocked or not), any collision shapes an
+# animation left switched on mid-swing need to be forced off rather
+# than trusting the interrupted animation to reach its own "off"
+# keyframe — it never will, since the animation gets cut short by
+# hitstun/blockstun right here.
+#  - Hitbox shapes: if this player was mid-attack (e.g. traded hits),
+#    their own attack should stop threatening the opponent immediately.
+#  - Hurtbox "sub" shapes: some moves enable an extra vulnerable area
+#    (e.g. an extended limb) only during certain frames. MainHurtbox is
+#    left alone — its own enabled state is managed separately elsewhere
+#    (e.g. knockdown invulnerability) and it should always stay live.
+func _disable_combat_shapes_on_hit() -> void:
+	for shape_node in $Hitbox.get_children():
+		if shape_node is CollisionShape2D:
+			shape_node.disabled = true
+
+	for shape_node in $Hurtbox.get_children():
+		if shape_node is CollisionShape2D and shape_node.name != "MainHurtbox":
+			shape_node.disabled = true
+
+
 func take_hit(move_data: MoveData, attacker: Node2D) -> bool:
 	var was_crouching = (crouch_phase != CrouchPhase.NONE)
 
@@ -679,7 +769,18 @@ func take_hit(move_data: MoveData, attacker: Node2D) -> bool:
 	wants_to_crouch = false
 	is_landing = false
 
-	var block_ready = _is_block_ready() and _block_posture_beats_hit_level(move_data.hit_level, was_crouching)
+	_disable_combat_shapes_on_hit()
+
+	# Blocking is only legal from NEUTRAL (reacting to a hit) or from
+	# BLOCKSTUN (holding block through the rest of a multi-hit string).
+	# Without this, ATTACK counted too — e.g. N4 is input by holding
+	# back, and that same held-back input stays true for the whole
+	# swing, so an attacking player who happened to be holding back
+	# would get treated as blocking instead of getting counter-hit.
+	# HITSTUN and KNOCKDOWN are excluded for the same reason: you
+	# shouldn't be able to block while already reeling from a hit.
+	var can_block_right_now = state == State.NEUTRAL or state == State.BLOCKSTUN
+	var block_ready = can_block_right_now and _is_block_ready() and _block_posture_beats_hit_level(move_data.hit_level, was_crouching)
 	if block_ready:
 		_resolve_block(move_data, attacker, was_crouching)
 		return true
@@ -758,7 +859,11 @@ func _apply_gravity(delta: float) -> void:
 func _handle_jump() -> void:
 	if not is_on_floor() or crouch_phase != CrouchPhase.NONE:
 		return
-	if not Input.is_action_just_pressed(_action("Jump")):
+	# Consuming from the buffer (instead of checking
+	# is_action_just_pressed directly) is what lets a jump pressed a few
+	# frames early — e.g. right before an attack's recovery ends — still
+	# come out the instant NEUTRAL is able to act on it.
+	if not _consume_buffer("Jump"):
 		return
 	velocity.y = jump_velocity
 	air_horizontal_velocity = _get_horizontal_input() * _current_walk_speed()
