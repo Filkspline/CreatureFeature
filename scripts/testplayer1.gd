@@ -12,7 +12,7 @@ class_name Player
 @export var walk_backward_speed: float = 170.0
 @export var jump_velocity: float = -720.0
 @export var gravity: float = 1600.0
-@export var jump_apex_threshold: float = 60.0
+@export var jump_apex_threshold: float = 200.0
 ##@experimental: Currently used as a stopgap solution for the stat application.
 ## Just used as the variable that is applied to walk_forward_speed, and
 ## walk_backward_speed
