@@ -298,6 +298,29 @@ func apply_stat_boost(stat_name: StringName, amount: float, is_percent: bool) ->
 	walk_forward_speed = move_speed # Should fix speed option
 	walk_backward_speed = move_speed # ^
 
+## Takes in arrays of information needed for stats does checks to see if all arrays have the same
+## length, currently assuming all arrays have correct info, then loops through each array and calls
+## apply_stat_boost to properly do the stat boost
+func apply_multi_stat_boost(stat_names_array: Array[String], ammounts_array: Array[float], is_percents_array: Array[bool]) -> void:
+	var array_list = [stat_names_array, ammounts_array, is_percents_array]
+	var target_length = array_list[0].size()
+	var arrays_same_length : bool = true
+	
+	for arr in array_list:
+		if arr.size() != target_length:
+			if arr.size() > target_length:
+				_dbg("[color=red][MULTI STAT] Array: %s length (%s) greater than target length: %s. Incomplete or extra data" % [arr, arr.size(), target_length])
+			elif arr.size() < target_length:
+				_dbg("[color=red][MULTI STAT] Array: %s length (%s) lesser than target length: %s. Incomplete or extra data" % [arr, arr.size(), target_length])
+			arrays_same_length = false
+	
+	if arrays_same_length == false:
+		_dbg("[color=red][MULTI STAT] Could not get complete information")
+	else:
+		for i in range(target_length):
+			apply_stat_boost(stat_names_array[i], ammounts_array[i], is_percents_array[i])
+
+
 func unlock_move(move: MoveData) -> void:
 	if not move:
 		#push_warning("[P%d] unlock_move called with a null MoveData" % player_id)
