@@ -339,6 +339,7 @@ func apply_multi_stat_boost(stat_names_array: Array[String], ammounts_array: Arr
 
 
 func unlock_move(move: MoveData) -> void:
+	print("[TRACE] Player%d.unlock_move called with move=%s | locked_move_names=%s" % [player_id, (move.move_name if move else "null"), locked_move_names])
 	if not move:
 		#push_warning("[P%d] unlock_move called with a null MoveData" % player_id)
 		_dbg("[color=red][P%d] unlock_move called with a null MoveData" % player_id)
@@ -651,9 +652,16 @@ func close_gatling_cancel_window() -> void:
 
 func _try_cancel_gatling() -> void:
 	if gatling_input_buffered == _action("Normal") and current_move.gatlings_into.size() > 0:
-		var gatling_name = current_move.gatlings_into[0]
+		# gatlings_into is Array[StringName] but all_moves is keyed by
+		# move_name (String). String/StringName compare equal with ==,
+		# but Dictionary.has() uses hashed key lookup and won't match
+		# across the two types — cast explicitly or the cancel silently
+		# no-ops even though the target move exists in all_moves.
+		var gatling_name = String(current_move.gatlings_into[0])
 		if all_moves.has(gatling_name):
 			_start_attack(all_moves[gatling_name])
+		else:
+			_dbg("[color=red][GATLING] '%s' not found in all_moves — check gatlings_into spelling/locked state" % gatling_name)
 
 
 func _end_attack() -> void:
