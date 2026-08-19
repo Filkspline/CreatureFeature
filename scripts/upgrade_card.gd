@@ -122,4 +122,8 @@ func _handle_upgrade(upgrade : UpgradeData, player_id : int) -> void:
 	
 	# NOTE this is just going to force a transition to the stage for now
 	await get_tree().create_timer(0.75).timeout
-	get_tree().change_scene_to_file("res://scenes/test_level.tscn")
+	# Routed through SceneTransition (mouth wipe) instead of a raw
+	# change_scene_to_file — same reasoning as GameManager's round-loss
+	# transition. The 0.75s wait above is unrelated to that and just
+	# gives the pick/flip feedback a beat before the wipe starts.
+	SceneTransition.change_scene("res://scenes/test_level.tscn")

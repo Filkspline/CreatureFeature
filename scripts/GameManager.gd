@@ -110,11 +110,17 @@ func _end_round(loser_id: int) -> void:
 
 	EventBus.round_lost.emit(loser_id)
 
-	# Deferred because this can run mid-hit-resolution (the hit that just
-	# brought someone to zero HP is still finishing up things like the
-	# damage number), and swapping the scene out from under that leaves
-	# FightUI detached from the tree while it's still being used.
-	get_tree().call_deferred("change_scene_to_file", CARD_SELECT_SCENE)
+	# Routed through SceneTransition instead of a raw
+	# change_scene_to_file. This also replaces the old call_deferred()
+	# wrapper — that existed because a direct scene swap here could run
+	# mid-hit-resolution (the hit that just brought someone to zero HP
+	# is still finishing up things like the damage number), and
+	# swapping the scene out from under that left FightUI detached from
+	# the tree while it was still in use. SceneTransition.change_scene()
+	# doesn't actually swap the scene until its Call Method track key
+	# fires partway through the mouth-close animation, which is already
+	# several frames later — so the same problem can't happen here.
+	SceneTransition.change_scene(CARD_SELECT_SCENE)
 
 
 func _other_player_id(player_id: int) -> int:

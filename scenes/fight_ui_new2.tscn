@@ -16,7 +16,7 @@ default_font = ExtResource("8_dnckg")
 default_font_size = 49
 
 [node name="FightUI" type="CanvasLayer" unique_id=374711678]
-layer = 10
+layer = 4
 script = ExtResource("1_ui001")
 
 [node name="UIRoot" type="Control" parent="." unique_id=66395814]
