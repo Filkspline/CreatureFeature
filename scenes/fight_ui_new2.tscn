@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bcajiiveqvwwf"]
 
 [ext_resource type="Script" uid="uid://00kvlyh53x6h" path="res://scripts/fight_ui.gd" id="1_ui001"]
+[ext_resource type="Texture2D" uid="uid://bpnfk36bx06g4" path="res://assets/TeethHealthBar-Sheet.png" id="2_r81cq"]
 [ext_resource type="Texture2D" uid="uid://cqaykxmoj1n1o" path="res://assets/P1Healthbarblack.png" id="2_ylixn"]
 [ext_resource type="Texture2D" uid="uid://cj4ocju65ku4a" path="res://assets/P1Healthbarwhite.png" id="3_ien2i"]
 [ext_resource type="SpriteFrames" uid="uid://dsmve6fem1clm" path="res://assets/P1borderhealthbar.tres" id="4_6go5h"]
@@ -10,10 +11,174 @@
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="8_dnckg"]
 [ext_resource type="SpriteFrames" uid="uid://cn4pews258j2r" path="res://assets/Eyeopenpip.tres" id="8_q3skw"]
 [ext_resource type="SpriteFrames" uid="uid://d2sxaksvdqjkp" path="res://assets/Eyeidlelook.tres" id="9_r81cq"]
+[ext_resource type="Texture2D" uid="uid://dgbctip1r2uex" path="res://assets/deatheffect.jpg" id="12_3jwpd"]
+[ext_resource type="Texture2D" uid="uid://ci4b6t2rmir0b" path="res://assets/Playerexe.png" id="13_25xed"]
 
 [sub_resource type="Theme" id="Theme_ict5u"]
 default_font = ExtResource("8_dnckg")
 default_font_size = 49
+
+[sub_resource type="Animation" id="Animation_3jwpd"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("P1BarContainer/deathhealthbareffect:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("P1BarContainer/deathhealthbareffect:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("P1BarContainer/deathhealthbareffect:z_index")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [1]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("P2BarContainer/deathhealthbareffect2:frame")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [10]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("P2BarContainer/deathhealthbareffect2:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("P2BarContainer/deathhealthbareffect2:z_index")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_25xed"]
+resource_name = "player1death"
+length = 0.53333336
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("P1BarContainer/deathhealthbareffect:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.033333335, 0.06666667, 0.099999994, 0.13333333, 0.16666667, 0.2, 0.23333333, 0.26666668, 0.3, 0.33333334, 0.36666667, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("P1BarContainer/deathhealthbareffect:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.033333335),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("P1BarContainer/deathhealthbareffect:z_index")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.23333335),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
+
+[sub_resource type="Animation" id="Animation_yopky"]
+resource_name = "player2death"
+length = 0.53333336
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("P2BarContainer/deathhealthbareffect2:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.033333335, 0.06666667, 0.099999994, 0.13333333, 0.16666667, 0.2, 0.23333333, 0.26666668, 0.3, 0.33333334, 0.36666667, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("P2BarContainer/deathhealthbareffect2:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.033333335),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("P2BarContainer/deathhealthbareffect2:z_index")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.23333335),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_d21wu"]
+_data = {
+&"RESET": SubResource("Animation_3jwpd"),
+&"player1death": SubResource("Animation_25xed"),
+&"player2death": SubResource("Animation_yopky")
+}
 
 [node name="FightUI" type="CanvasLayer" unique_id=374711678]
 layer = 4
@@ -34,6 +199,15 @@ anchor_left = 0.02
 anchor_top = 0.03
 anchor_right = 0.47
 anchor_bottom = 0.09
+
+[node name="deathhealthbareffect" type="Sprite2D" parent="UIRoot/P1BarContainer" unique_id=2133624522]
+visible = false
+z_index = 1
+position = Vector2(144.2, 19.200005)
+scale = Vector2(1.4181819, 1.0166667)
+texture = ExtResource("2_r81cq")
+hframes = 4
+vframes = 3
 
 [node name="Fill" type="TextureProgressBar" parent="UIRoot/P1BarContainer" unique_id=2115801777]
 layout_mode = 1
@@ -66,6 +240,14 @@ anchor_left = 0.53
 anchor_top = 0.03
 anchor_right = 0.98
 anchor_bottom = 0.09
+
+[node name="deathhealthbareffect2" type="Sprite2D" parent="UIRoot/P2BarContainer" unique_id=1082438134]
+position = Vector2(149.80003, 19.2)
+scale = Vector2(1.5, 1.0166667)
+texture = ExtResource("2_r81cq")
+hframes = 4
+vframes = 3
+frame = 10
 
 [node name="Fill" type="TextureProgressBar" parent="UIRoot/P2BarContainer" unique_id=1766174221]
 layout_mode = 1
@@ -253,6 +435,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="DamageNumberLayer" type="Control" parent="UIRoot" unique_id=1289727999]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -260,3 +443,37 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="UIRoot" unique_id=1136474901]
+libraries/ = SubResource("AnimationLibrary_d21wu")
+
+[node name="DeathImpactEffect" type="Sprite2D" parent="UIRoot" unique_id=1509761087]
+visible = false
+show_behind_parent = true
+z_index = -6
+position = Vector2(335, 216)
+texture = ExtResource("12_3jwpd")
+
+[node name="DeathPopUp" type="Sprite2D" parent="." unique_id=2067197968]
+position = Vector2(-75, 133.99997)
+scale = Vector2(1.4449737, 1.4449735)
+texture = ExtResource("13_25xed")
+
+[node name="Title" type="Label" parent="DeathPopUp" unique_id=1025741916]
+offset_left = -34.38158
+offset_top = -23.236845
+offset_right = 12.013157
+offset_bottom = 1.0394745
+theme_override_fonts/font = ExtResource("8_dnckg")
+theme_override_font_sizes/font_size = 14
+text = "Warning"
+
+[node name="text" type="Label" parent="DeathPopUp" unique_id=887864632]
+offset_left = -17.657896
+offset_top = -9.210527
+offset_right = 51.342102
+offset_bottom = 17.789473
+theme_override_fonts/font = ExtResource("8_dnckg")
+theme_override_font_sizes/font_size = 8
+text = "player1.exe 
+has stopped working"
