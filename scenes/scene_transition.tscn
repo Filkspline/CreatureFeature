@@ -2,23 +2,6 @@
 
 [ext_resource type="Script" uid="uid://cka1uiosj8282" path="res://scripts/scene_transition.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cornyf4hd3nwi" path="res://assets/teethTransition-Sheet.png" id="2_2sgj6"]
-[ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/impact_tear.gdshader" id="3_hgfgv"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_85h84"]
-shader = ExtResource("3_hgfgv")
-shader_parameter/impact_pos = Vector2(0.5, 0.5)
-shader_parameter/core_radius = 0.0290000013775
-shader_parameter/glow_radius = 0.5
-shader_parameter/core_color = Color(1, 1, 1, 1)
-shader_parameter/rim_color = Color(1, 1, 1, 1)
-shader_parameter/tear_strength = 0.010000000475
-shader_parameter/tear_band_count = 26.538000785555
-shader_parameter/tear_radius = 0.18400000734297
-shader_parameter/flicker_speed = 9.962000425695
-shader_parameter/chrom_strength = 0.00400000019
-shader_parameter/fade_start = 0.0650000030875
-shader_parameter/fade_end = 0.80000001192093
-shader_parameter/effect_alpha = 0.4490000213275
 
 [sub_resource type="Animation" id="Animation_ooyqd"]
 length = 0.001
@@ -37,7 +20,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_non66"]
 resource_name = "SceneTransition"
-length = 0.75
+length = 0.6
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -46,7 +29,7 @@ tracks/0/path = NodePath("Mouth:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.05, 0.1, 0.2, 0.26666668, 0.36666667, 0.4, 0.41666666, 0.43333334, 0.45, 0.46666667),
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.21666667, 0.26666668, 0.38333333, 0.4, 0.41666666, 0.43333334, 0.45, 0.46666667),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3, 5, 7, 8, 9, 10, 11, 12]
@@ -81,14 +64,6 @@ modulate = Color(0.2647818, 0.2647818, 0.2647818, 1)
 position = Vector2(318, 182)
 texture = ExtResource("2_2sgj6")
 hframes = 13
-
-[node name="ColorRect" type="ColorRect" parent="." unique_id=326235220]
-visible = false
-material = SubResource("ShaderMaterial_85h84")
-offset_left = -1266.0
-offset_top = -744.0
-offset_right = 1285.0
-offset_bottom = 762.0
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1906403648]
 libraries/ = SubResource("AnimationLibrary_h8vuu")
