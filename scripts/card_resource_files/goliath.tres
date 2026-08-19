@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://cj38wtvx08e7k"]
+
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_o3x6y"]
+
+[resource]
+script = ExtResource("1_o3x6y")
+name = "Goliath"
+description = "Max health: +30
+Move speed: -100"
+effect_type = 1
+stat_name = &"max_health"
+stat_amount = 10.0
+stat_names_array = Array[String](["max_health", "move_speed"])
+stat_amounts_array = Array[float]([30.0, -100.0])
+is_percents_array = Array[bool]([true, false])

@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_4sjg4")
-name = "Test  - Flat Move Speed"
+name = "Move speed +"
+description = "Move speed: +60"
 stat_name = &"move_speed"
 stat_amount = 60.0

@@ -1,11 +1,12 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://cpjjo402rv072"]
 
-[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_sq24w"]
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_i4gca"]
 
 [resource]
-script = ExtResource("1_sq24w")
-name = "Glass cannon"
-description = "Copy this file to make a new upgrade. Fill in name, description, icon, then set effect_type and only the fields under the matching group."
+script = ExtResource("1_i4gca")
+name = "Featherweight"
+description = "Max health: -33%
+Move speed: +120"
 effect_type = 1
 stat_name = &"max_health"
 stat_amount = 10.0

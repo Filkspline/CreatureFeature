@@ -4,7 +4,8 @@
 
 [resource]
 script = ExtResource("1_r8g7e")
-name = "Test % Jump Velocity"
+name = "Jump velocity ++"
+description = "Jump velocity: +50%"
 stat_name = &"jump_velocity"
 stat_amount = 50.0
 is_percent = true

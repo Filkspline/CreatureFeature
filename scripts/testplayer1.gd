@@ -306,13 +306,16 @@ func apply_multi_stat_boost(stat_names_array: Array[String], ammounts_array: Arr
 	var target_length = array_list[0].size()
 	var arrays_same_length : bool = true
 	
-	for arr in array_list:
-		if arr.size() != target_length:
-			if arr.size() > target_length:
-				_dbg("[color=red][MULTI STAT] Array: %s length (%s) greater than target length: %s. Incomplete or extra data" % [arr, arr.size(), target_length])
-			elif arr.size() < target_length:
-				_dbg("[color=red][MULTI STAT] Array: %s length (%s) lesser than target length: %s. Incomplete or extra data" % [arr, arr.size(), target_length])
-			arrays_same_length = false
+	if target_length != 0:
+		for arr in array_list:
+			if arr.size() != target_length:
+				if arr.size() > target_length:
+					_dbg("[color=red][MULTI STAT] Array: %s length (%s) greater than target length: %s. Incomplete or extra data" % [arr, arr.size(), target_length])
+				elif arr.size() < target_length:
+					_dbg("[color=red][MULTI STAT] Array: %s length (%s) lesser than target length: %s. Incomplete or extra data" % [arr, arr.size(), target_length])
+				arrays_same_length = false
+	else:
+		_dbg("[color=red][MULTI STAT] Array: %s length. Upgrade tagged as multiple stat but no array entries present" % target_length)
 	
 	if arrays_same_length == false:
 		_dbg("[color=red][MULTI STAT] Could not get complete information")
