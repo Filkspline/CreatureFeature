@@ -95,7 +95,7 @@ tracks/5/keys = {
 
 [sub_resource type="Animation" id="Animation_25xed"]
 resource_name = "player1death"
-length = 0.53333336
+length = 5.133333
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -115,10 +115,10 @@ tracks/1/path = NodePath("P1BarContainer/deathhealthbareffect:visible")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.033333335),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0, 0.033333335, 4.766667),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [false, true]
+"values": [false, true, false]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -135,7 +135,7 @@ tracks/2/keys = {
 
 [sub_resource type="Animation" id="Animation_yopky"]
 resource_name = "player2death"
-length = 0.53333336
+length = 5.133333
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -155,10 +155,10 @@ tracks/1/path = NodePath("P2BarContainer/deathhealthbareffect2:visible")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.033333335),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0, 0.033333335, 4.9333334),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [false, true]
+"values": [false, true, false]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -167,7 +167,7 @@ tracks/2/path = NodePath("P2BarContainer/deathhealthbareffect2:z_index")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.23333335),
+"times": PackedFloat32Array(0.033333335, 0.23333335),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [0, 1]
@@ -455,8 +455,9 @@ position = Vector2(335, 216)
 texture = ExtResource("12_3jwpd")
 
 [node name="DeathPopUp" type="Sprite2D" parent="." unique_id=2067197968]
-position = Vector2(-75, 133.99997)
-scale = Vector2(1.4449737, 1.4449735)
+z_index = 2
+position = Vector2(-111.57565, 154.31976)
+scale = Vector2(2.460964, 2.460963)
 texture = ExtResource("13_25xed")
 
 [node name="Title" type="Label" parent="DeathPopUp" unique_id=1025741916]
@@ -469,11 +470,11 @@ theme_override_font_sizes/font_size = 14
 text = "Warning"
 
 [node name="text" type="Label" parent="DeathPopUp" unique_id=887864632]
-offset_left = -17.657896
-offset_top = -9.210527
-offset_right = 51.342102
-offset_bottom = 17.789473
+offset_left = -16.426226
+offset_top = -9.069526
+offset_right = 52.573776
+offset_bottom = 17.930473
 theme_override_fonts/font = ExtResource("8_dnckg")
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 9
 text = "player1.exe 
 has stopped working"

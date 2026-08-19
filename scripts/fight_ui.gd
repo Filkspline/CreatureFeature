@@ -48,6 +48,17 @@ extends CanvasLayer
 @export var damage_number_color: Color = Color(1, 1, 1)
 @export var block_number_color: Color = Color(0.6, 0.8, 1)
 
+# ── Death sequence ──────────────────────────────────────────
+# Runs entirely during hitstop (Engine.time_scale == 0), so every tween
+# here uses set_ignore_time_scale(true) and every real-time wait uses
+# create_timer(..., ignore_time_scale = true) — otherwise delta is 0
+# and nothing would ever actually play.
+@export_group("Death Sequence")
+## How long DeathImpactEffect sits fully visible before it starts fading.
+@export var death_impact_hold_time: float = 0.4
+@export var death_impact_fade_time: float = 0.8
+@export var death_popup_pop_duration: float = 1.65
+
 signal timer_expired
 
 var time_left: float
@@ -63,12 +74,18 @@ var bars: Dictionary = {}
 # these are real, editable nodes in the scene, not generated at runtime.
 var pips: Dictionary = {1: [], 2: []}
 
+var _death_popup_base_scale: Vector2
+
 @onready var p1_name_label: Label = $UIRoot/P1NameLabel
 @onready var p2_name_label: Label = $UIRoot/P2NameLabel
 @onready var p1_round_pips: HBoxContainer = $UIRoot/P1RoundPips
 @onready var p2_round_pips: HBoxContainer = $UIRoot/P2RoundPips
 @onready var timer_label: Label = $UIRoot/TimerLabel
 @onready var damage_layer: Control = $UIRoot/DamageNumberLayer
+@onready var death_anim_player: AnimationPlayer = $UIRoot/AnimationPlayer
+@onready var death_impact_effect: Sprite2D = $UIRoot/DeathImpactEffect
+@onready var death_popup: Sprite2D = $DeathPopUp
+@onready var death_popup_text: Label = $DeathPopUp/text
 
 
 func _ready() -> void:
@@ -91,10 +108,18 @@ func _ready() -> void:
 
 	EventBus.player_health_changed.connect(_on_health_changed)
 	EventBus.hit_confirmed.connect(_on_hit_confirmed)
+	EventBus.player_defeated.connect(_on_player_defeated)
 	GameManager.round_won.connect(_on_round_won)
 
 	if EventBus.has_signal("player_registered"):
 		EventBus.player_registered.connect(_on_player_registered)
+
+	# Both hidden until a death sequence actually needs them — the
+	# scene has DeathImpactEffect starting hidden already, but DeathPopUp
+	# doesn't, so it gets hidden here instead of baked into the .tscn.
+	death_impact_effect.visible = false
+	_death_popup_base_scale = death_popup.scale
+	death_popup.visible = false
 
 	_sync_existing_wins()
 
@@ -262,6 +287,99 @@ func _world_to_screen(world_pos: Vector2) -> Vector2:
 
 func _on_round_won(winner_id: int, _p1_rounds: int, _p2_rounds: int) -> void:
 	award_round_win(winner_id)
+
+
+# ── Death sequence ───────────────────────────────────────────
+# GameManager freezes Engine.time_scale to 0 the instant player_defeated
+# fires (see GameManager._on_player_defeated) and stays frozen until we
+# emit death_sequence_finished below — so this whole sequence needs to
+# run on real, unscaled time or it would just hang forever at frame 0.
+func _on_player_defeated(player_id: int) -> void:
+	var slot := 0
+	if player_1 and player_id == player_1.player_id:
+		slot = 1
+	elif player_2 and player_id == player_2.player_id:
+		slot = 2
+
+	if slot == 0:
+		# No matching Player node registered with this UI — nothing to
+		# animate against, so don't leave the game frozen waiting on us.
+		EventBus.death_sequence_finished.emit(player_id)
+		return
+
+	_play_death_sequence(slot, player_id)
+
+
+func _play_death_sequence(slot: int, player_id: int) -> void:
+	var dead_player: Player = player_1 if slot == 1 else player_2
+	var screen_pos: Vector2 = _world_to_screen(dead_player.global_position)
+
+	# Bar teeth-close effect and the impact flash both fire the instant
+	# the death lands — they run independently of each other and of the
+	# popup below, which is what "lots of tweens" mid-sequence looks like.
+	_play_bar_death_animation(slot)
+	_show_death_impact(screen_pos)
+
+	await get_tree().create_timer(death_impact_hold_time, true, false, true).timeout
+	await _fade_death_impact()
+
+	await _show_death_popup(screen_pos, player_id)
+
+	EventBus.death_sequence_finished.emit(player_id)
+
+
+# The "player1death"/"player2death" animations already exist on
+# death_anim_player (frame + visible + z_index keys on the
+# deathhealthbareffect sprites), authored in the editor. Calling
+# .play() directly would freeze it instantly, though — AnimationPlayer
+# advances using Engine-scaled delta same as everything else, and that
+# delta is 0 during hitstop. So instead: play() just applies frame 0,
+# then we immediately pause() the player's own internal advance and
+# drive its timeline ourselves via seek(), fed from an
+# ignore_time_scale tween. Same animation, immune to the freeze.
+func _play_bar_death_animation(slot: int) -> void:
+	var anim_name: StringName = "player1death" if slot == 1 else "player2death"
+	if not death_anim_player.has_animation(anim_name):
+		print("[FIGHT UI] no '%s' animation found — skipping teeth bar effect" % anim_name)
+		return
+
+	var length: float = death_anim_player.get_animation(anim_name).length
+	death_anim_player.play(anim_name)
+	death_anim_player.pause()
+
+	var tween := create_tween()
+	tween.set_ignore_time_scale(true)
+	tween.tween_method(func(t): death_anim_player.seek(t, true), 0.0, length, length)
+
+
+func _show_death_impact(screen_pos: Vector2) -> void:
+	death_impact_effect.position = screen_pos
+	death_impact_effect.modulate.a = 1.0
+	death_impact_effect.visible = true
+
+
+func _fade_death_impact() -> void:
+	var tween := create_tween()
+	tween.set_ignore_time_scale(true)
+	tween.tween_property(death_impact_effect, "modulate:a", 0.0, death_impact_fade_time) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await tween.finished
+	death_impact_effect.visible = false
+
+
+func _show_death_popup(screen_pos: Vector2, player_id: int) -> void:
+	death_popup_text.text = "player%d.exe \nhas stopped working" % player_id
+	death_popup.position = screen_pos
+	death_popup.position.y = death_popup.position.y - 100 
+	death_popup.scale = Vector2.ZERO
+	death_popup.modulate.a = 1.0
+	death_popup.visible = true
+
+	var tween := create_tween()
+	tween.set_ignore_time_scale(true)
+	tween.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(death_popup, "scale", _death_popup_base_scale, death_popup_pop_duration)
+	await tween.finished
 
 
 # ── Round pips (eyes) ────────────────────────────────────────
