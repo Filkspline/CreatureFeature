@@ -87,6 +87,17 @@ var _death_popup_base_scale: Vector2
 @onready var death_popup: Sprite2D = $DeathPopUp
 @onready var death_popup_text: Label = $DeathPopUp/text
 
+# The "teeth" sprites driven by the player1death/player2death animation
+# tracks. Whether these start hidden depends on whatever visible = ...
+# happens to be baked into the .tscn for each node — P1's has been set
+# to false in the editor, but P2's (deathhealthbareffect2) currently has
+# no visible key at all, which defaults to true and shows it immediately
+# on scene load. Hiding both explicitly here means that no longer matters.
+@onready var death_health_bar_effects: Array[Sprite2D] = [
+	$UIRoot/P1BarContainer/deathhealthbareffect,
+	$UIRoot/P2BarContainer/deathhealthbareffect2,
+]
+
 
 func _ready() -> void:
 	bars[1] = _collect_bar_refs($UIRoot/P1BarContainer)
@@ -114,10 +125,12 @@ func _ready() -> void:
 	if EventBus.has_signal("player_registered"):
 		EventBus.player_registered.connect(_on_player_registered)
 
-	# Both hidden until a death sequence actually needs them — the
-	# scene has DeathImpactEffect starting hidden already, but DeathPopUp
-	# doesn't, so it gets hidden here instead of baked into the .tscn.
+	# All hidden until a death sequence actually needs them. Don't rely
+	# on the .tscn's baked visible state for the teeth sprites — see the
+	# comment on death_health_bar_effects above.
 	death_impact_effect.visible = false
+	for teeth_sprite in death_health_bar_effects:
+		teeth_sprite.visible = false
 	_death_popup_base_scale = death_popup.scale
 	death_popup.visible = false
 
