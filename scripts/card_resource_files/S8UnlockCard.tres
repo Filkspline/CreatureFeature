@@ -9,5 +9,5 @@ script = ExtResource("2_u0d4d")
 name = "UP Special+"
 description = "Unlocks the up special move."
 icon = ExtResource("1_imxeg")
-effect_type = 1
+effect_type = 2
 unlocked_move = ExtResource("3_u0d4d")

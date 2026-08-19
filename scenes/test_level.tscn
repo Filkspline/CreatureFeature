@@ -154,7 +154,7 @@ player_2 = NodePath("../Player2")
 camera = NodePath("../Camera2D")
 
 [node name="TempCrtShader" type="ColorRect" parent="." unique_id=73426657]
-z_index = 4
+z_index = 6
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("3_j6w7d")

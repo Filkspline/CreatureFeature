@@ -22,6 +22,7 @@ HitEffectManager="*uid://c1hitfxmgr01"
 GameManager="*uid://fhymjho61bc6"
 EventBus="*uid://ct71mxxweme10"
 UpgradePoolManager="*uid://dpqtfgabm75kr"
+SceneTransition="*uid://bq0kps56mrd8"
 
 [display]
 

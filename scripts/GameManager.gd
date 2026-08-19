@@ -52,6 +52,15 @@ signal match_over(winner_id: int)
 # mid-hitstop extends the freeze instead of ending it early.
 var _hitstop_token: int = 0
 
+# Set the instant a player dies and cleared only once FightUI's death
+# sequence finishes (see _on_death_sequence_finished below). While true,
+# _apply_hitstop()'s normal short-hitstop timer is not allowed to restore
+# Engine.time_scale on its own — otherwise the killing blow's own
+# ordinary hit_confirmed hitstop (fired a few lines after player_defeated,
+# see Player._check_hit()) would un-freeze the game after ~0.1s even
+# though the death sequence is still playing.
+var death_freeze_active: bool = false
+
 # Populated by EventBus.player_registered, fired from each Player's own
 # _ready(). This survives scene changes — a fresh Player instance just
 # re-registers itself when its new scene loads, no @export wiring needed
@@ -68,6 +77,7 @@ func _ready() -> void:
 	EventBus.hit_confirmed.connect(_on_hit_confirmed)
 	EventBus.player_registered.connect(_on_player_registered)
 	EventBus.player_defeated.connect(_on_player_defeated)
+	EventBus.death_sequence_finished.connect(_on_death_sequence_finished)
 
 	# Deferred so every autoload (including UpgradePoolManager) has
 	# finished its own _ready() and connected to match_started before we
@@ -93,7 +103,19 @@ func _on_player_registered(player_id: int, player_node: Node) -> void:
 		push_warning("GameManager: player_registered fired with unexpected player_id %d" % player_id)
 
 
+# Freezes the game the instant someone dies, then just waits.
+# FightUI listens for this same signal and plays the death sequence
+# (teeth bar effect, impact flash, popup) entirely on unscaled time —
+# _on_death_sequence_finished below is what actually unfreezes and
+# moves the round forward once that's done.
 func _on_player_defeated(player_id: int) -> void:
+	death_freeze_active = true
+	Engine.time_scale = 0.0
+
+
+func _on_death_sequence_finished(player_id: int) -> void:
+	death_freeze_active = false
+	Engine.time_scale = 1.0
 	_end_round(player_id)
 
 
@@ -110,11 +132,15 @@ func _end_round(loser_id: int) -> void:
 
 	EventBus.round_lost.emit(loser_id)
 
-	# Deferred because this can run mid-hit-resolution (the hit that just
-	# brought someone to zero HP is still finishing up things like the
-	# damage number), and swapping the scene out from under that leaves
-	# FightUI detached from the tree while it's still being used.
-	get_tree().call_deferred("change_scene_to_file", CARD_SELECT_SCENE)
+	# Routed through SceneTransition instead of a raw
+	# change_scene_to_file. This doesn't need call_deferred() the way
+	# the old direct change_scene_to_file() call did — by the time this
+	# runs, time_scale is already back to normal and the death sequence
+	# (and the hit that caused it) are fully resolved, and
+	# SceneTransition.change_scene() doesn't actually swap the scene
+	# until its own Call Method track key fires partway through the
+	# mouth-close animation anyway.
+	SceneTransition.change_scene(CARD_SELECT_SCENE)
 
 
 func _other_player_id(player_id: int) -> int:
@@ -168,8 +194,13 @@ func _apply_hitstop(duration: float) -> void:
 	# though Engine.time_scale is 0 — otherwise it would never fire.
 	await get_tree().create_timer(duration, true, false, true).timeout
 
-	# Only restore time_scale if nothing re-triggered hitstop while we waited.
-	if this_token == _hitstop_token:
+	# Only restore time_scale if nothing re-triggered hitstop while we
+	# waited, AND a death sequence isn't holding the freeze open. Without
+	# that second check, the killing blow's own ordinary hit_confirmed
+	# (which always fires right after player_defeated — see
+	# Player._check_hit()) would restore time_scale after this short
+	# duration and cut the death sequence off early.
+	if this_token == _hitstop_token and not death_freeze_active:
 		Engine.time_scale = 1.0
 		
 		

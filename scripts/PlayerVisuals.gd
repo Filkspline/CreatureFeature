@@ -118,7 +118,7 @@ func setup(anim_player: AnimationPlayer, move_names: Array = []) -> void:
 				anim.loop_mode = Animation.LOOP_NONE
 			elif anim_name in looping_anims:
 				anim.loop_mode = Animation.LOOP_LINEAR
-			_dbg("[ANIM SETUP] '%s' -> loop_mode=%s length=%.4f" % [anim_name, anim.loop_mode, anim.length])
+			#_dbg("[ANIM SETUP] '%s' -> loop_mode=%s length=%.4f" % [anim_name, anim.loop_mode, anim.length])
 		else:
 			push_warning("[ANIM SETUP] '%s' returned null Animation resource!" % anim_name)
 

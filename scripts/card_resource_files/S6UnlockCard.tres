@@ -9,5 +9,5 @@ script = ExtResource("1_cq5te")
 name = "Forward Special+"
 description = "Unlocks the forward special move."
 icon = ExtResource("1_ibkyk")
-effect_type = 1
+effect_type = 2
 unlocked_move = ExtResource("2_s6move")

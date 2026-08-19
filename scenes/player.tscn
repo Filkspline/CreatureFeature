@@ -18,6 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://b0rhs72x4xgcg" path="res://assets/walkbacknew.png" id="10_ke2ow"]
 [ext_resource type="Texture2D" uid="uid://c5ucj2gpuyupt" path="res://assets/S5.png" id="10_y4r1p"]
 [ext_resource type="Texture2D" uid="uid://3qf07essx4lf" path="res://assets/walkfowardnew.png" id="11_ke2ow"]
+[ext_resource type="Resource" uid="uid://c7m28g4vl1w4v" path="res://scripts/JA.tres" id="12_bj30b"]
 [ext_resource type="Texture2D" uid="uid://e41b8qb1bkm0" path="res://assets/NA.png" id="13_jej6c"]
 [ext_resource type="Texture2D" uid="uid://bg3bam4iw4yln" path="res://assets/MidBlockWarning.png" id="15_a8ls1"]
 [ext_resource type="Texture2D" uid="uid://g2dnqvboos1o" path="res://assets/NewJump.png" id="16_487ah"]
@@ -33,6 +34,7 @@
 [ext_resource type="Script" uid="uid://dqthlu7xsfxsy" path="res://scripts/PlayerVisuals.gd" id="30_visuals"]
 [ext_resource type="Texture2D" uid="uid://be7acvoi48pnr" path="res://assets/S6.png" id="30_wqfne"]
 [ext_resource type="Texture2D" uid="uid://ddx0neslyctld" path="res://assets/S8.png" id="32_gl8cc"]
+[ext_resource type="Texture2D" uid="uid://dd7fchp103klx" path="res://assets/AirDash.png" id="34_md1ol"]
 
 [sub_resource type="Gradient" id="Gradient_fulsm"]
 interpolation_mode = 1
@@ -46,6 +48,37 @@ fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(102.5, 441.5)
+
+[sub_resource type="Animation" id="Animation_j2b1d"]
+resource_name = "JA"
+length = 0.3
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprites/JA:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.033333335, 0.11666667, 0.16666667, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.2),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"open_gatling_cancel_window"
+}]
+}
 
 [sub_resource type="Animation" id="Animation_jc3p3"]
 resource_name = "N2"
@@ -397,7 +430,7 @@ tracks/7/keys = {
 
 [sub_resource type="Animation" id="Animation_bj30b"]
 resource_name = "N8"
-length = 0.73333335
+length = 0.6166667
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -406,7 +439,7 @@ tracks/0/path = NodePath("Sprites/N8:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.05, 0.11666667, 0.18333334, 0.38333336, 0.46666667, 0.6, 0.6666667),
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.3, 0.38333333, 0.51666665, 0.56666666),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3, 4, 5, 6, 7]
@@ -418,10 +451,10 @@ tracks/1/path = NodePath("Hitbox/MainHitbox:shape:size")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.38333336, 0.4666667),
+"times": PackedFloat32Array(0, 0.3, 0.38333336),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [Vector2(92, 90), Vector2(118, 186), Vector2(92, 103)]
+"values": [Vector2(92, 90), Vector2(91, 122), Vector2(103, 87)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -430,10 +463,10 @@ tracks/2/path = NodePath("Hitbox/MainHitbox:position")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.38333336, 0.4666667),
+"times": PackedFloat32Array(0, 0.3, 0.38333336),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [Vector2(78, -117.5), Vector2(100, -239), Vector2(97, -211.5)]
+"values": [Vector2(78, -117.5), Vector2(106.5, -210), Vector2(102.5, -196.5)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -442,7 +475,7 @@ tracks/3/path = NodePath("Hitbox/MainHitbox:disabled")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.38333336, 0.6),
+"times": PackedFloat32Array(0, 0.3, 0.51666665),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
@@ -450,38 +483,26 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Hurtbox/SubHurtbox:disabled")
+tracks/4/path = NodePath("Hurtbox/MainHurtbox:shape:size")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.38333336, 0.6666667),
+"times": PackedFloat32Array(0, 0.10000001, 0.5166667),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [true, false, true]
+"values": [Vector2(80, 160), Vector2(80, 100), Vector2(80, 162)]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("Hurtbox/SubHurtbox:shape:size")
+tracks/5/path = NodePath("Hurtbox/MainHurtbox:position")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0.38333336),
-"transitions": PackedFloat32Array(1),
+"times": PackedFloat32Array(0, 0.10000001, 0.5166667),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [Vector2(81.75, 56)]
-}
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("Hurtbox/SubHurtbox:position")
-tracks/6/interp = 1
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0.38333336),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [Vector2(76, -129)]
+"values": [Vector2(0, -80), Vector2(0, -49), Vector2(0, -82)]
 }
 
 [sub_resource type="Animation" id="Animation_f1ej7"]
@@ -519,10 +540,10 @@ tracks/2/path = NodePath("Hitbox/MainHitbox:shape:size")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.116666675, 0.18333334, 0.26000002),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.116666675, 0.18333334),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [Vector2(92, 90), Vector2(54, 46), Vector2(43, 39), Vector2(91, 94)]
+"values": [Vector2(92, 90), Vector2(54, 46), Vector2(26, 22)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -531,7 +552,7 @@ tracks/3/path = NodePath("Hurtbox/SubHurtbox:disabled")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.11666667, 0.26000002),
+"times": PackedFloat32Array(0, 0.11666667, 0.26666668),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
@@ -585,7 +606,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(115, 162)]
+"values": [Vector2(80, 160)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -909,7 +930,19 @@ tracks/27/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(-6, -81.5)]
+"values": [Vector2(0, -80)]
+}
+tracks/28/type = "value"
+tracks/28/imported = false
+tracks/28/enabled = true
+tracks/28/path = NodePath("Sprites/JA:frame")
+tracks/28/interp = 1
+tracks/28/loop_wrap = true
+tracks/28/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
 }
 
 [sub_resource type="Animation" id="Animation_d2wvv"]
@@ -1495,6 +1528,7 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_l71n6"]
 _data = {
+&"JA": SubResource("Animation_j2b1d"),
 &"N2": SubResource("Animation_jc3p3"),
 &"N4": SubResource("Animation_md1ol"),
 &"N5": SubResource("Animation_smehm"),
@@ -1523,7 +1557,7 @@ _data = {
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yf5fn"]
-size = Vector2(115, 162)
+size = Vector2(80, 160)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d0u6y"]
 size = Vector2(79.5, 70)
@@ -1546,6 +1580,7 @@ S5 = ExtResource("4_3v2ag")
 S8 = ExtResource("9_487ah")
 S6 = ExtResource("9_wnwbv")
 SA = ExtResource("6_a38lo")
+JA = ExtResource("12_bj30b")
 
 [node name="Shadow" type="TextureRect" parent="." unique_id=342766280]
 visible = false
@@ -1673,7 +1708,6 @@ texture = ExtResource("24_l71n6")
 hframes = 10
 
 [node name="N8" type="Sprite2D" parent="Sprites" unique_id=1362277945]
-visible = false
 position = Vector2(0, -186)
 texture = ExtResource("26_ujl30")
 hframes = 8
@@ -1685,6 +1719,7 @@ texture = ExtResource("28_pf23h")
 hframes = 5
 
 [node name="S6" type="Sprite2D" parent="Sprites" unique_id=35465075]
+visible = false
 position = Vector2(0, -186)
 texture = ExtResource("30_wqfne")
 hframes = 7
@@ -1695,13 +1730,19 @@ position = Vector2(-2, -185)
 texture = ExtResource("32_gl8cc")
 hframes = 9
 
+[node name="JA" type="Sprite2D" parent="Sprites" unique_id=1145609024]
+visible = false
+position = Vector2(0, -181)
+texture = ExtResource("34_md1ol")
+hframes = 5
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=797087521]
 
 [node name="MainHurtbox" type="CollisionShape2D" parent="Hurtbox" unique_id=582007271]
-position = Vector2(-6, -81.5)
+position = Vector2(0, -80)
 shape = SubResource("RectangleShape2D_yf5fn")
 debug_color = Color(0, 0.6, 0.69803923, 0.25882354)
 

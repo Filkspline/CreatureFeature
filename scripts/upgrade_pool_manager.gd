@@ -68,8 +68,12 @@ func _on_round_lost(loser_id: int) -> void:
 ## opened has already been freed by the scene change into the draft UI.
 func _on_player_registered(player_id: int, player_node: Node) -> void:
 	var picked: Array = current_upgrades.get(player_id, [])
+	print("[TRACE] player_registered for player %d | replaying %d picked upgrade(s): %s" % [player_id, picked.size(), picked])
 	for path in picked:
 		var upgrade: UpgradeData = load(path)
+		if upgrade == null:
+			print("[TRACE] FAILED to load upgrade at path: %s" % path)
+			continue
 		upgrade.apply_to(player_node)
 		EventBus.upgrade_applied.emit(player_id, upgrade)
 
@@ -80,6 +84,9 @@ func _on_player_registered(player_id: int, player_node: Node) -> void:
 ## instance to apply it to.
 func _on_upgrade_picked(player_id: int, upgrade: UpgradeData) -> void:
 	var picked_path := upgrade.resource_path
+	print("[TRACE] upgrade_picked received | player=%d upgrade='%s' path='%s'" % [player_id, upgrade.name, picked_path])
+	if picked_path == "":
+		print("[TRACE] WARNING: upgrade.resource_path is empty — this upgrade won't survive the scene reload replay")
 	current_upgrades[player_id].append(picked_path)
 	_remove_from_pool(picked_path, player_id)
 
