@@ -108,6 +108,11 @@ var input_buffer: Dictionary = {}
 @export var S6: MoveData
 @export var S2: MoveData
 @export var SA: MoveData
+## Jump Aerial — triggered by pressing Jump while already airborne.
+## Independent from NA's aerial gate (has_used_aerial): landing NA and
+## JA in the same jump is intentional, not a bug. Goes through the
+## exact same _start_attack() pipeline as every other move.
+@export var JA: MoveData
 
 var all_moves: Dictionary = {}
 var normal_moves: Dictionary = {}
@@ -123,6 +128,10 @@ var gatling_cancel_window_open: bool = false
 
 var pushback_velocity_x: float = 0.0
 var has_used_aerial: bool = false
+## Separate one-shot gate for JA, reset on landing alongside
+## has_used_aerial. Kept independent per design: NA and JA are not
+## mutually exclusive within the same jump.
+var has_used_air_jump_attack: bool = false
 
 var stun_timer: float = 0.0
 var stun_just_started: bool = false
@@ -232,10 +241,11 @@ func _duplicate_move_data() -> void:
 	S6 = S6.duplicate() if S6 else null
 	S2 = S2.duplicate() if S2 else null
 	SA = SA.duplicate() if SA else null
+	JA = JA.duplicate() if JA else null
 
 func _all_move_sprite_names() -> Array:
 	var names: Array = []
-	for move in [N5, N52, N4, N8, N6, N2, NA, S5, S4, S8, S6, S2, SA]:
+	for move in [N5, N52, N4, N8, N6, N2, NA, S5, S4, S8, S6, S2, SA, JA]:
 		if move:
 			names.append(move.move_name)
 	return names
@@ -260,6 +270,13 @@ func _build_move_lookup() -> void:
 	_register_move(S2, special_moves, "crouching")
 	_register_move(S8, special_moves, "up")
 	_register_move(SA, special_moves, "aerial")
+
+	# JA isn't resolved by direction like a normal/special (see
+	# _register_move below) — it's triggered directly off the Jump
+	# button while airborne, so it only needs to land in all_moves
+	# (for gatling lookups etc.), not in normal_moves/special_moves.
+	if JA and JA.move_name not in locked_move_names:
+		all_moves[JA.move_name] = JA
 
 
 func _register_move(move: MoveData, dict: Dictionary, key: String) -> void:
@@ -417,6 +434,18 @@ func _physics_process(delta: float) -> void:
 func _neutral_process(delta: float) -> void:
 	var was_on_floor := is_on_floor()
 	_apply_gravity(delta)
+
+	# JA: pressing Jump while already airborne triggers the jump-aerial
+	# attack instead of _handle_jump() (which only ever fires while
+	# grounded). Checked before _handle_jump()/movement so it can
+	# short-circuit the frame exactly like the Normal/Special buffer
+	# checks below do. Gate is independent from has_used_aerial (NA's
+	# gate) by design — see the has_used_air_jump_attack declaration.
+	if not was_on_floor and not has_used_air_jump_attack and JA and _consume_buffer("Jump"):
+		has_used_air_jump_attack = true
+		_start_attack(JA)
+		return
+
 	_handle_jump()
 	_handle_crouch_input()
 	_handle_horizontal_movement(delta)
@@ -426,6 +455,7 @@ func _neutral_process(delta: float) -> void:
 
 	if just_landed:
 		has_used_aerial = false
+		has_used_air_jump_attack = false
 		is_landing = true
 		landed.emit()
 		sprites.play_jump_land()
