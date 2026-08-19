@@ -430,7 +430,7 @@ tracks/7/keys = {
 
 [sub_resource type="Animation" id="Animation_bj30b"]
 resource_name = "N8"
-length = 0.73333335
+length = 0.6166667
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -439,7 +439,7 @@ tracks/0/path = NodePath("Sprites/N8:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.05, 0.11666667, 0.18333334, 0.38333336, 0.46666667, 0.6, 0.6666667),
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.3, 0.38333333, 0.51666665, 0.56666666),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3, 4, 5, 6, 7]
@@ -451,7 +451,7 @@ tracks/1/path = NodePath("Hitbox/MainHitbox:shape:size")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.38333336, 0.4666667),
+"times": PackedFloat32Array(0, 0.3, 0.38333336),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [Vector2(92, 90), Vector2(118, 186), Vector2(92, 103)]
@@ -463,7 +463,7 @@ tracks/2/path = NodePath("Hitbox/MainHitbox:position")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.38333336, 0.4666667),
+"times": PackedFloat32Array(0, 0.3, 0.38333336),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [Vector2(78, -117.5), Vector2(100, -239), Vector2(97, -211.5)]
@@ -475,7 +475,7 @@ tracks/3/path = NodePath("Hitbox/MainHitbox:disabled")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.38333336, 0.6),
+"times": PackedFloat32Array(0, 0.3, 0.51666665),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
@@ -487,7 +487,7 @@ tracks/4/path = NodePath("Hurtbox/SubHurtbox:disabled")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.38333336, 0.6666667),
+"times": PackedFloat32Array(0, 0.3, 0.56666666),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
@@ -499,7 +499,7 @@ tracks/5/path = NodePath("Hurtbox/SubHurtbox:shape:size")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0.38333336),
+"times": PackedFloat32Array(0.3),
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [Vector2(81.75, 56)]
@@ -511,7 +511,7 @@ tracks/6/path = NodePath("Hurtbox/SubHurtbox:position")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0.38333336),
+"times": PackedFloat32Array(0.3),
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [Vector2(76, -129)]
@@ -552,10 +552,10 @@ tracks/2/path = NodePath("Hitbox/MainHitbox:shape:size")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.116666675, 0.18333334, 0.26000002),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.116666675, 0.18333334),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [Vector2(92, 90), Vector2(54, 46), Vector2(43, 39), Vector2(91, 94)]
+"values": [Vector2(92, 90), Vector2(54, 46), Vector2(26, 22)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -564,7 +564,7 @@ tracks/3/path = NodePath("Hurtbox/SubHurtbox:disabled")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.11666667, 0.26000002),
+"times": PackedFloat32Array(0, 0.11666667, 0.26666668),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
@@ -1663,7 +1663,6 @@ texture = ExtResource("10_y4r1p")
 hframes = 9
 
 [node name="NA" type="Sprite2D" parent="Sprites" unique_id=1426456731]
-visible = false
 position = Vector2(1, -95)
 texture = ExtResource("13_jej6c")
 hframes = 8
