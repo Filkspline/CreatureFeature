@@ -11,9 +11,11 @@ extends Node2D
 
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 
-@export var hand_width : float = 500
-@export var min_card_spacing : float = 90.0 # Smallest gap allowed between card slots, keeps scatter from overlapping
-@export var vertical_jitter : float = 80.0 # How far up/down cards can randomly sit, tab-scatter feel
+@export var hand_width : float = 550
+@export var min_card_spacing : float = 70.0 # Smallest gap allowed between card slots, keeps scatter from overlapping
+@export var vertical_jitter : float = 90.0 # How far up/down cards can randomly sit, tab-scatter feel
+@export var highlighted_scale : float = 1.35 # How much bigger a card gets while it's the highlighted one
+@export var highlight_tween_duration : float = 0.2
 
 var hand = self
 var current_player_id : int = 1
@@ -21,6 +23,7 @@ var card_default_z_index : int
 var current_z_index : int
 var card_default_transform : Transform2D
 var card_default_rotation : float
+var card_default_scale : Vector2
 var defaults_set : bool
 var selected_card_idx : int
 var currently_handling_card : bool
@@ -54,6 +57,7 @@ func _draw_hand(offered: Array[UpgradeData]) -> void:
 		if defaults_set != true:
 			card_default_transform = upgarde_card.transform
 			card_default_rotation = upgarde_card.rotation
+			card_default_scale = upgarde_card.scale
 			defaults_set = true
 		
 		add_child(upgarde_card)
@@ -93,7 +97,33 @@ func _spread_cards() -> void:
 	
 	hand.get_child(0).currently_highlighted = true
 	hand.get_child(0)._handle_highlight()
+	_tween_card_scale(hand.get_child(0), card_default_scale * highlighted_scale)
 	selected_card_idx = 0
+
+
+func _tween_card_scale(card: Node2D, target_scale: Vector2) -> void:
+	# Grows/shrinks a card's scale to reflect highlight state. Kept as its
+	# own tween (rather than parallel on the move tween) since highlight
+	# can change independently of position.
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(card, "scale", target_scale, highlight_tween_duration)
+
+
+func _move_highlight(new_idx: int) -> void:
+	# Shared by keyboard and joypad handling below - un-highlights and
+	# shrinks the old card, then highlights and grows the new one.
+	var old_card = hand.get_child(selected_card_idx)
+	old_card.currently_highlighted = false
+	old_card._handle_highlight()
+	_tween_card_scale(old_card, card_default_scale)
+	
+	selected_card_idx = new_idx
+	var new_card = hand.get_child(selected_card_idx)
+	new_card.currently_highlighted = true
+	new_card._handle_highlight()
+	_tween_card_scale(new_card, card_default_scale * highlighted_scale)
+
 	
 func _input(event: InputEvent) -> void:
 	# Once a card's been picked and the rest are queue_free()-ing, don't let
@@ -114,16 +144,12 @@ func _input(event: InputEvent) -> void:
 			if selected_card_idx == 0:
 				pass
 			else:
-				selected_card_idx -= 1
-				hand.get_child(selected_card_idx).currently_highlighted = true
-				hand.get_child(selected_card_idx)._handle_highlight()
+				_move_highlight(selected_card_idx - 1)
 		elif event.keycode == KEY_D and event.pressed:
 			if selected_card_idx == last_idx:
 				pass
 			else:
-				selected_card_idx += 1
-				hand.get_child(selected_card_idx).currently_highlighted = true
-				hand.get_child(selected_card_idx)._handle_highlight()
+				_move_highlight(selected_card_idx + 1)
 
 	elif event is InputEventJoypadButton:
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
@@ -131,16 +157,12 @@ func _input(event: InputEvent) -> void:
 			if selected_card_idx == 0:
 				pass
 			else:
-				selected_card_idx -= 1
-				hand.get_child(selected_card_idx).currently_highlighted = true
-				hand.get_child(selected_card_idx)._handle_highlight()
+				_move_highlight(selected_card_idx - 1)
 		elif event.button_index == JOY_BUTTON_DPAD_RIGHT and event.pressed:
 			if selected_card_idx == last_idx:
 				pass
 			else:
-				selected_card_idx += 1
-				hand.get_child(selected_card_idx).currently_highlighted = true
-				hand.get_child(selected_card_idx)._handle_highlight()
+				_move_highlight(selected_card_idx + 1)
 
 	# Handles selection input as it is
 	if event is InputEventJoypadButton:
@@ -173,6 +195,6 @@ func _handle_clicked_card():
 	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(highlighted_card, "transform", card_default_transform, 0.4)
 	tween.parallel().tween_property(highlighted_card, "rotation", card_default_rotation, 0.4)
-	tween.parallel().tween_property(highlighted_card, "scale", Vector2(2.0, 2.0), 0.4)
+	tween.parallel().tween_property(highlighted_card, "scale", Vector2(3.0, 3.0), 0.4)
 	
 	highlighted_card._handle_upgrade(card_map.get(highlighted_card), current_player_id)
