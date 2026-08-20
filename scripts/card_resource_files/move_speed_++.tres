@@ -4,8 +4,8 @@
 
 [resource]
 script = ExtResource("1_83ucx")
-name = "Test %Move Speed"
-description = "description. move speed."
+name = "Move speed ++"
+description = "Move speed: +27.5%"
 stat_name = &"move_speed"
 stat_amount = 27.5
 is_percent = true
