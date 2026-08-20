@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://chxghgygxfvox"]
+
+[ext_resource type="Script" uid="uid://b61kluldxjmqb" path="res://scripts/settings.gd" id="1_5p8wc"]
+[ext_resource type="PackedScene" uid="uid://friydixf4el0" path="res://scenes/settings_tab_container.tscn" id="2_r6d6q"]
+
+[node name="Control" type="Control" unique_id=944065080]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_5p8wc")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=918514704]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="." unique_id=467919101]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.5
+offset_right = 50.5
+offset_bottom = 36.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 26
+text = "Settings"
+
+[node name="Settings_Tab_Container" parent="." unique_id=576454110 instance=ExtResource("2_r6d6q")]
+layout_mode = 1
+
+[node name="ExitButton" type="Button" parent="." unique_id=2145009842]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -31.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Exit"
+
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="pressed" from="ExitButton" to="." method="_on_button_pressed"]
