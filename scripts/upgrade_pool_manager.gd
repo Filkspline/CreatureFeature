@@ -14,7 +14,7 @@ extends Node
 @export_dir var card_resource_dir: String = "res://scripts/card_resource_files/"
 
 @export_group("Draft")
-@export var cards_offered: int = 5
+@export var cards_offered: int = 4
 
 var card_array: Array[String] = []      ## every .tres path found in card_resource_dir
 var pools: Dictionary = {}              ## int player_id -> Array[String] remaining picks

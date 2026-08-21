@@ -1,9 +1,14 @@
 [gd_scene format=3 uid="uid://ce1hi5sqqhmm5"]
 
 [ext_resource type="Script" uid="uid://d3r0cg07c76st" path="res://scripts/card_hand.gd" id="1_l8650"]
-[ext_resource type="Texture2D" uid="uid://qxucesg03rg" path="res://assets/MicrosoftBackgroundWeirdColourTaskbar.png" id="2_ncbw7"]
+[ext_resource type="Texture2D" uid="uid://becaex5uttdg0" path="res://assets/newbackgrounddesktop.png" id="2_v13x6"]
+[ext_resource type="Texture2D" uid="uid://bon3m4es8c7rn" path="res://assets/taskbaiconr.png" id="3_1ifr4"]
+[ext_resource type="Texture2D" uid="uid://qp7i2mb5hsrf" path="res://assets/taskbar.png" id="3_ovphs"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="3_v13x6"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="4_ovphs"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
+size = Vector2(500, 265)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1ifr4"]
 shader = ExtResource("4_ovphs")
@@ -27,15 +32,40 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="background" type="Sprite2D" parent="." unique_id=1887611312]
+modulate = Color(0.8848981, 0.8848981, 0.8848981, 1)
+position = Vector2(1.4305115e-05, 13.000006)
+scale = Vector2(0.4433702, 0.43787605)
+texture = ExtResource("2_v13x6")
+
+[node name="taskbar" type="Sprite2D" parent="." unique_id=1252514268]
+texture_filter = 1
+position = Vector2(-0.11729008, -0.15625095)
+scale = Vector2(1.0003664, 0.999132)
+texture = ExtResource("3_ovphs")
+
+[node name="folder" type="Sprite2D" parent="taskbar" unique_id=1597231036]
+position = Vector2(-243.5, 161.169)
+scale = Vector2(1.195, 1.195)
+texture = ExtResource("3_1ifr4")
+region_enabled = true
+region_rect = Rect2(61, 327, 33, 28)
+
 [node name="Camera2D" type="Camera2D" parent="." unique_id=330926451]
 
 [node name="hand" type="Node2D" parent="Camera2D" unique_id=1895491932]
+position = Vector2(29, -5)
 script = ExtResource("1_l8650")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1887611312]
-position = Vector2(0.22220993, -3.9999886)
-scale = Vector2(0.4996527, 0.51111114)
-texture = ExtResource("2_ncbw7")
+[node name="cardspawnarea" type="Area2D" parent="Camera2D/hand" unique_id=1490147180]
+position = Vector2(-92, -35)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Camera2D/hand/cardspawnarea" unique_id=468811304]
+position = Vector2(94, 23.5)
+shape = SubResource("RectangleShape2D_g4v7s")
+
+[node name="cardspawner" type="Marker2D" parent="Camera2D/hand" unique_id=558817203]
+position = Vector2(-276, 168)
 
 [node name="TempCrtShader" type="ColorRect" parent="." unique_id=691971729]
 z_index = 4

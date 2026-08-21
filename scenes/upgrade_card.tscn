@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://b3bhqw8t6cad"]
 
 [ext_resource type="Script" uid="uid://jhexjuiasdka" path="res://scripts/upgrade_card.gd" id="1_ew4bf"]
-[ext_resource type="Texture2D" uid="uid://ctged1vw73l02" path="res://assets/card_assets/CardBackColour.png" id="2_fk0rn"]
+[ext_resource type="Texture2D" uid="uid://dyf645kwkn15l" path="res://assets/CardBackColourPallette.png" id="2_33rkj"]
 [ext_resource type="Texture2D" uid="uid://b4bbsgtvf8ta1" path="res://assets/icon.svg" id="2_igsks"]
-[ext_resource type="Texture2D" uid="uid://ddyrpm7n6t5li" path="res://assets/card_assets/Card_DesignNoFlairCorruptionBW.png" id="3_fk0rn"]
+[ext_resource type="Texture2D" uid="uid://dydputjr60mka" path="res://assets/Card_DesignV1.png" id="3_33rkj"]
 [ext_resource type="SpriteFrames" uid="uid://0mk8q5j8lmya" path="res://scripts/selector_anim.tres" id="4_0hv3p"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="4_33rkj"]
 
@@ -23,7 +23,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(1, 0.95333344)]
+"values": [Vector2(1, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -72,7 +72,7 @@ tracks/0/path = NodePath("Control/card_back:scale")
 tracks/0/interp = 2
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0.03333334, 0.13333334, 0.23333335, 0.33333334, 0.43333334),
+"times": PackedFloat32Array(0.033333335, 0.13333334, 0.23333335, 0.33333334, 0.43333334),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 0,
 "values": [Vector2(1, 1), Vector2(1, 1), Vector2(0.1, 1), Vector2(1, 1), Vector2(1, 1)]
@@ -133,13 +133,37 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="card_back" type="Sprite2D" parent="Control" unique_id=2016231307]
-scale = Vector2(1, 0.95333344)
-texture = ExtResource("2_fk0rn")
+position = Vector2(1.874999, 3.71933e-05)
+texture = ExtResource("2_33rkj")
+
+[node name="Sprite2D" type="Sprite2D" parent="Control/card_back" unique_id=1964083218]
+modulate = Color(0.012617188, 0.012617188, 0.012617188, 0.1764706)
+z_index = -1
+position = Vector2(1.2499571, 34.999863)
+scale = Vector2(1.04, 0.9899999)
+texture = ExtResource("2_33rkj")
 
 [node name="card_front" type="Sprite2D" parent="Control" unique_id=602043342]
 z_index = -1
 scale = Vector2(0.99999994, 0.99999994)
-texture = ExtResource("3_fk0rn")
+texture = ExtResource("3_33rkj")
+
+[node name="card_icon" type="TextureRect" parent="Control/card_front" unique_id=1616450739]
+z_index = -2
+offset_left = -370.00003
+offset_top = -500.00006
+offset_right = -245.36845
+offset_bottom = -306.06067
+scale = Vector2(5.9375005, 5.156251)
+texture = ExtResource("2_igsks")
+expand_mode = 4
+
+[node name="Sprite2D2" type="Sprite2D" parent="Control/card_front" unique_id=435279521]
+modulate = Color(0.012617188, 0.012617188, 0.012617188, 0.1764706)
+z_index = -2
+position = Vector2(-1.333654e-05, 34.999905)
+scale = Vector2(1.0400001, 0.99)
+texture = ExtResource("2_33rkj")
 
 [node name="Title" type="Label" parent="Control/card_front" unique_id=1676433001]
 offset_left = -150.00002
@@ -156,11 +180,6 @@ offset_bottom = 403.00003
 theme = SubResource("Theme_g4v7s")
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_shadow_color = Color(1, 1, 1, 0.3529412)
-
-[node name="card_icon" type="Sprite2D" parent="Control/card_front" unique_id=793156833]
-position = Vector2(-2.9999924, -112.99996)
-scale = Vector2(5.6718755, 4.4218745)
-texture = ExtResource("2_igsks")
 
 [node name="selection_icon" type="AnimatedSprite2D" parent="Control" unique_id=375975407]
 visible = false
