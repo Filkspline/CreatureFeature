@@ -130,4 +130,9 @@ func _handle_upgrade(upgrade : UpgradeData, player_id : int) -> void:
 	# change_scene_to_file — same reasoning as GameManager's round-loss
 	# transition. The 0.75s wait above is unrelated to that and just
 	# gives the pick/flip feedback a beat before the wipe starts.
-	SceneTransition.change_scene("res://scenes/test_level.tscn")
+	if GameManager.is_pre_fight_pick == true:
+		EventBus.round_lost.emit(2)
+		EventBus.pre_fight_upgrade_check.emit()
+		SceneTransition.change_scene("res://scenes/upgrade_card_ui.tscn")
+	else:
+		SceneTransition.change_scene("res://scenes/test_level.tscn")

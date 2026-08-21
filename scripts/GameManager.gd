@@ -68,6 +68,9 @@ var death_freeze_active: bool = false
 var p1_node: CharacterBody2D
 var p2_node: CharacterBody2D
 
+var p1_pre_fight_picked : bool = false
+var p2_pre_fight_picked : bool = false
+var is_pre_fight_pick : bool = true
 
 func _ready() -> void:
 	# hit_confirmed (rather than player_hit_landed) is what we want here
@@ -78,7 +81,8 @@ func _ready() -> void:
 	EventBus.player_registered.connect(_on_player_registered)
 	EventBus.player_defeated.connect(_on_player_defeated)
 	EventBus.death_sequence_finished.connect(_on_death_sequence_finished)
-
+	
+	EventBus.pre_fight_upgrade_check.connect(_handle_pre_fight_info)
 	# Deferred so every autoload (including UpgradePoolManager) has
 	# finished its own _ready() and connected to match_started before we
 	# fire it. Autoload _ready() order isn't guaranteed, and firing this
@@ -202,7 +206,16 @@ func _apply_hitstop(duration: float) -> void:
 	# duration and cut the death sequence off early.
 	if this_token == _hitstop_token and not death_freeze_active:
 		Engine.time_scale = 1.0
-		
+
+
+func _handle_pre_fight_info() -> void:
+	if p1_pre_fight_picked == false:
+		p1_pre_fight_picked = true
+	
+	elif p2_pre_fight_picked == false:
+		p2_pre_fight_picked = true
+		is_pre_fight_pick = false
+
 		
 func _input(event: InputEvent) -> void:
 	# Dev shortcut: press 1 or 2 to simulate that player losing the round
