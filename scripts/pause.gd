@@ -1,6 +1,5 @@
 extends Control
-# Ive created bugs i didnt even know possible
-# Not visible in editor, also works here but when added to level buttons dont work
+# BUGS: Not visible in editor, also works here but when added to level buttons dont work
 func _ready():
 	hide()
 	$AnimationPlayer.play("RESET")
@@ -31,5 +30,3 @@ func _on_quit_pressed() -> void:
 
 func _process(delta):
 	testEsc()
-
-# Ive made pause menus with this exact script and layout before, never had this happen
