@@ -1,5 +1,5 @@
 extends Control
-# BUGS: Not visible in editor, also works here but when added to level buttons dont work
+# BUGS: Not visible in editor? Not huge issue tho
 func _ready():
 	hide()
 	$AnimationPlayer.play("RESET")

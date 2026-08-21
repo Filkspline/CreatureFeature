@@ -236,5 +236,6 @@ position = Vector2(201, 242)
 shape = SubResource("RectangleShape2D_yf5fn")
 
 [node name="Pause Container" type="CanvasLayer" parent="." unique_id=1430346933]
+layer = 15
 
 [node name="Control" parent="Pause Container" unique_id=1706374484 instance=ExtResource("17_bakr3")]
