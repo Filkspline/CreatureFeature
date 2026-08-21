@@ -5,19 +5,38 @@ extends Node2D
 #
 #  Fully signal-driven: waits for EventBus.upgrade_draft_ready, fired by
 #  UpgradePoolManager after a round_lost, instead of pulling from the
-#  pool manager directly. Doesn't care whether it's P1 or P2 drafting —
+#  pool manager directly. Doesn't care whether it's P1 or P2 drafting,
 #  player_id comes in on the signal and rides straight through to the
 #  eventual upgrade_picked emit.
+#
+#  Cards spawn tiny at the cardspawner marker (sitting on the folder
+#  icon), pop out with a squash and stretch, then spread within the
+#  bounds of the cardspawnarea collision shape.
 
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 
-@export var hand_width : float = 550
 @export var min_card_spacing : float = 70.0 # Smallest gap allowed between card slots, keeps scatter from overlapping
 @export var vertical_jitter : float = 90.0 # How far up/down cards can randomly sit, tab-scatter feel
 @export var highlighted_scale : float = 1.35 # How much bigger a card gets while it's the highlighted one
 @export var highlight_tween_duration : float = 0.2
+@export var initial_spread_delay : float = 0.5 # Pause after cards spawn before the spread starts
+@export var card_stagger_delay : float = 0.5 # Delay between each card popping out of the folder
+@export var card_travel_duration : float = 0.4 # How long a card takes to fly from the folder to its slot
+@export var spawn_scale_fraction : float = 0.05 # How small a card is, relative to its normal size, right as it spawns
+@export var squash_stretch_duration : float = 0.1 # Duration of each phase of the pop-out squash/stretch
+@export var squash_scale_multiplier : Vector2 = Vector2(1.4, 0.6) # Wide and flat, right as the card pops out
+@export var stretch_scale_multiplier : Vector2 = Vector2(0.7, 1.3) # Thin and tall, overshooting on the way to full size
+@export var folder_node_path : NodePath = ^"../../taskbar/folder" # The folder sprite that bulges each time a card pops out
+@export var folder_squash_stretch_duration : float = 0.08 # Kept snappier than the card's own squash/stretch, it's a smaller bulge
+@export var folder_squash_scale_multiplier : Vector2 = Vector2(1.15, 0.85) # Wide and flat, the instant a card leaves it
+@export var folder_stretch_scale_multiplier : Vector2 = Vector2(0.92, 1.1) # Thin and tall, settling back down after
 
-var hand = self
+@onready var hand : Node2D = self
+@onready var cardspawner : Marker2D = $cardspawner
+@onready var card_spawn_shape : CollisionShape2D = $cardspawnarea/CollisionShape2D
+@onready var folder_sprite : Sprite2D = get_node(folder_node_path)
+
+var folder_base_scale : Vector2
 var current_player_id : int = 1
 var card_default_z_index : int
 var current_z_index : int
@@ -28,11 +47,13 @@ var defaults_set : bool
 var selected_card_idx : int
 var currently_handling_card : bool
 var card_map : Dictionary[Node2D, UpgradeData]
+var cards : Array[Node2D]
 var _rng := RandomNumberGenerator.new()
 
 ##------------------------------------------------------------------------
 
 func _ready() -> void:
+	folder_base_scale = folder_sprite.scale
 	EventBus.upgrade_draft_ready.connect(_on_upgrade_draft_ready)
 	# Handles the normal case: round_lost fires (and UpgradePoolManager
 	# draws the cards) BEFORE this scene finishes loading, since whoever
@@ -52,53 +73,100 @@ func _draw_hand(offered: Array[UpgradeData]) -> void:
 	card_default_z_index = offered.size()
 	current_z_index = card_default_z_index
 	for upgrade in offered:
-		var upgarde_card = UPGRADE_CARD.instantiate()
-		card_map.set(upgarde_card, upgrade)
+		var upgrade_card = UPGRADE_CARD.instantiate()
+		card_map.set(upgrade_card, upgrade)
+		cards.append(upgrade_card)
 		if defaults_set != true:
-			card_default_transform = upgarde_card.transform
-			card_default_rotation = upgarde_card.rotation
-			card_default_scale = upgarde_card.scale
+			card_default_transform = upgrade_card.transform
+			card_default_rotation = upgrade_card.rotation
+			card_default_scale = upgrade_card.scale
 			defaults_set = true
-		
-		add_child(upgarde_card)
-		upgarde_card.set_upgrade(upgrade)
-		upgarde_card.z_index = current_z_index
+
+		add_child(upgrade_card)
+		upgrade_card.set_upgrade(upgrade)
+		upgrade_card.z_index = current_z_index
 		current_z_index -= 1
-	
-	await get_tree().create_timer(0.5).timeout
+
+		# Cards start out tiny and sitting on the folder, before they get
+		# popped out and spread into the hand
+		upgrade_card.position = cardspawner.position
+		upgrade_card.rotation = card_default_rotation
+		upgrade_card.scale = card_default_scale * spawn_scale_fraction
+
+	await get_tree().create_timer(initial_spread_delay).timeout
 	_spread_cards()
 
 
 func _spread_cards() -> void:
-	# Cards no longer rotate and no longer follow a fan curve. Each card gets
-	# its own slot along hand_width so slots can't cross into each other,
-	# then gets a small random x/y jitter inside that slot for a scattered,
-	# desktop-tab look instead of a neat fan.
+	# Each card gets its own slot inside the spawn area's bounds so slots
+	# can't cross into each other, then gets a small random x/y jitter
+	# inside that slot for a scattered, desktop-tab look instead of a
+	# neat fan.
 	_rng.randomize()
-	var child_count = hand.get_child_count()
-	var slot_width = hand_width / float(child_count)
+	var spawn_bounds = _get_spawn_area_bounds()
+	var slot_width = spawn_bounds.size.x / float(cards.size())
 	var max_jitter_x = max((slot_width - min_card_spacing) * 0.5, 0.0)
-	
-	for card in hand.get_children():
-		var slot_index = card.get_index()
-		var slot_center_x = (slot_index + 0.5) * slot_width - hand_width * 0.5
+
+	for slot_index in cards.size():
+		var card = cards[slot_index]
+		var slot_center_x = spawn_bounds.position.x + (slot_index + 0.5) * slot_width
 		var jitter_x = _rng.randf_range(-max_jitter_x, max_jitter_x)
 		var jitter_y = _rng.randf_range(-vertical_jitter, vertical_jitter)
-		
-		var destination = hand.global_transform
-		destination.origin.x += slot_center_x + jitter_x
-		destination.origin.y += jitter_y
-		
-		# Sets the card locations the the assigned destinations
-		var tween = create_tween()
-		tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tween.tween_property(card, "transform", destination, 0.4)
-		await get_tree().create_timer(0.5).timeout
-	
-	hand.get_child(0).currently_highlighted = true
-	hand.get_child(0)._handle_highlight()
-	_tween_card_scale(hand.get_child(0), card_default_scale * highlighted_scale)
+		var destination = Vector2(slot_center_x + jitter_x, spawn_bounds.get_center().y + jitter_y)
+
+		_pop_card_out_of_folder(card, destination)
+		await get_tree().create_timer(card_stagger_delay).timeout
+
+	cards[0].currently_highlighted = true
+	cards[0]._handle_highlight()
+	_tween_card_scale(cards[0], card_default_scale * highlighted_scale)
 	selected_card_idx = 0
+
+
+func _get_spawn_area_bounds() -> Rect2:
+	# cardspawnarea's collision shape marks the region cards are allowed
+	# to spread out into, so the draft stays on screen and away from the
+	# folder icon it spawns out of. Everything here is in hand's local
+	# space, same as cardspawner and the card nodes themselves.
+	var rect_shape := card_spawn_shape.shape as RectangleShape2D
+	var area_center = card_spawn_shape.get_parent().position + card_spawn_shape.position
+	var half_size = rect_shape.size * 0.5
+	return Rect2(area_center - half_size, rect_shape.size)
+
+
+func _pop_card_out_of_folder(card: Node2D, destination: Vector2) -> void:
+	# Flies the card from the folder to its hand slot while it squashes
+	# and stretches back up to full size, like it's being flicked out
+	var move_tween = create_tween()
+	move_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	move_tween.tween_property(card, "position", destination, card_travel_duration)
+
+	_play_squash_stretch(card, card_default_scale)
+	_play_folder_squash_stretch()
+
+
+func _play_squash_stretch(card: Node2D, target_scale: Vector2) -> void:
+	var squash_scale = target_scale * squash_scale_multiplier
+	var stretch_scale = target_scale * stretch_scale_multiplier
+
+	var scale_tween = create_tween()
+	scale_tween.tween_property(card, "scale", squash_scale, squash_stretch_duration)
+	scale_tween.tween_property(card, "scale", stretch_scale, squash_stretch_duration)
+	scale_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	scale_tween.tween_property(card, "scale", target_scale, squash_stretch_duration)
+
+
+func _play_folder_squash_stretch() -> void:
+	# Same idea as the card's own pop, just smaller, so the folder looks
+	# like it's bulging each time a card gets flicked out of it
+	var squash_scale = folder_base_scale * folder_squash_scale_multiplier
+	var stretch_scale = folder_base_scale * folder_stretch_scale_multiplier
+
+	var scale_tween = create_tween()
+	scale_tween.tween_property(folder_sprite, "scale", squash_scale, folder_squash_stretch_duration)
+	scale_tween.tween_property(folder_sprite, "scale", stretch_scale, folder_squash_stretch_duration)
+	scale_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	scale_tween.tween_property(folder_sprite, "scale", folder_base_scale, folder_squash_stretch_duration)
 
 
 func _tween_card_scale(card: Node2D, target_scale: Vector2) -> void:
@@ -113,30 +181,30 @@ func _tween_card_scale(card: Node2D, target_scale: Vector2) -> void:
 func _move_highlight(new_idx: int) -> void:
 	# Shared by keyboard and joypad handling below - un-highlights and
 	# shrinks the old card, then highlights and grows the new one.
-	var old_card = hand.get_child(selected_card_idx)
+	var old_card = cards[selected_card_idx]
 	old_card.currently_highlighted = false
 	old_card._handle_highlight()
 	_tween_card_scale(old_card, card_default_scale)
-	
+
 	selected_card_idx = new_idx
-	var new_card = hand.get_child(selected_card_idx)
+	var new_card = cards[selected_card_idx]
 	new_card.currently_highlighted = true
 	new_card._handle_highlight()
 	_tween_card_scale(new_card, card_default_scale * highlighted_scale)
 
-	
+
 func _input(event: InputEvent) -> void:
 	# Once a card's been picked and the rest are queue_free()-ing, don't let
-	# navigation touch them — this was the out-of-bounds crash from before.
+	# navigation touch them - this was the out-of-bounds crash from before.
 	if currently_handling_card:
 		return
-	if hand.get_child_count() == 0:
+	if cards.is_empty():
 		return
-	
-	# Bound against the hand's actual current child count rather than a
+
+	# Bound against the hand's actual current card count rather than a
 	# fixed hand_limit, so this can't overshoot if fewer cards were
 	# offered than expected, or a card's already been freed.
-	var last_idx = hand.get_child_count() - 1
+	var last_idx = cards.size() - 1
 
 	if event is InputEventKey:
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
@@ -178,14 +246,14 @@ func _input(event: InputEvent) -> void:
 func _handle_clicked_card():
 	var highlighted_card : Node2D
 	currently_handling_card = true
-	for card in hand.get_children():
+	for card in cards:
 		if card.currently_highlighted == false:
 			var tween = create_tween()
 			tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 			tween.tween_property(card, "scale", Vector2(0.01, 0.01), 0.5)
 			tween.parallel().tween_property(card, "modulate", Color.TRANSPARENT, 0.5)
 			tween.tween_callback(card.queue_free)
-			
+
 		else:
 			highlighted_card = card
 	# Handles moving the selected card to the center of the screen,
@@ -193,8 +261,8 @@ func _handle_clicked_card():
 	highlighted_card.z_index = card_default_z_index + 1
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(highlighted_card, "transform", card_default_transform, 0.4)
+	tween.tween_property(highlighted_card, "position", card_default_transform.origin, 0.4)
 	tween.parallel().tween_property(highlighted_card, "rotation", card_default_rotation, 0.4)
 	tween.parallel().tween_property(highlighted_card, "scale", Vector2(3.0, 3.0), 0.4)
-	
+
 	highlighted_card._handle_upgrade(card_map.get(highlighted_card), current_player_id)

@@ -3,7 +3,7 @@ extends Node2D
 @onready var selection_icon = $Control/selection_icon
 @onready var anim_player = $AnimationPlayer
 @onready var card_control = $Control
-@onready var card_icon : Sprite2D = $Control/card_front/card_icon
+@onready var card_icon : TextureRect = $Control/card_front/card_icon
 @onready var title_label : Label = $Control/card_front/Title
 @onready var description_label : Label = $Control/card_front/Description
 @onready var parent_node = self.get_parent()
@@ -45,10 +45,14 @@ func _start_idle_bob() -> void:
 func _handle_highlight() -> void:
 	if  currently_highlighted:
 		for card in self.get_parent().get_children():
-			if card != self:
-				card.currently_highlighted = false
-				card.selection_icon.hide()
-				card._play_unhover_tween()
+			# hand now also parents cardspawnarea and cardspawner alongside
+			# the actual card instances, so a plain child check isn't
+			# enough, skip anything that isn't a card
+			if card == self or not card.has_method("_handle_highlight"):
+				continue
+			card.currently_highlighted = false
+			card.selection_icon.hide()
+			card._play_unhover_tween()
 		_play_selection_icon_pop()
 		_play_hover_tween()
 		if !is_flipped:

@@ -250,6 +250,7 @@ vframes = 3
 frame = 10
 
 [node name="Fill" type="TextureProgressBar" parent="UIRoot/P2BarContainer" unique_id=1766174221]
+modulate = Color(0.7058824, 0.7607843, 0.8745098, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -429,6 +430,7 @@ offset_top = -9.0
 offset_right = -2.3411865
 offset_bottom = 28.2
 theme = SubResource("Theme_ict5u")
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 82
 text = "99"
 horizontal_alignment = 1

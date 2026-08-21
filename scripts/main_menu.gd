@@ -39,11 +39,11 @@ func _process(_delta):
 
 func _on_play_pressed():
 	print("Play pressed")
-	get_tree().change_scene_to_file("res://scenes/player_select.tscn")
+	SceneTransition.change_scene("res://scenes/player_select.tscn")
 
 
 func _on_settings_pressed():
-	get_tree().change_scene_to_file("res://scenes/settings.tscn")
+	SceneTransition.change_scene("res://scenes/settings.tscn")
 
 
 func _on_quit_pressed():

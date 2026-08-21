@@ -148,11 +148,15 @@ z_index = -1
 scale = Vector2(0.99999994, 0.99999994)
 texture = ExtResource("3_33rkj")
 
-[node name="card_icon" type="Sprite2D" parent="Control/card_front" unique_id=793156833]
+[node name="card_icon" type="TextureRect" parent="Control/card_front" unique_id=1616450739]
 z_index = -2
-position = Vector2(-6.67572e-06, -170.00002)
+offset_left = -370.00003
+offset_top = -500.00006
+offset_right = -245.36845
+offset_bottom = -306.06067
 scale = Vector2(5.9375005, 5.156251)
 texture = ExtResource("2_igsks")
+expand_mode = 4
 
 [node name="Sprite2D2" type="Sprite2D" parent="Control/card_front" unique_id=435279521]
 modulate = Color(0.012617188, 0.012617188, 0.012617188, 0.1764706)
