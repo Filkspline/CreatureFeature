@@ -50,6 +50,14 @@ enum Kind { NORMAL, SPECIAL, GRAB }
 @export var fires_projectile: bool = false
 @export var gatlings_into: Array[StringName] = []
 
+@export_group("Projectile")
+## Scene to instantiate when fire_projectile() is called from this move's
+## animation. Only used if fires_projectile is true.
+@export var projectile_scene: PackedScene
+## Local offset from the spawning player's position. X is mirrored
+## automatically to match the player's facing direction.
+@export var projectile_spawn_offset: Vector2 = Vector2(40.0, -20.0)
+
 @export_group("Upgrade state")
 @export var upgrade_slot_id: StringName = ""
 @export var is_upgraded: bool = false

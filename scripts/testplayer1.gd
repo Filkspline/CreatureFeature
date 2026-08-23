@@ -120,6 +120,15 @@ var special_moves: Dictionary = {}
 
 var current_move: MoveData = null
 var attack_frame: int = 0
+# Bumped every _start_attack() call. Lets a Projectile tell "the owner
+# swung again" apart from "the owner is still overlapping from the same
+# swing", since current_move itself stays the same Resource across
+# repeat uses of the same move.
+var attack_instance_id: int = 0
+# Guards fire_projectile() so a single Call Method track key can't
+# spawn more than one projectile per attack, even if seek() ends up
+# re-visiting that frame.
+var _projectile_fired_this_attack: bool = false
 var opponent = null
 var hit_connected: bool = false
 var gatling_input_buffered: StringName = ""
@@ -549,6 +558,8 @@ func _start_attack(move: MoveData) -> void:
 	state = State.ATTACK
 	current_move = move
 	attack_frame = 0
+	attack_instance_id += 1
+	_projectile_fired_this_attack = false
 	hit_connected = false
 	gatling_input_buffered = ""
 	gatling_buffer_timer = 0
@@ -665,6 +676,38 @@ func _try_cancel_gatling() -> void:
 			_start_attack(all_moves[gatling_name])
 		else:
 			_dbg("[color=red][GATLING] '%s' not found in all_moves — check gatlings_into spelling/locked state" % gatling_name)
+
+
+# Call this from an AnimationPlayer "Call Method" track key, placed at
+# whatever frame the projectile should actually leave the player's hand,
+# same pattern as open_gatling_cancel_window(). current_move must have
+# fires_projectile and projectile_scene set on its MoveData resource.
+func fire_projectile() -> void:
+	if not current_move or not current_move.fires_projectile:
+		return
+
+	if _projectile_fired_this_attack:
+		return
+
+	if not current_move.projectile_scene:
+		_dbg("[color=red][PROJECTILE] '%s' has fires_projectile=true but no projectile_scene assigned" % current_move.move_name)
+		return
+
+	var projectile = current_move.projectile_scene.instantiate()
+	if not projectile is Projectile:
+		_dbg("[color=red][PROJECTILE] projectile_scene root for '%s' is not a Projectile" % current_move.move_name)
+		return
+
+	_projectile_fired_this_attack = true
+	projectile.setup(self, opponent)
+	get_tree().current_scene.add_child(projectile)
+	projectile.global_position = _projectile_spawn_position(current_move)
+
+
+func _projectile_spawn_position(move: MoveData) -> Vector2:
+	var offset := move.projectile_spawn_offset
+	offset.x *= 1.0 if facing_right else -1.0
+	return global_position + offset
 
 
 func _end_attack() -> void:
