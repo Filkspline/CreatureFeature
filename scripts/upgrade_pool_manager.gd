@@ -36,6 +36,8 @@ func _ready() -> void:
 	EventBus.round_lost.connect(_on_round_lost)
 	EventBus.upgrade_picked.connect(_on_upgrade_picked)
 	EventBus.player_registered.connect(_on_player_registered)
+	
+	GameManager.request_first_upgrade_arrays.connect(_on_array_request)
 
 
 ## Fresh copy of the full pool for both players. Call at the start of
@@ -132,3 +134,30 @@ func _remove_from_pool(tres_path: String, player_id: int) -> void:
 	var idx := pool.find(tres_path)
 	if idx != -1:
 		pool.remove_at(idx)
+
+
+## Function to, upon request from the pre-fight upgrade screen, get an array of all the upgrades and
+## unlocks to add them to a set of arrays to be returned to the pre-fight upgrade screen so it can
+## handle the pre fight upgrades
+func _on_array_request() -> void:
+	#var paths := _draw_from_pool(1) ## TODO this currently isn't working as intended, not returning a full array
+	var offered_upgrades: Array[UpgradeData] = []
+	var offered_unlocks: Array[UpgradeData] = []
+	offered_upgrades.clear()
+	offered_unlocks.clear()
+	#print("TEST PRE LOOP")
+	#print(card_array)
+	for path in card_array:
+		var upgrade : UpgradeData = load(path)
+		print_rich("[color=yellow][UPGRADE POOL MAN] Upgrade: %s, Effect type: %s" % [upgrade, upgrade.effect_type])
+		if  upgrade.effect_type == 0:
+			print_rich("[color=yellow][UPGRADE POOL MAN] Test stat check: %s" % upgrade.EffectType.STAT_BOOST)
+			offered_upgrades.append(upgrade)
+		elif upgrade.effect_type == 2:
+			print_rich("[color=yellow][UPGRADE POOL MAN] Test unlock check: %s" % upgrade.EffectType.UNLOCK_MOVE)
+			offered_unlocks.append(upgrade)
+		else:
+			pass
+	print_rich("[color=green][UPGRADE POOL MAN] Offered unlocks: (%s) Array size: (%s)\n" % [offered_unlocks, offered_unlocks.size()])
+	print_rich("[color=green][UPGRADE POOL MAN] Offered upgrades: (%s) Array size: (%s)\n" % [offered_upgrades, offered_upgrades.size()])
+	GameManager.return_first_upgrade_arrays.emit(offered_unlocks, offered_upgrades)

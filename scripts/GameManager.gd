@@ -47,6 +47,9 @@ var p2_rounds_won: int = 0
 signal round_won(winner_id: int, p1_rounds: int, p2_rounds: int)
 signal match_over(winner_id: int)
 
+signal request_first_upgrade_arrays()
+signal return_first_upgrade_arrays(move_array : Array[UpgradeData], upgrade_array : Array[UpgradeData])
+
 # Bumped every time hitstop is (re)triggered. Only the timer holding the
 # current token is allowed to restore time_scale, so a second hit landing
 # mid-hitstop extends the freeze instead of ending it early.

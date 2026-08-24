@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://e4kljusid4v1"]
+
+[ext_resource type="Texture2D" uid="uid://becaex5uttdg0" path="res://assets/newbackgrounddesktop.png" id="1_fslda"]
+[ext_resource type="Texture2D" uid="uid://qp7i2mb5hsrf" path="res://assets/taskbar.png" id="2_ye1is"]
+[ext_resource type="Texture2D" uid="uid://bon3m4es8c7rn" path="res://assets/taskbaiconr.png" id="3_oxqt5"]
+[ext_resource type="Script" uid="uid://cobgglm1u5o2b" path="res://scripts/pre_fight_upgrade_hand.gd" id="4_n3l24"]
+
+[node name="Control" type="Control" unique_id=1867856077]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="background" type="Sprite2D" parent="." unique_id=1407791110]
+scale = Vector2(0.443, 0.438)
+texture = ExtResource("1_fslda")
+
+[node name="taskbar" type="Sprite2D" parent="." unique_id=533697197]
+texture = ExtResource("2_ye1is")
+
+[node name="p1_folder" type="Sprite2D" parent="taskbar" unique_id=412882910]
+position = Vector2(126, -75)
+texture = ExtResource("3_oxqt5")
+
+[node name="p1_card_spawn" type="Marker2D" parent="taskbar/p1_folder" unique_id=1205757800]
+position = Vector2(-242, 164)
+
+[node name="p2_folder" type="Sprite2D" parent="taskbar" unique_id=2063899902]
+position = Vector2(400, -75)
+texture = ExtResource("3_oxqt5")
+
+[node name="p2_card_spawn" type="Marker2D" parent="taskbar/p2_folder" unique_id=1692445479]
+position = Vector2(-242, 162)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=361966752]
+
+[node name="p1_hand" type="Node2D" parent="." unique_id=246288407]
+position = Vector2(-118, -42)
+script = ExtResource("4_n3l24")
+player_id = 1
+
+[node name="p2_hand" type="Node2D" parent="." unique_id=626883966]
+position = Vector2(154, -41)
+script = ExtResource("4_n3l24")
+player_id = 2
