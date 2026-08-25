@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MoveData" format=3 uid="uid://bywwnma4o02o2"]
+
+[ext_resource type="PackedScene" uid="uid://dcox8so5p3utt" path="res://scenes/projectile.tscn" id="1_dftre"]
+[ext_resource type="Script" uid="uid://bnyng45sqmhga" path="res://scripts/MoveData.gd" id="1_move"]
+
+[resource]
+script = ExtResource("1_move")
+move_name = "S4"
+input_dir = 2
+kind = 1
+hit_level = 1
+animation_name = &"S4"
+is_advancing = true
+advance_speed = -600.0
+fires_projectile = true
+projectile_scene = ExtResource("1_dftre")
+projectile_spawn_offset = Vector2(0, -80)
