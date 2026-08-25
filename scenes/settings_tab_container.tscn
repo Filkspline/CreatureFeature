@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://friydixf4el0"]
 
-[ext_resource type="Script" uid="uid://drn8ep5ino6s7" path="res://scenes/settings_tab_container.gd" id="1_xpwon"]
+[ext_resource type="Script" uid="uid://drn8ep5ino6s7" path="res://scripts/settings_tab_container.gd" id="1_xpwon"]
 
 [node name="Settings_Tab_Container" type="Control" unique_id=576454110]
 layout_mode = 3

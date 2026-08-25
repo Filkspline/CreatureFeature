@@ -16,6 +16,7 @@
 [ext_resource type="Resource" uid="uid://cn5move000001" path="res://scripts/N5.tres" id="8_fptmo"]
 [ext_resource type="Shader" uid="uid://3webiwpcj0lu" path="res://scripts/fog.gdshader" id="9_fyxdr"]
 [ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/impact_tear.gdshader" id="10_4asn1"]
+[ext_resource type="PackedScene" uid="uid://bni8vnsm0e1yq" path="res://scenes/pause.tscn" id="17_bakr3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(1320.5, 154)
@@ -232,3 +233,8 @@ color = Color(0, 0, 0, 1)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ColorRect3/StaticBody2D" unique_id=1452004597]
 position = Vector2(201, 242)
 shape = SubResource("RectangleShape2D_yf5fn")
+
+[node name="Pause Container" type="CanvasLayer" parent="." unique_id=1430346933]
+layer = 15
+
+[node name="Control" parent="Pause Container" unique_id=1706374484 instance=ExtResource("17_bakr3")]

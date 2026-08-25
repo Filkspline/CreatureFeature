@@ -3,8 +3,6 @@ extends Control
 
 func _ready():
 	var tab_bar = tab_container.get_tab_bar()
-	
-	# Don't allow controller/keyboard focus on tabs
 	tab_bar.focus_mode = Control.FOCUS_NONE
 
 func _process(_delta):
