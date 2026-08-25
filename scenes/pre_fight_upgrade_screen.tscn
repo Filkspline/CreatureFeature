@@ -1,9 +1,77 @@
 [gd_scene format=3 uid="uid://e4kljusid4v1"]
 
-[ext_resource type="Texture2D" uid="uid://becaex5uttdg0" path="res://assets/newbackgrounddesktop.png" id="1_fslda"]
-[ext_resource type="Texture2D" uid="uid://qp7i2mb5hsrf" path="res://assets/taskbar.png" id="2_ye1is"]
-[ext_resource type="Texture2D" uid="uid://bon3m4es8c7rn" path="res://assets/taskbaiconr.png" id="3_oxqt5"]
-[ext_resource type="Script" uid="uid://cobgglm1u5o2b" path="res://scripts/pre_fight_upgrade_hand.gd" id="4_n3l24"]
+[ext_resource type="Script" uid="uid://cobgglm1u5o2b" path="res://scripts/pre_fight_upgrade_hand.gd" id="1_hand"]
+[ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="2_crtscript"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_n3l24"]
+[ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="3_crtshader"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_p1"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_track"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill_p1"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_p2"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_track_p2"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill_p2"]
+bg_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lockframe_p1"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lockframe_p2"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
+shader = ExtResource("3_crtshader")
+shader_parameter/curvature = 0.01
+shader_parameter/scanline_intensity = 0.05
+shader_parameter/scanline_count = 400.0
+shader_parameter/vignette_size = 0.08
+shader_parameter/brightness = 1.05
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 1.0
+shader_parameter/chromatic_aberration = 0.0004
+shader_parameter/noise_amount = 0.0015
+shader_parameter/flicker = 0.001
+shader_parameter/distortion = 0.006
 
 [node name="Control" type="Control" unique_id=1867856077]
 layout_mode = 3
@@ -14,39 +82,250 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Node2D" type="Node2D" parent="." unique_id=123310060]
-script = ExtResource("4_n3l24")
+script = ExtResource("1_hand")
 
-[node name="background" type="Sprite2D" parent="Node2D" unique_id=1407791110]
-scale = Vector2(0.443, 0.438)
-texture = ExtResource("1_fslda")
+[node name="background" type="ColorRect" parent="Node2D" unique_id=3842115]
+offset_left = -321.0
+offset_top = -182.0
+offset_right = 322.0
+offset_bottom = 183.0
+color = Color(0.13333334, 0.1254902, 0.20392157, 1)
 
-[node name="taskbar" type="Sprite2D" parent="Node2D" unique_id=533697197]
-texture = ExtResource("2_ye1is")
+[node name="title_label" type="Label" parent="Node2D" unique_id=4001]
+offset_left = -133.0
+offset_top = -183.0
+offset_right = 147.0
+offset_bottom = -145.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_n3l24")
+theme_override_font_sizes/font_size = 38
+text = "SELECT YOUR UPGRADES"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
 
-[node name="p1_folder" type="Sprite2D" parent="Node2D/taskbar" unique_id=412882910]
-position = Vector2(126, -75)
-texture = ExtResource("3_oxqt5")
+[node name="p1_panel" type="Panel" parent="Node2D" unique_id=4002]
+offset_left = -312.0
+offset_top = -136.0
+offset_right = -7.0
+offset_bottom = 174.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_p1")
 
-[node name="p1_card_spawn" type="Marker2D" parent="Node2D/taskbar/p1_folder" unique_id=1205757800]
-position = Vector2(-242, 164)
+[node name="p1_header" type="Label" parent="Node2D/p1_panel" unique_id=4003]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.019354839
+anchor_bottom = 0.019354839
+offset_left = 68.0
+offset_top = -41.0
+offset_right = 286.0
+offset_bottom = -18.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_n3l24")
+theme_override_font_sizes/font_size = 24
+text = "PLAYER 1"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
 
-[node name="p2_folder" type="Sprite2D" parent="Node2D/taskbar" unique_id=2063899902]
-position = Vector2(400, -75)
-texture = ExtResource("3_oxqt5")
+[node name="p1_unlock_label" type="Label" parent="Node2D/p1_panel" unique_id=4004]
+layout_mode = 0
+offset_left = -2.0
+offset_top = 3.0
+offset_right = 68.0
+offset_bottom = 26.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_n3l24")
+theme_override_font_sizes/font_size = 24
+text = "UNLOCK"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
 
-[node name="p2_card_spawn" type="Marker2D" parent="Node2D/taskbar/p2_folder" unique_id=1692445479]
-position = Vector2(-242, 162)
+[node name="p1_upgrade_label" type="Label" parent="Node2D/p1_panel" unique_id=4005]
+layout_mode = 0
+offset_left = -3.0
+offset_top = 175.0
+offset_right = 67.0
+offset_bottom = 198.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_n3l24")
+theme_override_font_sizes/font_size = 24
+text = "UPGRADE"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="p1_ready_label" type="Label" parent="Node2D/p1_panel" unique_id=4006]
+visible = false
+layout_mode = 0
+offset_left = 15.0
+offset_top = 234.0
+offset_right = 215.0
+offset_bottom = 257.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_n3l24")
+theme_override_font_sizes/font_size = 24
+text = "READY"
+horizontal_alignment = 1
+
+[node name="p1_loading_track" type="Panel" parent="Node2D/p1_panel" unique_id=4007]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.016393442
+anchor_top = 0.016129032
+anchor_right = -0.016393442
+anchor_bottom = 0.016129032
+offset_left = 5.0
+offset_top = -22.0
+offset_right = 205.0
+offset_bottom = -4.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_track")
+metadata/_edit_use_anchors_ = true
+
+[node name="p1_loading_fill" type="Panel" parent="Node2D/p1_panel/p1_loading_track" unique_id=4008]
+layout_mode = 0
+offset_bottom = 18.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_fill_p1")
+metadata/_edit_use_anchors_ = true
+
+[node name="p2_panel" type="Panel" parent="Node2D" unique_id=4009]
+offset_left = 6.0
+offset_top = -135.0
+offset_right = 314.0
+offset_bottom = 174.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_p2")
+
+[node name="p2_header" type="Label" parent="Node2D/p2_panel" unique_id=4010]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.21753247
+anchor_top = 0.009708738
+anchor_right = -0.21753247
+anchor_bottom = 0.009708738
+offset_left = 91.0
+offset_top = -41.0
+offset_right = 309.0
+offset_bottom = -18.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_fonts/font = ExtResource("2_n3l24")
+theme_override_font_sizes/font_size = 24
+text = "PLAYER 2"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="p2_unlock_label" type="Label" parent="Node2D/p2_panel" unique_id=4011]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 5.0
+offset_right = 72.0
+offset_bottom = 28.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_fonts/font = ExtResource("2_n3l24")
+theme_override_font_sizes/font_size = 24
+text = "UNLOCK"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="p2_upgrade_label" type="Label" parent="Node2D/p2_panel" unique_id=4012]
+layout_mode = 0
+offset_left = -2.0
+offset_top = 178.0
+offset_right = 68.0
+offset_bottom = 201.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_fonts/font = ExtResource("2_n3l24")
+theme_override_font_sizes/font_size = 24
+text = "UPGRADE"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="p2_ready_label" type="Label" parent="Node2D/p2_panel" unique_id=4013]
+visible = false
+layout_mode = 0
+offset_left = 15.0
+offset_top = 234.0
+offset_right = 215.0
+offset_bottom = 257.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_fonts/font = ExtResource("2_n3l24")
+theme_override_font_sizes/font_size = 24
+text = "READY"
+horizontal_alignment = 1
+
+[node name="p2_loading_track" type="Panel" parent="Node2D/p2_panel" unique_id=4014]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.21103896
+anchor_top = 0.009708738
+anchor_right = -0.21103896
+anchor_bottom = 0.009708738
+offset_left = 373.0
+offset_top = -3.0
+offset_right = 573.0
+offset_bottom = 15.0
+rotation = 3.1415927
+theme_override_styles/panel = SubResource("StyleBoxFlat_track_p2")
+metadata/_edit_use_anchors_ = true
+
+[node name="p2_loading_fill" type="Panel" parent="Node2D/p2_panel/p2_loading_track" unique_id=4015]
+layout_mode = 0
+offset_bottom = 18.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_fill_p2")
+metadata/_edit_use_anchors_ = true
+
+[node name="p1_hand_unlock" type="Node2D" parent="Node2D" unique_id=246288407]
+position = Vector2(-160, -57)
+
+[node name="lock_frame" type="Panel" parent="Node2D/p1_hand_unlock" unique_id=4016]
+visible = false
+offset_left = -65.0
+offset_top = -85.0
+offset_right = 65.0
+offset_bottom = 85.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_lockframe_p1")
+
+[node name="p1_hand_upgrade" type="Node2D" parent="Node2D" unique_id=250957325]
+position = Vector2(-159, 99)
+
+[node name="lock_frame" type="Panel" parent="Node2D/p1_hand_upgrade" unique_id=4017]
+visible = false
+offset_left = -65.0
+offset_top = -85.0
+offset_right = 65.0
+offset_bottom = 85.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_lockframe_p1")
+
+[node name="p2_hand_unlock" type="Node2D" parent="Node2D" unique_id=626883966]
+position = Vector2(167, -62)
+
+[node name="lock_frame" type="Panel" parent="Node2D/p2_hand_unlock" unique_id=4018]
+visible = false
+offset_left = -65.0
+offset_top = -85.0
+offset_right = 65.0
+offset_bottom = 85.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_lockframe_p2")
+
+[node name="p2_hand_upgrade" type="Node2D" parent="Node2D" unique_id=1369748429]
+position = Vector2(174, 99)
+
+[node name="lock_frame" type="Panel" parent="Node2D/p2_hand_upgrade" unique_id=4019]
+visible = false
+offset_left = -65.0
+offset_top = -85.0
+offset_right = 65.0
+offset_bottom = 85.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_lockframe_p2")
 
 [node name="Camera2D" type="Camera2D" parent="Node2D" unique_id=361966752]
 
-[node name="p1_hand_unlock" type="Node2D" parent="Node2D" unique_id=246288407]
-position = Vector2(-185, -34)
-
-[node name="p1_hand_upgrade" type="Node2D" parent="Node2D" unique_id=250957325]
-position = Vector2(-57, -33)
-
-[node name="p2_hand_unlock" type="Node2D" parent="Node2D" unique_id=626883966]
-position = Vector2(99, -33)
-
-[node name="p2_hand_upgrade" type="Node2D" parent="Node2D" unique_id=1369748429]
-position = Vector2(224, -32)
+[node name="TempCrtShader" type="ColorRect" parent="Node2D" unique_id=691971729]
+z_index = 4
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_crtscript")
+shader_material = SubResource("ShaderMaterial_crt")
+curvature = 0.01
+scanline_intensity = 0.05
+scanline_count = 400.0
+distortion = 0.006
+flicker = 0.001
+noise_amount = 0.0015
+current_preset = 1
