@@ -75,6 +75,24 @@ var p1_pre_fight_picked : bool = false
 var p2_pre_fight_picked : bool = false
 var is_pre_fight_pick : bool = true
 
+# ── Player select results ──
+# Populated by player_select.gd once a player locks in. Character ids
+# match the ordering on the select screen (1 = Character1, 2 =
+# Character2) — whatever scene sets up the fight is expected to read
+# these and spawn/configure the matching Player scenes.
+var p1_character_id : int = 0
+var p2_character_id : int = 0
+
+# The PlayerInputDevice each player claimed on the select screen (see
+# input_device.gd). player_select.gd already commits the matching
+# InputMap bindings for a claimed controller before leaving that scene,
+# so nothing else strictly needs to read these to make gameplay work —
+# they're kept here mainly so UI (pause menus, rematch prompts, etc)
+# can show "Player 1: Xbox Controller" without re-deriving it.
+var p1_device : PlayerInputDevice
+var p2_device : PlayerInputDevice
+
+
 func _ready() -> void:
 	# hit_confirmed (rather than player_hit_landed) is what we want here
 	# specifically because it already carries the MoveData that landed —
@@ -98,6 +116,17 @@ func start_match() -> void:
 	p1_rounds_won = 0
 	p2_rounds_won = 0
 	EventBus.match_started.emit()
+
+
+# Called by player_select.gd when a fresh player select pass starts (e.g.
+# returning to the select screen for a rematch with different
+# characters/devices), so stale picks from a previous match can't leak
+# into a new one.
+func reset_player_select() -> void:
+	p1_character_id = 0
+	p2_character_id = 0
+	p1_device = null
+	p2_device = null
 
 
 func _on_player_registered(player_id: int, player_node: Node) -> void:
