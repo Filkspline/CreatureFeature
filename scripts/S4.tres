@@ -14,4 +14,4 @@ is_advancing = true
 advance_speed = -600.0
 fires_projectile = true
 projectile_scene = ExtResource("1_dftre")
-projectile_spawn_offset = Vector2(40, -80)
+projectile_spawn_offset = Vector2(0, -80)

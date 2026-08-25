@@ -7,10 +7,18 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
 
 [node name="Projectile" type="Area2D" unique_id=1784449240]
+z_index = 3
+z_as_relative = false
 script = ExtResource("1")
-launch_speed_multiplier = 2.0
+idle_speed = 40.0
+returnable = false
+launch_speed_multiplier = 5.0
+min_launch_speed = 400.0
+max_launch_speed = 2400.0
 deceleration = 150.0
 impact_move_data = ExtResource("2_softn")
+max_lifetime = 2.0
+player_two_color = Color(0.7878657, 0.8649853, 0.99999934, 1)
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=883403613]
 position = Vector2(1.5258789e-05, -52.999992)
