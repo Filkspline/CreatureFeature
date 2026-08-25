@@ -151,4 +151,5 @@ func get_character_position(character: ColorRect, cursor: ColorRect) -> Vector2:
 
 
 func _on_button_pressed() -> void:
-	SceneTransition.change_scene("res://scenes/test_level.tscn")
+	#SceneTransition.change_scene("res://scenes/test_level.tscn")
+	SceneTransition.change_scene("res://scenes/pre_fight_upgrade_screen.tscn")

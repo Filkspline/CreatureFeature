@@ -55,15 +55,18 @@ func _handle_highlight() -> void:
 			card._play_unhover_tween()
 		_play_selection_icon_pop()
 		_play_hover_tween()
-		if !is_flipped:
-			anim_player.play("card_flip")
-			is_flipped = true
-		else:
-			pass
+		flip_card()
 	else:
 		selection_icon.hide()
 		_play_unhover_tween()
 
+func flip_card() -> void:
+	if !is_flipped:
+			anim_player.play("card_flip")
+			is_flipped = true
+	else:
+		pass
+		
 
 func _play_hover_tween() -> void:
 	# Overshoots slightly past the hover size then settles, for a springy pop

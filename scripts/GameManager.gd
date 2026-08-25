@@ -47,6 +47,9 @@ var p2_rounds_won: int = 0
 signal round_won(winner_id: int, p1_rounds: int, p2_rounds: int)
 signal match_over(winner_id: int)
 
+signal request_first_upgrade_arrays()
+signal return_first_upgrade_arrays(move_array : Array[UpgradeData], upgrade_array : Array[UpgradeData])
+
 # Bumped every time hitstop is (re)triggered. Only the timer holding the
 # current token is allowed to restore time_scale, so a second hit landing
 # mid-hitstop extends the freeze instead of ending it early.
@@ -68,6 +71,9 @@ var death_freeze_active: bool = false
 var p1_node: CharacterBody2D
 var p2_node: CharacterBody2D
 
+var p1_pre_fight_picked : bool = false
+var p2_pre_fight_picked : bool = false
+var is_pre_fight_pick : bool = true
 
 func _ready() -> void:
 	# hit_confirmed (rather than player_hit_landed) is what we want here
@@ -202,7 +208,16 @@ func _apply_hitstop(duration: float) -> void:
 	# duration and cut the death sequence off early.
 	if this_token == _hitstop_token and not death_freeze_active:
 		Engine.time_scale = 1.0
-		
+
+
+func _handle_pre_fight_info() -> void:
+	if p1_pre_fight_picked == false:
+		p1_pre_fight_picked = true
+	
+	elif p2_pre_fight_picked == false:
+		p2_pre_fight_picked = true
+		is_pre_fight_pick = false
+
 		
 func _input(event: InputEvent) -> void:
 	# Dev shortcut: press 1 or 2 to simulate that player losing the round
