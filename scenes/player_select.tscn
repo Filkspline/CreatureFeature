@@ -156,33 +156,6 @@ horizontal_alignment = 1
 
 [node name="Cursors" type="Node" parent="." unique_id=31637593]
 
-[node name="Player1" type="ColorRect" parent="Cursors" unique_id=1669155637]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -25.5
-offset_top = -70.0
-offset_right = 25.5
-offset_bottom = -24.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Player2" type="ColorRect" parent="Cursors" unique_id=965251350]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -25.5
-offset_top = 9.0
-offset_right = 25.5
-offset_bottom = 55.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-
 [node name="Creature1" type="Label" parent="." unique_id=1607338365]
 layout_mode = 0
 offset_left = 87.0

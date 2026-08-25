@@ -16,10 +16,10 @@ extends RefCounted
 #  claims it.
 #
 #  Joypad devices carry no such suffix. Which physical device drives
-#  "player 1" vs "player 2" is decided purely by which slot is open
-#  when that controller sends its first input - see player_select.gd's
-#  _claim_first_open_slot(). This is what lets any connected
-#  controller end up in either slot instead of being hardcoded to one.
+#  "player 1" vs "player 2" is decided by which character slot its
+#  cursor locks on the select screen (slot 1 -> player 1, slot 2 ->
+#  player 2) - see player_select.gd. This is what lets any connected
+#  controller end up on either player side instead of being hardcoded.
 
 enum Kind { KEYBOARD, JOYPAD }
 
