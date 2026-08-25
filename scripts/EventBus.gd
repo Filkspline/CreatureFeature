@@ -25,8 +25,6 @@ signal upgrade_draft_ready(player_id: int, offered: Array[UpgradeData])  # cards
 signal upgrade_picked(player_id: int, upgrade: UpgradeData)    # UI -> pool manager
 signal upgrade_applied(player_id: int, upgrade: UpgradeData)   # pool manager -> anyone (vfx, ui)
 
-signal pre_fight_upgrade_check
-
 # ── Continuous per-frame state, keyed by player_id ──
 var player_position: Dictionary = {}     # int -> Vector2
 var player_velocity: Dictionary = {}     # int -> Vector2

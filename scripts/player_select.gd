@@ -152,6 +152,4 @@ func get_character_position(character: ColorRect, cursor: ColorRect) -> Vector2:
 
 func _on_button_pressed() -> void:
 	#SceneTransition.change_scene("res://scenes/test_level.tscn")
-	EventBus.round_lost.emit(1) # Just using this as a work around for now, this signal shit is confusing man
-	EventBus.pre_fight_upgrade_check.emit()
-	SceneTransition.change_scene("res://scenes/upgrade_card_ui.tscn")
+	SceneTransition.change_scene("res://scenes/pre_fight_upgrade_screen.tscn")

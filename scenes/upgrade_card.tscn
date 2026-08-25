@@ -166,10 +166,10 @@ scale = Vector2(1.0400001, 0.99)
 texture = ExtResource("2_33rkj")
 
 [node name="Title" type="Label" parent="Control/card_front" unique_id=1676433001]
-offset_left = -150.00002
-offset_top = -500.00003
-offset_right = 24.999985
-offset_bottom = -337.00003
+offset_left = -340.0
+offset_top = -500.0
+offset_right = -165.0
+offset_bottom = -337.0
 theme = SubResource("Theme_g4v7s")
 
 [node name="Description" type="Label" parent="Control/card_front" unique_id=1799692244]

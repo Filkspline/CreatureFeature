@@ -55,15 +55,18 @@ func _handle_highlight() -> void:
 			card._play_unhover_tween()
 		_play_selection_icon_pop()
 		_play_hover_tween()
-		if !is_flipped:
-			anim_player.play("card_flip")
-			is_flipped = true
-		else:
-			pass
+		flip_card()
 	else:
 		selection_icon.hide()
 		_play_unhover_tween()
 
+func flip_card() -> void:
+	if !is_flipped:
+			anim_player.play("card_flip")
+			is_flipped = true
+	else:
+		pass
+		
 
 func _play_hover_tween() -> void:
 	# Overshoots slightly past the hover size then settles, for a springy pop
@@ -130,9 +133,4 @@ func _handle_upgrade(upgrade : UpgradeData, player_id : int) -> void:
 	# change_scene_to_file — same reasoning as GameManager's round-loss
 	# transition. The 0.75s wait above is unrelated to that and just
 	# gives the pick/flip feedback a beat before the wipe starts.
-	if GameManager.is_pre_fight_pick == true:
-		EventBus.round_lost.emit(2)
-		EventBus.pre_fight_upgrade_check.emit()
-		SceneTransition.change_scene("res://scenes/upgrade_card_ui.tscn")
-	else:
-		SceneTransition.change_scene("res://scenes/test_level.tscn")
+	SceneTransition.change_scene("res://scenes/test_level.tscn")

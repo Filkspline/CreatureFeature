@@ -84,8 +84,7 @@ func _ready() -> void:
 	EventBus.player_registered.connect(_on_player_registered)
 	EventBus.player_defeated.connect(_on_player_defeated)
 	EventBus.death_sequence_finished.connect(_on_death_sequence_finished)
-	
-	EventBus.pre_fight_upgrade_check.connect(_handle_pre_fight_info)
+
 	# Deferred so every autoload (including UpgradePoolManager) has
 	# finished its own _ready() and connected to match_started before we
 	# fire it. Autoload _ready() order isn't guaranteed, and firing this

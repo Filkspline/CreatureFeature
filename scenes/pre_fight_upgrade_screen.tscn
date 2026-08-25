@@ -13,35 +13,40 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="background" type="Sprite2D" parent="." unique_id=1407791110]
+[node name="Node2D" type="Node2D" parent="." unique_id=123310060]
+script = ExtResource("4_n3l24")
+
+[node name="background" type="Sprite2D" parent="Node2D" unique_id=1407791110]
 scale = Vector2(0.443, 0.438)
 texture = ExtResource("1_fslda")
 
-[node name="taskbar" type="Sprite2D" parent="." unique_id=533697197]
+[node name="taskbar" type="Sprite2D" parent="Node2D" unique_id=533697197]
 texture = ExtResource("2_ye1is")
 
-[node name="p1_folder" type="Sprite2D" parent="taskbar" unique_id=412882910]
+[node name="p1_folder" type="Sprite2D" parent="Node2D/taskbar" unique_id=412882910]
 position = Vector2(126, -75)
 texture = ExtResource("3_oxqt5")
 
-[node name="p1_card_spawn" type="Marker2D" parent="taskbar/p1_folder" unique_id=1205757800]
+[node name="p1_card_spawn" type="Marker2D" parent="Node2D/taskbar/p1_folder" unique_id=1205757800]
 position = Vector2(-242, 164)
 
-[node name="p2_folder" type="Sprite2D" parent="taskbar" unique_id=2063899902]
+[node name="p2_folder" type="Sprite2D" parent="Node2D/taskbar" unique_id=2063899902]
 position = Vector2(400, -75)
 texture = ExtResource("3_oxqt5")
 
-[node name="p2_card_spawn" type="Marker2D" parent="taskbar/p2_folder" unique_id=1692445479]
+[node name="p2_card_spawn" type="Marker2D" parent="Node2D/taskbar/p2_folder" unique_id=1692445479]
 position = Vector2(-242, 162)
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=361966752]
+[node name="Camera2D" type="Camera2D" parent="Node2D" unique_id=361966752]
 
-[node name="p1_hand" type="Node2D" parent="." unique_id=246288407]
-position = Vector2(-118, -42)
-script = ExtResource("4_n3l24")
-player_id = 1
+[node name="p1_hand_unlock" type="Node2D" parent="Node2D" unique_id=246288407]
+position = Vector2(-185, -34)
 
-[node name="p2_hand" type="Node2D" parent="." unique_id=626883966]
-position = Vector2(154, -41)
-script = ExtResource("4_n3l24")
-player_id = 2
+[node name="p1_hand_upgrade" type="Node2D" parent="Node2D" unique_id=250957325]
+position = Vector2(-57, -33)
+
+[node name="p2_hand_unlock" type="Node2D" parent="Node2D" unique_id=626883966]
+position = Vector2(99, -33)
+
+[node name="p2_hand_upgrade" type="Node2D" parent="Node2D" unique_id=1369748429]
+position = Vector2(224, -32)

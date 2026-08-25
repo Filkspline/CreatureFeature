@@ -149,15 +149,15 @@ func _on_array_request() -> void:
 	#print(card_array)
 	for path in card_array:
 		var upgrade : UpgradeData = load(path)
-		print_rich("[color=yellow][UPGRADE POOL MAN] Upgrade: %s, Effect type: %s" % [upgrade, upgrade.effect_type])
+		#print_rich("[color=yellow][UPGRADE POOL MAN] Upgrade: %s, Effect type: %s" % [upgrade, upgrade.effect_type])
 		if  upgrade.effect_type == 0:
-			print_rich("[color=yellow][UPGRADE POOL MAN] Test stat check: %s" % upgrade.EffectType.STAT_BOOST)
+			#print_rich("[color=yellow][UPGRADE POOL MAN] Test stat check: %s" % upgrade.EffectType.STAT_BOOST)
 			offered_upgrades.append(upgrade)
 		elif upgrade.effect_type == 2:
-			print_rich("[color=yellow][UPGRADE POOL MAN] Test unlock check: %s" % upgrade.EffectType.UNLOCK_MOVE)
+			#print_rich("[color=yellow][UPGRADE POOL MAN] Test unlock check: %s" % upgrade.EffectType.UNLOCK_MOVE)
 			offered_unlocks.append(upgrade)
 		else:
 			pass
-	print_rich("[color=green][UPGRADE POOL MAN] Offered unlocks: (%s) Array size: (%s)\n" % [offered_unlocks, offered_unlocks.size()])
-	print_rich("[color=green][UPGRADE POOL MAN] Offered upgrades: (%s) Array size: (%s)\n" % [offered_upgrades, offered_upgrades.size()])
+	#print_rich("[color=green][UPGRADE POOL MAN] Offered unlocks: (%s) Array size: (%s)\n" % [offered_unlocks, offered_unlocks.size()])
+	#print_rich("[color=green][UPGRADE POOL MAN] Offered upgrades: (%s) Array size: (%s)\n" % [offered_upgrades, offered_upgrades.size()])
 	GameManager.return_first_upgrade_arrays.emit(offered_unlocks, offered_upgrades)
