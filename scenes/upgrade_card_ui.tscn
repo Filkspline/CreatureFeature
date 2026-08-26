@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://qp7i2mb5hsrf" path="res://assets/taskbar.png" id="3_ovphs"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="3_v13x6"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="4_ovphs"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="5_h7cfo"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(500, 265)
@@ -39,12 +40,15 @@ scale = Vector2(0.4433702, 0.43787605)
 texture = ExtResource("2_v13x6")
 
 [node name="taskbar" type="Sprite2D" parent="." unique_id=1252514268]
-texture_filter = 1
+modulate = Color(1, 1, 1, 0.7176471)
+oversampling_with_scale = 1
+texture_filter = 5
 position = Vector2(-0.11729008, -0.15625095)
 scale = Vector2(1.0003664, 0.999132)
 texture = ExtResource("3_ovphs")
 
 [node name="folder" type="Sprite2D" parent="taskbar" unique_id=1597231036]
+modulate = Color(1.3266667, 1.3266667, 1.3266667, 1)
 position = Vector2(-243.5, 161.169)
 scale = Vector2(1.195, 1.195)
 texture = ExtResource("3_1ifr4")
@@ -66,6 +70,25 @@ shape = SubResource("RectangleShape2D_g4v7s")
 
 [node name="cardspawner" type="Marker2D" parent="Camera2D/hand" unique_id=558817203]
 position = Vector2(-276, 168)
+
+[node name="title_label" type="Label" parent="." unique_id=612672962]
+modulate = Color(0.04755766, 0.047557645, 0.047557645, 0.69411767)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.003125
+anchor_top = 0.008333334
+anchor_right = -0.003125
+anchor_bottom = 0.008333334
+offset_left = -133.0
+offset_top = -183.0
+offset_right = 147.0
+offset_bottom = -145.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_h7cfo")
+theme_override_font_sizes/font_size = 38
+text = "SELECT YOUR UPGRADES"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
 
 [node name="TempCrtShader" type="ColorRect" parent="." unique_id=691971729]
 z_index = 4

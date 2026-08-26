@@ -1,6 +1,38 @@
 [gd_scene format=3 uid="uid://cekxn1joawpam"]
 
 [ext_resource type="Script" uid="uid://3bhfvjgauiob" path="res://scripts/player_select.gd" id="1_6qhff"]
+[ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="2_crtscript"]
+[ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="3_crtshader"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_character_box"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
+shader = ExtResource("3_crtshader")
+shader_parameter/curvature = 0.01
+shader_parameter/scanline_intensity = 0.05
+shader_parameter/scanline_count = 400.0
+shader_parameter/vignette_size = 0.08
+shader_parameter/brightness = 1.05
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 1.0
+shader_parameter/chromatic_aberration = 0.0004
+shader_parameter/noise_amount = 0.0015
+shader_parameter/flicker = 0.001
+shader_parameter/distortion = 0.006
 
 [node name="PlayerSelect" type="Control" unique_id=1567021130]
 layout_mode = 3
@@ -18,6 +50,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.13333334, 0.1254902, 0.20392157, 1)
 
 [node name="Title" type="Label" parent="." unique_id=1347100674]
 layout_mode = 1
@@ -28,34 +61,61 @@ offset_left = -95.5
 offset_right = 95.5
 offset_bottom = 35.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 25
-text = "Player Selection"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "PLAYER SELECT"
+horizontal_alignment = 1
 
 [node name="Button" type="Button" parent="." unique_id=639280847]
+visible = false
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -23.0
-offset_top = -38.0
-offset_right = 23.0
-offset_bottom = -7.0
+offset_left = -40.0
+offset_top = -46.0
+offset_right = 40.0
+offset_bottom = -11.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "Start"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+text = "START"
+
+[node name="DeviceLabels" type="Node" parent="." unique_id=51001]
+
+[node name="P1DeviceLabel" type="Label" parent="DeviceLabels" unique_id=51002]
+offset_left = 87.0
+offset_top = 40.0
+offset_right = 214.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "PRESS A BUTTON TO JOIN"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="P2DeviceLabel" type="Label" parent="DeviceLabels" unique_id=51003]
+offset_left = 407.0
+offset_top = 40.0
+offset_right = 534.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_font_sizes/font_size = 9
+text = "PRESS A BUTTON TO JOIN"
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="Characters" type="Node" parent="." unique_id=1691036360]
 
-[node name="Character1" type="ColorRect" parent="Characters" unique_id=1645434709]
+[node name="Character1" type="Panel" parent="Characters" unique_id=1645434709]
 offset_left = 87.0
 offset_top = 90.0
 offset_right = 214.0
 offset_bottom = 232.0
-color = Color(0.71129656, 0.71129656, 0.7112965, 1)
+theme_override_styles/panel = SubResource("StyleBoxFlat_character_box")
 
 [node name="SelectedLabel" type="Label" parent="Characters/Character1" unique_id=677982850]
 visible = false
@@ -67,14 +127,17 @@ offset_left = -40.0
 offset_right = 40.0
 offset_bottom = 23.0
 grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
 text = "SELECTED!"
+horizontal_alignment = 1
 
-[node name="Character2" type="ColorRect" parent="Characters" unique_id=388186416]
+[node name="Character2" type="Panel" parent="Characters" unique_id=388186416]
 offset_left = 407.0
 offset_top = 90.0
 offset_right = 534.0
 offset_bottom = 232.0
-color = Color(0.71129656, 0.71129656, 0.7112965, 1)
+theme_override_styles/panel = SubResource("StyleBoxFlat_character_box")
 
 [node name="SelectedLabel" type="Label" parent="Characters/Character2" unique_id=237787560]
 visible = false
@@ -86,54 +149,48 @@ offset_left = -38.0
 offset_right = 38.0
 offset_bottom = 23.0
 grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
 text = "SELECTED!"
+horizontal_alignment = 1
 
 [node name="Cursors" type="Node" parent="." unique_id=31637593]
 
-[node name="Player1" type="ColorRect" parent="Cursors" unique_id=1669155637]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -25.5
-offset_top = -70.0
-offset_right = 25.5
-offset_bottom = -24.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.9843137, 0, 0, 1)
-
-[node name="Player2" type="ColorRect" parent="Cursors" unique_id=965251350]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -25.5
-offset_top = 9.0
-offset_right = 25.5
-offset_bottom = 55.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0.972549, 1)
-
 [node name="Creature1" type="Label" parent="." unique_id=1607338365]
 layout_mode = 0
-offset_left = 108.0
+offset_left = 87.0
 offset_top = 70.0
-offset_right = 190.0
-offset_bottom = 93.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+offset_right = 214.0
+offset_bottom = 89.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
 text = "Creature 1"
+horizontal_alignment = 1
 
 [node name="Creature2" type="Label" parent="." unique_id=308153278]
 layout_mode = 0
-offset_left = 429.0
-offset_top = 69.0
-offset_right = 511.0
-offset_bottom = 92.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+offset_left = 407.0
+offset_top = 70.0
+offset_right = 534.0
+offset_bottom = 89.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_font_sizes/font_size = 14
 text = "Creature 2"
+horizontal_alignment = 1
+
+[node name="TempCrtShader" type="ColorRect" parent="." unique_id=691971729]
+z_index = 4
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_crtscript")
+shader_material = SubResource("ShaderMaterial_crt")
+curvature = 0.01
+scanline_intensity = 0.05
+scanline_count = 400.0
+distortion = 0.006
+flicker = 0.001
+noise_amount = 0.0015
+current_preset = 1
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

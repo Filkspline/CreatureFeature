@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://bi74bec5db6b"]
+
+[ext_resource type="Texture2D" uid="uid://2uogjwdmwmjk" path="res://assets/idle.png" id="1_njq6v"]
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="2_115ot"]
+[ext_resource type="Resource" uid="uid://bywwnma4o02o2" path="res://scripts/S4.tres" id="3_njq6v"]
+
+[resource]
+script = ExtResource("2_115ot")
+name = "Back Special+"
+description = "Unlocks the back special move.
+makes a projectile"
+icon = ExtResource("1_njq6v")
+effect_type = 2
+unlocked_move = ExtResource("3_njq6v")
