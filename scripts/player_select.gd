@@ -42,15 +42,6 @@ const JOY_DIRECTION_BUTTONS := {
 	"Down": JOY_BUTTON_DPAD_DOWN,
 }
 
-# Analog-stick axis + value paired with each dpad direction, so a claimed
-# controller's left stick works in the fight and not just its dpad.
-const JOY_DIRECTION_AXES := {
-	"Left": Vector2(JOY_AXIS_LEFT_X, -1.0),
-	"Right": Vector2(JOY_AXIS_LEFT_X, 1.0),
-	"Up": Vector2(JOY_AXIS_LEFT_Y, -1.0),
-	"Down": Vector2(JOY_AXIS_LEFT_Y, 1.0),
-}
-
 # The two keyboard input modes share one physical keyboard. They are
 # keyed by the InputMap suffix they drive ("P1"/"P2").
 const KEYBOARD_LAYOUTS := {
@@ -305,27 +296,17 @@ func _remove_cursor(cursor: Cursor) -> void:
 	start_button.visible = _locked_count() >= 2
 
 
-# ── Raw per-device input helpers ──
-# Keyboard cursors read only the InputEventKey events on their named
-# InputMap actions (never the joypad events that share those actions).
-# Joypad cursors read the claimed device's raw button state directly,
-# filtered by device id. Either way, one physical device can never bleed
-# into another's cursor.
 
 func _device_just_pressed(device: PlayerInputDevice, action_name: String) -> bool:
 	if device.kind == PlayerInputDevice.Kind.KEYBOARD:
-		return _keyboard_action_just_pressed(StringName(action_name + device.native_action_suffix))
+		return _keyboard_action_just_pressed(action_name, device.native_action_suffix)
 	return _joy_button_just_pressed(device.device_id, _joy_button_for_action(action_name))
 
 
-# Keyboard-only edge detection. Input.is_action_just_pressed(action) can't
-# be used directly here: the P1/P2 actions also carry joypad events (the
-# controller bindings the fight scene depends on), so a connected
-# controller would leak into a keyboard cursor. Polling only the action's
-# InputEventKey events keeps input modes strictly separate.
-func _keyboard_action_just_pressed(action: StringName) -> bool:
+func _keyboard_action_just_pressed(base: String, suffix: String) -> bool:
 	var just_pressed := false
-	for event in InputMap.action_get_events(action):
+	var keys: Array = GameManager.keyboard_layouts.get(suffix, {}).get(base, [])
+	for event in keys:
 		if not (event is InputEventKey):
 			continue
 		var key_event := event as InputEventKey
@@ -348,7 +329,7 @@ func _keyboard_action_just_pressed(action: StringName) -> bool:
 func _keyboard_layout_just_pressed(suffix: String) -> bool:
 	var any := false
 	for action in KEYBOARD_ACTIONS:
-		if _keyboard_action_just_pressed(StringName(action + suffix)):
+		if _keyboard_action_just_pressed(action, suffix):
 			any = true
 	return any
 
@@ -382,72 +363,12 @@ func _joypad_any_input(device_id: int) -> bool:
 	return any
 
 
-# ── Committing controller bindings for the fight scene ──
-# Keyboard actions are already correctly bound in the InputMap and never
-# touched. A claimed controller gets its device id written into that
-# slot's Left/Right/Up/Down/Jump/Normal/Special actions right before we
-# leave this scene, so every other script downstream (Player, the pre
-# fight draft, etc) can keep using plain Input.is_action_just_pressed
-# without knowing anything about devices.
-
-func _bind_device_to_slot(device: PlayerInputDevice, slot: int) -> void:
-	if device == null or device.kind != PlayerInputDevice.Kind.JOYPAD:
-		return
-
-	var suffix := "P%d" % slot
-	for action_name in JOY_DIRECTION_BUTTONS:
-		_rebind_joypad_button(action_name + suffix, device.device_id, JOY_DIRECTION_BUTTONS[action_name])
-		var axis_info: Vector2 = JOY_DIRECTION_AXES[action_name]
-		_rebind_joypad_axis(action_name + suffix, device.device_id, int(axis_info.x), axis_info.y)
-	_rebind_joypad_button("Jump" + suffix, device.device_id, joy_jump_button)
-	_rebind_joypad_button("Normal" + suffix, device.device_id, joy_normal_button)
-	_rebind_joypad_button("Special" + suffix, device.device_id, joy_special_button)
-
-
-func _rebind_joypad_button(action: StringName, device_id: int, button_index: int) -> void:
-	if not InputMap.has_action(action):
-		push_warning("player_select: InputMap is missing action '%s', skipping controller bind" % action)
-		return
-
-	# Only clear existing joypad events - keyboard bindings for this
-	# action are left completely alone.
-	for existing_event in InputMap.action_get_events(action):
-		if existing_event is InputEventJoypadButton:
-			InputMap.action_erase_event(action, existing_event)
-
-	var joy_event := InputEventJoypadButton.new()
-	joy_event.device = device_id
-	joy_event.button_index = button_index
-	InputMap.action_add_event(action, joy_event)
-
-
-# Companion to _rebind_joypad_button for the analog stick. Rebinding the
-# motion events too (not just the buttons) makes both dpad and stick
-# track the claimed device, so a pad that lands on the "other" slot in a
-# keyboard + pad mix still steers correctly in the fight.
-func _rebind_joypad_axis(action: StringName, device_id: int, axis: int, axis_value: float) -> void:
-	if not InputMap.has_action(action):
-		push_warning("player_select: InputMap is missing action '%s', skipping controller axis bind" % action)
-		return
-
-	for existing_event in InputMap.action_get_events(action):
-		if existing_event is InputEventJoypadMotion:
-			InputMap.action_erase_event(action, existing_event)
-
-	var joy_event := InputEventJoypadMotion.new()
-	joy_event.device = device_id
-	joy_event.axis = axis
-	joy_event.axis_value = axis_value
-	InputMap.action_add_event(action, joy_event)
-
-
 func _on_button_pressed() -> void:
 	var slot1 := _cursor_at(SLOT_1)
 	var slot2 := _cursor_at(SLOT_2)
 	if slot1:
-		_bind_device_to_slot(slot1.device, 1)
 		GameManager.p1_device = slot1.device
 	if slot2:
-		_bind_device_to_slot(slot2.device, 2)
 		GameManager.p2_device = slot2.device
+	GameManager.bind_player_inputs()
 	SceneTransition.change_scene(FIGHT_SCENE)
