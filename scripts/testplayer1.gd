@@ -741,6 +741,9 @@ func _check_hit() -> void:
 			hit_connected = true
 			EventBus.player_hit_landed.emit(player_id, current_move.move_name, was_blocked)
 			EventBus.hit_confirmed.emit(hitbox_area_shape.global_position, current_move, self, opponent, was_blocked)
+			
+			EventBus.npc_cheer.emit() # Just here to call for the npc's to cheer when a player is hit
+			
 			if was_blocked:
 				_apply_pushback()
 			return

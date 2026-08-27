@@ -11,6 +11,7 @@ signal player_defeated(player_id: int)
 signal death_sequence_finished(player_id: int)
 # Not player-specific
 signal camera_shake(amount: float)
+signal npc_cheer
 # Already carries attacker/defender node refs directly — no id needed
 signal hit_confirmed(impact_position: Vector2, move_data: MoveData, attacker: Node, defender: Node, was_blocked: bool)
 # ── Upgrade draft ──
