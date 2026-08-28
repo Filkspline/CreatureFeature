@@ -190,7 +190,7 @@ animations = [{
 }],
 "loop": 0,
 "name": &"blink_idle",
-"speed": 5.0
+"speed": 4.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -231,7 +231,7 @@ animations = [{
 }],
 "loop": 0,
 "name": &"cheer",
-"speed": 5.0
+"speed": 4.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -272,11 +272,12 @@ animations = [{
 }],
 "loop": 1,
 "name": &"true_idle",
-"speed": 5.0
+"speed": 4.0
 }]
 
 [node name="BackgroundNpc" unique_id=465551190 instance=ExtResource("1_omlvn")]
 
 [node name="npc_sprite" parent="." index="0" unique_id=77793486]
 sprite_frames = SubResource("SpriteFrames_oem87")
-animation = &"cheer"
+frame = 10
+frame_progress = 0.7673793
