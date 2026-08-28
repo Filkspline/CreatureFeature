@@ -131,6 +131,14 @@ var attack_instance_id: int = 0
 var _projectile_fired_this_attack: bool = false
 var opponent = null
 var hit_connected: bool = false
+# Tracks only the current on/off activation of the hitbox, so a move
+# whose hitbox toggles disabled -> enabled multiple times in one
+# animation (multi-hit NA etc.) can register a fresh hit each time it
+# re-enables. hit_connected itself is intentionally NOT reset here,
+# since gatling-cancel confirmation (~line 626) needs to know "this
+# attack has hit at least once," not "the current window has hit."
+var _hit_registered_this_activation: bool = false
+var _hitbox_was_disabled_last_frame: bool = true
 var gatling_input_buffered: StringName = ""
 var gatling_buffer_timer: int = 0
 var gatling_cancel_window_open: bool = false
@@ -561,6 +569,8 @@ func _start_attack(move: MoveData) -> void:
 	attack_instance_id += 1
 	_projectile_fired_this_attack = false
 	hit_connected = false
+	_hit_registered_this_activation = false
+	_hitbox_was_disabled_last_frame = $Hitbox/MainHitbox.disabled
 	gatling_input_buffered = ""
 	gatling_buffer_timer = 0
 	gatling_cancel_window_open = false
@@ -626,7 +636,8 @@ func _attack_process(delta: float) -> void:
 	if hit_connected and gatling_cancel_window_open:
 		_try_cancel_gatling()
 
-	if not hit_connected:
+	_update_hitbox_activation_tracking()
+	if not _hit_registered_this_activation:
 		_check_hit()
 
 	if attack_frame >= total_frames:
@@ -726,6 +737,22 @@ func _end_attack() -> void:
 	_resume_crouch_or_update_animation()
 
 
+# Multi-hit moves (NA etc.) toggle MainHitbox's disabled property on
+# and off multiple times within one animation via Call Method /
+# animation track keys. Each time it goes from disabled -> enabled,
+# that's a fresh activation, so it should be able to land a hit again
+# even though hit_connected is already permanently true from an
+# earlier activation this same attack.
+func _update_hitbox_activation_tracking() -> void:
+	var hitbox_area_shape = $Hitbox/MainHitbox
+	var is_disabled_now = hitbox_area_shape.disabled
+
+	if _hitbox_was_disabled_last_frame and not is_disabled_now:
+		_hit_registered_this_activation = false
+
+	_hitbox_was_disabled_last_frame = is_disabled_now
+
+
 func _check_hit() -> void:
 	if not opponent:
 		return
@@ -739,6 +766,7 @@ func _check_hit() -> void:
 		if area == opponent_hurtbox or area.get_parent() == opponent_hurtbox:
 			var was_blocked = opponent.take_hit(current_move, self)
 			hit_connected = true
+			_hit_registered_this_activation = true
 			EventBus.player_hit_landed.emit(player_id, current_move.move_name, was_blocked)
 			EventBus.hit_confirmed.emit(hitbox_area_shape.global_position, current_move, self, opponent, was_blocked)
 			if was_blocked:

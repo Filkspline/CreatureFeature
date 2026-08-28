@@ -530,10 +530,10 @@ tracks/1/path = NodePath("Hitbox/MainHitbox:disabled")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.11666667, 0.34000003),
-"transitions": PackedFloat32Array(1, 1, 1),
+"times": PackedFloat32Array(0, 0.11666667, 0.18333334, 0.26666668, 0.34000003),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
-"values": [true, false, true]
+"values": [true, false, true, false, true]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -1698,7 +1698,6 @@ texture = ExtResource("10_y4r1p")
 hframes = 9
 
 [node name="NA" type="Sprite2D" parent="Sprites" unique_id=1426456731]
-visible = false
 position = Vector2(1, -95)
 texture = ExtResource("13_jej6c")
 hframes = 8
@@ -1755,6 +1754,7 @@ texture = ExtResource("24_l71n6")
 hframes = 10
 
 [node name="N8" type="Sprite2D" parent="Sprites" unique_id=1362277945]
+visible = false
 position = Vector2(0, -186)
 texture = ExtResource("26_ujl30")
 hframes = 8
@@ -1784,6 +1784,7 @@ texture = ExtResource("34_md1ol")
 hframes = 5
 
 [node name="S4" type="Sprite2D" parent="Sprites" unique_id=2104103670]
+visible = false
 position = Vector2(-2, -184)
 texture = ExtResource("36_jc3p3")
 hframes = 6
