@@ -4,14 +4,12 @@
 
 [resource]
 script = ExtResource("1_vf16i")
-name = "Caffinated (Unfinished)"
+name = "Caffinated"
 description = "+ MOVE SPEED
-+ ATTACK SPEED (!)
-- MAX HEALTH 
-- DAMAGE (!)"
++ ATTACK SPEED
+- MAX HEALTH
+- DAMAGE"
 effect_type = 1
-stat_name = &"max_health"
-stat_amount = 10.0
-stat_names_array = Array[String](["move_speed", "max_health"])
-stat_amounts_array = Array[float]([40.0, -30.0])
-is_percents_array = Array[bool]([false, false])
+stat_names_array = Array[String](["move_speed", "attack_speed_multiplier", "max_health", "damage_dealt_bonus"])
+stat_amounts_array = Array[float]([40.0, 10.0, -30.0, -1.0])
+is_percents_array = Array[bool]([false, true, false, false])

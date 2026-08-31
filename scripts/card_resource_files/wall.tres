@@ -5,13 +5,11 @@
 
 [resource]
 script = ExtResource("1_vf16i")
-name = "Wall (Unfinished)"
-description = "+ HEALTH
-- DAMAGE (!)"
+name = "Tank"
+description = "+ MAX HEALTH
+- DAMAGE"
 icon = ExtResource("1_4gwgb")
 effect_type = 1
-stat_name = &"max_health"
-stat_amount = 10.0
-stat_names_array = Array[String](["max_health"])
-stat_amounts_array = Array[float]([75.0])
-is_percents_array = Array[bool]([true])
+stat_names_array = Array[String](["max_health", "damage_dealt_bonus"])
+stat_amounts_array = Array[float]([75.0, -1.0])
+is_percents_array = Array[bool]([false, false])

@@ -14,6 +14,9 @@ enum EffectType {
 @export_multiline var description: String = ""
 @export var icon: Texture2D
 @export var effect_type: EffectType = EffectType.STAT_BOOST
+## Whether this card is offered on the pre-fight selection screen. The
+## mid-round draft ignores this and still offers every card in the pool.
+@export var show_in_pre_fight: bool = true
 # ── Stat boost ──
 # stat_name should match a key in Player's stats dict (e.g. "max_health",
 # "move_speed", "jump_velocity"). is_percent lets the same fields cover
