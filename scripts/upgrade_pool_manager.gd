@@ -140,24 +140,19 @@ func _remove_from_pool(tres_path: String, player_id: int) -> void:
 ## unlocks to add them to a set of arrays to be returned to the pre-fight upgrade screen so it can
 ## handle the pre fight upgrades
 func _on_array_request() -> void:
-	#var paths := _draw_from_pool(1) ## TODO this currently isn't working as intended, not returning a full array
 	var offered_upgrades: Array[UpgradeData] = []
 	var offered_unlocks: Array[UpgradeData] = []
-	offered_upgrades.clear()
-	offered_unlocks.clear()
-	#print("TEST PRE LOOP")
-	#print(card_array)
 	for path in card_array:
-		var upgrade : UpgradeData = load(path)
-		#print_rich("[color=yellow][UPGRADE POOL MAN] Upgrade: %s, Effect type: %s" % [upgrade, upgrade.effect_type])
-		if  upgrade.effect_type == 0:
-			#print_rich("[color=yellow][UPGRADE POOL MAN] Test stat check: %s" % upgrade.EffectType.STAT_BOOST)
-			offered_upgrades.append(upgrade)
-		elif upgrade.effect_type == 2:
-			#print_rich("[color=yellow][UPGRADE POOL MAN] Test unlock check: %s" % upgrade.EffectType.UNLOCK_MOVE)
-			offered_unlocks.append(upgrade)
-		else:
-			pass
-	#print_rich("[color=green][UPGRADE POOL MAN] Offered unlocks: (%s) Array size: (%s)\n" % [offered_unlocks, offered_unlocks.size()])
-	#print_rich("[color=green][UPGRADE POOL MAN] Offered upgrades: (%s) Array size: (%s)\n" % [offered_upgrades, offered_upgrades.size()])
+		var upgrade: UpgradeData = load(path)
+		if upgrade == null:
+			continue
+		# Only the pre-fight visibility toggle gates this screen; the
+		# mid-round draft draws straight from the pool and is unaffected.
+		if not upgrade.show_in_pre_fight:
+			continue
+		match upgrade.effect_type:
+			UpgradeData.EffectType.STAT_BOOST, UpgradeData.EffectType.MULTI_STAT_BOOST, UpgradeData.EffectType.MOVE_MODIFY:
+				offered_upgrades.append(upgrade)
+			UpgradeData.EffectType.UNLOCK_MOVE:
+				offered_unlocks.append(upgrade)
 	GameManager.return_first_upgrade_arrays.emit(offered_unlocks, offered_upgrades)

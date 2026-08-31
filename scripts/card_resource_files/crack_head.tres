@@ -4,13 +4,11 @@
 
 [resource]
 script = ExtResource("1_mgxh0")
-name = "Crack Head (Unfinished)"
-description = "+ DAMAGE (!)
-+ ATTACK SPEED (!)
+name = "Berserker"
+description = "+ DAMAGE
++ ATTACK SPEED
 - MAX HEALTH"
 effect_type = 1
-stat_name = &"max_health"
-stat_amount = 10.0
-stat_names_array = Array[String](["max_health"])
-stat_amounts_array = Array[float]([-66.0])
-is_percents_array = Array[bool]([true])
+stat_names_array = Array[String](["damage_dealt_bonus", "attack_speed_multiplier", "max_health"])
+stat_amounts_array = Array[float]([1.0, 10.0, -30.0])
+is_percents_array = Array[bool]([false, true, false])

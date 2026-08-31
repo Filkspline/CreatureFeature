@@ -5,8 +5,11 @@
 
 [resource]
 script = ExtResource("1_vf16i")
-name = "Slugger (Unfinished)"
-description = "+ DAMAGE (!)
-- ATTACK SPEED (!)"
+name = "Heavy Hitter"
+description = "+ DAMAGE
+- ATTACK SPEED"
 icon = ExtResource("1_uvl8k")
 effect_type = 1
+stat_names_array = Array[String](["damage_dealt_bonus", "attack_speed_multiplier"])
+stat_amounts_array = Array[float]([2.0, -10.0])
+is_percents_array = Array[bool]([false, true])

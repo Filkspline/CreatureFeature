@@ -5,13 +5,12 @@
 
 [resource]
 script = ExtResource("1_vf16i")
-name = "Anchor (Unfinished)"
-description = "+ WEIGHT
-+ DAMAGE (!)"
+name = "Anchor"
+description = "+ DAMAGE
++ GRAVITY
+- KNOCKBACK"
 icon = ExtResource("1_pj5sh")
 effect_type = 1
-stat_name = &"max_health"
-stat_amount = 10.0
-stat_names_array = Array[String](["gravity"])
-stat_amounts_array = Array[float]([75.0])
-is_percents_array = Array[bool]([true])
+stat_names_array = Array[String](["knockback_reduction", "damage_dealt_bonus", "gravity"])
+stat_amounts_array = Array[float]([100.0, 1.0, 600.0])
+is_percents_array = Array[bool]([false, false, false])
