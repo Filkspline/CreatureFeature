@@ -279,5 +279,6 @@ animations = [{
 
 [node name="npc_sprite" parent="." index="0" unique_id=77793486]
 sprite_frames = SubResource("SpriteFrames_oem87")
-frame = 10
-frame_progress = 0.7673793
+animation = &"true_idle"
+frame = 0
+frame_progress = 0.0

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://5msfg8sw2tpj"]
+
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_vf16i"]
+[ext_resource type="Texture2D" uid="uid://bhqbipe2gwdft" path="res://assets/card_assets/card_icons/Rabbit.png" id="1_yjxvx"]
+
+[resource]
+script = ExtResource("1_vf16i")
+name = "Hare"
+description = "+ MOVE SPEED
++ JUMP HEIGHT"
+icon = ExtResource("1_yjxvx")
+effect_type = 1
+stat_name = &"max_health"
+stat_amount = 10.0
+stat_names_array = Array[String](["move_speed", "gravity", "jump_velocity"])
+stat_amounts_array = Array[float]([50.0, 600.0, -40.0])
+is_percents_array = Array[bool]([true, false, true])

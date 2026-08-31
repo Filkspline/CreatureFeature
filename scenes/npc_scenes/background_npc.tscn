@@ -8,4 +8,6 @@ script = ExtResource("1_5cedl")
 
 [node name="npc_sprite" type="AnimatedSprite2D" parent="." unique_id=77793486]
 sprite_frames = ExtResource("1_5v4xg")
-animation = &"true_idle"
+animation = &"blink_idle"
+frame = 11
+frame_progress = 1.0

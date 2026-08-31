@@ -13,10 +13,9 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	await npc_sprite.animation_finished
-	var blink_rng = _rng.randi_range(1, 50)
-	#print(blink_rng)
+	var blink_rng = _rng.randi_range(1, 20)
 	if blink_rng == 1:
-		#print_rich("[color=yellow][NPC ANIM] Blink idle played")
+		# TODO this isn't currently working but thats fine it works for now
 		npc_sprite.play("blink_idle")
 	else:
 		await npc_sprite.animation_finished
