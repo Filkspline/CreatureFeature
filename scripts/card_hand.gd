@@ -49,6 +49,9 @@ var currently_handling_card : bool
 var card_map : Dictionary[Node2D, UpgradeData]
 var cards : Array[Node2D]
 var _rng := RandomNumberGenerator.new()
+# Edge-detection state for per-device input resolution (see _process below).
+var _key_prev_state : Dictionary = {}
+var _joy_button_prev_state : Dictionary = {}
 
 ##------------------------------------------------------------------------
 
@@ -193,54 +196,93 @@ func _move_highlight(new_idx: int) -> void:
 	_tween_card_scale(new_card, card_default_scale * highlighted_scale)
 
 
-func _input(event: InputEvent) -> void:
-	# Once a card's been picked and the rest are queue_free()-ing, don't let
-	# navigation touch them - this was the out-of-bounds crash from before.
-	if currently_handling_card:
+# ── Per-device input resolution ──
+# Mirrors player_select.gd: the selecting player is the PlayerInputDevice
+# claimed for current_player_id during Player Select, so navigation and
+# confirm route to the actual loser's device (WASD / arrows / a specific
+# controller) rather than a hardcoded key set or an unfiltered joypad.
+
+func _current_device() -> PlayerInputDevice:
+	if current_player_id == 1:
+		return GameManager.p1_device
+	return GameManager.p2_device
+
+
+func _device_just_pressed(device: PlayerInputDevice, action_name: String) -> bool:
+	if device == null:
+		return false
+	if device.kind == PlayerInputDevice.Kind.KEYBOARD:
+		return _keyboard_action_just_pressed(action_name, device.native_action_suffix)
+	return _joy_button_just_pressed(device.device_id, _joy_button_for_action(action_name))
+
+
+func _keyboard_action_just_pressed(base: String, suffix: String) -> bool:
+	var just_pressed := false
+	var keys: Array = GameManager.keyboard_layouts.get(suffix, {}).get(base, [])
+	for event in keys:
+		if not (event is InputEventKey):
+			continue
+		var key_event := event as InputEventKey
+		var code := key_event.physical_keycode
+		var pressed: bool
+		if code != KEY_NONE:
+			pressed = Input.is_physical_key_pressed(code)
+		else:
+			code = key_event.keycode
+			if code == KEY_NONE:
+				continue
+			pressed = Input.is_key_pressed(code)
+		var was_pressed: bool = _key_prev_state.get(code, false)
+		_key_prev_state[code] = pressed
+		if pressed and not was_pressed:
+			just_pressed = true
+	return just_pressed
+
+
+func _joy_button_for_action(action_name: String) -> int:
+	match action_name:
+		"Left":
+			return JOY_BUTTON_DPAD_LEFT
+		"Right":
+			return JOY_BUTTON_DPAD_RIGHT
+		_:
+			return JOY_BUTTON_A
+
+
+func _joy_button_just_pressed(device_id: int, button_index: int) -> bool:
+	var key := "%d_%d" % [device_id, button_index]
+	var pressed := Input.is_joy_button_pressed(device_id, button_index)
+	var was_pressed: bool = _joy_button_prev_state.get(key, false)
+	_joy_button_prev_state[key] = pressed
+	return pressed and not was_pressed
+
+
+func _process(_delta: float) -> void:
+	# Once a card's been picked and the rest are queue_free()-ing, don't
+	# let navigation touch them (the old out-of-bounds crash).
+	if currently_handling_card or cards.is_empty():
 		return
-	if cards.is_empty():
+
+	var device := _current_device()
+	if device == null:
 		return
 
 	# Bound against the hand's actual current card count rather than a
-	# fixed hand_limit, so this can't overshoot if fewer cards were
-	# offered than expected, or a card's already been freed.
+	# fixed hand_limit, so this can't overshoot on a short hand.
 	var last_idx = cards.size() - 1
 
-	if event is InputEventKey:
+	if _device_just_pressed(device, "Left"):
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
-		if event.keycode == KEY_A and event.pressed:
-			if selected_card_idx == 0:
-				pass
-			else:
-				_move_highlight(selected_card_idx - 1)
-		elif event.keycode == KEY_D and event.pressed:
-			if selected_card_idx == last_idx:
-				pass
-			else:
-				_move_highlight(selected_card_idx + 1)
-
-	elif event is InputEventJoypadButton:
+		if selected_card_idx > 0:
+			_move_highlight(selected_card_idx - 1)
+	elif _device_just_pressed(device, "Right"):
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
-		if event.button_index == JOY_BUTTON_DPAD_LEFT and event.pressed:
-			if selected_card_idx == 0:
-				pass
-			else:
-				_move_highlight(selected_card_idx - 1)
-		elif event.button_index == JOY_BUTTON_DPAD_RIGHT and event.pressed:
-			if selected_card_idx == last_idx:
-				pass
-			else:
-				_move_highlight(selected_card_idx + 1)
+		if selected_card_idx < last_idx:
+			_move_highlight(selected_card_idx + 1)
 
-	# Handles selection input as it is
-	if event is InputEventJoypadButton:
-		if event.button_index == JOY_BUTTON_A:
-			if currently_handling_card == false:
-				_handle_clicked_card()
-	elif event is InputEventKey:
-		if event.keycode == KEY_ENTER or event.keycode == KEY_SPACE:
-			if currently_handling_card == false:
-				_handle_clicked_card()
+	if _device_just_pressed(device, "Normal"):
+		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+		_handle_clicked_card()
 
 
 func _handle_clicked_card():
