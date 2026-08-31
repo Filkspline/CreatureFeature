@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://d3wfl0x3q4sux"]
+
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_vf16i"]
+
+[resource]
+script = ExtResource("1_vf16i")
+name = "Caffinated (Unfinished)"
+description = "+ MOVE SPEED
++ ATTACK SPEED (!)
+- MAX HEALTH 
+- DAMAGE (!)"
+effect_type = 1
+stat_name = &"max_health"
+stat_amount = 10.0
+stat_names_array = Array[String](["move_speed", "max_health"])
+stat_amounts_array = Array[float]([40.0, -30.0])
+is_percents_array = Array[bool]([false, false])

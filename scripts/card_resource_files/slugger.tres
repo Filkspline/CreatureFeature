@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://bqhw3evjc8r50"]
+
+[ext_resource type="Texture2D" uid="uid://bbbx5a4knvmqs" path="res://assets/card_assets/card_icons/Slugger.png" id="1_uvl8k"]
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_vf16i"]
+
+[resource]
+script = ExtResource("1_vf16i")
+name = "Slugger (Unfinished)"
+description = "+ DAMAGE (!)
+- ATTACK SPEED (!)"
+icon = ExtResource("1_uvl8k")
+effect_type = 1

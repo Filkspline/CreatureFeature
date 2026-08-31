@@ -8,7 +8,8 @@
 [ext_resource type="Texture2D" uid="uid://cvmcch1x05ck7" path="res://assets/PlatformPixel.png" id="5_bpahb"]
 [ext_resource type="Script" uid="uid://flsoi7tnikv2" path="res://scripts/fogshader.gd" id="6_jy56r"]
 [ext_resource type="Shader" uid="uid://3webiwpcj0lu" path="res://scripts/fog.gdshader" id="7_11q5a"]
-[ext_resource type="Texture2D" uid="uid://dqmxf1m8y6i5p" path="res://assets/HandyIdle-Sheet.png" id="8_11q5a"]
+[ext_resource type="PackedScene" uid="uid://bdqepuw5747tu" path="res://scenes/npc_scenes/handy.tscn" id="8_cs2et"]
+[ext_resource type="PackedScene" uid="uid://dcngavlydf7qt" path="res://scenes/npc_scenes/yippee.tscn" id="9_r0o8s"]
 [ext_resource type="Texture2D" uid="uid://bo4riym1x6ofx" path="res://assets/setdressingpixel.png" id="10_cdfjv"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cdfjv"]
@@ -83,12 +84,13 @@ scale = Vector2(1.4571823, 1.2157677)
 texture = ExtResource("4_bpahb")
 centered = false
 
-[node name="handy" type="Sprite2D" parent="Buildings" unique_id=1736441183]
-modulate = Color(0.8151441, 0.8151441, 0.8151441, 1)
-position = Vector2(288, 217)
-scale = Vector2(0.29333335, 0.29333332)
-texture = ExtResource("8_11q5a")
-hframes = 4
+[node name="BackgroundNpc" parent="Buildings" unique_id=465551190 instance=ExtResource("8_cs2et")]
+position = Vector2(324.99997, 181.99998)
+scale = Vector2(0.4, 0.4)
+
+[node name="BackgroundNpc2" parent="Buildings" unique_id=1918701205 instance=ExtResource("9_r0o8s")]
+position = Vector2(-12.999999, 133.99998)
+scale = Vector2(-0.4, 0.4)
 
 [node name="Platform" type="ParallaxLayer" parent="." unique_id=852107704]
 

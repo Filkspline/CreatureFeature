@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://d4mtttnw7yj1m"]
+
+[ext_resource type="Script" uid="uid://cnpq8e7dymlvn" path="res://scripts/background_npc.gd" id="1_5cedl"]
+[ext_resource type="SpriteFrames" uid="uid://j8yo43eehsi4" path="res://assets/npc_assets/handy_animations.tres" id="1_5v4xg"]
+
+[node name="BackgroundNpc" type="Node2D" unique_id=465551190]
+script = ExtResource("1_5cedl")
+
+[node name="npc_sprite" type="AnimatedSprite2D" parent="." unique_id=77793486]
+sprite_frames = ExtResource("1_5v4xg")
+animation = &"blink_idle"
+frame = 11
+frame_progress = 1.0

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dqmxf1m8y6i5p"
-path="res://.godot/imported/HandyIdle-Sheet.png-e0dd47a9c3a8f4939c1df068e5b5b035.ctex"
+path="res://.godot/imported/HandyIdle-Sheet.png-73b935df218847df761ae6f703d091b0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/HandyIdle-Sheet.png"
-dest_files=["res://.godot/imported/HandyIdle-Sheet.png-e0dd47a9c3a8f4939c1df068e5b5b035.ctex"]
+source_file="res://assets/npc_assets/HandyIdle-Sheet.png"
+dest_files=["res://.godot/imported/HandyIdle-Sheet.png-73b935df218847df761ae6f703d091b0.ctex"]
 
 [params]
 

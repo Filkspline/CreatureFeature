@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://fx0o7etj4441"]
+
+[ext_resource type="Texture2D" uid="uid://8upnqtkyictb" path="res://assets/card_assets/card_icons/Cloud.png" id="1_rd3s4"]
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_vf16i"]
+
+[resource]
+script = ExtResource("1_vf16i")
+name = "Cloud"
+description = "- GRAVITY
+- JUMP VELOCITY
++ MOVE SPEED"
+icon = ExtResource("1_rd3s4")
+effect_type = 1
+stat_name = &"max_health"
+stat_amount = 10.0
+stat_names_array = Array[String](["gravity", "jump_velocity", "move_speed"])
+stat_amounts_array = Array[float]([-50.0, 360.0, 40.0])
+is_percents_array = Array[bool]([true, false, false])
