@@ -116,6 +116,7 @@ theme_override_font_sizes/font_size = 28
 text = "RESTART"
 
 [node name="continue_label" type="Label" parent="background/MarginContainer/VBoxContainer/HBoxContainer" unique_id=2090967929]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_fonts/font = ExtResource("1_jc7ji")

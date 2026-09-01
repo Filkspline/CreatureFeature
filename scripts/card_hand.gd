@@ -73,7 +73,7 @@ func _on_upgrade_draft_ready(player_id: int, offered: Array[UpgradeData]) -> voi
 
 
 func _draw_hand(offered: Array[UpgradeData]) -> void:
-	card_default_z_index = offered.size()
+	card_default_z_index = offered.size() + 1
 	current_z_index = card_default_z_index
 	for upgrade in offered:
 		var upgrade_card = UPGRADE_CARD.instantiate()
