@@ -34,6 +34,7 @@ extends Node
 @export var rounds_to_win: int = 3
 
 const CARD_SELECT_SCENE := "res://scenes/upgrade_card_ui.tscn"
+const MATCH_END_SCREEN_SCENE := "res://scenes/end_screen.tscn"
 
 const INPUT_BASES: Array[String] = ["Left", "Right", "Up", "Down", "Normal", "Special", "Jump"]
 
@@ -208,6 +209,8 @@ func _end_round(loser_id: int) -> void:
 	if _has_won_match(winner_id):
 		match_over.emit(winner_id)
 		print("Match over, player %d wins" % winner_id)
+		#EventBus.game_ended.emit(_other_player_id(winner_id))
+		SceneTransition.change_scene(MATCH_END_SCREEN_SCENE)
 		return
 
 	EventBus.round_lost.emit(loser_id)

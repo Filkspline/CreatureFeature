@@ -1,0 +1,140 @@
+[gd_scene format=3 uid="uid://rxb51gtfv8ra"]
+
+[ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="1_6e1uj"]
+[ext_resource type="Script" uid="uid://crtq7qai6vqu0" path="res://scripts/end_screen.gd" id="1_87vmq"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="1_jc7ji"]
+[ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="2_jc7ji"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_87vmq"]
+shader = ExtResource("2_jc7ji")
+shader_parameter/curvature = 0.01
+shader_parameter/scanline_intensity = 0.05
+shader_parameter/scanline_count = 400.0
+shader_parameter/vignette_size = 0.08
+shader_parameter/brightness = 1.05
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 1.0
+shader_parameter/chromatic_aberration = 0.0004
+shader_parameter/noise_amount = 0.0015
+shader_parameter/flicker = 0.001
+shader_parameter/distortion = 0.006
+
+[node name="Control" type="Control" unique_id=1627900551]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_87vmq")
+
+[node name="background" type="ColorRect" parent="." unique_id=1780602640]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0.68235296, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="background" unique_id=1198294671]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="VBoxContainer" type="VBoxContainer" parent="background/MarginContainer" unique_id=396471257]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="background/MarginContainer/VBoxContainer" unique_id=83417744]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="background/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1392746460]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 18
+
+[node name="Frown" type="Label" parent="background/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer" unique_id=1096832252]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_constants/line_spacing = 0
+theme_override_fonts/font = ExtResource("1_jc7ji")
+theme_override_font_sizes/font_size = 100
+text = ":("
+
+[node name="top_text" type="Label" parent="background/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer" unique_id=734164]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_jc7ji")
+theme_override_font_sizes/font_size = 20
+text = "A problem has been detected and Creature Feature has shut down to prevent damage to your creature ."
+autowrap_mode = 2
+
+[node name="player_loss_label" type="Label" parent="background/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer" unique_id=26936774]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_jc7ji")
+theme_override_font_sizes/font_size = 28
+text = "PLAYER_LOST"
+
+[node name="instructions" type="Label" parent="background/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer" unique_id=268594074]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_jc7ji")
+theme_override_font_sizes/font_size = 20
+text = "If this is the first time you've seen this Stop error screen, restart the match or continue anyway. If this screen appears again, follow these steps:"
+autowrap_mode = 2
+
+[node name="get_better" type="Label" parent="background/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer" unique_id=1527987789]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_jc7ji")
+theme_override_font_sizes/font_size = 20
+text = "Get better at the game"
+
+[node name="caution_label" type="Label" parent="background/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer" unique_id=1257606293]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_jc7ji")
+theme_override_font_sizes/font_size = 20
+text = "You may continue to play the game into further rounds at the chance of irrepairable upgrade stacking. Do so at your own risk."
+autowrap_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="background/MarginContainer/VBoxContainer" unique_id=1650131796]
+layout_mode = 2
+theme_override_constants/separation = 120
+alignment = 1
+
+[node name="restart_label" type="Label" parent="background/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1817685381]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("1_jc7ji")
+theme_override_font_sizes/font_size = 28
+text = "RESTART"
+
+[node name="continue_label" type="Label" parent="background/MarginContainer/VBoxContainer/HBoxContainer" unique_id=2090967929]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("1_jc7ji")
+theme_override_font_sizes/font_size = 28
+text = "CONTINUE"
+
+[node name="TempCrtShader" type="ColorRect" parent="." unique_id=320803452]
+z_index = 4
+layout_mode = 0
+offset_left = -68.0
+offset_top = 1.0
+offset_right = -28.0
+offset_bottom = 41.0
+script = ExtResource("1_6e1uj")
+shader_material = SubResource("ShaderMaterial_87vmq")
+curvature = 0.01
+scanline_intensity = 0.05
+scanline_count = 400.0
+distortion = 0.006
+flicker = 0.001
+noise_amount = 0.0015
+current_preset = 1
