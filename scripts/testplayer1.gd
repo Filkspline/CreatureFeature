@@ -36,9 +36,24 @@ class_name Player
 ## check would be. Standard fighting-game buffer windows are roughly
 ## 3-10 frames; keep this on the low end so it doesn't feel laggy.
 @export var input_buffer_frames: int = 10
+## Scales how fast ALL of this player's animations advance in real time
+## (walk, idle, attacks, hit reactions). 1.0 = normal, 2.0 = double speed,
+## 0.5 = half speed. Applied via animation_player.speed_scale for normal
+## playback, and manually in _attack_process() for attacks (which use
+## seek() and ignore speed_scale).
+@export var attack_speed_multiplier: float = 1.0
 
 @export_group("Health")
 @export var max_health: float = 100.0
+
+@export_group("Combat Modifiers")
+## Flat bonus damage added to every hit this player lands (attacker side).
+@export var damage_dealt_bonus: float = 0.0
+## Flat damage subtracted from every hit this player takes (defender side).
+@export var damage_reduction: float = 0.0
+## Flat amount subtracted from incoming hit knockback (defender side).
+## Clamped on apply so it can never invert into being pulled toward the attacker.
+@export var knockback_reduction: float = 0.0
 
 @export_group("Visuals")
 ## Normal draw order, restored any time state leaves ATTACK.
@@ -119,7 +134,11 @@ var normal_moves: Dictionary = {}
 var special_moves: Dictionary = {}
 
 var current_move: MoveData = null
-var attack_frame: int = 0
+# Float (not int) so _attack_process() can advance it by a fractional
+# attack_speed_multiplier each tick. Everything keyed to attack_frame
+# (hitbox toggles, cancel windows, projectile fire, end-of-attack) then
+# scales with attack speed proportionally.
+var attack_frame: float = 0.0
 # Bumped every _start_attack() call. Lets a Projectile tell "the owner
 # swung again" apart from "the owner is still overlapping from the same
 # swing", since current_move itself stays the same Resource across
@@ -199,6 +218,14 @@ func _ready() -> void:
 
 	_duplicate_owned_shapes()
 	_duplicate_move_data()
+
+	# Initial sync only. attack_speed_multiplier can change later via
+	# upgrades (applied after player_registered below, and any time
+	# afterward through apply_stat_boost), so speed_scale is kept in
+	# sync continuously in _physics_process() instead of relying on
+	# this one-time assignment.
+	animation_player.speed_scale = attack_speed_multiplier
+	_dbg("[color=green][ATTACK SPEED] speed_scale set to %.2f[/color]" % attack_speed_multiplier)
 
 	base_hurtbox_size = hurtbox_shape.size
 	base_hurtbox_position = $Hurtbox/MainHurtbox.position
@@ -433,6 +460,14 @@ func _consume_buffer(action: String) -> bool:
 func _physics_process(delta: float) -> void:
 	_capture_buffered_inputs()
 
+	# Keep speed_scale in sync every frame, not just once in _ready().
+	# attack_speed_multiplier can be changed at any time by an upgrade
+	# (apply_stat_boost / apply_multi_stat_boost), and normal (non-attack)
+	# playback relies entirely on speed_scale, so a stale value here would
+	# silently ignore any attack-speed upgrade for walk/idle/hit-reaction
+	# animations even though the stat itself updated correctly.
+	animation_player.speed_scale = attack_speed_multiplier
+
 	match state:
 		State.NEUTRAL:
 			_neutral_process(delta)
@@ -589,6 +624,20 @@ func _start_attack(move: MoveData) -> void:
 	EventBus.player_attack_started.emit(player_id, move.move_name)
 
 	sprites.play_attack_anim(move.animation_name)
+	# _attack_process() drives this animation's position entirely by hand
+	# via seek() below, scaled by attack_speed_multiplier. If the
+	# AnimationPlayer is left running after play_attack_anim() starts it,
+	# its own internal clock keeps advancing every idle frame at
+	# speed_scale, completely independently of the seek()-driven timeline.
+	# At attack_speed_multiplier == 1.0 the two clocks happen to roughly
+	# agree, so this was invisible — but at any other multiplier they
+	# diverge, and Call Method / property tracks (hitbox on/off, gatling
+	# cancel window, projectile fire) end up firing twice: once from each
+	# clock passing over the same keyframe. Pausing immediately after
+	# starting playback stops the internal clock without losing the
+	# current_animation, so seek(..., true) below remains the only thing
+	# moving this animation forward for the rest of the attack.
+	animation_player.pause()
 
 
 func _attack_process(delta: float) -> void:
@@ -601,7 +650,12 @@ func _attack_process(delta: float) -> void:
 		move_velocity.y = 0.0
 
 	if current_move and current_move.is_advancing and pushback_velocity_x == 0.0:
-		if attack_frame == 1:
+		# Apply the advance burst once, on the first processed frame after
+		# start. attack_frame is now a float that advances by the
+		# multiplier, so a literal `== 1` would be skipped at multipliers
+		# > 1 (e.g. 2.0 goes 0 -> 2 -> 4). This range check fires exactly
+		# once for any positive multiplier.
+		if attack_frame > 0.0 and attack_frame < attack_speed_multiplier * 2.0:
 			move_velocity.x = current_move.advance_speed * (1.0 if facing_right else -1.0)
 		else:
 			move_velocity.x = move_velocity.x * 0.85
@@ -613,7 +667,10 @@ func _attack_process(delta: float) -> void:
 	velocity = move_velocity
 	move_and_slide()
 
-	attack_frame += 1
+	# Advance by the multiplier (not a fixed 1) so startup/active/recovery
+	# and every Call Method track key scale with attack speed. total_frames
+	# stays unscaled, so a higher multiplier finishes in fewer real ticks.
+	attack_frame += attack_speed_multiplier
 
 	if not current_move:
 		return
@@ -769,6 +826,9 @@ func _check_hit() -> void:
 			_hit_registered_this_activation = true
 			EventBus.player_hit_landed.emit(player_id, current_move.move_name, was_blocked)
 			EventBus.hit_confirmed.emit(hitbox_area_shape.global_position, current_move, self, opponent, was_blocked)
+			
+			EventBus.npc_cheer.emit() # Just here to call for the npc's to cheer when a player is hit
+			
 			if was_blocked:
 				_apply_pushback()
 			return
@@ -940,8 +1000,24 @@ func _resolve_block(move_data: MoveData, attacker: Node2D, was_crouching: bool) 
 
 
 func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) -> void:
-	current_health = max(current_health - move_data.damage, 0.0)
+	# Damage order (designer-confirmed): base move damage + attacker's flat
+	# bonus, then subtract this defender's flat reduction, clamped to >= 0
+	# so a hit can be reduced to zero but never heal. The bonus is only read
+	# when the attacker is a Player (melee); projectile/test hits pass a
+	# non-Player attacker and simply add no bonus.
+	var attacker_bonus: float = 0.0
+	var player_attacker := attacker as Player
+	if player_attacker:
+		attacker_bonus = player_attacker.damage_dealt_bonus
+	var final_damage: float = move_data.damage + attacker_bonus - damage_reduction
+	final_damage = max(final_damage, 0.0)
+
+	var health_before: float = current_health
+	current_health = max(current_health - final_damage, 0.0)
 	EventBus.player_health_changed.emit(player_id, current_health)
+	_dbg("[color=cyan][DAMAGE] base %.1f + bonus %.1f - reduction %.1f = %.1f | HP %.1f -> %.1f[/color]" % [
+		move_data.damage, attacker_bonus, damage_reduction, final_damage, health_before, current_health
+	])
 
 	if current_health <= 0.0 and not is_defeated:
 		is_defeated = true
@@ -958,7 +1034,10 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) ->
 	var move_is_launcher = move_data.is_launcher or move_data.launcher_strength > 0.0
 
 	pending_knockdown = move_is_launcher or not is_on_floor()
-	pushback_velocity_x = _direction_away_from(attacker) * move_data.knock_back
+	# Knockback reduction is flat armor: subtract it from the move's
+	# knockback, clamped to >= 0 so it can't invert into a pull toward the attacker.
+	var effective_knockback: float = max(move_data.knock_back - knockback_reduction, 0.0)
+	pushback_velocity_x = _direction_away_from(attacker) * effective_knockback
 	if move_is_launcher:
 		velocity.y = -move_data.launcher_strength
 

@@ -34,7 +34,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="background" type="Sprite2D" parent="." unique_id=1887611312]
-modulate = Color(0.8848981, 0.8848981, 0.8848981, 1)
 position = Vector2(1.4305115e-05, 13.000006)
 scale = Vector2(0.4433702, 0.43787605)
 texture = ExtResource("2_v13x6")

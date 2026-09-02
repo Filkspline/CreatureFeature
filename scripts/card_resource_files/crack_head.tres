@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://b37tge8irgfu6"]
 
+[ext_resource type="Texture2D" uid="uid://bde6wrl25ai7j" path="res://assets/Berserker.png" id="1_a5wpa"]
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_mgxh0"]
 
 [resource]
@@ -8,6 +9,7 @@ name = "Berserker"
 description = "+ DAMAGE
 + ATTACK SPEED
 - MAX HEALTH"
+icon = ExtResource("1_a5wpa")
 effect_type = 1
 stat_names_array = Array[String](["damage_dealt_bonus", "attack_speed_multiplier", "max_health"])
 stat_amounts_array = Array[float]([1.0, 10.0, -30.0])

@@ -644,7 +644,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [false]
+"values": [true]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -1614,7 +1614,7 @@ size = Vector2(92, 90)
 [node name="Player" type="CharacterBody2D" unique_id=786033213 groups=["players"]]
 script = ExtResource("1_g2els")
 direction_buffer_time = 0.8
-locked_move_names = Array[StringName]([&"S6", &"S8"])
+locked_move_names = Array[StringName]([&"S6", &"S8", &"S4"])
 N5 = ExtResource("2_smehm")
 N52 = ExtResource("3_d2wvv")
 N4 = ExtResource("4_ke2ow")
@@ -1809,4 +1809,5 @@ disabled = true
 [node name="MainHitbox" type="CollisionShape2D" parent="Hitbox" unique_id=65929063]
 position = Vector2(78, -117.5)
 shape = SubResource("RectangleShape2D_57qmd")
+disabled = true
 debug_color = Color(0.8734848, 0.3135745, 0.39617598, 0.41960785)

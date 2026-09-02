@@ -64,6 +64,17 @@ func _handle_button_highlight(selected_button_id : int) -> void:
 func _handle_button_pressed(selected_button_id : int) -> void:
 	match currently_selected_button_id:
 		1:
+			# GameManager.start_match() is normally only ever called once,
+			# from the autoload's own _ready() when the game first launches
+			# (autoloads never re-run _ready()). Restarting via scene change
+			# alone skipped it entirely, so round counts never reset and
+			# EventBus.match_started never re-fired -- which is why picked
+			# upgrades kept carrying over: whatever clears each player's
+			# upgrade list almost certainly does so by listening for that
+			# signal. Calling both here puts GameManager back into a clean
+			# pre-match state before player_select even loads.
+			GameManager.reset_player_select()
+			GameManager.start_match()
 			SceneTransition.change_scene("res://scenes/player_select.tscn")
 		2:
 			pass

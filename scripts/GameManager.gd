@@ -33,6 +33,15 @@ extends Node
 ## Rounds a player needs to win the match (best-of-5 = 3).
 @export var rounds_to_win: int = 3
 
+@export_group("Music")
+## Looping background track for the match. WAV doesn't carry loop
+## points the way ogg can, so looping is handled manually in
+## _on_music_finished() below by restarting playback whenever the
+## stream ends, rather than relying on the AudioStream's own loop flag.
+@export var background_music: AudioStream = preload("res://assets/MusicTrack1.wav")
+
+var _music_player: AudioStreamPlayer
+
 const CARD_SELECT_SCENE := "res://scenes/upgrade_card_ui.tscn"
 const MATCH_END_SCREEN_SCENE := "res://scenes/end_screen.tscn"
 
@@ -76,7 +85,29 @@ func _ready() -> void:
 	EventBus.player_defeated.connect(_on_player_defeated)
 	EventBus.death_sequence_finished.connect(_on_death_sequence_finished)
 
+	_setup_music_player()
+
 	call_deferred("start_match")
+
+
+# WAV doesn't support loop points the way ogg can, so this manually
+# restarts playback every time the stream finishes (see
+# _on_music_finished()) instead of relying on the stream's own loop
+# flag, which WAV files don't have.
+func _setup_music_player() -> void:
+	if not background_music:
+		push_warning("GameManager: background_music not assigned, skipping music playback")
+		return
+
+	_music_player = AudioStreamPlayer.new()
+	_music_player.stream = background_music
+	add_child(_music_player)
+	_music_player.finished.connect(_on_music_finished)
+	_music_player.play()
+
+
+func _on_music_finished() -> void:
+	_music_player.play()
 
 
 # Resets the score and tells anything listening (mainly the upgrade pool

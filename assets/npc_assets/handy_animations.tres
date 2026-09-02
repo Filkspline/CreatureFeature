@@ -165,7 +165,7 @@ animations = [{
 }],
 "loop": 0,
 "name": &"blink_idle",
-"speed": 4.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -206,7 +206,7 @@ animations = [{
 }],
 "loop": 0,
 "name": &"cheer",
-"speed": 4.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -229,5 +229,5 @@ animations = [{
 }],
 "loop": 1,
 "name": &"true_idle",
-"speed": 4.0
+"speed": 10.0
 }]
