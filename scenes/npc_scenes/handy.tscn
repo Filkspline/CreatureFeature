@@ -5,6 +5,5 @@
 [node name="BackgroundNpc" unique_id=465551190 instance=ExtResource("1_60b0w")]
 
 [node name="npc_sprite" parent="." index="0" unique_id=77793486]
-animation = &"true_idle"
 frame = 0
 frame_progress = 0.0

@@ -1,13 +1,14 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://cjey4eirchgsv"]
 
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_cq5te"]
-[ext_resource type="Texture2D" uid="uid://2uogjwdmwmjk" path="res://assets/idle.png" id="1_ibkyk"]
+[ext_resource type="Texture2D" uid="uid://dnniq05uqo3ca" path="res://assets/Headbutt.png" id="1_ibkyk"]
 [ext_resource type="Resource" uid="uid://dhe38ybk4jg0t" path="res://scripts/S6.tres" id="2_s6move"]
 
 [resource]
 script = ExtResource("1_cq5te")
-name = "Forward Special+"
-description = "Unlocks the forward special move."
+name = "Forward Special"
+description = "dash foward and
+head butt them"
 icon = ExtResource("1_ibkyk")
 effect_type = 2
 unlocked_move = ExtResource("2_s6move")

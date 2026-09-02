@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://d3wfl0x3q4sux"]
 
+[ext_resource type="Texture2D" uid="uid://dsglux7rjfsg" path="res://assets/Caffienated.png" id="1_kckef"]
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_vf16i"]
 
 [resource]
@@ -9,6 +10,7 @@ description = "+ MOVE SPEED
 + ATTACK SPEED
 - MAX HEALTH
 - DAMAGE"
+icon = ExtResource("1_kckef")
 effect_type = 1
 stat_names_array = Array[String](["move_speed", "attack_speed_multiplier", "max_health", "damage_dealt_bonus"])
 stat_amounts_array = Array[float]([40.0, 10.0, -30.0, -1.0])
