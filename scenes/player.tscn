@@ -21,13 +21,12 @@
 [ext_resource type="Texture2D" uid="uid://3qf07essx4lf" path="res://assets/walkfowardnew.png" id="11_ke2ow"]
 [ext_resource type="Resource" uid="uid://c7m28g4vl1w4v" path="res://scripts/JA.tres" id="12_bj30b"]
 [ext_resource type="Texture2D" uid="uid://e41b8qb1bkm0" path="res://assets/NA.png" id="13_jej6c"]
-[ext_resource type="Texture2D" uid="uid://bg3bam4iw4yln" path="res://assets/MidBlockWarning.png" id="15_a8ls1"]
 [ext_resource type="Texture2D" uid="uid://g2dnqvboos1o" path="res://assets/NewJump.png" id="16_487ah"]
-[ext_resource type="Texture2D" uid="uid://dl6cf0733hdm" path="res://assets/LowBlockWarning.png" id="16_qfm1y"]
 [ext_resource type="Texture2D" uid="uid://bjwujbmk5k2i7" path="res://assets/StandingBlockIdle.png" id="17_4r5pv"]
 [ext_resource type="Texture2D" uid="uid://b6aw4u0e2ot4i" path="res://assets/CrouchBlockIdle.png" id="18_60mlk"]
 [ext_resource type="Texture2D" uid="uid://puao4hso5e43" path="res://assets/midhit.png" id="19_60mlk"]
 [ext_resource type="Texture2D" uid="uid://gnt8lrqdqscq" path="res://assets/crouchhit.png" id="20_i4ail"]
+[ext_resource type="Texture2D" uid="uid://dx0e30vchh13e" path="res://assets/blockwarningeffct2.png" id="24_hax0n"]
 [ext_resource type="Texture2D" uid="uid://blh70px5vevds" path="res://assets/N4.png" id="24_l71n6"]
 [ext_resource type="Texture2D" uid="uid://dsaxy7p7l1hsx" path="res://assets/N8.png" id="26_ujl30"]
 [ext_resource type="Texture2D" uid="uid://cojvgki756ps8" path="res://assets/SAnew.png" id="28_487ah"]
@@ -49,7 +48,7 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(102.5, 441.5)
+size = Vector2(134, 441.5)
 
 [sub_resource type="Animation" id="Animation_j2b1d"]
 resource_name = "JA"
@@ -1623,12 +1622,12 @@ N6 = ExtResource("3_d2wvv")
 N2 = ExtResource("6_dt7fs")
 NA = ExtResource("4_f1ej7")
 S5 = ExtResource("4_3v2ag")
-selected_special = ExtResource("4_3v2ag")
 S4 = ExtResource("9_hax0n")
 S8 = ExtResource("9_487ah")
 S6 = ExtResource("9_wnwbv")
 SA = ExtResource("6_a38lo")
 JA = ExtResource("12_bj30b")
+selected_special = ExtResource("4_3v2ag")
 
 [node name="Shadow" type="TextureRect" parent="." unique_id=342766280]
 visible = false
@@ -1641,7 +1640,7 @@ texture = SubResource("GradientTexture2D_57qmd")
 expand_mode = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1285333219]
-position = Vector2(-0.25, -221.25)
+position = Vector2(1, -221.25)
 shape = SubResource("RectangleShape2D_g4v7s")
 debug_color = Color(0.26929268, 0.6220697, 0.34595335, 0.41960785)
 
@@ -1702,21 +1701,6 @@ hframes = 9
 position = Vector2(1, -95)
 texture = ExtResource("13_jej6c")
 hframes = 8
-
-[node name="MidBlockWarning" type="Sprite2D" parent="Sprites" unique_id=1345917801]
-visible = false
-modulate = Color(4.9472184, 18.892157, 18.892157, 1)
-position = Vector2(0, -95)
-texture = ExtResource("15_a8ls1")
-hframes = 3
-
-[node name="LowBlockWarning" type="Sprite2D" parent="Sprites" unique_id=273525979]
-visible = false
-modulate = Color(0.27058825, 1, 1, 1)
-self_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-position = Vector2(-1, -95)
-texture = ExtResource("16_qfm1y")
-hframes = 3
 
 [node name="BlockIdle" type="Sprite2D" parent="Sprites" unique_id=243597257]
 visible = false
@@ -1789,6 +1773,20 @@ visible = false
 position = Vector2(-2, -184)
 texture = ExtResource("36_jc3p3")
 hframes = 6
+
+[node name="MidBlockWarning" type="Sprite2D" parent="Sprites" unique_id=1345917801]
+modulate = Color(4.9472184, 18.892157, 18.892157, 0.58431375)
+position = Vector2(-13.31, -188)
+texture = ExtResource("24_hax0n")
+hframes = 3
+
+[node name="LowBlockWarning" type="Sprite2D" parent="Sprites" unique_id=273525979]
+modulate = Color(0.27058825, 1, 1, 0.5686275)
+self_modulate = Color(18.892157, 18.892157, 18.892157, 1)
+position = Vector2(34.999992, -89)
+scale = Vector2(0.6571429, 0.65999997)
+texture = ExtResource("24_hax0n")
+hframes = 3
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=881778426]
 libraries/ = SubResource("AnimationLibrary_l71n6")

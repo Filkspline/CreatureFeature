@@ -975,6 +975,14 @@ func _blockstun_process(delta: float) -> void:
 
 	sprites.play_block_idle(is_blocking_low)
 	EventBus.player_blocking_low[player_id] = is_blocking_low
+	# Keep the block warning icon showing for the whole blockstun window,
+	# not just the brief pre-hit anticipation. play_block_idle() above
+	# calls hide_all_sprites() the first frame blockstun starts, which
+	# wipes the warning sprite out the instant the hit actually lands
+	# even though the player is still actively blocking it. Forcing
+	# should_show true here re-shows it and keeps it held for as long as
+	# blockstun lasts.
+	sprites.update_block_warning(delta, true, is_blocking_low)
 
 	if not _tick_stun_timer(delta):
 		return
