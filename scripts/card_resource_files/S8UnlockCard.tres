@@ -6,9 +6,9 @@
 
 [resource]
 script = ExtResource("2_u0d4d")
-name = "Up Special"
-description = "Powerful long ranged
-overhead swing"
+name = "Slam"
+description = "Select Slam as your
+grounded special move"
 icon = ExtResource("1_imxeg")
 effect_type = 2
 unlocked_move = ExtResource("3_u0d4d")

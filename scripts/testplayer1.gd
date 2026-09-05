@@ -42,6 +42,9 @@ class_name Player
 ## playback, and manually in _attack_process() for attacks (which use
 ## seek() and ignore speed_scale).
 @export var attack_speed_multiplier: float = 1.0
+## Max time (in milliseconds) between two taps of the same direction that
+## still counts as a double-tap for the base-kit dash moves.
+@export var double_tap_window_ms: int = 200
 
 @export_group("Health")
 @export var max_health: float = 100.0
@@ -99,6 +102,8 @@ var air_horizontal_velocity: float = 0.0
 var last_direction: int = Direction.NONE
 var direction_buffer_timer: float = 0.0
 var pending_direction: int = Direction.NONE
+# Double-tap dash tracking: last tap time (ms) per direction action name.
+var _last_tap_time_ms: Dictionary = {}
 
 # Generic "remembered" inputs. Keys are the base action names ("Jump",
 # "Normal", "Special" — before _action() appends "P1"/"P2"), values are
@@ -128,6 +133,9 @@ var input_buffer: Dictionary = {}
 ## JA in the same jump is intentional, not a bug. Goes through the
 ## exact same _start_attack() pipeline as every other move.
 @export var JA: MoveData
+## The grounded special the Special button performs. Defaults to Bite (S5)
+## in the Inspector; picking a special-move upgrade card overwrites this.
+@export var selected_special: MoveData
 
 var all_moves: Dictionary = {}
 var normal_moves: Dictionary = {}
@@ -288,10 +296,12 @@ func _duplicate_move_data() -> void:
 	JA = JA.duplicate() if JA else null
 
 func _all_move_sprite_names() -> Array:
+	# Sprite nodes are named after animation_name (not move_name), so a
+	# move can be renamed for UI/logic without touching the sprite tree.
 	var names: Array = []
 	for move in [N5, N52, N4, N8, N6, N2, NA, S5, S4, S8, S6, S2, SA, JA]:
 		if move:
-			names.append(move.move_name)
+			names.append(move.animation_name)
 	return names
 
 
@@ -304,16 +314,25 @@ func _build_move_lookup() -> void:
 	_register_move(N4, normal_moves, "back")
 	_register_move(N6, normal_moves, "forward")
 	_register_move(N2, normal_moves, "crouching")
-	_register_move(N8, normal_moves, "up")
 	_register_move(NA, normal_moves, "aerial")
 	_register_move(N52, normal_moves, "")
+	# N8 (Uppercut) moved to the special roster; no longer a normal.
 
-	_register_move(S5, special_moves, "neutral")
-	_register_move(S4, special_moves, "back")
-	_register_move(S6, special_moves, "forward")
-	_register_move(S2, special_moves, "crouching")
-	_register_move(S8, special_moves, "up")
+	# Grounded specials are no longer direction-keyed: the Special button
+	# always performs selected_special. Only SA (aerial) stays directional.
 	_register_move(SA, special_moves, "aerial")
+
+	# Base-kit dashes (double-tap), always available, never locked.
+	if S4:
+		all_moves[S4.move_name] = S4
+	if S6:
+		all_moves[S6.move_name] = S6
+
+	# Special roster (Bite / Slam / Uppercut): gated by locked_move_names,
+	# selectable via their unlock cards.
+	_register_all_move(S5)
+	_register_all_move(S8)
+	_register_all_move(N8)
 
 	# JA isn't resolved by direction like a normal/special (see
 	# _register_move below) — it's triggered directly off the Jump
@@ -330,6 +349,16 @@ func _register_move(move: MoveData, dict: Dictionary, key: String) -> void:
 		return
 	all_moves[move.move_name] = move
 	dict[key] = move
+
+
+# Registers a move into all_moves only (no directional bucket). Used by
+# the special roster, which is selected by card rather than direction.
+func _register_all_move(move: MoveData) -> void:
+	if not move:
+		return
+	if move.move_name in locked_move_names:
+		return
+	all_moves[move.move_name] = move
 
 
 func reset_health() -> void:
@@ -388,13 +417,14 @@ func apply_multi_stat_boost(stat_names_array: Array[String], ammounts_array: Arr
 func unlock_move(move: MoveData) -> void:
 	print("[TRACE] Player%d.unlock_move called with move=%s | locked_move_names=%s" % [player_id, (move.move_name if move else "null"), locked_move_names])
 	if not move:
-		#push_warning("[P%d] unlock_move called with a null MoveData" % player_id)
 		_dbg("[color=red][P%d] unlock_move called with a null MoveData" % player_id)
 		return
-	if move.move_name not in locked_move_names:
-		_dbg("[color=yellow][UPGRADE] unlock_move: '%s' wasn't locked, nothing to do" % move.move_name)
-		return
-	locked_move_names.erase(move.move_name)
+	if move.move_name in locked_move_names:
+		locked_move_names.erase(move.move_name)
+	# Special cards also SELECT the move: picking a special overwrites the
+	# previously selected one rather than adding to a list.
+	if move.kind == MoveData.Kind.SPECIAL:
+		selected_special = move
 	_build_move_lookup()
 	_dbg("[color=yellow][UPGRADE] unlocked move '%s'" % move.move_name)
 
@@ -502,6 +532,15 @@ func _neutral_process(delta: float) -> void:
 		_start_attack(JA)
 		return
 
+	# Base-kit dashes: double-tap forward (S6) or back (S4) while grounded.
+	if was_on_floor and crouch_phase == CrouchPhase.NONE:
+		if _consume_double_tap(_get_forward_action()) and S6:
+			_start_attack(S6)
+			return
+		if _consume_double_tap(_get_backward_action()) and S4:
+			_start_attack(S4)
+			return
+
 	_handle_jump()
 	_handle_crouch_input()
 	_handle_horizontal_movement(delta)
@@ -542,13 +581,33 @@ func _get_backward_action() -> StringName:
 	return _action("Left") if facing_right else _action("Right")
 
 
+func _get_forward_action() -> StringName:
+	return _action("Right") if facing_right else _action("Left")
+
+
+# Returns true if the given direction action was just double-tapped within
+# double_tap_window_ms. Tracks last tap time per direction in milliseconds.
+func _consume_double_tap(action: StringName) -> bool:
+	if not Input.is_action_just_pressed(action):
+		return false
+	var now := Time.get_ticks_msec()
+	var last: int = _last_tap_time_ms.get(action, -1000000)
+	if now - last <= double_tap_window_ms:
+		_last_tap_time_ms[action] = -1000000  # consumed, reset for the next double-tap
+		return true
+	_last_tap_time_ms[action] = now
+	return false
+
+
 func _is_block_ready() -> bool:
 	if not is_on_floor():
 		return false
+	# Crouching blocks automatically (no back required); standing still
+	# needs the back direction held.
+	if crouch_phase != CrouchPhase.NONE:
+		return true
 	if not Input.is_action_pressed(_get_backward_action()):
 		return false
-	if crouch_phase != CrouchPhase.NONE:
-		return Input.is_action_pressed(_action("Down"))
 	return true
 
 
@@ -565,7 +624,13 @@ func _block_posture_beats_hit_level(hit_level: MoveData.HitLevel, was_crouching:
 
 
 func _resolve_move(type: String) -> MoveData:
-	var dict = normal_moves if type == "normal" else special_moves
+	if type == "normal":
+		return _resolve_normal_move()
+	return _resolve_special_move()
+
+
+func _resolve_normal_move() -> MoveData:
+	var dict = normal_moves
 	var key = ""
 	if not is_on_floor():
 		if has_used_aerial:
@@ -594,6 +659,20 @@ func _resolve_move(type: String) -> MoveData:
 	return move
 
 
+func _resolve_special_move() -> MoveData:
+	# Aerial special keeps working exactly as before (SA).
+	if not is_on_floor():
+		if has_used_aerial:
+			return null
+		var aerial_move = special_moves.get("aerial", null)
+		if aerial_move:
+			has_used_aerial = true
+			return aerial_move
+		return null
+	# Grounded special is always the currently selected one, never directional.
+	return selected_special
+
+
 func _start_attack(move: MoveData) -> void:
 	if not move:
 		return
@@ -619,7 +698,7 @@ func _start_attack(move: MoveData) -> void:
 
 	sprites.hide_all_sprites()
 	sprites.reset_block_warning()
-	sprites.show_attack_sprite(move.move_name)
+	sprites.show_attack_sprite(move.animation_name)
 
 	EventBus.player_attack_started.emit(player_id, move.move_name)
 
@@ -1011,12 +1090,15 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) ->
 		attacker_bonus = player_attacker.damage_dealt_bonus
 	var final_damage: float = move_data.damage + attacker_bonus - damage_reduction
 	final_damage = max(final_damage, 0.0)
+	# Combo decay: consecutive hits on this defender deal progressively less.
+	var combo_scale: float = ComboManager.get_combo_damage_scale(player_id)
+	final_damage = final_damage * combo_scale
 
 	var health_before: float = current_health
 	current_health = max(current_health - final_damage, 0.0)
 	EventBus.player_health_changed.emit(player_id, current_health)
-	_dbg("[color=cyan][DAMAGE] base %.1f + bonus %.1f - reduction %.1f = %.1f | HP %.1f -> %.1f[/color]" % [
-		move_data.damage, attacker_bonus, damage_reduction, final_damage, health_before, current_health
+	_dbg("[color=cyan][DAMAGE] base %.1f + bonus %.1f - reduction %.1f = %.1f (combo x%.2f) | HP %.1f -> %.1f[/color]" % [
+		move_data.damage, attacker_bonus, damage_reduction, final_damage, combo_scale, health_before, current_health
 	])
 
 	if current_health <= 0.0 and not is_defeated:

@@ -75,6 +75,7 @@ var bars: Dictionary = {}
 var pips: Dictionary = {1: [], 2: []}
 
 var _death_popup_base_scale: Vector2
+var combo_labels: Dictionary = {}  # attacker_id -> combo counter Label
 
 @onready var p1_name_label: Label = $UIRoot/P1NameLabel
 @onready var p2_name_label: Label = $UIRoot/P2NameLabel
@@ -135,6 +136,10 @@ func _ready() -> void:
 	death_popup.visible = false
 
 	_sync_existing_wins()
+
+	combo_labels[1] = _create_combo_label(1)
+	combo_labels[2] = _create_combo_label(2)
+	ComboManager.combo_changed.connect(_on_combo_changed)
 
 
 func _collect_bar_refs(container: Control) -> Dictionary:
@@ -456,6 +461,38 @@ func _sync_slot_wins(slot: int, rounds_won: int) -> void:
 		p1_wins = rounds_won
 	else:
 		p2_wins = rounds_won
+
+
+# ── Combo counter ────────────────────────────────────────────
+# Two labels (one per side) created at runtime, styled to match the retro
+# health bars / pips. They show the current hit count on the ATTACKING
+# player's side and hide once the combo resets to zero.
+func _create_combo_label(slot: int) -> Label:
+	var label := Label.new()
+	label.visible = false
+	label.size = Vector2(200.0, 30.0)
+	label.add_theme_font_size_override("font_size", 26)
+	label.add_theme_color_override("font_color", Color(1, 1, 1))
+	label.add_theme_color_override("font_outline_color", Color(0.13, 0.125, 0.2))
+	label.add_theme_constant_override("outline_size", 4)
+	if slot == 1:
+		label.position = Vector2(20.0, 45.0)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	else:
+		label.position = Vector2(420.0, 45.0)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	$UIRoot.add_child(label)
+	return label
+
+
+func _on_combo_changed(defender_id: int, combo_count: int) -> void:
+	var attacker_id := 2 if defender_id == 1 else 1
+	var label: Label = combo_labels[attacker_id]
+	if combo_count >= 2:
+		label.text = "%d HITS" % combo_count
+		label.visible = true
+	else:
+		label.visible = false
 
 
 func _on_pip_open_finished(pip: Dictionary) -> void:
