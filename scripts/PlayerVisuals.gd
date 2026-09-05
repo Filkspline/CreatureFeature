@@ -202,12 +202,12 @@ func play_hit_reaction(was_crouching: bool) -> void:
 		play_anim("mid_hit", mid_hit_sprite, true)
 
 
-func show_attack_sprite(move_name: String) -> void:
-	var sprite = attack_sprites.get(move_name, null)
+func show_attack_sprite(anim_name: StringName) -> void:
+	var sprite = attack_sprites.get(anim_name, null)
 	if sprite:
 		sprite.visible = true
 	else:
-		_dbg("[SPRITES] show_attack_sprite('%s') — no sprite registered, showing nothing" % move_name)
+		_dbg("[SPRITES] show_attack_sprite('%s') — no sprite registered, showing nothing" % String(anim_name))
 
 
 # Attack animations are driven frame-by-frame by Player (attack_frame),

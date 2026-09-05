@@ -4,9 +4,8 @@
 
 [resource]
 script = ExtResource("1_move")
-move_name = "S6"
+move_name = "ForwardDash"
 input_dir = 1
-kind = 1
 hit_level = 1
 block_advantage = 0
 hitstun = 13

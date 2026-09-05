@@ -23,6 +23,7 @@ GameManager="*uid://fhymjho61bc6"
 EventBus="*uid://ct71mxxweme10"
 UpgradePoolManager="*uid://dpqtfgabm75kr"
 SceneTransition="*uid://bq0kps56mrd8"
+ComboManager="*uid://c0mb0m4nag3r1"
 
 [display]
 

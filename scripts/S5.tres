@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_g50tn")
-move_name = "S5"
+move_name = "Bite"
 kind = 1
 hit_level = 1
 startup = 0

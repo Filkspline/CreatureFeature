@@ -78,6 +78,8 @@ var _death_popup_base_scale: Vector2
 
 @onready var p1_name_label: Label = $UIRoot/P1NameLabel
 @onready var p2_name_label: Label = $UIRoot/P2NameLabel
+@onready var p1_combo_label: Label = $UIRoot/P1ComboLabel
+@onready var p2_combo_label: Label = $UIRoot/P2ComboLabel
 @onready var p1_round_pips: HBoxContainer = $UIRoot/P1RoundPips
 @onready var p2_round_pips: HBoxContainer = $UIRoot/P2RoundPips
 @onready var timer_label: Label = $UIRoot/TimerLabel
@@ -135,6 +137,11 @@ func _ready() -> void:
 	death_popup.visible = false
 
 	_sync_existing_wins()
+
+	# Combo counters are real scene nodes; just ensure both start hidden.
+	p1_combo_label.visible = false
+	p2_combo_label.visible = false
+	ComboManager.combo_changed.connect(_on_combo_changed)
 
 
 func _collect_bar_refs(container: Control) -> Dictionary:
@@ -456,6 +463,30 @@ func _sync_slot_wins(slot: int, rounds_won: int) -> void:
 		p1_wins = rounds_won
 	else:
 		p2_wins = rounds_won
+
+
+# ── Combo counter ────────────────────────────────────────────
+# P1ComboLabel / P2ComboLabel are scene nodes in fight_ui_new2.tscn,
+# styled in the editor like the health bars and pips. This just updates
+# their text and visibility: the count shows on the ATTACKING player's side
+# and hides once the combo resets to zero.
+func _on_combo_changed(defender_id: int, combo_count: int) -> void:
+	var label: Label = p1_combo_label if defender_id == 2 else p2_combo_label
+
+	if combo_count >= 2:
+		label.text = "%d HITS" % combo_count
+		label.visible = true
+
+		var tween := create_tween()
+		tween.tween_property(label, "modulate:a", 1.0, 0.15)
+
+		await get_tree().create_timer(2.0).timeout
+
+		var fade_tween := create_tween()
+		fade_tween.tween_property(label, "modulate:a", 0.0, 0.3)
+		await fade_tween.finished
+
+		label.visible = false
 
 
 func _on_pip_open_finished(pip: Dictionary) -> void:

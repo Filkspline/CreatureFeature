@@ -74,4 +74,9 @@ func _on_resume_pressed() -> void:
 
 func _on_quit_pressed() -> void:
 	get_tree().paused = false
+	# Same reset as end_screen.gd's restart: quitting to the main menu mid
+	# match has to clear round counts and picked upgrades, otherwise a new
+	# match inherits the state from the one that was just abandoned.
+	GameManager.reset_player_select()
+	GameManager.start_match()
 	SceneTransition.change_scene("res://scenes/main_menu.tscn")

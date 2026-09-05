@@ -4,8 +4,9 @@
 
 [resource]
 script = ExtResource("1_move")
-move_name = "N8"
+move_name = "Uppercut"
 input_dir = 4
+kind = 1
 hit_level = 2
 block_advantage = -6
 hitstun = 16
