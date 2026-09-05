@@ -75,10 +75,11 @@ var bars: Dictionary = {}
 var pips: Dictionary = {1: [], 2: []}
 
 var _death_popup_base_scale: Vector2
-var combo_labels: Dictionary = {}  # attacker_id -> combo counter Label
 
 @onready var p1_name_label: Label = $UIRoot/P1NameLabel
 @onready var p2_name_label: Label = $UIRoot/P2NameLabel
+@onready var p1_combo_label: Label = $UIRoot/P1ComboLabel
+@onready var p2_combo_label: Label = $UIRoot/P2ComboLabel
 @onready var p1_round_pips: HBoxContainer = $UIRoot/P1RoundPips
 @onready var p2_round_pips: HBoxContainer = $UIRoot/P2RoundPips
 @onready var timer_label: Label = $UIRoot/TimerLabel
@@ -137,8 +138,9 @@ func _ready() -> void:
 
 	_sync_existing_wins()
 
-	combo_labels[1] = _create_combo_label(1)
-	combo_labels[2] = _create_combo_label(2)
+	# Combo counters are real scene nodes; just ensure both start hidden.
+	p1_combo_label.visible = false
+	p2_combo_label.visible = false
 	ComboManager.combo_changed.connect(_on_combo_changed)
 
 
@@ -464,34 +466,26 @@ func _sync_slot_wins(slot: int, rounds_won: int) -> void:
 
 
 # ── Combo counter ────────────────────────────────────────────
-# Two labels (one per side) created at runtime, styled to match the retro
-# health bars / pips. They show the current hit count on the ATTACKING
-# player's side and hide once the combo resets to zero.
-func _create_combo_label(slot: int) -> Label:
-	var label := Label.new()
-	label.visible = false
-	label.size = Vector2(200.0, 30.0)
-	label.add_theme_font_size_override("font_size", 26)
-	label.add_theme_color_override("font_color", Color(1, 1, 1))
-	label.add_theme_color_override("font_outline_color", Color(0.13, 0.125, 0.2))
-	label.add_theme_constant_override("outline_size", 4)
-	if slot == 1:
-		label.position = Vector2(20.0, 45.0)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	else:
-		label.position = Vector2(420.0, 45.0)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	$UIRoot.add_child(label)
-	return label
-
-
+# P1ComboLabel / P2ComboLabel are scene nodes in fight_ui_new2.tscn,
+# styled in the editor like the health bars and pips. This just updates
+# their text and visibility: the count shows on the ATTACKING player's side
+# and hides once the combo resets to zero.
 func _on_combo_changed(defender_id: int, combo_count: int) -> void:
-	var attacker_id := 2 if defender_id == 1 else 1
-	var label: Label = combo_labels[attacker_id]
+	var label: Label = p1_combo_label if defender_id == 2 else p2_combo_label
+
 	if combo_count >= 2:
 		label.text = "%d HITS" % combo_count
 		label.visible = true
-	else:
+
+		var tween := create_tween()
+		tween.tween_property(label, "modulate:a", 1.0, 0.15)
+
+		await get_tree().create_timer(2.0).timeout
+
+		var fade_tween := create_tween()
+		fade_tween.tween_property(label, "modulate:a", 0.0, 0.3)
+		await fade_tween.finished
+
 		label.visible = false
 
 

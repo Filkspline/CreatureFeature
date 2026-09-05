@@ -292,6 +292,37 @@ anchor_bottom = 0.03
 text = "Player 2"
 horizontal_alignment = 2
 
+[node name="P1ComboLabel" type="Label" parent="UIRoot" unique_id=90210001]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.02
+anchor_top = 0.04
+anchor_right = 0.3
+anchor_bottom = 0.04
+offset_top = 40.0
+offset_bottom = 72.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.5921569)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.1254902, 0.20392157, 0.68235296)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("8_dnckg")
+theme_override_font_sizes/font_size = 60
+
+[node name="P2ComboLabel" type="Label" parent="UIRoot" unique_id=90210002]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.7
+anchor_top = 0.04
+anchor_right = 0.98
+anchor_bottom = 0.04
+offset_top = 39.0
+offset_bottom = 71.0
+theme_override_colors/font_color = Color(0.8627451, 0.8901961, 1, 0.77254903)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.1254902, 0.20392157, 0.7882353)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("8_dnckg")
+theme_override_font_sizes/font_size = 60
+horizontal_alignment = 2
+
 [node name="P1RoundPips" type="HBoxContainer" parent="UIRoot" unique_id=116484792]
 layout_mode = 1
 anchors_preset = -1
