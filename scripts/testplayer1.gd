@@ -27,7 +27,6 @@ class_name Player
 @export_group("Combat Timing")
 @export var gatling_buffer_frames: int = 26
 @export var direction_buffer_time: float = 0.6
-@export var knockdown_duration: float = 1.0
 ## How many physics frames a Jump/Normal/Special press is "remembered"
 ## for after being pressed. Captured every frame regardless of state,
 ## so pressing e.g. Jump a few frames before an attack's recovery ends
@@ -73,7 +72,7 @@ class_name Player
 ## until unlock_move() is called with a MoveData sharing that move_name.
 @export var locked_move_names: Array[StringName] = []
 
-enum State { NEUTRAL, ATTACK, HITSTUN, BLOCKSTUN, KNOCKDOWN }
+enum State { NEUTRAL, ATTACK, HITSTUN, BLOCKSTUN }
 enum JumpPhase { RISE, PEAK, FALL }
 enum Direction { NONE, LEFT, RIGHT }
 enum CrouchPhase { NONE, TRANSITION_DOWN, LOOP, STAND_UP }
@@ -179,7 +178,6 @@ var has_used_air_jump_attack: bool = false
 
 var stun_timer: float = 0.0
 var stun_just_started: bool = false
-var pending_knockdown: bool = false
 
 var is_blocking_low: bool = false
 var current_health: float = 0.0
@@ -463,8 +461,8 @@ func _capture_buffered_inputs() -> void:
 
 
 func _decay_input_buffer() -> void:
-	# Only ticks down while NEUTRAL. While ATTACK/HITSTUN/BLOCKSTUN/
-	# KNOCKDOWN, a buffered press just sits fully "hot" and waits —
+	# Only ticks down while NEUTRAL. While ATTACK/HITSTUN/BLOCKSTUN, a
+	# buffered press just sits fully "hot" and waits —
 	# otherwise a press captured early during a long attack (recovery
 	# frequently runs well past input_buffer_frames) would expire
 	# before the attack ever ends, and the buffer would never fire.
@@ -507,8 +505,6 @@ func _physics_process(delta: float) -> void:
 			_hitstun_process(delta)
 		State.BLOCKSTUN:
 			_blockstun_process(delta)
-		State.KNOCKDOWN:
-			_knockdown_process(delta)
 
 	EventBus.player_position[player_id] = global_position
 	EventBus.player_velocity[player_id] = velocity
@@ -923,7 +919,7 @@ func _apply_pushback() -> void:
 	pushback_velocity_x = _direction_away_from(opponent) * current_move.pushback_on_block
 
 
-# Shared countdown for hitstun, blockstun and knockdown. Skips the
+# Shared countdown for hitstun and blockstun. Skips the
 # first tick right after a state change, since the caller may set
 # state mid frame before this player's own physics step has run.
 func _tick_stun_timer(delta: float) -> bool:
@@ -935,36 +931,24 @@ func _tick_stun_timer(delta: float) -> bool:
 
 
 func _hitstun_process(delta: float) -> void:
-	# This branch only runs for a plain grounded hit (pending_knockdown
-	# false), where zeroing velocity.y is correct/wanted. If a launcher
-	# hit ever ends up in here, its upward velocity gets silently wiped
-	# right here — see the move_is_launcher note in _resolve_hit().
-	if is_on_floor() and not pending_knockdown:
+	# Grounded and airborne hitstun recover the same way: the stun timer
+	# ticks down and the player returns to NEUTRAL when it runs out. An
+	# airborne/launcher hit just keeps falling during that time instead of
+	# forcing any extra state on landing.
+	if is_on_floor():
 		pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, pushback_deceleration * delta)
 		velocity.x = pushback_velocity_x
 		velocity.y = 0.0
-		move_and_slide()
-
-		if _tick_stun_timer(delta):
-			state = State.NEUTRAL
-			hitstun_finished.emit()
-			_resume_crouch_or_update_animation()
-		return
-
-	# Airborne hitstun, from a launcher or a hit taken mid air, ignores
-	# the stun timer and just falls until it lands, then becomes a
-	# knockdown instead of standing back up mid air.
-	_apply_gravity(delta)
-	pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, pushback_deceleration * delta)
-	velocity.x = pushback_velocity_x
+	else:
+		_apply_gravity(delta)
+		pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, pushback_deceleration * delta)
+		velocity.x = pushback_velocity_x
 	move_and_slide()
 
-	if is_on_floor():
-		pending_knockdown = false
-		stun_timer = knockdown_duration
-		stun_just_started = true
-		$Hurtbox/MainHurtbox.disabled = true
-		state = State.KNOCKDOWN
+	if _tick_stun_timer(delta):
+		state = State.NEUTRAL
+		hitstun_finished.emit()
+		_resume_crouch_or_update_animation()
 
 
 func _blockstun_process(delta: float) -> void:
@@ -990,19 +974,6 @@ func _blockstun_process(delta: float) -> void:
 	state = State.NEUTRAL
 	sprites.hide_block_sprites()
 	_resume_crouch_or_update_animation()
-
-
-func _knockdown_process(delta: float) -> void:
-	_apply_gravity(delta)
-	velocity.x = move_toward(velocity.x, 0.0, pushback_deceleration * delta)
-	move_and_slide()
-
-	if not _tick_stun_timer(delta):
-		return
-
-	$Hurtbox/MainHurtbox.disabled = false
-	state = State.NEUTRAL
-	_update_animation(false)
 
 
 # If still holding crouch when returning to NEUTRAL, go straight back
@@ -1032,8 +1003,7 @@ func _min_visible_stun_frames(anim_name: String) -> int:
 #    their own attack should stop threatening the opponent immediately.
 #  - Hurtbox "sub" shapes: some moves enable an extra vulnerable area
 #    (e.g. an extended limb) only during certain frames. MainHurtbox is
-#    left alone — its own enabled state is managed separately elsewhere
-#    (e.g. knockdown invulnerability) and it should always stay live.
+#    left alone and always stays live.
 func _disable_combat_shapes_on_hit() -> void:
 	for shape_node in $Hitbox.get_children():
 		if shape_node is CollisionShape2D:
@@ -1059,8 +1029,8 @@ func take_hit(move_data: MoveData, attacker: Node2D) -> bool:
 	# back, and that same held-back input stays true for the whole
 	# swing, so an attacking player who happened to be holding back
 	# would get treated as blocking instead of getting counter-hit.
-	# HITSTUN and KNOCKDOWN are excluded for the same reason: you
-	# shouldn't be able to block while already reeling from a hit.
+	# HITSTUN is excluded for the same reason: you shouldn't be able to
+	# block while already reeling from a hit.
 	var can_block_right_now = state == State.NEUTRAL or state == State.BLOCKSTUN
 	var block_ready = can_block_right_now and _is_block_ready() and _block_posture_beats_hit_level(move_data.hit_level, was_crouching)
 	if block_ready:
@@ -1116,14 +1086,13 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) ->
 	# is_launcher is treated as true if EITHER the checkbox is on OR
 	# launcher_strength is non-zero. This exists because "set
 	# launcher_strength, forget to also tick is_launcher" is a really
-	# easy mistake to make in the inspector, and the failure mode is
-	# silent: pending_knockdown stays false, so the grounded branch of
-	# _hitstun_process runs and its `velocity.y = 0.0` (needed so a
-	# normal ground hit doesn't keep any stray vertical velocity) wipes
-	# out the upward velocity before it's ever visible.
+	# easy mistake to make in the inspector; launcher_strength is what
+	# actually sets the upward velocity below.
 	var move_is_launcher = move_data.is_launcher or move_data.launcher_strength > 0.0
+	# Air hit = launcher OR hit taken while already airborne. Both use the
+	# airhit reaction and recover through normal hitstun.
+	var is_air_hit: bool = move_is_launcher or not is_on_floor()
 
-	pending_knockdown = move_is_launcher or not is_on_floor()
 	# Knockback reduction is flat armor: subtract it from the move's
 	# knockback, clamped to >= 0 so it can't invert into a pull toward the attacker.
 	var effective_knockback: float = max(move_data.knock_back - knockback_reduction, 0.0)
@@ -1131,27 +1100,27 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) ->
 	if move_is_launcher:
 		velocity.y = -move_data.launcher_strength
 
-	_dbg("[RESOLVE HIT] '%s' is_launcher=%s launcher_strength=%.1f -> move_is_launcher=%s pending_knockdown=%s velocity.y=%.1f" % [
-		move_data.move_name, move_data.is_launcher, move_data.launcher_strength, move_is_launcher, pending_knockdown, velocity.y
+	_dbg("[RESOLVE HIT] '%s' is_launcher=%s launcher_strength=%.1f -> move_is_launcher=%s velocity.y=%.1f" % [
+		move_data.move_name, move_data.is_launcher, move_data.launcher_strength, move_is_launcher, velocity.y
 	])
 
 	var hitstun_frames = move_data.hitstun
-	var reaction_anim := "crouch_hit" if was_crouching else "mid_hit"
+	var reaction_anim := "airhit" if is_air_hit else ("crouch_hit" if was_crouching else "mid_hit")
 	hitstun_frames = max(hitstun_frames, _min_visible_stun_frames(reaction_anim))
 
 	stun_timer = hitstun_frames / 60.0
 	stun_just_started = true
 	state = State.HITSTUN
 
-	call_deferred("_apply_hit_reaction_visuals", was_crouching)
+	call_deferred("_apply_hit_reaction_visuals", was_crouching, is_air_hit)
 
 
 func _apply_block_reaction_visuals() -> void:
 	sprites.play_block_idle(is_blocking_low, true)
 
 
-func _apply_hit_reaction_visuals(was_crouching: bool) -> void:
-	sprites.play_hit_reaction(was_crouching)
+func _apply_hit_reaction_visuals(was_crouching: bool, is_air_hit: bool) -> void:
+	sprites.play_hit_reaction(was_crouching, is_air_hit)
 
 
 func _apply_gravity(delta: float) -> void:
@@ -1338,7 +1307,7 @@ func freeze_until_landing() -> void:
 func freeze_until_hitstun_recovery() -> void:
 	animation_player.pause()
 	await hitstun_finished
-	if sprites.get_current_anim() in ["crouch_hit", "mid_hit"]:
+	if sprites.get_current_anim() in ["crouch_hit", "crouch_hit_2", "mid_hit", "mid_hit_2", "mid_hit_3", "airhit"]:
 		animation_player.play()
 
 

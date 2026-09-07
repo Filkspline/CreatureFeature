@@ -28,7 +28,8 @@ signal animation_finished(anim_name: String)
 @export var hold_on_finish_anims: Array[String] = [
 	"jump_rise", "jump_peak", "jump_land",
 	"crouch_down", "crouch_up",
-	"crouch_hit", "mid_hit"
+	"crouch_hit", "crouch_hit_2", "mid_hit", "mid_hit_2", "mid_hit_3",
+	"airhit"
 ]
 
 # ── Animations that should loop ───────────────────────────────────
@@ -60,7 +61,11 @@ enum BlockWarningPhase { NONE, START, HOLD, END }
 @onready var block_idle_sprite: Sprite2D = $BlockIdle
 @onready var crouch_block_idle_sprite: Sprite2D = $CrouchBlockIdle
 @onready var crouch_hit_sprite: Sprite2D = $CrouchHit
+@onready var crouch_hit2_sprite: Sprite2D = $CrouchHit2
 @onready var mid_hit_sprite: Sprite2D = $MidHit
+@onready var mid_hit2_sprite: Sprite2D = $MidHit2
+@onready var mid_hit3_sprite: Sprite2D = $MidHit3
+@onready var airhit_sprite: Sprite2D = $Airhit
 
 # Attack sprites are NOT fixed @onready vars — they're looked up by move
 # name (e.g. "N5", "S6") when setup() runs, so adding a new move later is
@@ -78,6 +83,9 @@ var block_warning_phase: int = BlockWarningPhase.NONE
 var block_warning_frame_index: int = 0
 var block_warning_timer: float = 0.0
 var block_warning_is_crouching: bool = false
+# Hit reaction variety tracking (per player instance).
+var _last_mid_hit_index: int = -1  # last mid_hit variant played, avoids a repeat
+var _crouch_hit_alternate: bool = false  # flips between crouch_hit and crouch_hit_2
 
 
 func _dbg(msg: String) -> void:
@@ -108,7 +116,11 @@ func setup(anim_player: AnimationPlayer, move_names: Array = []) -> void:
 	crouch_block_idle_sprite.visible = false
 	# Hit-reaction sprites off
 	crouch_hit_sprite.visible = false
+	crouch_hit2_sprite.visible = false
 	mid_hit_sprite.visible = false
+	mid_hit2_sprite.visible = false
+	mid_hit3_sprite.visible = false
+	airhit_sprite.visible = false
 
 	# Configure loop modes for all animations
 	for anim_name in animation_player.get_animation_list():
@@ -195,11 +207,29 @@ func play_block_idle(is_low: bool, force_restart: bool = false) -> void:
 		play_anim("block_idle", block_idle_sprite, force_restart)
 
 
-func play_hit_reaction(was_crouching: bool) -> void:
-	if was_crouching:
-		play_anim("crouch_hit", crouch_hit_sprite, true)
+func play_hit_reaction(was_crouching: bool, is_air_hit: bool = false) -> void:
+	if is_air_hit:
+		play_anim("airhit", airhit_sprite, true)
+	elif was_crouching:
+		# Strictly alternate between the two crouch-hit animations.
+		_crouch_hit_alternate = not _crouch_hit_alternate
+		if _crouch_hit_alternate:
+			play_anim("crouch_hit_2", crouch_hit2_sprite, true)
+		else:
+			play_anim("crouch_hit", crouch_hit_sprite, true)
 	else:
-		play_anim("mid_hit", mid_hit_sprite, true)
+		# Random mid-hit, never the same variant twice in a row.
+		var index := randi() % 3
+		while index == _last_mid_hit_index:
+			index = randi() % 3
+		_last_mid_hit_index = index
+		match index:
+			0:
+				play_anim("mid_hit", mid_hit_sprite, true)
+			1:
+				play_anim("mid_hit_2", mid_hit2_sprite, true)
+			_:
+				play_anim("mid_hit_3", mid_hit3_sprite, true)
 
 
 func show_attack_sprite(anim_name: StringName) -> void:
@@ -269,7 +299,11 @@ func hide_all_sprites() -> void:
 	mid_block_warning.visible = false
 	low_block_warning.visible = false
 	crouch_hit_sprite.visible = false
+	crouch_hit2_sprite.visible = false
 	mid_hit_sprite.visible = false
+	mid_hit2_sprite.visible = false
+	mid_hit3_sprite.visible = false
+	airhit_sprite.visible = false
 
 
 func hide_attack_sprites() -> void:

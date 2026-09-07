@@ -30,7 +30,7 @@ func _ready() -> void:
 	_dbg("[SETUP] HitEffectManager ready, connected to EventBus.hit_confirmed. default_hit_effect=%s default_block_effect=%s" % [default_hit_effect, default_block_effect])
 
 
-func _on_hit_confirmed(impact_position: Vector2, move_data: MoveData, _attacker: Node, defender: Node, was_blocked: bool) -> void:
+func _on_hit_confirmed(impact_position: Vector2, move_data: MoveData, attacker: Node, defender: Node, was_blocked: bool) -> void:
 	_dbg("[HIT CONFIRMED] received signal | pos=%s move=%s blocked=%s" % [impact_position, move_data.move_name if move_data else "null", was_blocked])
 
 	var scene := _pick_effect(move_data, was_blocked)
@@ -49,6 +49,14 @@ func _on_hit_confirmed(impact_position: Vector2, move_data: MoveData, _attacker:
 	var spawn_y: float = lerp((defender as Node2D).global_position.y, impact_position.y, impact_y_influence)
 	var spawn_position := Vector2(spawn_x, spawn_y)
 	effect.global_position = spawn_position
+
+	# Hit sparks burst in the direction the hit travelled, from the attacker
+	# toward the defender. Blocks keep their default effect direction.
+	if not was_blocked and attacker is Node2D and defender is Node2D and effect is CPUParticles2D:
+		var hit_dir: Vector2 = (defender as Node2D).global_position - (attacker as Node2D).global_position
+		if hit_dir.length() > 0.0:
+			effect.direction = hit_dir.normalized()
+
 	_dbg("[HIT CONFIRMED] spawned '%s' under '%s' at %s" % [scene.resource_path, parent.name, spawn_position])
 	effect.play()
 
