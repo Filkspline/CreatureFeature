@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://b1t3unc4rd001"]
 
-[ext_resource type="Texture2D" uid="uid://c5ucj2gpuyupt" path="res://assets/S5.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://7ihocdp06s4g" path="res://assets/card_assets/card_icons/Bite.png" id="1_o85x6"]
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="2_script"]
 [ext_resource type="Resource" uid="uid://clikuihe6gu1i" path="res://scripts/S5.tres" id="3_move"]
 
@@ -9,6 +9,6 @@ script = ExtResource("2_script")
 name = "Bite"
 description = "Select Bite as your
 grounded special move"
-icon = ExtResource("1_icon")
+icon = ExtResource("1_o85x6")
 effect_type = 2
 unlocked_move = ExtResource("3_move")

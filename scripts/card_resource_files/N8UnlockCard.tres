@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://upp3rcutc4rd1"]
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://beoqs2aki4ek7"]
 
-[ext_resource type="Texture2D" uid="uid://dsaxy7p7l1hsx" path="res://assets/N8.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://dla7xdbo0di1p" path="res://assets/card_assets/card_icons/Uppercut.png" id="1_gluk3"]
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="2_script"]
 [ext_resource type="Resource" uid="uid://cdirqpownqbv0" path="res://scripts/N8.tres" id="3_move"]
 
@@ -9,6 +9,6 @@ script = ExtResource("2_script")
 name = "Uppercut"
 description = "Select Uppercut as your
 grounded special move"
-icon = ExtResource("1_icon")
+icon = ExtResource("1_gluk3")
 effect_type = 2
 unlocked_move = ExtResource("3_move")
