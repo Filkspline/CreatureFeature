@@ -89,7 +89,7 @@ region = Rect2(600, 200, 100, 100)
 [resource]
 animations = [{
 "frames": [{
-"duration": 1.0,
+"duration": 1.1,
 "texture": SubResource("AtlasTexture_sh1ag")
 }, {
 "duration": 1.0,
@@ -154,5 +154,5 @@ animations = [{
 }],
 "loop": 2,
 "name": &"default",
-"speed": 2.0
+"speed": 6.0
 }]
