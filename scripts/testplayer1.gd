@@ -22,7 +22,7 @@ class_name Player
 @export var pushback_deceleration: float = 600.0
 
 @export_group("Hurtbox")
-@export var hurtbox_vertical_reduction: float = 80.0
+@export var hurtbox_vertical_reduction: float = 60.0
 
 @export_group("Combat Timing")
 @export var gatling_buffer_frames: int = 26
@@ -1016,6 +1016,11 @@ func _disable_combat_shapes_on_hit() -> void:
 
 func take_hit(move_data: MoveData, attacker: Node2D) -> bool:
 	var was_crouching = (crouch_phase != CrouchPhase.NONE)
+	# Must read block readiness before crouch_phase gets reset below,
+	# since _is_block_ready() checks crouch_phase live and would
+	# otherwise always see NONE and fall through to requiring back-hold.
+	var can_block_right_now = state == State.NEUTRAL or state == State.BLOCKSTUN
+	var block_ready = can_block_right_now and _is_block_ready() and _block_posture_beats_hit_level(move_data.hit_level, was_crouching)
 
 	crouch_phase = CrouchPhase.NONE
 	wants_to_crouch = false
@@ -1023,16 +1028,6 @@ func take_hit(move_data: MoveData, attacker: Node2D) -> bool:
 
 	_disable_combat_shapes_on_hit()
 
-	# Blocking is only legal from NEUTRAL (reacting to a hit) or from
-	# BLOCKSTUN (holding block through the rest of a multi-hit string).
-	# Without this, ATTACK counted too — e.g. N4 is input by holding
-	# back, and that same held-back input stays true for the whole
-	# swing, so an attacking player who happened to be holding back
-	# would get treated as blocking instead of getting counter-hit.
-	# HITSTUN is excluded for the same reason: you shouldn't be able to
-	# block while already reeling from a hit.
-	var can_block_right_now = state == State.NEUTRAL or state == State.BLOCKSTUN
-	var block_ready = can_block_right_now and _is_block_ready() and _block_posture_beats_hit_level(move_data.hit_level, was_crouching)
 	if block_ready:
 		_resolve_block(move_data, attacker, was_crouching)
 		return true

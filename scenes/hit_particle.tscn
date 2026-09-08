@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://d1hitprtcl01"]
 
 [ext_resource type="Script" uid="uid://bg0k4pg5m1jsr" path="res://scripts/HitParticle.gd" id="1"]
-[ext_resource type="Shader" uid="uid://h1tsp4rk00001" path="res://scripts/hit_spark.gdshader" id="2_spark"]
+[ext_resource type="Shader" uid="uid://b02j0w2vmaii" path="res://scripts/hit_spark.gdshader" id="2_spark"]
+[ext_resource type="Texture2D" uid="uid://dedgdbt53l6qw" path="res://assets/ezgif-82a391cec1c72c55.png" id="3_l506i"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_spark"]
 shader = ExtResource("2_spark")
@@ -23,3 +24,10 @@ initial_velocity_max = 160.0
 scale_amount_min = 2.0
 scale_amount_max = 4.0
 script = ExtResource("1")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=177171143]
+modulate = Color(18.892157, 18.892157, 18.892157, 1)
+position = Vector2(-7, -15.999996)
+scale = Vector2(2.6545455, 2.0588236)
+texture = ExtResource("3_l506i")
+vframes = 6
