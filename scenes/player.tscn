@@ -29,8 +29,12 @@
 [ext_resource type="Texture2D" uid="uid://dx0e30vchh13e" path="res://assets/blockwarningeffct2.png" id="24_hax0n"]
 [ext_resource type="Texture2D" uid="uid://blh70px5vevds" path="res://assets/N4.png" id="24_l71n6"]
 [ext_resource type="Texture2D" uid="uid://dsaxy7p7l1hsx" path="res://assets/N8.png" id="26_ujl30"]
+[ext_resource type="Texture2D" uid="uid://6pceglpnhexo" path="res://assets/midhit3.png" id="27_j2b1d"]
+[ext_resource type="Texture2D" uid="uid://dbydk0s5jkwda" path="res://assets/midhit2.png" id="27_t4otl"]
 [ext_resource type="Texture2D" uid="uid://cojvgki756ps8" path="res://assets/SAnew.png" id="28_487ah"]
+[ext_resource type="Texture2D" uid="uid://potkopif8d52" path="res://assets/crouchhit2.png" id="28_hax0n"]
 [ext_resource type="Texture2D" uid="uid://dcmtxu3qo1ca5" path="res://assets/N2.png" id="28_pf23h"]
+[ext_resource type="Texture2D" uid="uid://cr83rmemxip13" path="res://assets/airhit.png" id="29_cs1tg"]
 [ext_resource type="Script" uid="uid://dqthlu7xsfxsy" path="res://scripts/PlayerVisuals.gd" id="30_visuals"]
 [ext_resource type="Texture2D" uid="uid://be7acvoi48pnr" path="res://assets/S6.png" id="30_wqfne"]
 [ext_resource type="Texture2D" uid="uid://ddx0neslyctld" path="res://assets/S8.png" id="32_gl8cc"]
@@ -48,7 +52,7 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(134, 441.5)
+size = Vector2(105, 441.5)
 
 [sub_resource type="Animation" id="Animation_j2b1d"]
 resource_name = "JA"
@@ -249,7 +253,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.06666667, 0.15, 0.2),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [Vector2(92, 90), Vector2(124.75, 11), Vector2(67.5, 13.5), Vector2(34.5, 74)]
+"values": [Vector2(92, 90), Vector2(124.75, 45), Vector2(67.5, 13.5), Vector2(34.5, 74)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -258,7 +262,7 @@ tracks/2/path = NodePath("Hitbox/MainHitbox:disabled")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.06666667, 0.21666667),
+"times": PackedFloat32Array(0, 0.06666667, 0.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
@@ -957,6 +961,54 @@ tracks/29/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/30/type = "value"
+tracks/30/imported = false
+tracks/30/enabled = true
+tracks/30/path = NodePath("Sprites/CrouchHit2:frame")
+tracks/30/interp = 1
+tracks/30/loop_wrap = true
+tracks/30/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/31/type = "value"
+tracks/31/imported = false
+tracks/31/enabled = true
+tracks/31/path = NodePath("Sprites/MidHit2:frame")
+tracks/31/interp = 1
+tracks/31/loop_wrap = true
+tracks/31/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/32/type = "value"
+tracks/32/imported = false
+tracks/32/enabled = true
+tracks/32/path = NodePath("Sprites/MidHit3:frame")
+tracks/32/interp = 1
+tracks/32/loop_wrap = true
+tracks/32/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/33/type = "value"
+tracks/33/imported = false
+tracks/33/enabled = true
+tracks/33/path = NodePath("Sprites/Airhit:frame")
+tracks/33/interp = 1
+tracks/33/loop_wrap = true
+tracks/33/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
 [sub_resource type="Animation" id="Animation_cs1tg"]
 resource_name = "S4"
@@ -1287,6 +1339,23 @@ tracks/3/keys = {
 "values": [Vector2(103, 66), Vector2(90, 73)]
 }
 
+[sub_resource type="Animation" id="Animation_g5jhy"]
+resource_name = "airhit"
+length = 0.033333335
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprites/Airhit:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
 [sub_resource type="Animation" id="Animation_dt7fs"]
 resource_name = "block_idle"
 length = 0.23333501216936856
@@ -1367,6 +1436,37 @@ tracks/1/keys = {
 "args": [],
 "method": &"freeze_until_hitstun_recovery"
 }]
+}
+
+[sub_resource type="Animation" id="Animation_2dvfe"]
+resource_name = "crouch_hit_2"
+length = 0.2
+step = 0.016666668
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.06666667),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"freeze_until_hitstun_recovery"
+}]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprites/CrouchHit2:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.13333334),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [0, 1, 2]
 }
 
 [sub_resource type="Animation" id="Animation_ujl30"]
@@ -1503,9 +1603,26 @@ tracks/0/keys = {
 "values": [0, 1, 2]
 }
 
+[sub_resource type="Animation" id="Animation_hhpqf"]
+resource_name = "knockdown"
+length = 0.033333335
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprites/Jump:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [6]
+}
+
 [sub_resource type="Animation" id="Animation_gl8cc"]
 resource_name = "mid_hit"
-length = 0.16666667
+length = 0.13333334
 step = 0.016666668
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -1514,7 +1631,7 @@ tracks/0/path = NodePath("Sprites/MidHit:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.050000004, 0.10000001),
+"times": PackedFloat32Array(0, 0.06666667, 0.1),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [0, 1, 2]
@@ -1526,12 +1643,74 @@ tracks/1/path = NodePath(".")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0.05),
+"times": PackedFloat32Array(0.06666667),
 "transitions": PackedFloat32Array(1),
 "values": [{
 "args": [],
 "method": &"freeze_until_hitstun_recovery"
 }]
+}
+
+[sub_resource type="Animation" id="Animation_giy8y"]
+resource_name = "mid_hit_2"
+length = 0.13333334
+step = 0.016666668
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.06666667),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"freeze_until_hitstun_recovery"
+}]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprites/MidHit2:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.099999994),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [0, 1, 2]
+}
+
+[sub_resource type="Animation" id="Animation_fdfoy"]
+resource_name = "mid_hit_3"
+length = 0.13333334
+step = 0.016666668
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.06666667),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"freeze_until_hitstun_recovery"
+}]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprites/MidHit3:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.099999994),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [0, 1, 2]
 }
 
 [sub_resource type="Animation" id="Animation_l71n6"]
@@ -1585,10 +1764,12 @@ _data = {
 &"S6": SubResource("Animation_hax0n"),
 &"S8": SubResource("Animation_t4otl"),
 &"SA": SubResource("Animation_487ah"),
+&"airhit": SubResource("Animation_g5jhy"),
 &"block_idle": SubResource("Animation_dt7fs"),
 &"crouch_block_idle": SubResource("Animation_wqfne"),
 &"crouch_down": SubResource("Animation_ke2ow"),
 &"crouch_hit": SubResource("Animation_wnwbv"),
+&"crouch_hit_2": SubResource("Animation_2dvfe"),
 &"crouch_idle": SubResource("Animation_ujl30"),
 &"crouch_up": SubResource("Animation_31cv2"),
 &"idle": SubResource("Animation_pf23h"),
@@ -1596,7 +1777,10 @@ _data = {
 &"jump_land": SubResource("Animation_60mlk"),
 &"jump_peak": SubResource("Animation_4r5pv"),
 &"jump_rise": SubResource("Animation_ur7pv"),
+&"knockdown": SubResource("Animation_hhpqf"),
 &"mid_hit": SubResource("Animation_gl8cc"),
+&"mid_hit_2": SubResource("Animation_giy8y"),
+&"mid_hit_3": SubResource("Animation_fdfoy"),
 &"walk_backward": SubResource("Animation_l71n6"),
 &"walk_forward": SubResource("Animation_i4ail")
 }
@@ -1640,7 +1824,7 @@ texture = SubResource("GradientTexture2D_57qmd")
 expand_mode = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1285333219]
-position = Vector2(1, -221.25)
+position = Vector2(-0.5, -221.25)
 shape = SubResource("RectangleShape2D_g4v7s")
 debug_color = Color(0.26929268, 0.6220697, 0.34595335, 0.41960785)
 
@@ -1698,6 +1882,7 @@ texture = ExtResource("10_y4r1p")
 hframes = 9
 
 [node name="NA" type="Sprite2D" parent="Sprites" unique_id=1426456731]
+visible = false
 position = Vector2(1, -95)
 texture = ExtResource("13_jej6c")
 hframes = 8
@@ -1720,10 +1905,33 @@ position = Vector2(0, -85)
 texture = ExtResource("19_60mlk")
 hframes = 3
 
+[node name="MidHit3" type="Sprite2D" parent="Sprites" unique_id=1341776769]
+visible = false
+position = Vector2(0, -184)
+texture = ExtResource("27_j2b1d")
+hframes = 3
+
+[node name="MidHit2" type="Sprite2D" parent="Sprites" unique_id=1069037387]
+visible = false
+position = Vector2(0, -186)
+texture = ExtResource("27_t4otl")
+hframes = 3
+
+[node name="Airhit" type="Sprite2D" parent="Sprites" unique_id=431721472]
+visible = false
+position = Vector2(0, -186)
+texture = ExtResource("29_cs1tg")
+
 [node name="CrouchHit" type="Sprite2D" parent="Sprites" unique_id=1883046277]
 visible = false
-position = Vector2(-1, -86)
+position = Vector2(-1, -186)
 texture = ExtResource("20_i4ail")
+hframes = 3
+
+[node name="CrouchHit2" type="Sprite2D" parent="Sprites" unique_id=859212332]
+visible = false
+position = Vector2(-1, -184)
+texture = ExtResource("28_hax0n")
 hframes = 3
 
 [node name="SA" type="Sprite2D" parent="Sprites" unique_id=2100174608]

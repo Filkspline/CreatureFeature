@@ -1,27 +1,15 @@
 [gd_scene format=3 uid="uid://d1hitprtcl01"]
 
 [ext_resource type="Script" uid="uid://bg0k4pg5m1jsr" path="res://scripts/HitParticle.gd" id="1"]
-[ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/impact_tear.gdshader" id="1_si4ve"]
+[ext_resource type="Shader" uid="uid://b02j0w2vmaii" path="res://scripts/hit_spark.gdshader" id="2_spark"]
+[ext_resource type="Texture2D" uid="uid://dedgdbt53l6qw" path="res://assets/ezgif-82a391cec1c72c55.png" id="3_l506i"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_l506i"]
-shader = ExtResource("1_si4ve")
-shader_parameter/impact_pos = Vector2(0.5, 0.5)
-shader_parameter/core_radius = 0.0650000030875
-shader_parameter/glow_radius = 0.266000012635
-shader_parameter/core_color = Color(0, 0, 0, 1)
-shader_parameter/rim_color = Color(0, 0, 0, 1)
-shader_parameter/tear_strength = 0.01600000076
-shader_parameter/tear_band_count = 30.00000095
-shader_parameter/tear_radius = 0.4
-shader_parameter/flicker_speed = 18.0
-shader_parameter/chrom_strength = 0.019
-shader_parameter/fade_start = 0.30000001425
-shader_parameter/fade_end = 0.53600002546
-shader_parameter/effect_alpha = 0.5270000250325
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_spark"]
+shader = ExtResource("2_spark")
 
 [node name="HitParticle" type="CPUParticles2D" unique_id=657205917]
 z_as_relative = false
-material = SubResource("ShaderMaterial_l506i")
+material = SubResource("ShaderMaterial_spark")
 emitting = false
 amount = 16
 lifetime = 0.3
@@ -36,3 +24,10 @@ initial_velocity_max = 160.0
 scale_amount_min = 2.0
 scale_amount_max = 4.0
 script = ExtResource("1")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=177171143]
+modulate = Color(18.892157, 18.892157, 18.892157, 1)
+position = Vector2(-7, -15.999996)
+scale = Vector2(2.6545455, 2.0588236)
+texture = ExtResource("3_l506i")
+vframes = 6

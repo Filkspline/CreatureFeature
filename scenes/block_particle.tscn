@@ -5,3 +5,4 @@
 [node name="block_particle" type="CPUParticles2D" unique_id=914933827]
 z_as_relative = false
 script = ExtResource("1_q7r6y")
+start_scale = 0.26

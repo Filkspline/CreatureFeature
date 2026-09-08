@@ -36,7 +36,7 @@ enum Kind { NORMAL, SPECIAL, GRAB }
 @export var block_knock_back: float = 0.0  # defender's pushback speed on a BLOCKED hit
 
 @export_group("Launcher")
-@export var is_launcher: bool = false      # pops the opponent airborne on hit, forcing a knockdown on landing
+@export var is_launcher: bool = false      # pops the opponent airborne on hit
 @export var launcher_strength: float = 0.0 # upward launch speed if is_launcher is true (compare to jump_velocity)
 
 @export_group("Advancing move")

@@ -1,4 +1,5 @@
 extends Node
+
 # Autoload singleton. Listens for EventBus.hit_confirmed and spawns the
 # appropriate particle effect at the impact point. Add as an autoload
 # via the HitEffectManager.tscn wrapper (not this script directly) so the
@@ -6,16 +7,12 @@ extends Node
 
 ## Fallback effect used when a move has no hit_effect_scene of its own.
 @export var default_hit_effect: PackedScene
-
 ## Fallback effect used when a move has no block_effect_scene of its own.
 @export var default_block_effect: PackedScene
-
 ## Temporary — prints each step of the pipeline so you can see exactly
 ## where a hit effect is (or isn't) making it through. Turn off once
 ## particles are confirmed working.
 @export var debug: bool = true
-
-
 ## How much impact_position.x nudges the spawn x away from the defender's
 ## own x. 0.0 = spawns exactly on the defender's x; 1.0 = spawns exactly on
 ## the impact x. Kept low so it reads as "on the defender" with a slight
@@ -24,31 +21,37 @@ extends Node
 @export_range(0.0, 1.0, 0.01) var impact_y_influence: float = 0.85
 
 
-
 func _ready() -> void:
 	EventBus.hit_confirmed.connect(_on_hit_confirmed)
 	_dbg("[SETUP] HitEffectManager ready, connected to EventBus.hit_confirmed. default_hit_effect=%s default_block_effect=%s" % [default_hit_effect, default_block_effect])
 
 
-func _on_hit_confirmed(impact_position: Vector2, move_data: MoveData, _attacker: Node, defender: Node, was_blocked: bool) -> void:
+func _on_hit_confirmed(impact_position: Vector2, move_data: MoveData, attacker: Node, defender: Node, was_blocked: bool) -> void:
 	_dbg("[HIT CONFIRMED] received signal | pos=%s move=%s blocked=%s" % [impact_position, move_data.move_name if move_data else "null", was_blocked])
-
 	var scene := _pick_effect(move_data, was_blocked)
 	if not scene:
 		_dbg("[HIT CONFIRMED] no effect scene resolved (defaults unassigned?) -> aborting")
 		return
-
 	var parent := _get_effects_parent()
 	if not parent:
 		_dbg("[HIT CONFIRMED] no valid parent from _get_effects_parent() (current_scene is null?) -> aborting")
 		return
-
 	var effect := scene.instantiate()
 	parent.add_child(effect)
 	var spawn_x: float = lerp((defender as Node2D).global_position.x, impact_position.x, impact_x_influence)
 	var spawn_y: float = lerp((defender as Node2D).global_position.y, impact_position.y, impact_y_influence)
 	var spawn_position := Vector2(spawn_x, spawn_y)
 	effect.global_position = spawn_position
+	# Hit sparks face the direction the hit travelled, from the attacker
+	# toward the defender. Blocks keep their default effect direction.
+	# Checked by property presence rather than a specific class, since the
+	# effect scene's root type (CPUParticles2D, Node2D, whatever) is an
+	# implementation detail of that particular effect, not something this
+	# manager should need to know about.
+	if not was_blocked and attacker is Node2D and defender is Node2D and "direction" in effect:
+		var hit_dir: Vector2 = (defender as Node2D).global_position - (attacker as Node2D).global_position
+		if hit_dir.length() > 0.0:
+			effect.direction = hit_dir.normalized()
 	_dbg("[HIT CONFIRMED] spawned '%s' under '%s' at %s" % [scene.resource_path, parent.name, spawn_position])
 	effect.play()
 
@@ -63,7 +66,6 @@ func _pick_effect(move_data: MoveData, was_blocked: bool) -> PackedScene:
 		if move_data and "block_effect_scene" in move_data and move_data.block_effect_scene:
 			return move_data.block_effect_scene
 		return default_block_effect
-
 	if move_data and "hit_effect_scene" in move_data and move_data.hit_effect_scene:
 		return move_data.hit_effect_scene
 	return default_hit_effect
