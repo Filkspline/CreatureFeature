@@ -94,6 +94,19 @@ var state: State = State.NEUTRAL :
 		# restores z_index correctly, same as a clean attack finish.
 		z_index = attack_z_index if new_state == State.ATTACK else base_z_index
 
+@export_group("Effect card variables")
+@export_subgroup("Vampire")
+var vamp_delta_health : int = 2
+@export_subgroup("Underdog")
+var underdog_activated : bool = false
+var underdog_delta_health : int = 30
+var underdog_delta_damage : int = 2
+@export_subgroup("Adrenaline")
+var adrenaline_active : bool = false
+var adrenaline_timer_duration : float = 3
+var adrenaline_delta_move_speed : float = 100.0
+var adrenaline_delta_damage : int = 2
+
 signal landed
 signal hitstun_finished
 
@@ -214,6 +227,8 @@ func _action(name: String) -> StringName:
 
 
 func _ready() -> void:
+	
+	
 	facing_right = (player_id == 1)
 	current_health = max_health
 
@@ -445,6 +460,73 @@ func modify_move(target_upgrade_slot_id: StringName, property_name: StringName, 
 		move.upgrade_property_id = property_name
 		_dbg("[UPGRADE] modify_move %s.%s -> %s" % [move.move_name, property_name, new_value])
 
+
+# ──────────────────────────────────────────────────────────────────
+# Event card handling
+# These functions handle all of the effects for the various event cards that the player can pick up.
+# They use the events from the game runtime to activate
+func event_card_activate(event_card_name: StringName) -> void:
+	match event_card_name:
+		"vampire":
+			EventBus.player_hit_landed.connect(_effect_vampire)
+		"underdog":
+			EventBus.player_health_changed.connect(_effect_underdog)
+		"adrenaline":
+			EventBus.player_hit_landed.connect(_effect_adrenaline)
+
+
+func _effect_vampire(effect_player_id: int, move_name: String, was_blocked: bool) -> void:
+	if player_id == effect_player_id:
+		if was_blocked == false:
+			var new_health = current_health + vamp_delta_health
+			_dbg("[color=yellow][VAMPIRE] Health changed due to effects: %s -> %s" % [current_health, new_health])
+			current_health = new_health
+			if current_health > max_health:
+				current_health = max_health
+			EventBus.player_health_changed.emit(player_id, new_health)
+
+
+func _effect_underdog(effect_player_id: int, new_health: float) -> void:
+	if player_id == effect_player_id:
+		if !underdog_activated:
+			if new_health <= 30:
+				underdog_activated = true
+				var effect_new_health = new_health + underdog_delta_health
+				_dbg("[color=yellow][UNDERDOG] Health changed due to effects: %s -> %s" % [current_health, new_health])
+				current_health = effect_new_health
+				if current_health > max_health:
+					current_health = max_health
+				EventBus.player_health_changed.emit(player_id, new_health)
+			
+				var new_damage_bonus = damage_dealt_bonus + underdog_delta_damage
+				_dbg("[color=yellow][UNDERDOG] Damage bonus changed due to effects: %s -> %s" % [damage_dealt_bonus, new_damage_bonus])
+				damage_dealt_bonus = new_damage_bonus
+
+# NOTE: Move speed does get tagged
+func _effect_adrenaline(player_id: int, move_name: String, was_blocked: bool) -> void:
+	var effect_reciever_id = GameManager._other_player_id(player_id)
+	var current_move_speed = move_speed
+	var current_damage_boost = damage_dealt_bonus
+	if GameManager._other_player_id(player_id) == effect_reciever_id:
+		if was_blocked == false:
+			if !adrenaline_active:
+				adrenaline_active = true
+				move_speed = move_speed + adrenaline_delta_move_speed
+				damage_dealt_bonus = damage_dealt_bonus + adrenaline_delta_damage
+				
+				walk_forward_speed = move_speed # Should fix speed option
+				walk_backward_speed = move_speed # ^
+				
+				_dbg("[color=yellow][ADRENALINE] Move speed %s -> %s. Damage bonus %s -> %s" % [current_move_speed, move_speed, current_damage_boost, damage_dealt_bonus])
+				
+				await get_tree().create_timer(adrenaline_timer_duration).timeout
+				move_speed = current_move_speed
+				damage_dealt_bonus = current_damage_boost
+				adrenaline_active = false
+				
+				walk_forward_speed = move_speed # Should fix speed option
+				walk_backward_speed = move_speed # ^
+				_dbg("[color=yellow][ADRENALINE] Adrenaline timed out")
 
 # ──────────────────────────────────────────────────────────────────
 #  Input buffering

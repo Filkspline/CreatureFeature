@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://46qjodlfp5od"]
+
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_qihk0"]
+
+[resource]
+script = ExtResource("1_qihk0")
+name = "Adrenaline"
+description = "When hit become faster and stronger"
+effect_type = 4
+show_in_pre_fight = false
+stat_name = &"max_health"
+stat_amount = 10.0
+event_card_name = &"adrenaline"

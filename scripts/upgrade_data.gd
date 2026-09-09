@@ -9,6 +9,7 @@ enum EffectType {
 	MULTI_STAT_BOOST,
 	UNLOCK_MOVE,  # grants access to a move that wasn't usable before
 	MOVE_MODIFY,  # tweaks a property on an existing move
+	EVENT_CARD, # Upgrades that are called from different events
 }
 @export var name: String = ""
 @export_multiline var description: String = ""
@@ -44,6 +45,11 @@ enum EffectType {
 @export var target_upgrade_slot_id: StringName = ""
 @export var move_property: StringName = ""
 @export var move_delta: float = 0.0
+
+# ── Event card ──
+@export_group("Event card")
+@export var event_card_name: StringName = ""
+
 ## Applies this upgrade to the given player. Player owns the actual
 ## mutation logic this just tells it what kind of change to make.
 func apply_to(player) -> void:
@@ -60,3 +66,6 @@ func apply_to(player) -> void:
 			player.unlock_move(unlocked_move)
 		EffectType.MOVE_MODIFY:
 			player.modify_move(target_upgrade_slot_id, move_property, move_delta)
+		EffectType.EVENT_CARD:
+			player.event_card_activate(event_card_name)
+			
