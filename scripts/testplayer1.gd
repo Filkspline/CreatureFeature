@@ -96,16 +96,16 @@ var state: State = State.NEUTRAL :
 
 @export_group("Effect card variables")
 @export_subgroup("Vampire")
-var vamp_delta_health : int = 2
+@export var vamp_delta_health : int = 2
 @export_subgroup("Underdog")
-var underdog_activated : bool = false
-var underdog_delta_health : int = 30
-var underdog_delta_damage : int = 2
+@export var underdog_activated : bool = false
+@export var underdog_delta_health : int = 30
+@export var underdog_delta_damage : int = 2
 @export_subgroup("Adrenaline")
-var adrenaline_active : bool = false
-var adrenaline_timer_duration : float = 3
-var adrenaline_delta_move_speed : float = 100.0
-var adrenaline_delta_damage : int = 2
+@export var adrenaline_active : bool = false
+@export var adrenaline_timer_duration : float = 3
+@export var adrenaline_delta_move_speed : float = 100.0
+@export var adrenaline_delta_damage : int = 2
 
 signal landed
 signal hitstun_finished
