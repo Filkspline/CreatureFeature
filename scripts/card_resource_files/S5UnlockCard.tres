@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://b1t3unc4rd001"]
 
-[ext_resource type="Texture2D" uid="uid://7ihocdp06s4g" path="res://assets/card_assets/card_icons/Bite.png" id="1_o85x6"]
+[ext_resource type="Texture2D" uid="uid://bc12h5nt4nxuu" path="res://assets/card_assets/card_icons/BiteContrast.png" id="1_o85x6"]
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="2_script"]
 [ext_resource type="Resource" uid="uid://clikuihe6gu1i" path="res://scripts/S5.tres" id="3_move"]
 
