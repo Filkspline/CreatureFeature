@@ -133,6 +133,7 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="card_back" type="Sprite2D" parent="Control" unique_id=2016231307]
+oversampling_with_scale = 1
 position = Vector2(1.874999, 3.71933e-05)
 texture = ExtResource("2_33rkj")
 
@@ -157,6 +158,7 @@ offset_bottom = -306.06067
 scale = Vector2(5.9375005, 5.156251)
 texture = ExtResource("2_igsks")
 expand_mode = 4
+metadata/_edit_use_anchors_ = true
 
 [node name="Sprite2D2" type="Sprite2D" parent="Control/card_front" unique_id=435279521]
 modulate = Color(0.012617188, 0.012617188, 0.012617188, 0.1764706)

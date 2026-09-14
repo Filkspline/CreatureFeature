@@ -9,7 +9,7 @@
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="5_h7cfo"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(500, 265)
+size = Vector2(479, 256)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1ifr4"]
 shader = ExtResource("4_ovphs")
@@ -34,21 +34,25 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="background" type="Sprite2D" parent="." unique_id=1887611312]
+z_index = -10
 position = Vector2(1.4305115e-05, 13.000006)
 scale = Vector2(0.4433702, 0.43787605)
 texture = ExtResource("2_v13x6")
 
 [node name="taskbar" type="Sprite2D" parent="." unique_id=1252514268]
 modulate = Color(1, 1, 1, 0.7176471)
+z_index = -10
 oversampling_with_scale = 1
 texture_filter = 5
-position = Vector2(-0.11729008, -0.15625095)
+position = Vector2(-0.11729008, 154.84375)
 scale = Vector2(1.0003664, 0.999132)
 texture = ExtResource("3_ovphs")
+region_enabled = true
+region_rect = Rect2(0, 310, 640, 50)
 
 [node name="folder" type="Sprite2D" parent="taskbar" unique_id=1597231036]
 modulate = Color(1.3266667, 1.3266667, 1.3266667, 1)
-position = Vector2(-243.5, 161.169)
+position = Vector2(-243.79337, 6.161604)
 scale = Vector2(1.195, 1.195)
 texture = ExtResource("3_1ifr4")
 region_enabled = true
@@ -64,11 +68,14 @@ script = ExtResource("1_l8650")
 position = Vector2(-92, -35)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Camera2D/hand/cardspawnarea" unique_id=468811304]
-position = Vector2(94, 23.5)
+position = Vector2(110.5, 24)
 shape = SubResource("RectangleShape2D_g4v7s")
 
 [node name="cardspawner" type="Marker2D" parent="Camera2D/hand" unique_id=558817203]
 position = Vector2(-276, 168)
+
+[node name="ownedcards" type="Marker2D" parent="Camera2D/hand" unique_id=1708363756]
+position = Vector2(-291, -125)
 
 [node name="title_label" type="Label" parent="." unique_id=612672962]
 modulate = Color(0.04755766, 0.047557645, 0.047557645, 0.69411767)
