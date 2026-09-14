@@ -100,12 +100,24 @@ var state: State = State.NEUTRAL :
 @export_subgroup("Underdog")
 @export var underdog_activated : bool = false
 @export var underdog_delta_health : int = 30
-@export var underdog_delta_damage : int = 2
+@export var underdog_delta_damage : float = 2
 @export_subgroup("Adrenaline")
 @export var adrenaline_active : bool = false
 @export var adrenaline_timer_duration : float = 3
 @export var adrenaline_delta_move_speed : float = 100.0
-@export var adrenaline_delta_damage : int = 2
+@export var adrenaline_delta_damage : float = 2
+@export_subgroup("Armour Plating")
+@export var armour_plating_selected : bool = false # Used to signify the playe has acquired the upgrade 
+@export var armour_plating_use_count : int = 4
+@export var armour_plating_reduction_value : int = 4 # Percentage modifier
+@export var armour_plating_active : bool = false
+@export_subgroup("Momentum")
+@export var momentum_active : bool = false
+@export var momentum_timer_duration : float = 3
+@export var momentum_delta_damage : float = 2
+@export_subgroup("Turtle")
+@export var turtle_delta_health : int = 2
+
 
 signal landed
 signal hitstun_finished
@@ -473,6 +485,14 @@ func event_card_activate(event_card_name: StringName) -> void:
 			EventBus.player_health_changed.connect(_effect_underdog)
 		"adrenaline":
 			EventBus.player_hit_landed.connect(_effect_adrenaline)
+		"armour_plating":
+			armour_plating_selected = true
+		"momentum":
+			EventBus.player_hit_landed.connect(_effect_momentum)
+		"turtle":
+			EventBus.player_hit_landed.connect(_effect_turtle)
+		"thorns":
+			pass
 
 
 func _effect_vampire(effect_player_id: int, move_name: String, was_blocked: bool) -> void:
@@ -488,7 +508,7 @@ func _effect_vampire(effect_player_id: int, move_name: String, was_blocked: bool
 
 func _effect_underdog(effect_player_id: int, new_health: float) -> void:
 	if player_id == effect_player_id:
-		if !underdog_activated:
+		if underdog_activated == false:
 			if new_health <= 30:
 				underdog_activated = true
 				var effect_new_health = new_health + underdog_delta_health
@@ -502,14 +522,14 @@ func _effect_underdog(effect_player_id: int, new_health: float) -> void:
 				_dbg("[color=yellow][UNDERDOG] Damage bonus changed due to effects: %s -> %s" % [damage_dealt_bonus, new_damage_bonus])
 				damage_dealt_bonus = new_damage_bonus
 
-# NOTE: Move speed does get tagged
+
 func _effect_adrenaline(player_id: int, move_name: String, was_blocked: bool) -> void:
 	var effect_reciever_id = GameManager._other_player_id(player_id)
 	var current_move_speed = move_speed
 	var current_damage_boost = damage_dealt_bonus
 	if GameManager._other_player_id(player_id) == effect_reciever_id:
 		if was_blocked == false:
-			if !adrenaline_active:
+			if adrenaline_active == false:
 				adrenaline_active = true
 				move_speed = move_speed + adrenaline_delta_move_speed
 				damage_dealt_bonus = damage_dealt_bonus + adrenaline_delta_damage
@@ -527,6 +547,48 @@ func _effect_adrenaline(player_id: int, move_name: String, was_blocked: bool) ->
 				walk_forward_speed = move_speed # Should fix speed option
 				walk_backward_speed = move_speed # ^
 				_dbg("[color=yellow][ADRENALINE] Adrenaline timed out")
+
+
+func _effect_armour_plating() -> int: # God I hope this works
+	if armour_plating_use_count > 0:
+		armour_plating_use_count -= 1
+	else:
+		armour_plating_active = false
+	
+	return armour_plating_reduction_value
+	
+
+func _effect_momentum(effect_player_id: int, move_name: String, was_blocked: bool) -> void:
+	var current_damage_boost = damage_dealt_bonus
+	if player_id == effect_player_id:
+		if was_blocked == false:
+			if momentum_active == false:
+				momentum_active = true
+				damage_dealt_bonus = damage_dealt_bonus + momentum_delta_damage
+				
+				_dbg("[color=yellow][MOMENTUM] Damage bonus %s -> %s" % [current_damage_boost, damage_dealt_bonus])
+				
+				await get_tree().create_timer(momentum_timer_duration).timeout
+				damage_dealt_bonus = current_damage_boost
+				momentum_active = false
+				
+				_dbg("[color=yellow][MOMENTUM] Momentum timed out")
+
+
+func _effect_turtle(player_id: int, move_name: String, was_blocked: bool) -> void:
+	var effect_reciever_id = GameManager._other_player_id(player_id)
+	if GameManager._other_player_id(player_id) == effect_reciever_id:
+		if was_blocked == true:
+			var new_health = current_health + turtle_delta_health
+			_dbg("[color=yellow][TURTLE] Health changed due to effects: %s -> %s" % [current_health, new_health])
+			current_health = new_health
+			if current_health > max_health:
+				current_health = max_health
+			EventBus.player_health_changed.emit(player_id, new_health)
+
+
+func _effect_thorns() -> void:
+	pass
 
 # ──────────────────────────────────────────────────────────────────
 #  Input buffering
@@ -1169,6 +1231,8 @@ func _resolve_block(move_data: MoveData, attacker: Node2D, was_crouching: bool) 
 
 
 func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) -> void:
+	if armour_plating_active:
+		damage_reduction = _effect_armour_plating()
 	# Damage order (designer-confirmed): base move damage + attacker's flat
 	# bonus, then subtract this defender's flat reduction, clamped to >= 0
 	# so a hit can be reduced to zero but never heal. The bonus is only read
@@ -1183,6 +1247,8 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) ->
 	# Combo decay: consecutive hits on this defender deal progressively less.
 	var combo_scale: float = ComboManager.get_combo_damage_scale(player_id)
 	final_damage = final_damage * combo_scale
+	
+	
 
 	var health_before: float = current_health
 	current_health = max(current_health - final_damage, 0.0)
