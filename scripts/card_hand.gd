@@ -31,10 +31,45 @@ const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 @export var folder_squash_scale_multiplier : Vector2 = Vector2(1.15, 0.85) # Wide and flat, the instant a card leaves it
 @export var folder_stretch_scale_multiplier : Vector2 = Vector2(0.92, 1.1) # Thin and tall, settling back down after
 
+## Spacing, in z_index, between one card's whole layer band and the next
+## card's. A single card spreads its own layers across four z values (its
+## art layer, its frame, its back, and the back's dark edge copy), so two
+## cards only one z apart interleave: the lower card's border ends up drawn
+## across the upper card's art. Any value at or above that spread works,
+## this is just a round number with headroom.
+@export var card_z_step : int = 10
+## z_index of the oldest card in the owned-cards stack. Owned cards climb
+## from here in pick order, newest on top of the stack, and the offered
+## hand is stacked above the whole owned stack so the pickable cards always
+## read as the foreground. Keep this above the draft scene's backdrop
+## (background and taskbar sit at z_index -10 in upgrade_card_ui.tscn).
+@export var owned_card_z_base : int = 10
+## How far apart (in local y) each already-owned card sits from the next
+## in the owned-cards stack. Positive moves each newer card down the
+## screen from the previous one.
+@export var owned_card_vertical_offset : float = 50.0
+## Scale applied to owned-card displays, relative to the normal card
+## scale, so the "already have this" stack still reads clearly at a
+## glance without being as large as the actual pickable hand.
+@export var owned_card_scale_fraction : float = 0.85
+## Pause after the draft screen opens before the owned-card reveal
+## starts, so the reveal isn't swallowed by the scene transition's wipe.
+@export var owned_card_reveal_start_delay : float = 0.45
+## How long each owned card takes to pop in at the marker before it
+## flips. The flip starts once this finishes.
+@export var owned_card_appear_duration : float = 0.18
+## Gap between one owned card finishing its flip and the next one
+## appearing, so the stack reads as a one-by-one reveal.
+@export var owned_card_flip_stagger_delay : float = 0.12
+
 @onready var hand : Node2D = self
 @onready var cardspawner : Marker2D = $cardspawner
 @onready var card_spawn_shape : CollisionShape2D = $cardspawnarea/CollisionShape2D
 @onready var folder_sprite : Sprite2D = get_node(folder_node_path)
+@onready var owned_cards_marker : Marker2D = $ownedcards
+# The draft heading lives outside the hand (a sibling of the Camera2D this
+# node sits under), so look it up by path rather than assuming it's a child.
+@onready var title_label : Label = get_node_or_null("../../title_label")
 
 var folder_base_scale : Vector2
 var current_player_id : int = 1
@@ -48,6 +83,10 @@ var selected_card_idx : int
 var currently_handling_card : bool
 var card_map : Dictionary[Node2D, UpgradeData]
 var cards : Array[Node2D]
+# Purely-display cards for the "already owned" stack. Kept separate from
+# `cards` so they're never touched by highlight navigation, input
+# handling, or the picking/discard flow in _handle_clicked_card().
+var owned_cards : Array[Node2D]
 var _rng := RandomNumberGenerator.new()
 # Edge-detection state for per-device input resolution (see _process below).
 var _key_prev_state : Dictionary = {}
@@ -69,12 +108,43 @@ func _ready() -> void:
 
 func _on_upgrade_draft_ready(player_id: int, offered: Array[UpgradeData]) -> void:
 	current_player_id = player_id
+	_update_title_label(player_id)
+	_assign_card_z_bands(offered.size(), _owned_upgrade_paths(player_id).size())
 	_draw_hand(offered)
+	_draw_owned_cards(player_id)
+
+
+# Hands out the z bands for one draft, before anything spawns. The offered
+# hand sits above the entire owned stack, and each stack climbs by
+# card_z_step, so neither stack can drift into the other's range however
+# many cards it holds. The first offered card still gets the highest band,
+# same as before, so it stays the one drawn on top of the fan.
+func _assign_card_z_bands(offered_count: int, owned_count: int) -> void:
+	var hand_z_base : int = owned_card_z_base + (owned_count + 1) * card_z_step
+	card_default_z_index = hand_z_base + maxi(offered_count - 1, 0) * card_z_step
+	current_z_index = card_default_z_index
+
+
+# The picked-upgrade list for a player, in pick order (oldest first). Read
+# here and in _draw_owned_cards so the z bands and the spawned cards can
+# never disagree about how many owned cards there are.
+func _owned_upgrade_paths(player_id: int) -> Array:
+	var picked : Array = UpgradePoolManager.current_upgrades.get(player_id, [])
+	return picked
+
+
+# Says which player is actually drafting. Only the round's loser picks, and
+# it isn't otherwise obvious from the screen who that is.
+func _update_title_label(player_id: int) -> void:
+	if not title_label:
+		return
+	title_label.text = "PLAYER %d: SELECT YOUR UPGRADES" % player_id
 
 
 func _draw_hand(offered: Array[UpgradeData]) -> void:
-	card_default_z_index = offered.size() + 1
-	current_z_index = card_default_z_index
+	# card_default_z_index / current_z_index were set by
+	# _assign_card_z_bands(), which needs the offered and owned counts
+	# together to place this hand above the owned stack.
 	for upgrade in offered:
 		var upgrade_card = UPGRADE_CARD.instantiate()
 		card_map.set(upgrade_card, upgrade)
@@ -88,7 +158,7 @@ func _draw_hand(offered: Array[UpgradeData]) -> void:
 		add_child(upgrade_card)
 		upgrade_card.set_upgrade(upgrade)
 		upgrade_card.z_index = current_z_index
-		current_z_index -= 1
+		current_z_index -= card_z_step
 
 		# Cards start out tiny and sitting on the folder, before they get
 		# popped out and spread into the hand
@@ -98,6 +168,99 @@ func _draw_hand(offered: Array[UpgradeData]) -> void:
 
 	await get_tree().create_timer(initial_spread_delay).timeout
 	_spread_cards()
+
+
+# Shows every card this player has already picked so far this match,
+# stacked at owned_cards_marker with a vertical offset per card. Cards are
+# revealed strictly one at a time, oldest first: each one pops in at the
+# marker, plays its flip-to-face-up animation, and only then does the next
+# one appear.
+#
+# Purely a display: these never enter `cards`, they're flagged
+# is_display_only so the hand's highlight sweep skips them, and input
+# handling / _handle_clicked_card()'s pick-discard flow never touch them.
+func _draw_owned_cards(player_id: int) -> void:
+	_clear_owned_cards()
+
+	var picked: Array = _owned_upgrade_paths(player_id)
+	if picked.is_empty():
+		return
+
+	# Let the scene transition's wipe clear first, otherwise the whole
+	# reveal plays out behind a closed mouth and is never actually seen.
+	if owned_card_reveal_start_delay > 0.0:
+		await get_tree().create_timer(owned_card_reveal_start_delay).timeout
+
+	var index := 0
+	for path in picked:
+		var upgrade: UpgradeData = load(path)
+		if upgrade == null:
+			continue
+
+		var owned_card := _spawn_owned_card(upgrade, index)
+		index += 1
+		if owned_card == null:
+			continue
+		await _reveal_owned_card(owned_card)
+
+		if owned_card_flip_stagger_delay > 0.0:
+			await get_tree().create_timer(owned_card_flip_stagger_delay).timeout
+
+
+# Creates one owned-card display at its stack slot and pops it in, inside
+# its own z band.
+#
+# Sibling order on its own is not enough to order these: a card's layers do
+# not all sit at its base z (the art is two below the frame, the back is
+# one above it, see the face-z comment in upgrade_card.gd), so two cards
+# sharing a base z interleave and the older card's border draws across the
+# newer card's art. Giving each card a band card_z_step wide, climbing in
+# pick order, means the newer card has every one of its layers above every
+# layer of the older one, which is the same newest-on-top result sibling
+# order was reaching for, just without the interleaving.
+func _spawn_owned_card(upgrade: UpgradeData, index: int) -> Node2D:
+	var owned_card := UPGRADE_CARD.instantiate() as Node2D
+	if not owned_card:
+		return null
+	# Keeps this copy out of the hand's highlight/selection sweep.
+	owned_card.is_display_only = true
+	add_child(owned_card)
+	owned_card.set_upgrade(upgrade)
+	owned_card.z_index = owned_card_z_base + index * card_z_step
+
+	var base_scale = card_default_scale if defaults_set else owned_card.scale
+	var target_scale = base_scale * owned_card_scale_fraction
+	owned_card.rotation = 0.0
+	owned_card.position = owned_cards_marker.position + Vector2(0, index * owned_card_vertical_offset)
+	owned_card.scale = target_scale * spawn_scale_fraction
+
+	var appear_tween = create_tween()
+	appear_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	appear_tween.tween_property(owned_card, "scale", target_scale, owned_card_appear_duration)
+
+	owned_cards.append(owned_card)
+	return owned_card
+
+
+# Waits for one owned card to finish popping in, flips it, then waits for
+# that flip to actually finish before returning. This is what makes the
+# reveal sequential instead of everything happening in the same frame.
+func _reveal_owned_card(owned_card: Node2D) -> void:
+	if not is_instance_valid(owned_card):
+		return
+	if owned_card_appear_duration > 0.0:
+		await get_tree().create_timer(owned_card_appear_duration).timeout
+	if not is_instance_valid(owned_card):
+		return
+	owned_card.flip_card()
+	await owned_card.card_flip_finished
+
+
+func _clear_owned_cards() -> void:
+	for card in owned_cards:
+		if is_instance_valid(card):
+			card.queue_free()
+	owned_cards.clear()
 
 
 func _spread_cards() -> void:
@@ -300,7 +463,9 @@ func _handle_clicked_card():
 			highlighted_card = card
 	# Handles moving the selected card to the center of the screen,
 	# can be changed to move to a specific node down the line
-	highlighted_card.z_index = card_default_z_index + 1
+	# One band above the top of the fan, so the picked card's whole stack
+	# (art included) clears every other card while it flies out.
+	highlighted_card.z_index = card_default_z_index + card_z_step
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(highlighted_card, "position", card_default_transform.origin, 0.4)
