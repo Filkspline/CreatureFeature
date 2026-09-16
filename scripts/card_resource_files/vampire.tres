@@ -1,11 +1,13 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://qasqylwpvodm"]
 
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_3dyhk"]
+[ext_resource type="Texture2D" uid="uid://2aa6ud8otrbx" path="res://assets/card_assets/card_icons/Nosferatu.png" id="1_e3p1y"]
 
 [resource]
 script = ExtResource("1_3dyhk")
 name = "Vampire"
 description = "Regain HP when dealing damage"
+icon = ExtResource("1_e3p1y")
 effect_type = 4
 show_in_pre_fight = false
 stat_name = &"max_health"

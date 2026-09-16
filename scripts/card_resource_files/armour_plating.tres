@@ -1,11 +1,13 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://c5veiaaxn8d8k"]
 
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_i7oxv"]
+[ext_resource type="Texture2D" uid="uid://8cjawt00jgp4" path="res://assets/card_assets/card_icons/armoured.png" id="1_rgqnn"]
 
 [resource]
 script = ExtResource("1_i7oxv")
 name = "Armour Plating"
 description = "Flat damage reducion on the first few hits of a round"
+icon = ExtResource("1_rgqnn")
 effect_type = 4
 show_in_pre_fight = false
 stat_name = &"max_health"

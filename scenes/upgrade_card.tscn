@@ -177,11 +177,12 @@ theme = SubResource("Theme_g4v7s")
 [node name="Description" type="Label" parent="Control/card_front" unique_id=1799692244]
 offset_left = -340.00003
 offset_top = 240.00003
-offset_right = -165.00003
-offset_bottom = 403.00003
+offset_right = 340.00003
+offset_bottom = 470.0
 theme = SubResource("Theme_g4v7s")
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_shadow_color = Color(1, 1, 1, 0.3529412)
+autowrap_mode = 2
 
 [node name="selection_icon" type="AnimatedSprite2D" parent="Control" unique_id=375975407]
 visible = false
