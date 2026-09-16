@@ -56,6 +56,7 @@ signal match_over(winner_id: int)
 signal request_first_upgrade_arrays()
 signal return_first_upgrade_arrays(move_array : Array[UpgradeData], upgrade_array : Array[UpgradeData])
 
+signal event_card_unlock(event_card_name: StringName)
 
 var _hitstop_token: int = 0
 
