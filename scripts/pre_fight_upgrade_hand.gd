@@ -3,7 +3,6 @@ extends Node2D
 #  PreFightUpgradeHand (boot screen draft UI)
 #
 
-const FIGHT_SCENE = "res://scenes/test_level.tscn"
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 
 const TOTAL_COLUMNS_PER_PLAYER := 2 # unlock + upgrade
@@ -294,7 +293,13 @@ func _check_selection_status() -> void:
 
 	if p1_unlock.locked and p1_upgrade.locked and p2_unlock.locked and p2_upgrade.locked:
 		_send_off_upgrades()
-		SceneTransition.change_scene(FIGHT_SCENE)
+		# Both players are done picking, so hand off to the intro cutscene
+		# instead of the level directly. The cutscene plays its cuts and
+		# only then goes to the fight level, so the level path lives there
+		# now (scripts/cutscene.gd). This is the pre-fight pick, which only
+		# ever runs once per match, so the cutscene can't replay on a
+		# round-loss draft.
+		SceneTransition.change_scene(GameManager.CUTSCENE_SCENE)
 
 
 func _send_off_upgrades() -> void:
