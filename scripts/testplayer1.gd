@@ -108,16 +108,23 @@ var state: State = State.NEUTRAL :
 @export var adrenaline_delta_damage : float = 2
 @export_subgroup("Armour Plating")
 @export var armour_plating_selected : bool = false # Used to signify the playe has acquired the upgrade 
-@export var armour_plating_use_count : int = 4
-@export var armour_plating_reduction_value : int = 4 # Percentage modifier
-@export var armour_plating_active : bool = false
+@export var armour_plating_use_count : int = 3 # Will be active for 4 hits
+@export var armour_plating_reduction_value : int = 4
+@export var armour_plating_active : bool = true
 @export_subgroup("Momentum")
 @export var momentum_active : bool = false
 @export var momentum_timer_duration : float = 3
 @export var momentum_delta_damage : float = 2
 @export_subgroup("Turtle")
+@export var turtle_selected : bool = false
 @export var turtle_delta_health : int = 2
-
+@export_subgroup("Thorns")
+@export var thorns_selected : bool = false
+@export var thorns_damage_val : float = 2
+@export_subgroup("Hornet")
+@export var hornet_selected : bool = false
+@export var hornet_delta_health : int = 3
+@export var hornet_delta_damage : float = 2
 
 signal landed
 signal hitstun_finished
@@ -239,7 +246,6 @@ func _action(name: String) -> StringName:
 
 
 func _ready() -> void:
-	
 	
 	facing_right = (player_id == 1)
 	current_health = max_health
@@ -490,9 +496,13 @@ func event_card_activate(event_card_name: StringName) -> void:
 		"momentum":
 			EventBus.player_hit_landed.connect(_effect_momentum)
 		"turtle":
-			EventBus.player_hit_landed.connect(_effect_turtle)
+			turtle_selected = true
 		"thorns":
-			pass
+			thorns_selected = true
+		"hornet":
+			hornet_selected = true
+	
+	_dbg("[color=yellow][EVENT CARD] Event card applied: %s" % event_card_name)
 
 
 func _effect_vampire(effect_player_id: int, move_name: String, was_blocked: bool) -> void:
@@ -555,6 +565,8 @@ func _effect_armour_plating() -> int: # God I hope this works
 	else:
 		armour_plating_active = false
 	
+	_dbg("[color=yellow][ARMOUR PLATING] Uses left: %s | Reduction value: %s" % [armour_plating_use_count, damage_reduction])
+	
 	return armour_plating_reduction_value
 	
 
@@ -575,20 +587,37 @@ func _effect_momentum(effect_player_id: int, move_name: String, was_blocked: boo
 				_dbg("[color=yellow][MOMENTUM] Momentum timed out")
 
 
-func _effect_turtle(player_id: int, move_name: String, was_blocked: bool) -> void:
-	var effect_reciever_id = GameManager._other_player_id(player_id)
-	if GameManager._other_player_id(player_id) == effect_reciever_id:
-		if was_blocked == true:
-			var new_health = current_health + turtle_delta_health
-			_dbg("[color=yellow][TURTLE] Health changed due to effects: %s -> %s" % [current_health, new_health])
-			current_health = new_health
-			if current_health > max_health:
-				current_health = max_health
-			EventBus.player_health_changed.emit(player_id, new_health)
+func _effect_turtle() -> void:
+	var new_health = current_health + turtle_delta_health
+	_dbg("[color=yellow][TURTLE] Health changed due to effects: %s -> %s" % [current_health, new_health])
+	current_health = new_health
+	if current_health > max_health:
+		current_health = max_health
+	EventBus.player_health_changed.emit(player_id, new_health)
 
 
-func _effect_thorns() -> void:
-	pass
+func effect_thorns_damage() -> void:
+	var new_health = current_health - thorns_damage_val
+	_dbg("[color=yellow][THORNS DMG] Health changed due to effects: %s -> %s" % [current_health, new_health])
+	current_health = new_health
+	if current_health < 1:
+		current_health = 1
+	EventBus.player_health_changed.emit(player_id, current_health)
+
+
+func _effect_hornet() -> float:
+	var new_health = current_health - hornet_delta_health
+	_dbg("[color=yellow][HORNET] Health changed due to effects: %s -> %s" % [current_health, new_health])
+	current_health = new_health
+	
+	if current_health < 1:
+		current_health = 1
+	
+	EventBus.player_health_changed.emit(player_id, current_health)
+	if current_health == 1:
+		return 0.0
+	else:
+		return hornet_delta_damage
 
 # ──────────────────────────────────────────────────────────────────
 #  Input buffering
@@ -1050,6 +1079,10 @@ func _check_hit() -> void:
 			EventBus.player_hit_landed.emit(player_id, current_move.move_name, was_blocked)
 			EventBus.hit_confirmed.emit(hitbox_area_shape.global_position, current_move, self, opponent, was_blocked)
 			
+			if hornet_selected == true:
+				_dbg("[color=yellow][HORNET] Hornet activated")
+				damage_dealt_bonus += _effect_hornet()
+			
 			EventBus.npc_cheer.emit() # Just here to call for the npc's to cheer when a player is hit
 			
 			if was_blocked:
@@ -1227,12 +1260,25 @@ func _resolve_block(move_data: MoveData, attacker: Node2D, was_crouching: bool) 
 	stun_just_started = true
 	state = State.BLOCKSTUN
 
+	if thorns_selected == true:
+		attacker.effect_thorns_damage()
+	
+	if turtle_selected == true:
+		_effect_turtle()
+
 	call_deferred("_apply_block_reaction_visuals")
 
 
 func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) -> void:
-	if armour_plating_active:
-		damage_reduction = _effect_armour_plating()
+	
+	if armour_plating_selected == true:
+		if armour_plating_active == true:
+			damage_reduction = _effect_armour_plating()
+			_dbg("[color=yellow][ARMOUR PLATING] End damage reduction: %s" % damage_reduction)
+		else:
+			damage_reduction = 0
+	
+	
 	# Damage order (designer-confirmed): base move damage + attacker's flat
 	# bonus, then subtract this defender's flat reduction, clamped to >= 0
 	# so a hit can be reduced to zero but never heal. The bonus is only read
