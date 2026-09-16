@@ -1,20 +1,313 @@
 [gd_scene format=3 uid="uid://b0m5dg5lbu7xf"]
 
 [ext_resource type="Texture2D" uid="uid://c6e14ylnln6xs" path="res://assets/Cutscene.png" id="1_0ns5n"]
+[ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="2_0mfd7"]
+[ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="3_twidw"]
+[ext_resource type="PackedScene" uid="uid://b7v6u5m0v7s48" path="res://scenes/camera.tscn" id="4_05ib7"]
+[ext_resource type="Script" uid="uid://cut5c3n3scr1p" path="res://scripts/cutscene.gd" id="5_scrpt"]
+
+[sub_resource type="Animation" id="Animation_0ns5n"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D/ColorRect2:offset_transform_position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D/ColorRect:offset_transform_position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sprite2D:flip_h")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sprite2D:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.8352941, 0.8784314, 1, 1)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("ColorRect:color")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.105882354, 0.10980392, 0.20392157, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_k4top"]
+resource_name = "cut1"
+length = 1.8
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.10000001, 0.20000002, 0.3, 0.40000004, 0.5, 0.6, 0.70000005, 0.8000001, 0.90000004, 1, 1.1, 1.2, 1.3000001, 1.4000001, 1.5, 1.6000001, 1.7000002),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D/ColorRect2:offset_transform_position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.4241765, 0.6166667, 1.25, 1.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 71.84), Vector2(0, 71.84), Vector2(0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D/ColorRect:offset_transform_position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.41666663, 0.6166667, 1.2500001, 1.5000001),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -39.25), Vector2(0, -39.25), Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ColorRect:color")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.1254902, 0.1254902, 0.20392157, 1)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sprite2D:flip_h")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Sprite2D:modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(-0.016666668),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_e77a5"]
+resource_name = "cut2"
+length = 1.7333333
+step = 0.016666668
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.10000001, 0.20000002, 0.3, 0.40000004, 0.5, 0.6, 0.90000004, 1.3000001, 1.4000001, 1.5, 1.6000001, 1.7000002),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 9, 13, 14, 15, 16, 17]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D/ColorRect2:offset_transform_position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.4241765, 0.6166667, 1.25, 1.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 71.84), Vector2(0, 71.84), Vector2(0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D/ColorRect:offset_transform_position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.41666663, 0.6166667, 1.2500001, 1.5000001),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -39.25), Vector2(0, -39.25), Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sprite2D:flip_h")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sprite2D:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.8352941, 0.8784314, 1, 1)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("ColorRect:color")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.105882354, 0.10980392, 0.20392157, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_0mfd7"]
+_data = {
+&"RESET": SubResource("Animation_0ns5n"),
+&"cut1": SubResource("Animation_k4top"),
+&"cut2": SubResource("Animation_e77a5")
+}
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nejeo"]
+shader = ExtResource("3_twidw")
+shader_parameter/curvature = 0.008
+shader_parameter/scanline_intensity = 0.03
+shader_parameter/scanline_count = 500.0
+shader_parameter/vignette_size = 0.04
+shader_parameter/brightness = 1.3
+shader_parameter/contrast = 1.2
+shader_parameter/saturation = 1.1
+shader_parameter/chromatic_aberration = 0.0004
+shader_parameter/noise_amount = 0.0015
+shader_parameter/flicker = 0.0008
+shader_parameter/distortion = 0.005
 
 [node name="Node2D" type="Node2D" unique_id=1050016760]
+script = ExtResource("5_scrpt")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1322763643]
+libraries/ = SubResource("AnimationLibrary_0mfd7")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1413604277]
-offset_left = -155.0
-offset_top = -120.0
-offset_right = 161.0
-offset_bottom = 111.0
-color = Color(0.1254902, 0.1254902, 0.20392157, 1)
+offset_left = -254.0
+offset_top = -195.0
+offset_right = 253.0
+offset_bottom = 150.0
+color = Color(0.105882354, 0.10980392, 0.20392157, 1)
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1453480215]
-position = Vector2(0, -1)
+modulate = Color(0.8352941, 0.8784314, 1, 1)
+position = Vector2(-2.9999847, -20.999989)
+scale = Vector2(1.6262627, 1.6262627)
 texture = ExtResource("1_0ns5n")
 hframes = 18
-frame = 17
+
+[node name="ColorRect" type="ColorRect" parent="Sprite2D" unique_id=2056272026]
+offset_left = -293.92548
+offset_top = 110.68321
+offset_right = 328.07452
+offset_bottom = 249.68323
+offset_transform_enabled = true
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="Sprite2D" unique_id=1901411244]
+offset_left = -312.98755
+offset_top = -274.86334
+offset_right = 309.01245
+offset_bottom = -135.86333
+offset_transform_enabled = true
+color = Color(0, 0, 0, 1)
+
+[node name="TempCrtShader" type="ColorRect" parent="." unique_id=1974772201]
+z_index = 6
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_0mfd7")
+shader_material = SubResource("ShaderMaterial_nejeo")
+curvature = 0.001
+scanline_intensity = 0.05
+scanline_count = 200.0
+brightness = 1.1
+distortion = 0.002
+flicker = 0.001
+noise_amount = 0.002
+current_preset = 1
+
+[node name="Camera2D" parent="." unique_id=56861049 instance=ExtResource("4_05ib7")]
+position = Vector2(0, -37)
+zoom = Vector2(1.31, 1.31)
+position_smoothing_speed = 3.0

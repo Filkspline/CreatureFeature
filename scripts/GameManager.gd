@@ -44,6 +44,12 @@ var _music_player: AudioStreamPlayer
 
 const CARD_SELECT_SCENE := "res://scenes/upgrade_card_ui.tscn"
 const MATCH_END_SCREEN_SCENE := "res://scenes/end_screen.tscn"
+## Intro cutscene played once per match, between the pre-fight card select
+## and the first round. Only pre_fight_upgrade_hand.gd loads it; the
+## round-loss draft is the CARD_SELECT_SCENE path above and never touches
+## it, which is what keeps the cutscene once per match instead of once per
+## round.
+const CUTSCENE_SCENE := "res://scenes/CutScene.tscn"
 
 const INPUT_BASES: Array[String] = ["Left", "Right", "Up", "Down", "Normal", "Special", "Jump"]
 
