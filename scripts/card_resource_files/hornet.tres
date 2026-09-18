@@ -1,11 +1,13 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://bvm0l6mh847e1"]
 
+[ext_resource type="Texture2D" uid="uid://bshkkjojqh7ts" path="res://assets/card_assets/card_icons/Hornet.png" id="1_p101l"]
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_vf16i"]
 
 [resource]
 script = ExtResource("1_vf16i")
 name = "Hornet"
 description = "Take damage to deal increased damage"
+icon = ExtResource("1_p101l")
 effect_type = 4
 show_in_pre_fight = false
 stat_name = &"max_health"
