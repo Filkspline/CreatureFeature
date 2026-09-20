@@ -75,6 +75,13 @@ var p1_pre_fight_picked : bool = false
 var p2_pre_fight_picked : bool = false
 var is_pre_fight_pick : bool = true
 
+## True while players must not act on input at all. Only INPUT is locked:
+## physics, animations, timers, hit reactions and hitstop all keep running,
+## because this is deliberately not a pause and never touches time_scale.
+## Set by the round-start countdown, checked by every player before it acts
+## on the pad or keyboard (see Player._input_locked).
+var player_input_locked : bool = false
+
 var p1_character_id : int = 0
 var p2_character_id : int = 0
 
@@ -122,7 +129,19 @@ func _on_music_finished() -> void:
 func start_match() -> void:
 	p1_rounds_won = 0
 	p2_rounds_won = 0
+	# Belt and braces: a match never begins with the players locked out. The
+	# round countdown locks input again itself when the level loads, and
+	# releases it when it finishes.
+	player_input_locked = false
 	EventBus.match_started.emit()
+
+
+## Locks or unlocks player input game-wide. Called by the round countdown:
+## locked when it starts, released when it finishes, and released once more
+## if it is freed early, so a countdown that gets skipped or interrupted
+## cannot leave either player stranded without controls.
+func set_player_input_locked(locked: bool) -> void:
+	player_input_locked = locked
 
 
 func reset_player_select() -> void:

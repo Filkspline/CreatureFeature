@@ -15,5 +15,6 @@ pushback_on_block = 20.0
 knock_back = 150.0
 is_advancing = true
 advance_speed = 1200.0
+is_dash = true
 low_profile = true
 gatlings_into = Array[StringName]([&"N5", &"N52"])

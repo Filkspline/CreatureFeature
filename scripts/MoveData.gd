@@ -43,6 +43,13 @@ enum Kind { NORMAL, SPECIAL, GRAB }
 @export var is_advancing: bool = false
 @export var advance_speed: float = 0.0
 
+# ── Dash ─────────────────────────────────────────────────────────
+# The one thing that decides whether a move leaves an afterimage trail.
+# Ticking this in the Inspector is all a new dash move needs to get the
+# effect: there is no list of dash move names anywhere in code.
+@export_group("Dash")
+@export var is_dash: bool = false
+
 @export_group("Special properties")
 @export var low_profile: bool = false
 @export var is_charge_move: bool = false

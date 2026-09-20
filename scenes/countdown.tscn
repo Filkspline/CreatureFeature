@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://c0untd0wn5cn3"]
+
+[ext_resource type="Script" uid="uid://c0untd0wn5cr1" path="res://scripts/round_countdown.gd" id="1_count"]
+[ext_resource type="Texture2D" uid="uid://dc52bv4p3qdp5" path="res://assets/Countdown.png" id="2_sheet"]
+
+[node name="RoundCountdown" type="CanvasLayer" unique_id=990209924]
+layer = 3
+script = ExtResource("1_count")
+
+[node name="Number" type="Sprite2D" parent="." unique_id=1478406581]
+position = Vector2(296, 171.00002)
+scale = Vector2(0.99625, 0.99625003)
+texture = ExtResource("2_sheet")
+hframes = 3

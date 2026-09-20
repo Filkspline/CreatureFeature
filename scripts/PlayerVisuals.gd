@@ -49,6 +49,24 @@ signal animation_finished(anim_name: String)
 @export var block_warning_start_frames: PackedInt32Array = [0, 1]
 @export var block_warning_end_frame: int = 2
 
+# ── Dash afterimage trail (ghost copies) ────────────────────────────
+# Spawned at runtime rather than authored in the scene, the same way the
+# hit particles are: one instance of dash_afterimage_scene per spawn,
+# parented into the effects layer, fading out and freeing itself. How a
+# ghost looks lives on that scene; the emission rate and the cap on how
+# many may exist are here.
+## Ghost scene instantiated per afterimage. Defaults to the dash afterimage
+## effect; point it at another scene to reuse this spawn path with a
+## different look.
+@export var dash_afterimage_scene : PackedScene = preload("res://scenes/dash_afterimage.tscn")
+## Seconds between ghosts while a dash move is active. Lower is a denser
+## trail; 0.0 spawns one every frame, up to the cap below.
+@export var dash_afterimage_interval : float = 0.05
+## Most ghosts one player may have alive at once. Going over frees the
+## oldest early, which is what stops a long dash from stacking up into a
+## solid wall of copies.
+@export var dash_afterimage_max : int = 6
+
 enum BlockWarningPhase { NONE, START, HOLD, END }
 
 @onready var idle_sprite: Sprite2D = $Idle
@@ -83,6 +101,11 @@ var block_warning_phase: int = BlockWarningPhase.NONE
 var block_warning_frame_index: int = 0
 var block_warning_timer: float = 0.0
 var block_warning_is_crouching: bool = false
+# Dash trail state. Everything is per instance, so both players can dash at
+# the same time and each one keeps its own timer and ghost list.
+var _afterimages_active: bool = false
+var _afterimage_timer: float = 0.0
+var _afterimages: Array[Node] = []
 # Hit reaction variety tracking (per player instance).
 var _last_mid_hit_index: int = -1  # last mid_hit variant played, avoids a repeat
 var _crouch_hit_alternate: bool = false  # flips between crouch_hit and crouch_hit_2
@@ -146,6 +169,24 @@ func set_facing(facing_right: bool) -> void:
 
 func get_current_anim() -> String:
 	return current_anim
+
+
+# The sprite actually on screen right now, or null if nothing is showing.
+# Attacks are shown through attack_sprites (keyed by animation_name) and
+# never go through play_anim(), so active_sprite alone would be stale
+# during a move, and the dash trail copies whatever this returns.
+func get_active_sprite() -> Sprite2D:
+	# attack_sprites is keyed by animation_name, which is a StringName, while
+	# current_anim is a String. String and StringName compare equal with ==
+	# but Dictionary lookups hash, and a String key does not find a StringName
+	# key, the same trap _try_cancel_gatling documents. Convert, or this
+	# silently returns null during every attack.
+	var attack_sprite: Sprite2D = attack_sprites.get(StringName(current_anim), null)
+	if attack_sprite and attack_sprite.visible:
+		return attack_sprite
+	if active_sprite and active_sprite.visible:
+		return active_sprite
+	return null
 
 
 # ── State-driven playback, called by Player ───────────────────────
@@ -403,3 +444,76 @@ func _on_animation_started(anim_name: StringName) -> void:
 	bounce_tween = create_tween()
 	bounce_tween.tween_property(active_sprite, "scale", bounce_normal_scale, bounce_duration) \
 		.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+
+# ── Dash afterimage trail ────────────────────────────────────────────
+# Player starts and stops this off MoveData.is_dash, so which moves leave a
+# trail is data and a new dash move needs no change in here.
+
+func begin_dash_afterimages() -> void:
+	_afterimages_active = true
+	_afterimage_timer = dash_afterimage_interval
+	# One right away, so the first frame of the dash already has a ghost
+	# behind it instead of waiting out a whole interval first.
+	_spawn_afterimage()
+
+
+# Stops new ghosts from spawning. The ones already out keep fading on their
+# own, which is what leaves a trail hanging behind the player after the dash.
+func end_dash_afterimages() -> void:
+	_afterimages_active = false
+
+
+func _process(delta: float) -> void:
+	if not _afterimages_active:
+		return
+	_afterimage_timer -= delta
+	if _afterimage_timer > 0.0:
+		return
+	_afterimage_timer = dash_afterimage_interval
+	_spawn_afterimage()
+
+
+func _spawn_afterimage() -> void:
+	if not dash_afterimage_scene:
+		return
+
+	var source := get_active_sprite()
+	if not source:
+		return
+
+	var parent := HitEffectManager.get_effects_parent()
+	if not parent:
+		return
+
+	var ghost := dash_afterimage_scene.instantiate()
+	parent.add_child(ghost)
+	# Slot the ghost in directly before its own fighter instead of letting
+	# add_child append it last. At the same z_index as the player, tree
+	# order is what decides, and appended last would paint the trail over
+	# the fighter rather than under him (his attack_z_index covers the
+	# ghost for the whole dash). Same sibling-slot trick HitParticle uses
+	# for its tear overlay. A scene whose effects layer isn't the player's
+	# parent just falls back to plain tree order.
+	var owner_player := get_parent()
+	if owner_player and ghost.get_parent() == owner_player.get_parent():
+		ghost.get_parent().move_child(ghost, owner_player.get_index())
+
+	ghost.appear_from(source)
+	_afterimages.append(ghost)
+	_prune_afterimages()
+
+
+# Drops references to ghosts that have already faded out and freed
+# themselves, then enforces the alive cap by retiring the oldest survivor.
+func _prune_afterimages() -> void:
+	var alive: Array[Node] = []
+	for ghost in _afterimages:
+		if is_instance_valid(ghost):
+			alive.append(ghost)
+	_afterimages = alive
+
+	while _afterimages.size() > dash_afterimage_max and not _afterimages.is_empty():
+		var oldest: Node = _afterimages.pop_front()
+		if is_instance_valid(oldest):
+			oldest.queue_free()

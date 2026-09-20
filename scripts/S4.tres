@@ -10,3 +10,4 @@ hit_level = 1
 animation_name = &"S4"
 is_advancing = true
 advance_speed = -800.0
+is_dash = true

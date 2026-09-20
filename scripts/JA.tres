@@ -9,4 +9,5 @@ hit_level = 1
 animation_name = &"JA"
 is_advancing = true
 advance_speed = 1500.0
+is_dash = true
 gatlings_into = Array[StringName]([&"NA", &"SA"])
