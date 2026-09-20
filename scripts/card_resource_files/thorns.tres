@@ -1,11 +1,13 @@
 [gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://dudfesr8cbuxl"]
 
+[ext_resource type="Texture2D" uid="uid://bk3kvrf1n771m" path="res://assets/card_assets/card_icons/Thorns.png" id="1_8y4i1"]
 [ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="1_f2s02"]
 
 [resource]
 script = ExtResource("1_f2s02")
 name = "Thorns"
 description = "When hit while blocking deal small damage back to opponent"
+icon = ExtResource("1_8y4i1")
 effect_type = 4
 show_in_pre_fight = false
 stat_name = &"max_health"
