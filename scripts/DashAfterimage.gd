@@ -17,7 +17,7 @@ extends Sprite2D
 
 ## Color and starting opacity of every ghost. The alpha here is the
 ## ghost's opacity the moment it spawns; the fade below takes it to 0.
-@export var ghost_tint : Color = Color(0.55, 0.78, 1.0, 0.45)
+@export var ghost_tint : Color = Color(1.0, 1.0, 1.0, 0.451)
 ## Seconds for a ghost to fade from ghost_tint.a down to invisible, after
 ## which it frees itself. Keep this longer than the dash itself so the last
 ## few ghosts are still trailing as the move ends.
