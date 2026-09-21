@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://3bhfvjgauiob" path="res://scripts/player_select.gd" id="1_6qhff"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="2_crtscript"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_hx7tf"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="3_crtshader"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
@@ -62,8 +63,10 @@ offset_right = 95.5
 offset_bottom = 35.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "PLAYER SELECT"
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_hx7tf")
+theme_override_font_sizes/font_size = 42
+text = "INPUT SELECT"
 horizontal_alignment = 1
 
 [node name="Button" type="Button" parent="." unique_id=639280847]
@@ -92,8 +95,10 @@ offset_top = 40.0
 offset_right = 214.0
 offset_bottom = 58.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 9
-text = "PRESS A BUTTON TO JOIN"
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_hx7tf")
+theme_override_font_sizes/font_size = 20
+text = "PRESS ANY BUTTON TO JOIN"
 horizontal_alignment = 1
 autowrap_mode = 2
 
@@ -103,8 +108,10 @@ offset_top = 40.0
 offset_right = 534.0
 offset_bottom = 58.0
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_font_sizes/font_size = 9
-text = "PRESS A BUTTON TO JOIN"
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_hx7tf")
+theme_override_font_sizes/font_size = 20
+text = "PRESS ANY BUTTON TO JOIN"
 horizontal_alignment = 1
 autowrap_mode = 2
 
@@ -163,7 +170,9 @@ offset_top = 70.0
 offset_right = 214.0
 offset_bottom = 89.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_hx7tf")
+theme_override_font_sizes/font_size = 22
 text = "Creature 1"
 horizontal_alignment = 1
 
@@ -174,7 +183,9 @@ offset_top = 70.0
 offset_right = 534.0
 offset_bottom = 89.0
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_hx7tf")
+theme_override_font_sizes/font_size = 22
 text = "Creature 2"
 horizontal_alignment = 1
 

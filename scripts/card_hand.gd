@@ -74,6 +74,21 @@ enum DraftStep { SPECIAL, NORMAL }
 ## appearing, so the stack reads as a one-by-one reveal.
 @export var owned_card_flip_stagger_delay : float = 0.12
 
+@export_group("Step banner")
+## Text the banner pops up with while the draft is on its special-move step.
+@export var special_step_text : String = "PICK A SPECIAL MOVE"
+## Text it pops up with while the draft is on its normal-cards step.
+@export var normal_step_text : String = "PICK A FEATURE"
+## How long the banner takes to spring in each time a step starts.
+@export var banner_pop_duration : float = 0.28
+## Scale the banner pops in from before springing to full size.
+@export var banner_pop_start_scale : float = 0.7
+## How long the banner holds at full size before fading out again, so it
+## reads as an announcement instead of sitting over the cards.
+@export var banner_hold_duration : float = 1.6
+## How long the banner takes to fade away after that hold.
+@export var banner_fade_duration : float = 0.3
+
 @onready var hand : Node2D = self
 @onready var cardspawner : Marker2D = $cardspawner
 @onready var card_spawn_shape : CollisionShape2D = $cardspawnarea/CollisionShape2D
@@ -82,6 +97,10 @@ enum DraftStep { SPECIAL, NORMAL }
 # The draft heading lives outside the hand (a sibling of the Camera2D this
 # node sits under), so look it up by path rather than assuming it's a child.
 @onready var title_label : Label = get_node_or_null("../../title_label")
+# The step banner ("PICK A SPECIAL MOVE" / "PICK A FEATURE") sits in its own
+# CanvasLayer so it draws over the hand whatever z bands the cards have
+# claimed, and so it stays out of the camera's coordinate space.
+@onready var step_banner : Label = get_node_or_null("../../step_banner_layer/step_banner")
 
 var folder_base_scale : Vector2
 var current_player_id : int = 1
@@ -110,6 +129,8 @@ var _rng := RandomNumberGenerator.new()
 var _key_prev_state : Dictionary = {}
 var _joy_button_prev_state : Dictionary = {}
 var _joy_axis_prev_state : Dictionary = {}
+## Tween driving the step banner's pop-in, re-created on each step change.
+var _banner_tween : Tween
 
 ##------------------------------------------------------------------------
 
@@ -157,6 +178,7 @@ func _draw_step(step: DraftStep) -> void:
 	_step = step
 	_clear_hand()
 	_update_title_label(current_player_id)
+	_show_step_banner(step)
 	_draw_hand(offered)
 
 
@@ -196,16 +218,39 @@ func _owned_upgrade_paths(player_id: int) -> Array:
 	return picked
 
 
-# Says which player is actually drafting, and which of the draft's two steps
-# they are on. Only the round's loser picks, and it isn't otherwise obvious
-# from the screen who that is or why the second hand appeared.
+# Says which player is actually drafting. Only the round's loser picks, and
+# it isn't otherwise obvious from the screen who that is. WHICH STEP it is
+# is the step banner's job, so this stays a plain player indicator.
 func _update_title_label(player_id: int) -> void:
 	if not title_label:
 		return
-	if _step == DraftStep.SPECIAL and not _special_offer.is_empty():
-		title_label.text = "PLAYER %d: CHOOSE YOUR SPECIAL" % player_id
-	else:
-		title_label.text = "PLAYER %d: SELECT YOUR UPGRADES" % player_id
+	title_label.text = "PLAYER %d" % player_id
+
+
+# Pops the step banner up with whichever instruction matches the step that
+# just started, springing in so a step change is something the player
+# notices rather than a line of text that quietly changed.
+func _show_step_banner(step: DraftStep) -> void:
+	if not step_banner:
+		return
+
+	step_banner.text = special_step_text if step == DraftStep.SPECIAL else normal_step_text
+	step_banner.visible = true
+	step_banner.scale = Vector2.ONE * banner_pop_start_scale
+	step_banner.modulate.a = 0.0
+
+	if _banner_tween:
+		_banner_tween.kill()
+	_banner_tween = create_tween()
+	_banner_tween.set_parallel(true)
+	_banner_tween.tween_property(step_banner, "scale", Vector2.ONE, banner_pop_duration) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_banner_tween.tween_property(step_banner, "modulate:a", 1.0, banner_pop_duration * 0.6)
+	# Hold, then get out of the way. It is an announcement for the step that
+	# just started, not a label that sits over the cards for the whole step.
+	_banner_tween.chain().tween_interval(banner_hold_duration)
+	_banner_tween.chain().tween_property(step_banner, "modulate:a", 0.0, banner_fade_duration)
+	_banner_tween.chain().tween_callback(step_banner.hide)
 
 
 func _draw_hand(offered: Array[UpgradeData]) -> void:

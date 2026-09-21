@@ -41,8 +41,8 @@ texture = ExtResource("2_v13x6")
 
 [node name="taskbar" type="Sprite2D" parent="." unique_id=1252514268]
 modulate = Color(1, 1, 1, 0.7176471)
-z_index = -10
 oversampling_with_scale = 1
+z_index = -10
 texture_filter = 5
 position = Vector2(-0.11729008, 154.84375)
 scale = Vector2(1.0003664, 0.999132)
@@ -78,7 +78,6 @@ position = Vector2(-276, 168)
 position = Vector2(-291, -125)
 
 [node name="title_label" type="Label" parent="." unique_id=612672962]
-modulate = Color(0.04755766, 0.047557645, 0.047557645, 0.69411767)
 layout_mode = 1
 anchors_preset = -1
 anchor_left = -0.003125
@@ -90,11 +89,30 @@ offset_top = -183.0
 offset_right = 147.0
 offset_bottom = -145.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/line_spacing = 3
+theme_override_constants/outline_size = 5
 theme_override_fonts/font = ExtResource("5_h7cfo")
 theme_override_font_sizes/font_size = 38
-text = "SELECT YOUR UPGRADES"
 horizontal_alignment = 1
 metadata/_edit_use_anchors_ = true
+
+[node name="step_banner_layer" type="CanvasLayer" parent="." unique_id=612672963]
+layer = 3
+
+[node name="step_banner" type="Label" parent="step_banner_layer" unique_id=612672964]
+offset_left = 150.0
+offset_top = 42.0
+offset_right = 490.0
+offset_bottom = 82.0
+pivot_offset = Vector2(170, 20)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.105882354, 0.10980392, 0.20392157, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("5_h7cfo")
+theme_override_font_sizes/font_size = 66
+text = "PICK A SPECIAL MOVE"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="TempCrtShader" type="ColorRect" parent="." unique_id=691971729]
 z_index = 4
