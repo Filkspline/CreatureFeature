@@ -43,7 +43,7 @@ class_name Player
 @export var attack_speed_multiplier: float = 1.0
 ## Max time (in milliseconds) between two taps of the same direction that
 ## still counts as a double-tap for the base-kit dash moves.
-@export var double_tap_window_ms: int = 200
+@export var double_tap_window_ms: int = 550
 
 @export_group("Health")
 @export var max_health: float = 100.0
@@ -300,6 +300,14 @@ func _ready() -> void:
 
 	sprites.play_idle()
 
+	# Report which special this player starts the round equipped with before
+	# registering: the draft screen needs to know it to offer "keep the
+	# special you already have" after this node has been freed by the scene
+	# change into the draft. Reported before player_registered on purpose,
+	# so the replays of any picked specials below overwrite it with the
+	# player's actual current special.
+	GameManager.set_selected_special(player_id, selected_special)
+
 	# Lets GameManager hold a live reference to this instance without any
 	# @export slot pointing across scenes — needed so upgrades picked in
 	# the draft scene have someone to apply to after a scene change.
@@ -472,6 +480,9 @@ func unlock_move(move: MoveData) -> void:
 	# previously selected one rather than adding to a list.
 	if move.kind == MoveData.Kind.SPECIAL:
 		selected_special = move
+		# Kept on GameManager as well, because the draft screen that offers
+		# "keep your current special" runs after this node is gone.
+		GameManager.set_selected_special(player_id, move)
 	_build_move_lookup()
 	_dbg("[color=yellow][UPGRADE] unlocked move '%s'" % move.move_name)
 

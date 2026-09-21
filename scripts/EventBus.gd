@@ -22,7 +22,12 @@ signal hit_confirmed(impact_position: Vector2, move_data: MoveData, attacker: No
 signal player_registered(player_id: int, player_node: Node)
 signal match_started                                          # reset/duplicate both pools
 signal round_lost(loser_id: int)                               # who lost, needs to draft
-signal upgrade_draft_ready(player_id: int, offered: Array[UpgradeData])  # cards to show
+# The loser's draft runs in two steps: the special-move cards first (Bite,
+# Slam, Uppercut...), then everything else. Both offers ride on this one
+# signal because both are drawn from that player's pool at round_lost time,
+# before they have picked anything, which is what keeps step two's offer
+# unaffected by what they choose in step one.
+signal upgrade_draft_ready(player_id: int, special_offer: Array[UpgradeData], normal_offer: Array[UpgradeData])
 signal upgrade_picked(player_id: int, upgrade: UpgradeData)    # UI -> pool manager
 signal upgrade_applied(player_id: int, upgrade: UpgradeData)   # pool manager -> anyone (vfx, ui)
 signal game_ended(loser_id: int)
