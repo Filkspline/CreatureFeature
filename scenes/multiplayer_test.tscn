@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://1wkmtwclh16c"]
+
+[ext_resource type="Script" uid="uid://clqtgm6dbr0la" path="res://scripts/multiplayer_test.gd" id="1_4k8ny"]
+
+[node name="MultiplayerTest" type="Control" unique_id=180376276]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_4k8ny")
+
+[node name="HostButton" type="Button" parent="." unique_id=528844112]
+layout_mode = 0
+offset_left = 528.0
+offset_top = 8.0
+offset_right = 622.0
+offset_bottom = 44.0
+text = "Host Game"
+
+[node name="SessionID" type="LineEdit" parent="." unique_id=2011915703]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 9.0
+offset_right = 152.0
+offset_bottom = 43.0
+placeholder_text = "Enter Session ID"
+
+[node name="JoinButton" type="Button" parent="." unique_id=1852573422]
+layout_mode = 0
+offset_left = 411.0
+offset_top = 10.0
+offset_right = 498.0
+offset_bottom = 47.0
+text = "Join Game"
+
+[node name="StatusLabel" type="Label" parent="." unique_id=1129669941]
+layout_mode = 0
+offset_left = 161.0
+offset_top = 115.0
+offset_right = 241.0
+offset_bottom = 154.0

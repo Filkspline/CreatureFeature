@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://c3dcype6i6vyy"]
+
+[ext_resource type="Script" uid="uid://cb1xaxxwabqnl" path="res://scripts/MultiplayerManager.gd" id="1_r25su"]
+[ext_resource type="Script" uid="uid://cy006uvidc4y" path="res://addons/tube/tube_client.gd" id="2_g1gn3"]
+[ext_resource type="Script" uid="uid://t4pe7yqc3pnt" path="res://addons/tube/tube_context.gd" id="3_42hhv"]
+
+[sub_resource type="Resource" id="Resource_b5hyx"]
+script = ExtResource("3_42hhv")
+app_id = "goJa|IrOItTY]T("
+metadata/_custom_type_script = "uid://t4pe7yqc3pnt"
+
+[node name="Node" type="Node" unique_id=197845218]
+script = ExtResource("1_r25su")
+
+[node name="TubeClient" type="Node" parent="." unique_id=977668938]
+script = ExtResource("2_g1gn3")
+context = SubResource("Resource_b5hyx")
+metadata/_custom_type_script = "uid://cy006uvidc4y"
