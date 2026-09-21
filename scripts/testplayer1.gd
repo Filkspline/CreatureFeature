@@ -43,7 +43,7 @@ class_name Player
 @export var attack_speed_multiplier: float = 1.0
 ## Max time (in milliseconds) between two taps of the same direction that
 ## still counts as a double-tap for the base-kit dash moves.
-@export var double_tap_window_ms: int = 200
+@export var double_tap_window_ms: int = 550
 
 @export_group("Health")
 @export var max_health: float = 100.0
@@ -92,6 +92,13 @@ var state: State = State.NEUTRAL :
 		# out of your own attack straight into HITSTUN — still
 		# restores z_index correctly, same as a clean attack finish.
 		z_index = attack_z_index if new_state == State.ATTACK else base_z_index
+		# Same reasoning for the dash afterimage trail: leaving ATTACK for
+		# any reason (hit, block, landing recovery) stops it, so a dash
+		# that gets interrupted can't keep spawning ghosts afterwards.
+		# Starting it is _start_attack's job, since that's where the move
+		# being started is actually known.
+		if new_state != State.ATTACK:
+			_set_dash_afterimages(false)
 
 @export_group("Effect card variables")
 @export_subgroup("Vampire")
@@ -243,6 +250,15 @@ func _action(name: String) -> StringName:
 	return StringName("%sP%d" % [name, player_id])
 
 
+# GameManager.player_input_locked is the project-wide "players can't act"
+# flag, held by the round-start countdown. It is checked at every point this
+# player reads the pad or keyboard, so a locked player still falls, still
+# animates, still takes hits and still runs every timer exactly as normal,
+# he just never acts on input. Nothing here pauses anything.
+func _input_locked() -> bool:
+	return GameManager.player_input_locked
+
+
 func _ready() -> void:
 	
 	facing_right = (player_id == 1)
@@ -283,6 +299,14 @@ func _ready() -> void:
 		push_warning("[SETUP] No opponent found in 'players' group.")
 
 	sprites.play_idle()
+
+	# Report which special this player starts the round equipped with before
+	# registering: the draft screen needs to know it to offer "keep the
+	# special you already have" after this node has been freed by the scene
+	# change into the draft. Reported before player_registered on purpose,
+	# so the replays of any picked specials below overwrite it with the
+	# player's actual current special.
+	GameManager.set_selected_special(player_id, selected_special)
 
 	# Lets GameManager hold a live reference to this instance without any
 	# @export slot pointing across scenes — needed so upgrades picked in
@@ -456,6 +480,9 @@ func unlock_move(move: MoveData) -> void:
 	# previously selected one rather than adding to a list.
 	if move.kind == MoveData.Kind.SPECIAL:
 		selected_special = move
+		# Kept on GameManager as well, because the draft screen that offers
+		# "keep your current special" runs after this node is gone.
+		GameManager.set_selected_special(player_id, move)
 	_build_move_lookup()
 	_dbg("[color=yellow][UPGRADE] unlocked move '%s'" % move.move_name)
 
@@ -628,6 +655,11 @@ func _effect_hornet() -> float:
 #  frame would otherwise happen while state != NEUTRAL and be lost.
 
 func _capture_buffered_inputs() -> void:
+	# Nothing gets captured while input is locked, so a press made during
+	# the round countdown can't sit in the buffer and fire the instant the
+	# countdown ends.
+	if _input_locked():
+		return
 	for action in ["Jump", "Normal", "Special"]:
 		if Input.is_action_just_pressed(_action(action)):
 			input_buffer[action] = input_buffer_frames
@@ -757,6 +789,10 @@ func _get_forward_action() -> StringName:
 # Returns true if the given direction action was just double-tapped within
 # double_tap_window_ms. Tracks last tap time per direction in milliseconds.
 func _consume_double_tap(action: StringName) -> bool:
+	# Doubling up on the lock here is what keeps a tap made during the
+	# countdown from pairing with one made right after it into a dash.
+	if _input_locked():
+		return false
 	if not Input.is_action_just_pressed(action):
 		return false
 	var now := Time.get_ticks_msec()
@@ -769,6 +805,8 @@ func _consume_double_tap(action: StringName) -> bool:
 
 
 func _is_block_ready() -> bool:
+	if _input_locked():
+		return false
 	if not is_on_floor():
 		return false
 	# Crouching blocks automatically (no back required); standing still
@@ -868,6 +906,14 @@ func _start_attack(move: MoveData) -> void:
 	sprites.hide_all_sprites()
 	sprites.reset_block_warning()
 	sprites.show_attack_sprite(move.animation_name)
+	# Dash moves leave a ghost trail while they're active (MoveData.is_dash).
+	# Set on every attack start rather than only on entering ATTACK, so a
+	# gatling cancel out of a dash into a non-dash switches it back off too.
+	_set_dash_afterimages(move.is_dash)
+	# Logged on every attack so an unticked (or missing) is_dash on a move
+	# resource shows up here immediately, instead of only showing up as a
+	# dash trail that quietly isn't there.
+	_dbg("[DASH TRAIL] %s for '%s'" % ["on" if move.is_dash else "off", move.move_name])
 
 	EventBus.player_attack_started.emit(player_id, move.move_name)
 
@@ -1040,6 +1086,20 @@ func _end_attack() -> void:
 
 	sprites.hide_attack_sprites()
 	_resume_crouch_or_update_animation()
+
+
+# Player never touches the trail's nodes or timers, it only tells the
+# visuals node whether a dash is running (PlayerVisuals owns the spawning,
+# the timing and the cap). Null guarded because the state setter can run
+# before the Sprites node has been resolved, and idempotent so both the
+# state setter and _start_attack can call it freely.
+func _set_dash_afterimages(active: bool) -> void:
+	if not sprites:
+		return
+	if active:
+		sprites.begin_dash_afterimages()
+	else:
+		sprites.end_dash_afterimages()
 
 
 # Multi-hit moves (NA etc.) toggle MainHitbox's disabled property on
@@ -1333,7 +1393,7 @@ func _handle_jump() -> void:
 
 
 func _handle_crouch_input() -> void:
-	var down_pressed = is_on_floor() and Input.is_action_pressed(_action("Down"))
+	var down_pressed = is_on_floor() and not _input_locked() and Input.is_action_pressed(_action("Down"))
 
 	if down_pressed and crouch_phase == CrouchPhase.NONE:
 		wants_to_crouch = true
@@ -1386,6 +1446,11 @@ func _handle_horizontal_movement(delta: float) -> void:
 
 
 func _get_raw_direction() -> int:
+	# Locked reads as "no direction held" rather than being special-cased
+	# further up, so walking, the input-direction buffer and facing all
+	# settle to neutral through their normal code paths.
+	if _input_locked():
+		return Direction.NONE
 	var left := Input.is_action_pressed(_action("Left"))
 	var right := Input.is_action_pressed(_action("Right"))
 	if left == right:
@@ -1403,6 +1468,8 @@ func _direction_to_float(dir: int) -> float:
 
 
 func _get_horizontal_input() -> float:
+	if _input_locked():
+		return 0.0
 	var dir := 0.0
 	if Input.is_action_pressed(_action("Left")):
 		dir -= 1.0

@@ -32,9 +32,9 @@ func _on_hit_confirmed(impact_position: Vector2, move_data: MoveData, attacker: 
 	if not scene:
 		_dbg("[HIT CONFIRMED] no effect scene resolved (defaults unassigned?) -> aborting")
 		return
-	var parent := _get_effects_parent()
+	var parent := get_effects_parent()
 	if not parent:
-		_dbg("[HIT CONFIRMED] no valid parent from _get_effects_parent() (current_scene is null?) -> aborting")
+		_dbg("[HIT CONFIRMED] no valid parent from get_effects_parent() (current_scene is null?) -> aborting")
 		return
 	var effect := scene.instantiate()
 	parent.add_child(effect)
@@ -74,7 +74,10 @@ func _pick_effect(move_data: MoveData, was_blocked: bool) -> PackedScene:
 # Prefer a scene-unique "%EffectsLayer" node in the current scene if one
 # exists (keeps effects from fighting gameplay nodes for z-index/parenting
 # as more layers get added later). Falls back to current_scene directly.
-func _get_effects_parent() -> Node:
+# Public because other runtime-spawned transient effects (the dash
+# afterimages in PlayerVisuals) need to land in the same layer rather than
+# re-deriving this lookup and drifting out of sync with it.
+func get_effects_parent() -> Node:
 	var current_scene := get_tree().current_scene
 	if current_scene and current_scene.has_node("%EffectsLayer"):
 		return current_scene.get_node("%EffectsLayer")

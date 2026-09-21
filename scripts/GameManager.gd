@@ -53,6 +53,27 @@ const CUTSCENE_SCENE := "res://scenes/CutScene.tscn"
 
 const INPUT_BASES: Array[String] = ["Left", "Right", "Up", "Down", "Normal", "Special", "Jump"]
 
+## Bases whose events get bound onto Jump as well, so Up jumps as well as
+## moving. Kept as data so doubling another input up later is a change here
+## rather than another special case in the binding loop.
+const JUMP_ALIAS_BASES: Array[String] = ["Up"]
+
+## Directional bases and the left stick axis that answers to each, as
+## [axis, direction]. Shared by the screens that resolve input per device
+## themselves (player select, the draft hand) so a stick push counts the
+## same as a d-pad press on every screen, instead of each of them having
+## its own idea of which axis means what.
+const JOY_AXIS_BASES := {
+	"Left": [JOY_AXIS_LEFT_X, -1.0],
+	"Right": [JOY_AXIS_LEFT_X, 1.0],
+	"Up": [JOY_AXIS_LEFT_Y, -1.0],
+	"Down": [JOY_AXIS_LEFT_Y, 1.0],
+}
+## How far the stick has to travel before it counts as a press on those
+## screens. Matches the deadzone the project's own P1/P2 actions use in
+## project.godot, so the stick behaves the same there as it does in a fight.
+const JOY_AXIS_DEADZONE := 0.2
+
 var p1_rounds_won: int = 0
 var p2_rounds_won: int = 0
 
@@ -74,6 +95,20 @@ var p2_node: CharacterBody2D
 var p1_pre_fight_picked : bool = false
 var p2_pre_fight_picked : bool = false
 var is_pre_fight_pick : bool = true
+
+## True while players must not act on input at all. Only INPUT is locked:
+## physics, animations, timers, hit reactions and hitstop all keep running,
+## because this is deliberately not a pause and never touches time_scale.
+## Set by the round-start countdown, checked by every player before it acts
+## on the pad or keyboard (see Player._input_locked).
+var player_input_locked : bool = false
+
+## Currently equipped special move per player_id, as MoveData. Each Player
+## reports its own on registration and again whenever unlock_move() swaps
+## its special, so the post-round draft can still offer "keep the special
+## you already have" after the Player node itself has been freed by the
+## scene change into the draft screen.
+var selected_specials : Dictionary = {}
 
 var p1_character_id : int = 0
 var p2_character_id : int = 0
@@ -122,7 +157,36 @@ func _on_music_finished() -> void:
 func start_match() -> void:
 	p1_rounds_won = 0
 	p2_rounds_won = 0
+	# Belt and braces: a match never begins with the players locked out. The
+	# round countdown locks input again itself when the level loads, and
+	# releases it when it finishes.
+	player_input_locked = false
+	# Specials are per-match too: each Player reports its own default again
+	# as soon as it registers in the first round.
+	selected_specials.clear()
 	EventBus.match_started.emit()
+
+
+## Records which special move a player currently has equipped, so the draft
+## screen can offer keeping it without needing a live Player to ask.
+func set_selected_special(player_id: int, move: MoveData) -> void:
+	if move == null:
+		selected_specials.erase(player_id)
+		return
+	selected_specials[player_id] = move
+
+
+func get_selected_special(player_id: int) -> MoveData:
+	var move: MoveData = selected_specials.get(player_id, null)
+	return move
+
+
+## Locks or unlocks player input game-wide. Called by the round countdown:
+## locked when it starts, released when it finishes, and released once more
+## if it is freed early, so a countdown that gets skipped or interrupted
+## cannot leave either player stranded without controls.
+func set_player_input_locked(locked: bool) -> void:
+	player_input_locked = locked
 
 
 func reset_player_select() -> void:
@@ -130,6 +194,7 @@ func reset_player_select() -> void:
 	p2_character_id = 0
 	p1_device = null
 	p2_device = null
+	selected_specials.clear()
 
 
 
@@ -164,10 +229,25 @@ func _bind_slot_actions(slot: int, device: PlayerInputDevice) -> void:
 			InputMap.action_erase_event(action, existing)
 		if device == null:
 			continue
-		if device.kind == PlayerInputDevice.Kind.KEYBOARD:
-			_add_keyboard_events(action, device.native_action_suffix, base)
-		else:
-			_add_joypad_events(action, device.device_id, base)
+		_bind_base_events(action, device, base)
+		# Jump also answers to Up (see JUMP_ALIAS_BASES). Bound from THIS
+		# player's own Up entries rather than a fixed key or button, so it
+		# follows whichever layout this slot actually claimed (WASD vs
+		# arrow keys, or this controller's stick and d-pad) instead of
+		# hardcoding one layout for both players.
+		if base == "Jump":
+			for alias_base in JUMP_ALIAS_BASES:
+				_bind_base_events(action, device, alias_base)
+
+
+# Puts one input base's events onto an action: the captured keyboard layout
+# entries for a keyboard device, or the d-pad/stick plus button set for a
+# controller.
+func _bind_base_events(action: String, device: PlayerInputDevice, base: String) -> void:
+	if device.kind == PlayerInputDevice.Kind.KEYBOARD:
+		_add_keyboard_events(action, device.native_action_suffix, base)
+	else:
+		_add_joypad_events(action, device.device_id, base)
 
 
 func _add_keyboard_events(action: StringName, layout_suffix: String, base: String) -> void:

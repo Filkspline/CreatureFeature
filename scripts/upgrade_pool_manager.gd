@@ -24,8 +24,11 @@ var current_upgrades: Dictionary = {}   ## int player_id -> Array[String] picked
 ## loading AFTER round_lost already fired (the normal case — whoever
 ## decides the round ended calls change_scene_to_file right after
 ## emitting) can still catch up instead of missing the signal entirely.
+## Both steps' offers are cached, since the UI catches up on whichever
+## step it is currently on.
 var last_offer_player_id: int = -1
-var last_offer: Array[UpgradeData] = []
+var last_special_offer: Array[UpgradeData] = []   ## step one: special-move cards
+var last_offer: Array[UpgradeData] = []           ## step two: everything else
 
 var card_hand  ## still set by the draft UI scene on _ready, kept for backwards compat
 
@@ -51,15 +54,88 @@ func _on_match_started() -> void:
 
 ## Draws this round's offer for whichever player lost, then broadcasts it.
 ## Nothing calls into the draft UI directly — it just listens for this.
+## Both steps are drawn here, before the player has picked anything, so
+## step two's offer is fixed up front and can't be skewed by the step one
+## pick.
 func _on_round_lost(loser_id: int) -> void:
-	var paths := _draw_from_pool(loser_id)
-	var offered: Array[UpgradeData] = []
+	var special_offer := _load_cards(_draw_special_from_pool(loser_id))
+	var normal_offer := _load_cards(_draw_normal_from_pool(loser_id))
+	last_offer_player_id = loser_id
+	last_special_offer = special_offer
+	last_offer = normal_offer
+	EventBus.upgrade_draft_ready.emit(loser_id, special_offer, normal_offer)
+
+
+func _load_cards(paths: Array[String]) -> Array[UpgradeData]:
+	var upgrades: Array[UpgradeData] = []
 	for path in paths:
 		var upgrade: UpgradeData = load(path)
-		offered.append(upgrade)
-	last_offer_player_id = loser_id
-	last_offer = offered
-	EventBus.upgrade_draft_ready.emit(loser_id, offered)
+		if upgrade:
+			upgrades.append(upgrade)
+	return upgrades
+
+
+## True for the cards that set or replace the player's selected special
+## move (Bite, Slam, Uppercut today). These are the draft's whole first
+## step; every other card belongs to the second. Put a new special card
+## resource in card_resource_dir and it lands in step one automatically.
+func is_special_move_card(upgrade: UpgradeData) -> bool:
+	if upgrade == null or upgrade.effect_type != UpgradeData.EffectType.UNLOCK_MOVE:
+		return false
+	var move: MoveData = upgrade.unlocked_move
+	return move != null and move.kind == MoveData.Kind.SPECIAL
+
+
+## The card that grants the special a player already has equipped, or null
+## if no card in the directory grants it. Step one always adds this, so
+## "keep the special I've got" is a legal pick no matter what the pool
+## happens to still contain.
+##
+## Matched on move_name rather than the MoveData instance: move_name is what
+## this project already treats as a move's identity (locked_move_names,
+## all_moves keys), and the player's own copies get duplicated per instance,
+## so comparing instances would be comparing the wrong thing.
+func get_keep_special_card(player_id: int) -> UpgradeData:
+	var current := GameManager.get_selected_special(player_id)
+	if current == null:
+		return null
+	for path in card_array:
+		var upgrade: UpgradeData = load(path)
+		if upgrade and is_special_move_card(upgrade) and upgrade.unlocked_move.move_name == current.move_name:
+			return upgrade
+	return null
+
+
+## Step one: the special-move cards left in this player's pool, plus the
+## keep card. Picking the keep card costs nothing and leaves the pool
+## exactly as it is (see _on_upgrade_picked), so this step can be a
+## required choice without ever being a punishment.
+func _draw_special_from_pool(player_id: int) -> Array[String]:
+	var pool: Array = pools.get(player_id, [])
+	var special_paths: Array[String] = []
+	for path in pool:
+		var upgrade: UpgradeData = load(path)
+		if is_special_move_card(upgrade):
+			special_paths.append(path)
+	special_paths.shuffle()
+
+	var keep_card := get_keep_special_card(player_id)
+	var keep_path: String = keep_card.resource_path if keep_card else ""
+	# Only as many pool cards as fit alongside the keep card, and never the
+	# keep card twice: if the current special's own card is still in the
+	# pool, picking it from there is the same free keep, so it needs no
+	# second copy in the hand.
+	var room: int = cards_offered - (1 if keep_card else 0)
+	var offered: Array[String] = []
+	for path in special_paths:
+		if offered.size() >= room:
+			break
+		if path == keep_path:
+			continue
+		offered.append(path)
+	if keep_card:
+		offered.append(keep_path)
+	return offered
 
 
 ## The fight scene reloads with a brand new Player at base stats every
@@ -84,6 +160,10 @@ func _on_player_registered(player_id: int, player_node: Node) -> void:
 ## records the pick and removes it from the pool — actually applying it
 ## happens later, in _on_player_registered, once there's a live Player
 ## instance to apply it to.
+##
+## Keeping the special you already have never reaches here: the draft UI
+## deliberately doesn't emit for that pick, which is what makes it free.
+## Nothing is recorded, nothing leaves the pool, and nothing gets replayed.
 func _on_upgrade_picked(player_id: int, upgrade: UpgradeData) -> void:
 	var picked_path := upgrade.resource_path
 	print("[TRACE] upgrade_picked received | player=%d upgrade='%s' path='%s'" % [player_id, upgrade.name, picked_path])
@@ -94,23 +174,32 @@ func _on_upgrade_picked(player_id: int, upgrade: UpgradeData) -> void:
 
 	if last_offer_player_id == player_id:
 		last_offer_player_id = -1
+		last_special_offer = []
 		last_offer = []
 
 
-## Picks cards_offered unique cards from that player's remaining pool.
+## Step two: the non-special cards left in that player's pool, drawn by the
+## same rules the draft has always used. Special cards are filtered out
+## here because they were step one's business and must not appear twice in
+## one draft.
+##
 ## Bounded by the player's OWN pool size, not the master card_array size —
 ## the old version indexed with numbers up to card_array.size() even
 ## though it was reading from the (shrinking) per-player pool, which could
 ## pull an out-of-range index once enough cards had been picked.
-func _draw_from_pool(player_id: int) -> Array[String]:
+func _draw_normal_from_pool(player_id: int) -> Array[String]:
 	var pool: Array = pools.get(player_id, [])
-	var count: int = min(cards_offered, pool.size())
-	var indices: Array = range(pool.size())
-	indices.shuffle()
+	var normal_paths: Array[String] = []
+	for path in pool:
+		var upgrade: UpgradeData = load(path)
+		if upgrade and not is_special_move_card(upgrade):
+			normal_paths.append(path)
+	normal_paths.shuffle()
 
+	var count: int = min(cards_offered, normal_paths.size())
 	var picked: Array[String] = []
-	for i in indices.slice(0, count):
-		picked.append(pool[i])
+	for i in count:
+		picked.append(normal_paths[i])
 	return picked
 
 

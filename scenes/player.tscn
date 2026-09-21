@@ -548,7 +548,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0, 0.116666675, 0.18333334),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [Vector2(92, 90), Vector2(54, 46), Vector2(26, 22)]
+"values": [Vector2(92, 90), Vector2(78, 81), Vector2(73, 73)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -1336,7 +1336,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0.21666668, 0.3166667),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
-"values": [Vector2(103, 66), Vector2(90, 73)]
+"values": [Vector2(152, 113), Vector2(90, 73)]
 }
 
 [sub_resource type="Animation" id="Animation_g5jhy"]
@@ -1882,7 +1882,6 @@ texture = ExtResource("10_y4r1p")
 hframes = 9
 
 [node name="NA" type="Sprite2D" parent="Sprites" unique_id=1426456731]
-visible = false
 position = Vector2(1, -95)
 texture = ExtResource("13_jej6c")
 hframes = 8
@@ -1935,7 +1934,6 @@ texture = ExtResource("28_hax0n")
 hframes = 3
 
 [node name="SA" type="Sprite2D" parent="Sprites" unique_id=2100174608]
-visible = false
 position = Vector2(0, -189)
 texture = ExtResource("28_487ah")
 hframes = 7

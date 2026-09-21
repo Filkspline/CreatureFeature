@@ -96,6 +96,7 @@ var _created_joypad: Dictionary = {}    # device_id -> true
 # Edge-detection state (see the helpers below).
 var _key_prev_state: Dictionary = {}
 var _joy_button_prev_state: Dictionary = {}
+var _joy_axis_prev_state: Dictionary = {}
 
 
 func _ready() -> void:
@@ -300,7 +301,13 @@ func _remove_cursor(cursor: Cursor) -> void:
 func _device_just_pressed(device: PlayerInputDevice, action_name: String) -> bool:
 	if device.kind == PlayerInputDevice.Kind.KEYBOARD:
 		return _keyboard_action_just_pressed(action_name, device.native_action_suffix)
-	return _joy_button_just_pressed(device.device_id, _joy_button_for_action(action_name))
+	# A controller can answer with either the d-pad/button for this base or
+	# the left stick pushed that way. Both are checked: reading buttons only
+	# meant the stick could not move a cursor or confirm on this screen,
+	# even though the same stick works in a fight.
+	if _joy_button_just_pressed(device.device_id, _joy_button_for_action(action_name)):
+		return true
+	return _joy_axis_just_pressed(device.device_id, action_name)
 
 
 func _keyboard_action_just_pressed(base: String, suffix: String) -> bool:
@@ -349,6 +356,22 @@ func _joy_button_just_pressed(device_id: int, button_index: int) -> bool:
 	var pressed := Input.is_joy_button_pressed(device_id, button_index)
 	var was_pressed: bool = _joy_button_prev_state.get(key, false)
 	_joy_button_prev_state[key] = pressed
+	return pressed and not was_pressed
+
+
+# Stick equivalent of a d-pad press for the directional bases, edge detected
+# the same way the button checks are. Shares GameManager's axis map and
+# threshold so a stick tilt means the same thing here as it does in a fight.
+func _joy_axis_just_pressed(device_id: int, action_name: String) -> bool:
+	var binding: Array = GameManager.JOY_AXIS_BASES.get(action_name, [])
+	if binding.is_empty():
+		return false
+	var axis: int = binding[0]
+	var direction: float = binding[1]
+	var pressed := Input.get_joy_axis(device_id, axis) * direction >= GameManager.JOY_AXIS_DEADZONE
+	var key := "%d_%d_%s" % [device_id, axis, direction]
+	var was_pressed: bool = _joy_axis_prev_state.get(key, false)
+	_joy_axis_prev_state[key] = pressed
 	return pressed and not was_pressed
 
 

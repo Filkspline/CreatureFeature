@@ -14,6 +14,13 @@ extends Node2D
 #  bounds of the cardspawnarea collision shape.
 
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
+## Where the draft hands off once both steps are done.
+const FIGHT_SCENE := "res://scenes/test_level.tscn"
+
+## The draft runs in two steps for the player who lost the round: the
+## special-move cards first (where keeping the special already equipped is
+## always an option), then the normal cards.
+enum DraftStep { SPECIAL, NORMAL }
 
 @export var min_card_spacing : float = 70.0 # Smallest gap allowed between card slots, keeps scatter from overlapping
 @export var vertical_jitter : float = 90.0 # How far up/down cards can randomly sit, tab-scatter feel
@@ -44,6 +51,11 @@ const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 ## read as the foreground. Keep this above the draft scene's backdrop
 ## (background and taskbar sit at z_index -10 in upgrade_card_ui.tscn).
 @export var owned_card_z_base : int = 10
+## Beat between a card being confirmed and the draft moving on, either into
+## the second step or, once both steps are done, into the level. Long
+## enough for the pick animation to read.
+@export var pick_settle_delay : float = 0.75
+
 ## How far apart (in local y) each already-owned card sits from the next
 ## in the owned-cards stack. Positive moves each newer card down the
 ## screen from the previous one.
@@ -62,6 +74,21 @@ const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 ## appearing, so the stack reads as a one-by-one reveal.
 @export var owned_card_flip_stagger_delay : float = 0.12
 
+@export_group("Step banner")
+## Text the banner pops up with while the draft is on its special-move step.
+@export var special_step_text : String = "PICK A SPECIAL MOVE"
+## Text it pops up with while the draft is on its normal-cards step.
+@export var normal_step_text : String = "PICK A FEATURE"
+## How long the banner takes to spring in each time a step starts.
+@export var banner_pop_duration : float = 0.28
+## Scale the banner pops in from before springing to full size.
+@export var banner_pop_start_scale : float = 0.7
+## How long the banner holds at full size before fading out again, so it
+## reads as an announcement instead of sitting over the cards.
+@export var banner_hold_duration : float = 1.6
+## How long the banner takes to fade away after that hold.
+@export var banner_fade_duration : float = 0.3
+
 @onready var hand : Node2D = self
 @onready var cardspawner : Marker2D = $cardspawner
 @onready var card_spawn_shape : CollisionShape2D = $cardspawnarea/CollisionShape2D
@@ -70,6 +97,10 @@ const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 # The draft heading lives outside the hand (a sibling of the Camera2D this
 # node sits under), so look it up by path rather than assuming it's a child.
 @onready var title_label : Label = get_node_or_null("../../title_label")
+# The step banner ("PICK A SPECIAL MOVE" / "PICK A FEATURE") sits in its own
+# CanvasLayer so it draws over the hand whatever z bands the cards have
+# claimed, and so it stays out of the camera's coordinate space.
+@onready var step_banner : Label = get_node_or_null("../../step_banner_layer/step_banner")
 
 var folder_base_scale : Vector2
 var current_player_id : int = 1
@@ -83,6 +114,12 @@ var selected_card_idx : int
 var currently_handling_card : bool
 var card_map : Dictionary[Node2D, UpgradeData]
 var cards : Array[Node2D]
+# Both steps' offers, drawn from the pool up front (see UpgradePoolManager)
+# and consumed one step at a time below.
+var _special_offer : Array[UpgradeData]
+var _normal_offer : Array[UpgradeData]
+## Which step the hand is currently showing.
+var _step : DraftStep = DraftStep.SPECIAL
 # Purely-display cards for the "already owned" stack. Kept separate from
 # `cards` so they're never touched by highlight navigation, input
 # handling, or the picking/discard flow in _handle_clicked_card().
@@ -91,6 +128,9 @@ var _rng := RandomNumberGenerator.new()
 # Edge-detection state for per-device input resolution (see _process below).
 var _key_prev_state : Dictionary = {}
 var _joy_button_prev_state : Dictionary = {}
+var _joy_axis_prev_state : Dictionary = {}
+## Tween driving the step banner's pop-in, re-created on each step change.
+var _banner_tween : Tween
 
 ##------------------------------------------------------------------------
 
@@ -103,15 +143,60 @@ func _ready() -> void:
 	# emitting. That signal is gone by the time we get here, so check for
 	# an already-drawn offer directly instead of only listening for one.
 	if UpgradePoolManager.last_offer_player_id != -1:
-		_on_upgrade_draft_ready(UpgradePoolManager.last_offer_player_id, UpgradePoolManager.last_offer)
+		_on_upgrade_draft_ready(
+			UpgradePoolManager.last_offer_player_id,
+			UpgradePoolManager.last_special_offer,
+			UpgradePoolManager.last_offer
+		)
 
 
-func _on_upgrade_draft_ready(player_id: int, offered: Array[UpgradeData]) -> void:
+func _on_upgrade_draft_ready(player_id: int, special_offer: Array[UpgradeData], normal_offer: Array[UpgradeData]) -> void:
 	current_player_id = player_id
+	_special_offer = special_offer
+	_normal_offer = normal_offer
 	_update_title_label(player_id)
-	_assign_card_z_bands(offered.size(), _owned_upgrade_paths(player_id).size())
-	_draw_hand(offered)
+	_draw_step(DraftStep.SPECIAL)
+	# The owned stack is drawn once for the whole draft, not per step: it
+	# lists what this player walked in with, and re-revealing it between
+	# steps would replay the whole flip sequence over the second hand.
 	_draw_owned_cards(player_id)
+
+
+# Draws one step's hand. Falls through to the next step when a step has
+# nothing to offer (an exhausted pool), and leaves the draft when there is
+# nothing left at all, so the draft can never strand the player on an empty
+# hand with no way forward.
+func _draw_step(step: DraftStep) -> void:
+	var offered := _offer_for(step)
+	if offered.is_empty():
+		if step == DraftStep.SPECIAL:
+			_draw_step(DraftStep.NORMAL)
+		else:
+			_leave_draft()
+		return
+
+	_step = step
+	_clear_hand()
+	_update_title_label(current_player_id)
+	_show_step_banner(step)
+	_draw_hand(offered)
+
+
+func _offer_for(step: DraftStep) -> Array[UpgradeData]:
+	return _special_offer if step == DraftStep.SPECIAL else _normal_offer
+
+
+# Frees whatever is left of the previous step's hand and resets the hand
+# bookkeeping, so the next step starts from a clean slate. The card that was
+# just picked is still flying to the centre when this runs, so it goes too.
+func _clear_hand() -> void:
+	for card in cards:
+		if is_instance_valid(card):
+			card.queue_free()
+	cards.clear()
+	card_map.clear()
+	selected_card_idx = 0
+	currently_handling_card = false
 
 
 # Hands out the z bands for one draft, before anything spawns. The offered
@@ -134,17 +219,45 @@ func _owned_upgrade_paths(player_id: int) -> Array:
 
 
 # Says which player is actually drafting. Only the round's loser picks, and
-# it isn't otherwise obvious from the screen who that is.
+# it isn't otherwise obvious from the screen who that is. WHICH STEP it is
+# is the step banner's job, so this stays a plain player indicator.
 func _update_title_label(player_id: int) -> void:
 	if not title_label:
 		return
-	title_label.text = "PLAYER %d: SELECT YOUR UPGRADES" % player_id
+	title_label.text = "PLAYER %d" % player_id
+
+
+# Pops the step banner up with whichever instruction matches the step that
+# just started, springing in so a step change is something the player
+# notices rather than a line of text that quietly changed.
+func _show_step_banner(step: DraftStep) -> void:
+	if not step_banner:
+		return
+
+	step_banner.text = special_step_text if step == DraftStep.SPECIAL else normal_step_text
+	step_banner.visible = true
+	step_banner.scale = Vector2.ONE * banner_pop_start_scale
+	step_banner.modulate.a = 0.0
+
+	if _banner_tween:
+		_banner_tween.kill()
+	_banner_tween = create_tween()
+	_banner_tween.set_parallel(true)
+	_banner_tween.tween_property(step_banner, "scale", Vector2.ONE, banner_pop_duration) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_banner_tween.tween_property(step_banner, "modulate:a", 1.0, banner_pop_duration * 0.6)
+	# Hold, then get out of the way. It is an announcement for the step that
+	# just started, not a label that sits over the cards for the whole step.
+	_banner_tween.chain().tween_interval(banner_hold_duration)
+	_banner_tween.chain().tween_property(step_banner, "modulate:a", 0.0, banner_fade_duration)
+	_banner_tween.chain().tween_callback(step_banner.hide)
 
 
 func _draw_hand(offered: Array[UpgradeData]) -> void:
-	# card_default_z_index / current_z_index were set by
-	# _assign_card_z_bands(), which needs the offered and owned counts
-	# together to place this hand above the owned stack.
+	# Recomputed per step rather than once per draft: the two steps can
+	# offer different numbers of cards, and the bands have to clear the
+	# owned stack either way.
+	_assign_card_z_bands(offered.size(), _owned_upgrade_paths(current_player_id).size())
 	for upgrade in offered:
 		var upgrade_card = UPGRADE_CARD.instantiate()
 		card_map.set(upgrade_card, upgrade)
@@ -275,6 +388,10 @@ func _spread_cards() -> void:
 
 	for slot_index in cards.size():
 		var card = cards[slot_index]
+		# A step change can clear this hand while the stagger below is still
+		# running, so anything already freed is skipped rather than tweened.
+		if not is_instance_valid(card):
+			continue
 		var slot_center_x = spawn_bounds.position.x + (slot_index + 0.5) * slot_width
 		var jitter_x = _rng.randf_range(-max_jitter_x, max_jitter_x)
 		var jitter_y = _rng.randf_range(-vertical_jitter, vertical_jitter)
@@ -283,6 +400,8 @@ func _spread_cards() -> void:
 		_pop_card_out_of_folder(card, destination)
 		await get_tree().create_timer(card_stagger_delay).timeout
 
+	if cards.is_empty() or not is_instance_valid(cards[0]):
+		return
 	cards[0].currently_highlighted = true
 	cards[0]._handle_highlight()
 	_tween_card_scale(cards[0], card_default_scale * highlighted_scale)
@@ -376,7 +495,13 @@ func _device_just_pressed(device: PlayerInputDevice, action_name: String) -> boo
 		return false
 	if device.kind == PlayerInputDevice.Kind.KEYBOARD:
 		return _keyboard_action_just_pressed(action_name, device.native_action_suffix)
-	return _joy_button_just_pressed(device.device_id, _joy_button_for_action(action_name))
+	# A controller can answer with either the d-pad/button bound to this
+	# base or the left stick pushed in that direction. Both are checked,
+	# because reading only buttons here meant the stick did nothing on this
+	# screen while it worked fine in the fight.
+	if _joy_button_just_pressed(device.device_id, _joy_button_for_action(action_name)):
+		return true
+	return _joy_axis_just_pressed(device.device_id, action_name)
 
 
 func _keyboard_action_just_pressed(base: String, suffix: String) -> bool:
@@ -408,6 +533,10 @@ func _joy_button_for_action(action_name: String) -> int:
 			return JOY_BUTTON_DPAD_LEFT
 		"Right":
 			return JOY_BUTTON_DPAD_RIGHT
+		"Up":
+			return JOY_BUTTON_DPAD_UP
+		"Down":
+			return JOY_BUTTON_DPAD_DOWN
 		_:
 			return JOY_BUTTON_A
 
@@ -417,6 +546,23 @@ func _joy_button_just_pressed(device_id: int, button_index: int) -> bool:
 	var pressed := Input.is_joy_button_pressed(device_id, button_index)
 	var was_pressed: bool = _joy_button_prev_state.get(key, false)
 	_joy_button_prev_state[key] = pressed
+	return pressed and not was_pressed
+
+
+# Stick equivalent of a d-pad press for the directional bases, edge detected
+# the same way the button checks above are. The axis map and threshold are
+# GameManager's, so this screen and player select agree on what the stick
+# means and how far it has to travel.
+func _joy_axis_just_pressed(device_id: int, action_name: String) -> bool:
+	var binding: Array = GameManager.JOY_AXIS_BASES.get(action_name, [])
+	if binding.is_empty():
+		return false
+	var axis: int = binding[0]
+	var direction: float = binding[1]
+	var pressed := Input.get_joy_axis(device_id, axis) * direction >= GameManager.JOY_AXIS_DEADZONE
+	var key := "%d_%d_%s" % [device_id, axis, direction]
+	var was_pressed: bool = _joy_axis_prev_state.get(key, false)
+	_joy_axis_prev_state[key] = pressed
 	return pressed and not was_pressed
 
 
@@ -472,4 +618,52 @@ func _handle_clicked_card():
 	tween.parallel().tween_property(highlighted_card, "rotation", card_default_rotation, 0.4)
 	tween.parallel().tween_property(highlighted_card, "scale", Vector2(3.0, 3.0), 0.4)
 
-	highlighted_card._handle_upgrade(card_map.get(highlighted_card), current_player_id)
+	_resolve_pick(card_map.get(highlighted_card))
+
+
+# A pick was confirmed. This is where the draft's two steps are sequenced:
+# step one always leads into step two, step two ends the draft, and a pick
+# that keeps the special already equipped skips the pool entirely.
+func _resolve_pick(upgrade : UpgradeData) -> void:
+	if upgrade == null:
+		print("[TRACE] draft pick | player=%d | no upgrade mapped to the picked card" % current_player_id)
+		_leave_draft()
+		return
+
+	if _is_keep_special_pick(upgrade):
+		# Deliberately not emitted: keeping the special you walked in with
+		# costs nothing, records nothing, and leaves the pool alone, so the
+		# same card can still be offered in a later round.
+		print("[TRACE] draft keep | player=%d kept special '%s' (free, pool untouched)"
+			% [current_player_id, upgrade.name])
+	else:
+		# UpgradePoolManager listens for this: it records the pick and takes
+		# it out of the pool. Applying happens later, when the next Player
+		# registers in the level.
+		EventBus.upgrade_picked.emit(current_player_id, upgrade)
+
+	if pick_settle_delay > 0.0:
+		await get_tree().create_timer(pick_settle_delay).timeout
+
+	if _step == DraftStep.SPECIAL:
+		_draw_step(DraftStep.NORMAL)
+	else:
+		_leave_draft()
+
+
+# True when this pick is the special the player already has equipped. Only
+# meaningful in step one; the same card picked out of the pool counts too,
+# since it means the same thing (keep what I have), which is why the pool
+# manager doesn't need to add a second copy of it to the hand. Compared by
+# move_name, the identity the rest of the project uses for moves.
+func _is_keep_special_pick(upgrade : UpgradeData) -> bool:
+	if _step != DraftStep.SPECIAL or upgrade.unlocked_move == null:
+		return false
+	var current := GameManager.get_selected_special(current_player_id)
+	return current != null and upgrade.unlocked_move.move_name == current.move_name
+
+
+func _leave_draft() -> void:
+	# Routed through SceneTransition (mouth wipe) instead of a raw
+	# change_scene_to_file, same as every other scene change in the project.
+	SceneTransition.change_scene(FIGHT_SCENE)

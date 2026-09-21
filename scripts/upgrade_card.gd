@@ -16,7 +16,6 @@ signal card_flip_finished
 @onready var description_label : Label = $Control/card_front/Description
 @onready var parent_node = self.get_parent()
 @onready var card_shader = preload("res://scripts/card_tear.gdshader")
-@onready var fight_scene = preload("res://scenes/test_level.tscn")
 
 const FLIP_ANIM := "card_flip"
 # card_front's z_index while face-down (behind card_back) and face-up
@@ -207,16 +206,7 @@ func set_upgrade(upgrade : UpgradeData) -> void:
 	description_label.text = upgrade.description
 
 
-func _handle_upgrade(upgrade : UpgradeData, player_id : int) -> void:
-	# UpgradePoolManager listens for this and handles removing it from the
-	# pool AND applying it to the right player — this card doesn't need a
-	# reference to either system.
-	EventBus.upgrade_picked.emit(player_id, upgrade)
-	
-	# NOTE this is just going to force a transition to the stage for now
-	await get_tree().create_timer(0.75).timeout
-	# Routed through SceneTransition (mouth wipe) instead of a raw
-	# change_scene_to_file — same reasoning as GameManager's round-loss
-	# transition. The 0.75s wait above is unrelated to that and just
-	# gives the pick/flip feedback a beat before the wipe starts.
-	SceneTransition.change_scene("res://scenes/test_level.tscn")
+# NOTE what happens when a card is confirmed lives in CardHand now
+# (_handle_clicked_card -> _resolve_pick): the draft runs in two steps, so
+# deciding between "next step" and "done, go to the level" needs knowledge
+# of the draft's step, which is the hand's business, not a single card's.
