@@ -50,6 +50,21 @@ extends CanvasLayer
 ## locked out forever.
 @export var transition_wait_max : float = 1.0
 
+@export_group("Sound")
+## Countdown clip, played once when the numbers start.
+@export var countdown_sound : AudioStream = preload("res://assets/soundeffects/Countdown321.mp3")
+@export var countdown_volume_db : float = 0.0
+## Nudge on top of the fitted playback speed below, to taste, without having
+## to recalculate anything by hand.
+@export var countdown_sound_speed : float = 1.0
+## How much of the pitch that the fitted speed brought with it to take back
+## out. Fitting the clip to the countdown's length means playing it faster,
+## and pitch_scale moves speed and pitch together, so speeding it up also
+## raised it. 1.0 restores the clip's own pitch at the fitted speed, 0.0
+## leaves it coupled (whatever the speed did to it), and values between are
+## a half correction, which is the knob to tune by ear.
+@export_range(0.0, 2.0, 0.01) var countdown_pitch_correction : float = 1.0
+
 @onready var number_sprite : Sprite2D = $Number
 
 ## The scale the sprite is authored with in the scene. Every squash and
@@ -70,11 +85,51 @@ func _ready() -> void:
 # numbers in it needs no change here (three frames today: 3, 2, 1).
 func _run_countdown() -> void:
 	await _wait_for_scene_transition()
+	_play_countdown_sound()
 	number_sprite.visible = true
 	for frame_index in number_sprite.hframes:
 		number_sprite.frame = frame_index
 		await _play_number()
 	_finish()
+
+
+# Real seconds the whole countdown takes, derived from the same exports that
+# drive the numbers: each one pops, settles, holds, then squashes away.
+func countdown_duration() -> float:
+	return float(number_sprite.hframes) * (
+		pop_duration + settle_duration + number_hold_duration + exit_duration
+	)
+
+
+# Playback rate that makes the clip finish exactly when the last number
+# does. Derived rather than hand-set, so retiming the countdown above keeps
+# the sound lined up on its own: countdown_sound_speed only nudges that fit.
+func countdown_sound_pitch() -> float:
+	if countdown_sound == null:
+		return 1.0
+	var clip_length := countdown_sound.get_length()
+	var total := countdown_duration()
+	if clip_length <= 0.0 or total <= 0.0:
+		return countdown_sound_speed
+	return (clip_length / total) * countdown_sound_speed
+
+
+func _play_countdown_sound() -> void:
+	if countdown_sound == null:
+		return
+	# Printed once per round so the fit is visible when retiming the numbers
+	# rather than something you have to work out with a stopwatch.
+	print("[COUNTDOWN] sound fitted to a %.2fs countdown at %.2fx speed (clip is %.2fs), pitch correction %.2f"
+		% [countdown_duration(), countdown_sound_pitch(), countdown_sound.get_length(), countdown_pitch_correction])
+	# Fitted rather than plain-played, because the playback rate that lines
+	# the clip up with the numbers also raises its pitch; the correction
+	# takes that pitch back out without touching the timing.
+	SfxManager.play_fitted(
+		countdown_sound,
+		countdown_sound_pitch(),
+		countdown_pitch_correction,
+		countdown_volume_db
+	)
 
 
 # SceneTransition swaps the scene part way through its mouth animation (at

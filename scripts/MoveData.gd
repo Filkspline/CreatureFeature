@@ -50,6 +50,20 @@ enum Kind { NORMAL, SPECIAL, GRAB }
 @export_group("Dash")
 @export var is_dash: bool = false
 
+# ── Sound ────────────────────────────────────────────────────────
+# Per-move attack sound tuning. Both are optional: a move with nothing
+# assigned here plays the Player's own default attack sound (and, for
+# specials, its default charge-up), so tuning is opt-in per move instead of
+# something every move resource has to carry.
+@export_group("Sound")
+## Played when this move's active window begins. Leave unassigned to use the
+## Player's default attack sound.
+@export var attack_sound: SoundConfig
+## Specials only: played through the move's startup and cut off when the
+## active window begins and attack_sound takes over. Ignored by normals,
+## which have no charge-up.
+@export var charge_sound: SoundConfig
+
 @export_group("Special properties")
 @export var low_profile: bool = false
 @export var is_charge_move: bool = false

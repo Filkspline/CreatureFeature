@@ -40,6 +40,21 @@ extends Node
 ## stream ends, rather than relying on the AudioStream's own loop flag.
 @export var background_music: AudioStream = preload("res://assets/MusicTrack1.wav")
 
+@export_group("Sound")
+## Played once, when the game first boots. Autoloads only ever run _ready
+## once per launch, so this is exactly "the game starting up", not "the main
+## menu being opened".
+@export var boot_sound: AudioStream = preload("res://assets/soundeffects/CREATURESFEATURESsoundeffect.mp3")
+@export var boot_volume_db: float = 0.0
+## Played when a whole MATCH concludes, not when a single round does. The
+## same stinger as boot_sound by default, since the two bookend a session.
+@export var match_over_sound: AudioStream = preload("res://assets/soundeffects/CREATURESFEATURESsoundeffect.mp3")
+@export var match_over_volume_db: float = 0.0
+## Played as any round concludes, winning round or not.
+@export var round_end_sound: AudioStream = preload("res://assets/soundeffects/RoundEndSound.mp3")
+@export var round_end_volume_db: float = 0.0
+@export_range(0.0, 1.0, 0.01) var round_end_pitch_variance: float = 0.0
+
 var _music_player: AudioStreamPlayer
 
 const CARD_SELECT_SCENE := "res://scenes/upgrade_card_ui.tscn"
@@ -128,6 +143,7 @@ func _ready() -> void:
 	EventBus.death_sequence_finished.connect(_on_death_sequence_finished)
 
 	_setup_music_player()
+	SfxManager.play_stream(boot_sound, 1.0, 0.0, boot_volume_db)
 
 	call_deferred("start_match")
 
@@ -323,9 +339,13 @@ func _on_death_sequence_finished(player_id: int) -> void:
 func _end_round(loser_id: int) -> void:
 	var winner_id := _other_player_id(loser_id)
 	_award_round_win(winner_id)
+	SfxManager.play_stream(round_end_sound, 1.0, round_end_pitch_variance, round_end_volume_db)
 
 	if _has_won_match(winner_id):
 		match_over.emit(winner_id)
+		# The closing stinger on top of the round one: a round did conclude,
+		# and this was the round that concluded the whole match.
+		SfxManager.play_stream(match_over_sound, 1.0, 0.0, match_over_volume_db)
 		print("Match over, player %d wins" % winner_id)
 		#EventBus.game_ended.emit(_other_player_id(winner_id))
 		SceneTransition.change_scene(MATCH_END_SCREEN_SCENE)

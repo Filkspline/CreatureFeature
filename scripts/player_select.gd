@@ -174,6 +174,7 @@ func _move_cursor(cursor: Cursor, delta: int) -> void:
 	# Entering a character slot is only allowed while it's unoccupied.
 	if new_selection != NEUTRAL and _slot_occupied_by_other(new_selection, cursor):
 		return
+	SfxManager.play_ui_hover()
 	cursor.selection = new_selection
 	_update_cursor_visual(cursor)
 
@@ -188,6 +189,7 @@ func _slot_occupied_by_other(selection: int, cursor: Cursor) -> bool:
 func _lock_cursor(cursor: Cursor) -> void:
 	if cursor.selection == NEUTRAL:
 		return
+	SfxManager.play_ui_select()
 	cursor.locked = true
 	var slot := 1 if cursor.selection == SLOT_1 else 2
 	_show_selected(slot)
@@ -387,6 +389,7 @@ func _joypad_any_input(device_id: int) -> bool:
 
 
 func _on_button_pressed() -> void:
+	SfxManager.play_ui_select()
 	var slot1 := _cursor_at(SLOT_1)
 	var slot2 := _cursor_at(SLOT_2)
 	if slot1:
