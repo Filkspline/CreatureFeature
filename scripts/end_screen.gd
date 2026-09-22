@@ -62,6 +62,7 @@ func _handle_button_highlight(selected_button_id : int) -> void:
 
 
 func _handle_button_pressed(selected_button_id : int) -> void:
+	SfxManager.play_ui_select()
 	match currently_selected_button_id:
 		1:
 			# GameManager.start_match() is normally only ever called once,

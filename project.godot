@@ -18,6 +18,7 @@ config/icon="res://assets/icon.svg"
 
 [autoload]
 
+SfxManager="*res://scenes/sfx_manager.tscn"
 HitEffectManager="*uid://c1hitfxmgr01"
 GameManager="*uid://fhymjho61bc6"
 EventBus="*uid://ct71mxxweme10"

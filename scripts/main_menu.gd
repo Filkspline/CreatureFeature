@@ -23,6 +23,7 @@ func _process(_delta):
 			selected_index = 0
 		
 		buttons[selected_index].grab_focus()
+		SfxManager.play_ui_hover()
 
 	# Move selection up
 	if Input.is_action_just_pressed("MenuUp"):
@@ -31,6 +32,7 @@ func _process(_delta):
 			selected_index = buttons.size() - 1
 		
 		buttons[selected_index].grab_focus()
+		SfxManager.play_ui_hover()
 
 	# Select current button
 	if Input.is_action_just_pressed("MenuSelect"):
@@ -39,13 +41,16 @@ func _process(_delta):
 
 func _on_play_pressed():
 	print("Play pressed")
+	SfxManager.play_ui_select()
 	SceneTransition.change_scene("res://scenes/player_select.tscn")
 
 
 func _on_settings_pressed():
+	SfxManager.play_ui_select()
 	SceneTransition.change_scene("res://scenes/settings.tscn")
 
 
 func _on_quit_pressed():
 	print("Quit pressed")
+	SfxManager.play_ui_select()
 	get_tree().quit()

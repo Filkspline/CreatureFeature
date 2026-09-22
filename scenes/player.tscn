@@ -40,6 +40,7 @@
 [ext_resource type="Texture2D" uid="uid://ddx0neslyctld" path="res://assets/S8.png" id="32_gl8cc"]
 [ext_resource type="Texture2D" uid="uid://dd7fchp103klx" path="res://assets/AirDash.png" id="34_md1ol"]
 [ext_resource type="Texture2D" uid="uid://bwn8no7irohvt" path="res://assets/S4.png" id="36_jc3p3"]
+[ext_resource type="Script" uid="uid://pl4y3raud1o00" path="res://scripts/player_audio.gd" id="37_audio"]
 
 [sub_resource type="Gradient" id="Gradient_fulsm"]
 interpolation_mode = 1
@@ -2016,3 +2017,6 @@ position = Vector2(78, -117.5)
 shape = SubResource("RectangleShape2D_57qmd")
 disabled = true
 debug_color = Color(0.8734848, 0.3135745, 0.39617598, 0.41960785)
+
+[node name="Audio" type="Node" parent="." unique_id=990011223]
+script = ExtResource("37_audio")

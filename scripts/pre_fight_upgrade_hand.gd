@@ -195,6 +195,7 @@ func _cycle_column(column : UpgradeColumn, direction : int) -> void:
 	if column.focus_index == old_focus_index:
 		return
 
+	SfxManager.play_ui_hover()
 	column.cards[old_focus_index].selection_icon.hide()
 	column.cards[column.focus_index].selection_icon.show()
 	_layout_column(column, true)
@@ -206,6 +207,7 @@ func _switch_active_column(player_id : int) -> void:
 	var from_column = _get_column(player_id, from_index)
 	var to_column = _get_column(player_id, to_index)
 
+	SfxManager.play_ui_hover()
 	from_column.cards[from_column.focus_index].selection_icon.hide()
 	to_column.cards[to_column.focus_index].selection_icon.show()
 	_set_selection_column(player_id, to_index)
@@ -235,6 +237,7 @@ func _select_card(player_id : int, column_index : int) -> void:
 	if column.locked:
 		return
 
+	SfxManager.play_ui_select()
 	column.locked = true
 	column.locked_card = column.cards[column.focus_index]
 	_show_lock_feedback(player_id, column_index)

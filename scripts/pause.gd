@@ -53,6 +53,7 @@ func _process(_delta):
 			selected_index = 0
 		
 		buttons[selected_index].grab_focus()
+		SfxManager.play_ui_hover()
 
 
 	if Input.is_action_just_pressed("MenuUp"):
@@ -62,6 +63,7 @@ func _process(_delta):
 			selected_index = buttons.size() - 1
 		
 		buttons[selected_index].grab_focus()
+		SfxManager.play_ui_hover()
 
 
 	if Input.is_action_just_pressed("MenuSelect"):
@@ -69,10 +71,12 @@ func _process(_delta):
 
 
 func _on_resume_pressed() -> void:
+	SfxManager.play_ui_select()
 	resume()
 
 
 func _on_quit_pressed() -> void:
+	SfxManager.play_ui_select()
 	get_tree().paused = false
 	# Same reset as end_screen.gd's restart: quitting to the main menu mid
 	# match has to clear round counts and picked upgrades, otherwise a new

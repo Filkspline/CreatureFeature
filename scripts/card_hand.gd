@@ -89,6 +89,14 @@ enum DraftStep { SPECIAL, NORMAL }
 ## How long the banner takes to fade away after that hold.
 @export var banner_fade_duration : float = 0.3
 
+@export_group("Step sounds")
+## Played as the draft's special-move phase begins, alongside the banner.
+@export var special_step_sound : AudioStream = preload("res://assets/soundeffects/PICKASPECIALMOVEsoundeffect.mp3")
+@export var special_step_volume_db : float = 0.0
+## Played as the normal-card phase begins.
+@export var normal_step_sound : AudioStream = preload("res://assets/soundeffects/PICKAFEATUREsoundeffect.mp3")
+@export var normal_step_volume_db : float = 0.0
+
 @onready var hand : Node2D = self
 @onready var cardspawner : Marker2D = $cardspawner
 @onready var card_spawn_shape : CollisionShape2D = $cardspawnarea/CollisionShape2D
@@ -179,7 +187,17 @@ func _draw_step(step: DraftStep) -> void:
 	_clear_hand()
 	_update_title_label(current_player_id)
 	_show_step_banner(step)
+	_play_step_sound(step)
 	_draw_hand(offered)
+
+
+# The "this phase is starting" stinger. Only played for a step that actually
+# has cards: a skipped step is not a phase the player ever sees.
+func _play_step_sound(step: DraftStep) -> void:
+	if step == DraftStep.SPECIAL:
+		SfxManager.play_stream(special_step_sound, 1.0, 0.0, special_step_volume_db)
+	else:
+		SfxManager.play_stream(normal_step_sound, 1.0, 0.0, normal_step_volume_db)
 
 
 func _offer_for(step: DraftStep) -> Array[UpgradeData]:
@@ -466,6 +484,7 @@ func _tween_card_scale(card: Node2D, target_scale: Vector2) -> void:
 func _move_highlight(new_idx: int) -> void:
 	# Shared by keyboard and joypad handling below - un-highlights and
 	# shrinks the old card, then highlights and grows the new one.
+	SfxManager.play_ui_hover()
 	var old_card = cards[selected_card_idx]
 	old_card.currently_highlighted = false
 	old_card._handle_highlight()
@@ -597,6 +616,7 @@ func _process(_delta: float) -> void:
 func _handle_clicked_card():
 	var highlighted_card : Node2D
 	currently_handling_card = true
+	SfxManager.play_ui_select()
 	for card in cards:
 		if card.currently_highlighted == false:
 			var tween = create_tween()

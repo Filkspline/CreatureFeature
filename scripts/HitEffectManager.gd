@@ -20,6 +20,18 @@ extends Node
 @export_range(0.0, 1.0, 0.01) var impact_x_influence: float = 0.25
 @export_range(0.0, 1.0, 0.01) var impact_y_influence: float = 0.85
 
+@export_group("Hit sounds")
+## Played on every clean hit. These are the most repeated sounds in a match,
+## so the pitch variation below does most of the work of keeping them from
+## sounding mechanical.
+@export var hit_landed_sound: AudioStream = preload("res://assets/soundeffects/HitLandedSound.mp3")
+@export var hit_landed_volume_db: float = 4.0
+@export_range(0.0, 1.0, 0.01) var hit_landed_pitch_variance: float = 0.12
+## Played instead when the hit was blocked.
+@export var hit_blocked_sound: AudioStream = preload("res://assets/soundeffects/HitBlockedSound.mp3")
+@export var hit_blocked_volume_db: float = 0.0
+@export_range(0.0, 1.0, 0.01) var hit_blocked_pitch_variance: float = 0.12
+
 
 func _ready() -> void:
 	EventBus.hit_confirmed.connect(_on_hit_confirmed)
@@ -28,6 +40,11 @@ func _ready() -> void:
 
 func _on_hit_confirmed(impact_position: Vector2, move_data: MoveData, attacker: Node, defender: Node, was_blocked: bool) -> void:
 	_dbg("[HIT CONFIRMED] received signal | pos=%s move=%s blocked=%s" % [impact_position, move_data.move_name if move_data else "null", was_blocked])
+	# Sound first, and outside the particle pipeline below: every hit in the
+	# game lands here, so this is the one place the hit sounds need wiring,
+	# and they still play even if no effect scene is configured.
+	_play_hit_sound(was_blocked)
+
 	var scene := _pick_effect(move_data, was_blocked)
 	if not scene:
 		_dbg("[HIT CONFIRMED] no effect scene resolved (defaults unassigned?) -> aborting")
@@ -54,6 +71,13 @@ func _on_hit_confirmed(impact_position: Vector2, move_data: MoveData, attacker: 
 			effect.direction = hit_dir.normalized()
 	_dbg("[HIT CONFIRMED] spawned '%s' under '%s' at %s" % [scene.resource_path, parent.name, spawn_position])
 	effect.play()
+
+
+func _play_hit_sound(was_blocked: bool) -> void:
+	if was_blocked:
+		SfxManager.play_stream(hit_blocked_sound, 1.0, hit_blocked_pitch_variance, hit_blocked_volume_db)
+	else:
+		SfxManager.play_stream(hit_landed_sound, 1.0, hit_landed_pitch_variance, hit_landed_volume_db)
 
 
 func _dbg(msg: String) -> void:

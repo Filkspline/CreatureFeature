@@ -194,6 +194,8 @@ var attack_instance_id: int = 0
 # spawn more than one projectile per attack, even if seek() ends up
 # re-visiting that frame.
 var _projectile_fired_this_attack: bool = false
+# One attack sound per attack, fired when the move's startup frames are done.
+var _attack_sound_played: bool = false
 var opponent = null
 var hit_connected: bool = false
 # Tracks only the current on/off activation of the hitbox, so a move
@@ -224,6 +226,7 @@ var is_defeated: bool = false
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var sprites: PlayerVisuals = $Sprites
+@onready var audio: PlayerAudio = $Audio
 @onready var camera: Camera2D = get_viewport().get_camera_2d()
 @onready var hurtbox_shape: RectangleShape2D = $Hurtbox/MainHurtbox.shape
 @onready var hitbox_shape: RectangleShape2D = $Hitbox/MainHitbox.shape
@@ -715,6 +718,16 @@ func _physics_process(delta: float) -> void:
 	EventBus.player_velocity[player_id] = velocity
 	EventBus.player_is_airborne[player_id] = not is_on_floor()
 
+	# Footsteps follow the walk animation rather than raw velocity, so the
+	# loop runs exactly when the walk anim does and not while sliding,
+	# crouching, attacking or being hit. attack_speed_multiplier is passed
+	# through because it scales the walk anim the same way.
+	audio.update_walk(
+		absf(velocity.x),
+		sprites.get_current_anim().begins_with("walk"),
+		attack_speed_multiplier
+	)
+
 	_decay_input_buffer()
 
 
@@ -755,6 +768,7 @@ func _neutral_process(delta: float) -> void:
 		is_landing = true
 		landed.emit()
 		sprites.play_jump_land()
+		audio.play_landing()
 
 	_update_animation(just_landed)
 	_update_hurtbox()
@@ -914,6 +928,15 @@ func _start_attack(move: MoveData) -> void:
 	# resource shows up here immediately, instead of only showing up as a
 	# dash trail that quietly isn't there.
 	_dbg("[DASH TRAIL] %s for '%s'" % ["on" if move.is_dash else "off", move.move_name])
+	if move.is_dash:
+		audio.play_dash()
+
+	# A special is slow enough that its startup and its impact read as two
+	# separate moments, so it starts a charge-up here; play_attack_impact()
+	# cuts it off when the active window opens. Normals do nothing here and
+	# just play their impact sound later.
+	audio.begin_attack(move)
+	_attack_sound_played = false
 
 	EventBus.player_attack_started.emit(player_id, move.move_name)
 
@@ -1080,6 +1103,9 @@ func _end_attack() -> void:
 	current_move = null
 	gatling_input_buffered = ""
 	gatling_buffer_timer = 0
+	# An attack that ends before its active window (interrupted, or cancelled
+	# into something else) takes its charge-up with it.
+	audio.stop_charge()
 
 	if was_airborne:
 		air_horizontal_velocity = velocity.x
@@ -1114,8 +1140,27 @@ func _update_hitbox_activation_tracking() -> void:
 
 	if _hitbox_was_disabled_last_frame and not is_disabled_now:
 		_hit_registered_this_activation = false
+		# The animation just switched this move's hitbox on: that is the
+		# real start of its active window, so this is the moment the swing's
+		# sound belongs to, and where a special's charge-up hands over.
+		# Guarded to once per attack, since multi-hit moves toggle it
+		# several times.
+		_play_attack_sound()
 
 	_hitbox_was_disabled_last_frame = is_disabled_now
+
+
+# Fires this move's attack sound once per attack, with the charge-up (if any)
+# cut off as it goes. Driven by the hitbox activation above rather than by
+# MoveData.startup: startup is unauthored on the current move resources (0-5
+# frames), while the activation tracks are the real active window. A move
+# that never switches a hitbox on - a pure movement dash, say - simply has no
+# swing sound, which is what its own dash sound is for.
+func _play_attack_sound() -> void:
+	if _attack_sound_played or not current_move:
+		return
+	_attack_sound_played = true
+	audio.play_attack_impact(current_move)
 
 
 func _check_hit() -> void:
@@ -1388,6 +1433,7 @@ func _handle_jump() -> void:
 	if not _consume_buffer("Jump"):
 		return
 	velocity.y = jump_velocity
+	audio.play_jump()
 	air_horizontal_velocity = _get_horizontal_input() * _current_walk_speed()
 	is_landing = false
 
