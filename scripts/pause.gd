@@ -1,7 +1,7 @@
 extends Control
 
-@onready var resume_button = $PanelContainer/VBoxContainer/Resume
-@onready var quit_button = $PanelContainer/VBoxContainer/Quit
+@onready var resume_button = $HBoxContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/Resume
+@onready var quit_button = $HBoxContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/Quit
 
 var buttons: Array[Button]
 var selected_index := 0
@@ -10,7 +10,10 @@ var selected_index := 0
 func _ready():
 	buttons = [resume_button, quit_button]
 	
+	print_rich("[color=yellow][INPUT] P1 Input: %s | P2 Input: %s" % [GameManager.p1_device.display_name, GameManager.p2_device.display_name])
+	
 	hide()
+
 	$AnimationPlayer.play("RESET")
 
 
@@ -73,7 +76,6 @@ func _process(_delta):
 func _on_resume_pressed() -> void:
 	SfxManager.play_ui_select()
 	resume()
-
 
 func _on_quit_pressed() -> void:
 	SfxManager.play_ui_select()
