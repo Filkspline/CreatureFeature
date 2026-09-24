@@ -25,16 +25,20 @@ EventBus="*uid://ct71mxxweme10"
 UpgradePoolManager="*uid://dpqtfgabm75kr"
 SceneTransition="*uid://bq0kps56mrd8"
 ComboManager="*uid://c0mb0m4nag3r1"
+MultiplayerManager="*uid://c3dcype6i6vyy"
 
 [display]
 
 window/size/viewport_width=640
 window/size/viewport_height=360
-window/size/mode=4
 window/size/resizable=false
 window/size/window_width_override=1920
 window/size/window_height_override=1080
 window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/tube/plugin.cfg")
 
 [global_group]
 
