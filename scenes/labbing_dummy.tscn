@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://dglrw7o1lj4g1"]
+
+[ext_resource type="Texture2D" uid="uid://c3on55l4e3ygw" path="res://assets/TempAssets/temp_horse.png" id="1_8pd00"]
+[ext_resource type="Script" uid="uid://dvnntcf4h36gm" path="res://scripts/labbing_dummy.gd" id="2_w5umm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w5umm"]
+atlas = ExtResource("1_8pd00")
+region = Rect2(0, 0, 1250, 750)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_m2va7"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w5umm")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m2va7"]
+size = Vector2(885, 362)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t2dwb"]
+size = Vector2(884, 2015)
+
+[node name="dummy" type="CharacterBody2D" unique_id=1938152320]
+script = ExtResource("2_w5umm")
+metadata/_custom_type_script = "uid://b1q73d0u8j2hl"
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1334692252]
+sprite_frames = SubResource("SpriteFrames_m2va7")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=567388899]
+
+[node name="hurtbox" type="CollisionShape2D" parent="Area2D" unique_id=1340871093]
+position = Vector2(67.5, 89)
+shape = SubResource("RectangleShape2D_m2va7")
+
+[node name="collision_box" type="CollisionShape2D" parent="." unique_id=1428052766]
+position = Vector2(73, -737.5)
+shape = SubResource("RectangleShape2D_t2dwb")
+debug_color = Color(0.32208934, 0.5997156, 0.5001908, 0.41960785)

@@ -22,6 +22,7 @@ extends Control
 #  Once both slots are locked, either player can confirm to start.
 
 const FIGHT_SCENE := "res://scenes/pre_fight_upgrade_screen.tscn"
+const LABBING_SCENE := "res://scenes/single_player.tscn"
 
 const P1_ACCENT_COLOR := Color(1.0, 1.0, 1.0) # white
 const P2_ACCENT_COLOR := Color(0.79607844, 0.85882354, 0.9882353) # cbdbfc
@@ -98,7 +99,6 @@ var _key_prev_state: Dictionary = {}
 var _joy_button_prev_state: Dictionary = {}
 var _joy_axis_prev_state: Dictionary = {}
 
-
 func _ready() -> void:
 	GameManager.reset_player_select()
 	start_button.visible = false
@@ -111,7 +111,6 @@ func _process(_delta: float) -> void:
 	for cursor in cursors:
 		_handle_cursor(cursor)
 	_refresh_slot_labels()
-
 
 # ── Detecting input modes and creating cursors ──
 
@@ -397,4 +396,8 @@ func _on_button_pressed() -> void:
 	if slot2:
 		GameManager.p2_device = slot2.device
 	GameManager.bind_player_inputs()
-	SceneTransition.change_scene(FIGHT_SCENE)
+	match GameManager.mode_id:
+		1:
+			SceneTransition.change_scene(FIGHT_SCENE)
+		2:
+			SceneTransition.change_scene(LABBING_SCENE)
