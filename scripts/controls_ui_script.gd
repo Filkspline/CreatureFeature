@@ -27,4 +27,3 @@ func _apply_control_changes(device_name : String) -> void:
 	movement_sprite.frame = sprite_map_array[0]
 	attack_sprite.frame = sprite_map_array[1]
 	special_sprite.frame = sprite_map_array[2]
-		

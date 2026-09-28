@@ -48,6 +48,7 @@ focus_neighbor_bottom = NodePath("../Settings")
 text = "Multiplayer"
 
 [node name="Singleplayer" type="Button" parent="Buttons/VBoxContainer" unique_id=758517524]
+visible = false
 layout_mode = 2
 text = "Singleplayer"
 
@@ -62,7 +63,7 @@ layout_mode = 2
 focus_neighbor_top = NodePath("../Settings")
 text = "Quit"
 
-[connection signal="pressed" from="Buttons/VBoxContainer/Multiplayer" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="Buttons/VBoxContainer/Multiplayer" to="." method="_on_multiplayer_pressed"]
 [connection signal="pressed" from="Buttons/VBoxContainer/Singleplayer" to="." method="_on_singleplayer_pressed"]
 [connection signal="pressed" from="Buttons/VBoxContainer/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="Buttons/VBoxContainer/Quit" to="." method="_on_quit_pressed"]
