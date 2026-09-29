@@ -23,6 +23,10 @@ extends Control
 
 const FIGHT_SCENE := "res://scenes/pre_fight_upgrade_screen.tscn"
 const LABBING_SCENE := "res://scenes/single_player.tscn"
+const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
+
+## Icon sheet the cursors draw from.
+const CONTROL_SHEET := preload("res://assets/controls.tres")
 
 
 const P1_ACCENT_COLOR := Color(1.0, 1.0, 1.0) # white
@@ -90,6 +94,10 @@ class Cursor:
 @onready var p2_device_label: Label = $DeviceLabels/P2DeviceLabel
 @onready var start_button: Button = $Button
 @onready var cursor_icons: Node = $CursorIcons
+# The per-slot control legends, placed in the scene so their size, spacing and
+# colours are tuned there rather than in code.
+@onready var p1_legend: ControlPrompts = $Characters/Character1/ControlPrompts
+@onready var p2_legend: ControlPrompts = $Characters/Character2/ControlPrompts
 
 @onready var sprite_frames = preload("res://assets/controls.tres") 
 
@@ -102,11 +110,13 @@ var _created_joypad: Dictionary = {}    # device_id -> true
 var _key_prev_state: Dictionary = {}
 var _joy_button_prev_state: Dictionary = {}
 var _joy_axis_prev_state: Dictionary = {}
+var _escape_was_pressed: bool = false
 
 func _ready() -> void:
 	GameManager.reset_player_select()
 	start_button.visible = false
 	_refresh_slot_labels()
+	_refresh_legends()
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
 
 
@@ -115,6 +125,28 @@ func _process(_delta: float) -> void:
 	for cursor in cursors:
 		_handle_cursor(cursor)
 	_refresh_slot_labels()
+
+	if _escape_just_pressed():
+		_back_out()
+
+
+# Escape specifically, rather than the MenuBack action. MenuBack also carries
+# a pad's B button, and B is the Special button players use to back out of a
+# locked slot, so acting on the whole action would deselect and throw them out
+# of the screen on the same press.
+func _escape_just_pressed() -> bool:
+	var pressed := Input.is_key_pressed(KEY_ESCAPE)
+	var just_pressed := pressed and not _escape_was_pressed
+	_escape_was_pressed = pressed
+	return just_pressed
+
+
+# Escape steps back out of the flow one level. This screen is reached from
+# the main menu, so backing out goes there; the pre-fight upgrade screen uses
+# the same step to come back here.
+func _back_out() -> void:
+	SfxManager.play_ui_select()
+	SceneTransition.change_scene(MAIN_MENU_SCENE)
 
 # ── Detecting input modes and creating cursors ──
 
@@ -159,19 +191,14 @@ func _create_cursor(device: PlayerInputDevice) -> Cursor:
 
 func _create_cursor_icon(device: PlayerInputDevice, cursor: Cursor) -> void:
 	var icon = AnimatedSprite2D.new()
-	
+
 	icon.sprite_frames = sprite_frames
 	icon.z_index = 0
-	
-	match device.display_name:
-		"Keyboard (WASD)":
-			icon.frame = 0
-		"Keyboard (Arrows)":
-			icon.frame = 7
-		"Xbox One Controller":
-			icon.frame = 15
-			
-	
+	# Matched on the device itself, not its display_name: a pad reports
+	# whatever the OS calls it, so name matching never hit the controller
+	# case and every pad fell back to the WASD icon.
+	icon.frame = ControlScheme.movement_frame(ControlScheme.scheme_for(device))
+
 	icon.modulate = CURSOR_COLORS[cursors.size() % CURSOR_COLORS.size()]
 	cursor.icon = icon
 	cursor_icons.add_child(icon)
@@ -182,6 +209,11 @@ func _create_cursor_icon(device: PlayerInputDevice, cursor: Cursor) -> void:
 
 func _handle_cursor(cursor: Cursor) -> void:
 	if cursor.locked:
+		# Backing out of a locked slot: Special releases it so that player can
+		# pick again, whether or not both slots are filled yet.
+		if _device_just_pressed(cursor.device, "Special"):
+			_unlock_cursor(cursor)
+			return
 		# Once both players are locked, either one can confirm to start.
 		if start_button.visible and _device_just_pressed(cursor.device, "Normal"):
 			_on_button_pressed()
@@ -206,6 +238,9 @@ func _move_cursor(cursor: Cursor, delta: int) -> void:
 	SfxManager.play_ui_hover()
 	cursor.selection = new_selection
 	_update_cursor_visual(cursor)
+	# Moving onto a slot shows that slot's legend, so the controls are visible
+	# while merely hovering, before anything is locked in.
+	_refresh_legends()
 
 
 func _slot_occupied_by_other(selection: int, cursor: Cursor) -> bool:
@@ -224,7 +259,30 @@ func _lock_cursor(cursor: Cursor) -> void:
 	_show_selected(slot)
 	_store_character_choice(slot, cursor)
 	print("P%d locked in by: %s" % [slot, cursor.device.display_name])
+	_refresh_legend(slot)
 	_check_both_locked()
+
+
+# Backing out of a locked slot, so a player who confirmed by mistake can pick
+# again instead of being stuck with it. Reached by pressing Special.
+func _unlock_cursor(cursor: Cursor) -> void:
+	if not cursor.locked:
+		return
+	SfxManager.play_ui_select()
+	cursor.locked = false
+	var slot := 1 if cursor.selection == SLOT_1 else 2
+	var label := character1_selected if slot == 1 else character2_selected
+	label.visible = false
+	if slot == 1:
+		GameManager.p1_character_id = 0
+		GameManager.p1_device = null
+	else:
+		GameManager.p2_character_id = 0
+		GameManager.p2_device = null
+	_refresh_legend(slot)
+	# Both slots are only "ready" while they are locked.
+	start_button.visible = _locked_count() >= 2
+	_refresh_slot_labels()
 
 
 func _show_selected(slot: int) -> void:
@@ -240,6 +298,39 @@ func _store_character_choice(slot: int, cursor: Cursor) -> void:
 	else:
 		GameManager.p2_character_id = 2
 		GameManager.p2_device = cursor.device
+
+
+# ── Control legend ──
+# One ControlPrompts per slot, placed in the scene, showing what that player's
+# device does. It appears as soon as a cursor is over the slot, hovering
+# included, and stays while the slot is held, so the controls can be read
+# before committing to a creature rather than only after.
+
+func _refresh_legend(slot: int) -> void:
+	var legend: ControlPrompts = p1_legend if slot == 1 else p2_legend
+	if legend == null:
+		return
+	var cursor := _cursor_on_slot(slot)
+	if cursor == null:
+		legend.visible = false
+		return
+	legend.set_tint(P1_ACCENT_COLOR if slot == 1 else P2_ACCENT_COLOR)
+	legend.set_device(cursor.device)
+	legend.visible = true
+
+
+func _refresh_legends() -> void:
+	_refresh_legend(1)
+	_refresh_legend(2)
+
+
+# The cursor on a slot, whether it is just hovering there or has locked in.
+func _cursor_on_slot(slot: int) -> Cursor:
+	var selection := SLOT_1 if slot == 1 else SLOT_2
+	for cursor in cursors:
+		if cursor.selection == selection:
+			return cursor
+	return null
 
 
 func _check_both_locked() -> void:
@@ -323,6 +414,9 @@ func _remove_cursor(cursor: Cursor) -> void:
 		else:
 			GameManager.p2_character_id = 0
 			GameManager.p2_device = null
+		# A pad pulling out takes its legend with it.
+		_refresh_legend(slot)
+		start_button.visible = _locked_count() >= 2
 
 	cursors.erase(cursor)
 	if is_instance_valid(cursor.node):

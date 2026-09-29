@@ -13,5 +13,5 @@ description = "+ MOVE SPEED
 icon = ExtResource("1_kckef")
 effect_type = 1
 stat_names_array = Array[String](["move_speed", "attack_speed_multiplier", "max_health", "damage_dealt_bonus"])
-stat_amounts_array = Array[float]([40.0, 10.0, -30.0, -1.0])
+stat_amounts_array = Array[float]([34.0, 8.5, -25.5, -0.85])
 is_percents_array = Array[bool]([false, true, false, false])

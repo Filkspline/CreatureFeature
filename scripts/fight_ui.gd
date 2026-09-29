@@ -286,6 +286,8 @@ func spawn_damage_number(amount: int, world_pos: Vector2, was_blocked: bool = fa
 	label.text = "BLOCKED" if was_blocked else str(amount)
 	label.add_theme_font_size_override("font_size", 16 if was_blocked else 22)
 	label.add_theme_color_override("font_color", block_number_color if was_blocked else damage_number_color)
+	label.add_theme_font_override("font", preload("res://assets/card_assets/m3x6.ttf"))
+	label.add_theme_constant_override("outline_size", 2)
 	label.z_index = 10
 	label.position = _world_to_screen(world_pos) + damage_number_offset
 	damage_layer.add_child(label)

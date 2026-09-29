@@ -23,7 +23,9 @@ class_name PlayerAudio
 ## Footstep loop. Runs while the walk animation is the one showing, and its
 ## pitch follows how fast the player is actually moving.
 @export var walk_sound: AudioStream = preload("res://assets/soundeffects/WalkSoundRepeatable.mp3")
-@export var walk_volume_db: float = 0.0
+## Turned well down: the source clip is loud next to every other effect, and
+## with both players walking it doubles up on top of that.
+@export var walk_volume_db: float = -14.0
 ## The walk speed that walk_base_pitch was tuned against. Set this to
 ## whatever walk_forward_speed actually is (190 by default on the player),
 ## then set walk_base_pitch so the loop's steps land on the walk

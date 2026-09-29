@@ -11,5 +11,5 @@ icon = ExtResource("1_tmegh")
 effect_type = 4
 show_in_pre_fight = false
 stat_name = &"max_health"
-stat_amount = 10.0
+stat_amount = 8.5
 event_card_name = &"momentum"

@@ -1,7 +1,14 @@
 extends Node2D
 
+# ──────────────────────────────────────────────────────────────────
+#  MainMenu
+#
+#  Mouse stays visible here (the fight hides it), and selection moves by
+#  keyboard/controller or by clicking a button. The scene's SelectionPointer
+#  follows whatever button holds focus, so navigation always shows clearly
+#  which entry is selected.
+
 @onready var multiplayer_button = $Buttons/VBoxContainer/Multiplayer
-@onready var singleplayer_button = $Buttons/VBoxContainer/Singleplayer
 @onready var settings_button = $Buttons/VBoxContainer/Settings
 @onready var quit_button = $Buttons/VBoxContainer/Quit
 
@@ -10,9 +17,14 @@ var selected_index := 0
 
 
 func _ready():
-	buttons = [multiplayer_button, singleplayer_button, settings_button, quit_button]
-	
-	# Automatically select Play when the menu opens
+	# Node paths above are the real names in the scene. This used to look up
+	# "Play", which does not exist, so the first entry was null and the menu's
+	# keyboard/controller navigation errored on it.
+	buttons = [multiplayer_button, settings_button, quit_button]
+
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+	# Automatically select the first entry when the menu opens.
 	buttons[selected_index].grab_focus()
 
 
@@ -22,7 +34,7 @@ func _process(_delta):
 		selected_index += 1
 		if selected_index >= buttons.size():
 			selected_index = 0
-		
+
 		buttons[selected_index].grab_focus()
 		SfxManager.play_ui_hover()
 
@@ -31,7 +43,7 @@ func _process(_delta):
 		selected_index -= 1
 		if selected_index < 0:
 			selected_index = buttons.size() - 1
-		
+
 		buttons[selected_index].grab_focus()
 		SfxManager.play_ui_hover()
 
@@ -51,6 +63,7 @@ func _on_singleplayer_pressed() -> void:
 	SfxManager.play_ui_select()
 	GameManager.mode_id = 2
 	SceneTransition.change_scene("res://scenes/player_select.tscn")
+
 
 func _on_settings_pressed():
 	SfxManager.play_ui_select()

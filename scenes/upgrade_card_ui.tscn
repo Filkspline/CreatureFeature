@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="3_v13x6"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="4_ovphs"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="5_h7cfo"]
+[ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="6_prompts"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(479, 256)
@@ -77,8 +78,7 @@ position = Vector2(-276, 168)
 [node name="ownedcards" type="Marker2D" parent="Camera2D/hand" unique_id=1708363756]
 position = Vector2(-291, -125)
 
-[node name="title_label" type="Label" parent="." unique_id=612672962]
-layout_mode = 1
+[node name="title_label" type="Label" parent="." unique_id=612672962]layout_mode = 1
 anchors_preset = -1
 anchor_left = -0.003125
 anchor_top = 0.008333334
@@ -113,6 +113,20 @@ theme_override_font_sizes/font_size = 66
 text = "PICK A SPECIAL MOVE"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="control_prompts" parent="." instance=ExtResource("6_prompts")]
+visible = false
+layout_mode = 0
+offset_left = 60.0
+offset_top = 118.0
+offset_right = 300.0
+offset_bottom = 142.0
+player_id = 1
+preset = 1
+icon_scale = 0.2
+entry_spacing = 78.0
+font_size = 12
+alignment = 2
 
 [node name="TempCrtShader" type="ColorRect" parent="." unique_id=691971729]
 z_index = 4

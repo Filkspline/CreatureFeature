@@ -55,6 +55,8 @@ enum DraftStep { SPECIAL, NORMAL }
 ## the second step or, once both steps are done, into the level. Long
 ## enough for the pick animation to read.
 @export var pick_settle_delay : float = 0.75
+## Scale the confirmed card grows to as it flies to the middle of the screen.
+@export var picked_card_scale : float = 2.7
 
 ## How far apart (in local y) each already-owned card sits from the next
 ## in the owned-cards stack. Positive moves each newer card down the
@@ -109,8 +111,24 @@ enum DraftStep { SPECIAL, NORMAL }
 # CanvasLayer so it draws over the hand whatever z bands the cards have
 # claimed, and so it stays out of the camera's coordinate space.
 @onready var step_banner : Label = get_node_or_null("../../step_banner_layer/step_banner")
+# The draft's own corner control prompt, showing the drafting player which
+# button selects and which backs out. Placed in the scene, so its size,
+# spacing and position are tuned there.
+@onready var control_prompts : ControlPrompts = get_node_or_null("../../control_prompts")
+
+@export_group("Draft tint")
+## Established per-player colours: player one plain white, player two the
+## light blue used on the selection screens.
+@export var p1_accent : Color = Color(1.0, 1.0, 1.0, 1.0)
+@export var p2_accent : Color = Color(0.79607844, 0.85882354, 0.9882353, 1.0)
+## How far the drafting player's text and prompts are pulled towards their
+## colour. Kept low: this is a reminder of whose turn it is, not a recolour.
+@export_range(0.0, 1.0, 0.01) var accent_strength : float = 0.55
 
 var folder_base_scale : Vector2
+## The heading's own modulate as authored in the scene, so the per-player
+## tint can be applied on top of it instead of replacing it.
+var _title_base_modulate : Color = Color.WHITE
 var current_player_id : int = 1
 var card_default_z_index : int
 var current_z_index : int
@@ -144,6 +162,8 @@ var _banner_tween : Tween
 
 func _ready() -> void:
 	folder_base_scale = folder_sprite.scale
+	if title_label:
+		_title_base_modulate = title_label.modulate
 	EventBus.upgrade_draft_ready.connect(_on_upgrade_draft_ready)
 	# Handles the normal case: round_lost fires (and UpgradePoolManager
 	# draws the cards) BEFORE this scene finishes loading, since whoever
@@ -162,6 +182,7 @@ func _on_upgrade_draft_ready(player_id: int, special_offer: Array[UpgradeData], 
 	current_player_id = player_id
 	_special_offer = special_offer
 	_normal_offer = normal_offer
+	_apply_draft_tint(player_id)
 	_update_title_label(player_id)
 	_draw_step(DraftStep.SPECIAL)
 	# The owned stack is drawn once for the whole draft, not per step: it
@@ -243,6 +264,22 @@ func _update_title_label(player_id: int) -> void:
 	if not title_label:
 		return
 	title_label.text = "PLAYER %d" % player_id
+
+
+# Pulls the drafting player's heading, banner and control prompt towards their
+# established colour, so whose turn it is reads at a glance.
+func _apply_draft_tint(player_id: int) -> void:
+	var accent := p1_accent if player_id == 1 else p2_accent
+	var tint := Color.WHITE.lerp(accent, accent_strength)
+
+	if title_label:
+		title_label.modulate = _title_base_modulate * tint
+	if step_banner:
+		step_banner.add_theme_color_override("font_color", tint)
+	if control_prompts:
+		control_prompts.set_player(player_id)
+		control_prompts.set_tint(tint)
+		control_prompts.visible = true
 
 
 # Pops the step banner up with whichever instruction matches the step that
@@ -636,7 +673,7 @@ func _handle_clicked_card():
 	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(highlighted_card, "position", card_default_transform.origin, 0.4)
 	tween.parallel().tween_property(highlighted_card, "rotation", card_default_rotation, 0.4)
-	tween.parallel().tween_property(highlighted_card, "scale", Vector2(3.0, 3.0), 0.4)
+	tween.parallel().tween_property(highlighted_card, "scale", Vector2.ONE * picked_card_scale, 0.4)
 
 	_resolve_pick(card_map.get(highlighted_card))
 

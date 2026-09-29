@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://c0ntr0lpr0mts"]
+
+[ext_resource type="Script" uid="uid://c0ntr0lpr0mpt" path="res://scripts/control_prompts.gd" id="1_prompts"]
+
+[node name="ControlPrompts" type="Control" unique_id=2120769804]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 240.0
+offset_bottom = 24.0
+mouse_filter = 2
+script = ExtResource("1_prompts")

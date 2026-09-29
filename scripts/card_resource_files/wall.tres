@@ -11,5 +11,5 @@ description = "+ MAX HEALTH
 icon = ExtResource("1_4gwgb")
 effect_type = 1
 stat_names_array = Array[String](["max_health", "damage_dealt_bonus"])
-stat_amounts_array = Array[float]([75.0, -1.0])
+stat_amounts_array = Array[float]([63.75, -0.85])
 is_percents_array = Array[bool]([false, false])

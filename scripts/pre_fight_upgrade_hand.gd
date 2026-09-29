@@ -4,6 +4,8 @@ extends Node2D
 #
 
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
+## Where Escape backs out to: this screen is entered from player select.
+const PLAYER_SELECT_SCENE := "res://scenes/player_select.tscn"
 
 const TOTAL_COLUMNS_PER_PLAYER := 2 # unlock + upgrade
 const LOCK_BLINK_INTERVAL := 0.4 # matches a DOS-style blinking cursor
@@ -31,6 +33,9 @@ class UpgradeColumn:
 	var focus_index : int = 0
 	var locked : bool = false
 	var locked_card : Node2D
+	# The lock frame's blink tween, kept so unlocking can stop it. Without
+	# this the frame keeps blinking after the column has been released.
+	var lock_tween : Tween
 
 
 @onready var p1_hand_unlock : Node2D = $p1_hand_unlock
@@ -55,6 +60,8 @@ class UpgradeColumn:
 # each time I need to do that
 var unlock_array : Array[UpgradeData] = []
 var stat_upgrade_array : Array[UpgradeData] = []
+## Edge-detection state for the Escape check above.
+var _escape_was_pressed : bool = false
 
 var p1_unlock : UpgradeColumn
 var p1_upgrade : UpgradeColumn
@@ -72,8 +79,21 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	if _escape_just_pressed():
+		_back_out()
+		return
 	_handle_player_input(1)
 	_handle_player_input(2)
+
+
+# Escape specifically, rather than the MenuBack action: MenuBack also carries
+# a pad's B button, and B is the Special button players press to back out of a
+# locked card, so using the whole action would do both at once.
+func _escape_just_pressed() -> bool:
+	var pressed := Input.is_key_pressed(KEY_ESCAPE)
+	var just_pressed := pressed and not _escape_was_pressed
+	_escape_was_pressed = pressed
+	return just_pressed
 
 
 func _on_arrays_recieved(move_array : Array[UpgradeData], upgrade_array : Array[UpgradeData]) -> void:
@@ -220,6 +240,10 @@ func _handle_player_input(player_id : int) -> void:
 
 	if Input.is_action_just_pressed("Up" + suffix) or Input.is_action_just_pressed("Down" + suffix):
 		_switch_active_column(player_id)
+	elif Input.is_action_just_pressed("Special" + suffix):
+		# Back out of a card that's already locked in, so a mis-pick can be
+		# redone instead of stranding the player with it.
+		_unlock_column(player_id, column_index)
 	elif Input.is_action_just_pressed("Left" + suffix):
 		if column.locked:
 			return
@@ -230,6 +254,34 @@ func _handle_player_input(player_id : int) -> void:
 		_cycle_column(column, 1)
 	elif Input.is_action_just_pressed("Normal" + suffix):
 		_select_card(player_id, column_index)
+
+
+# Escape steps back out of the flow one level: this screen is reached from
+# the player-select screen, so backing out returns there, and from there
+# Escape again reaches the main menu.
+func _back_out() -> void:
+	SfxManager.play_ui_select()
+	SceneTransition.change_scene(PLAYER_SELECT_SCENE)
+
+
+# Releases a locked column: the blink stops, the frame hides, the bar drops
+# back to whatever is still locked, and the READY label goes away.
+func _unlock_column(player_id : int, column_index : int) -> void:
+	var column = _get_column(player_id, column_index)
+	if not column.locked:
+		return
+
+	SfxManager.play_ui_select()
+	column.locked = false
+	column.locked_card = null
+	if column.lock_tween:
+		column.lock_tween.kill()
+		column.lock_tween = null
+	_get_lock_frame(player_id, column_index).hide()
+
+	var ready_label = p1_ready_label if player_id == 1 else p2_ready_label
+	ready_label.hide()
+	_update_loading_bar(player_id)
 
 
 func _select_card(player_id : int, column_index : int) -> void:
@@ -257,20 +309,26 @@ func _show_lock_feedback(player_id : int, column_index : int) -> void:
 	tween.tween_callback(frame.hide)
 	tween.tween_interval(LOCK_BLINK_INTERVAL)
 	tween.tween_callback(frame.show)
+	_get_column(player_id, column_index).lock_tween = tween
 
 
 func _advance_loading_bar(player_id : int) -> void:
-	var locked_count = _locked_column_count(player_id)
-	var fraction = float(locked_count) / float(TOTAL_COLUMNS_PER_PLAYER)
+	_update_loading_bar(player_id)
+
+	if _locked_column_count(player_id) == TOTAL_COLUMNS_PER_PLAYER:
+		_show_ready_label(player_id)
+
+
+# Fills the bar to however many of this player's columns are currently
+# locked. Shared with unlocking, which needs the bar to drop again.
+func _update_loading_bar(player_id : int) -> void:
+	var fraction = float(_locked_column_count(player_id)) / float(TOTAL_COLUMNS_PER_PLAYER)
 	var track = p1_loading_track if player_id == 1 else p2_loading_track
 	var fill = p1_loading_fill if player_id == 1 else p2_loading_fill
 
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(fill, "size:x", track.size.x * fraction, LOADING_FILL_DURATION)
-
-	if locked_count == TOTAL_COLUMNS_PER_PLAYER:
-		_show_ready_label(player_id)
 
 
 func _locked_column_count(player_id : int) -> int:
