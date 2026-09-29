@@ -100,6 +100,8 @@ signal return_first_upgrade_arrays(move_array : Array[UpgradeData], upgrade_arra
 
 signal event_card_unlock(event_card_name: StringName)
 
+var mode_id : int = 1 # NOTE: Temp for purpose of telling player select where to send players
+
 var _hitstop_token: int = 0
 
 var death_freeze_active: bool = false

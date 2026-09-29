@@ -163,6 +163,8 @@ horizontal_alignment = 1
 
 [node name="Cursors" type="Node" parent="." unique_id=31637593]
 
+[node name="CursorIcons" type="Node" parent="." unique_id=1933280932]
+
 [node name="Creature1" type="Label" parent="." unique_id=1607338365]
 layout_mode = 0
 offset_left = 87.0

@@ -1,0 +1,105 @@
+[gd_scene format=3 uid="uid://c8x1ruuobur8t"]
+
+[ext_resource type="Script" uid="uid://co122u6ltdju2" path="res://scripts/controls_ui_script.gd" id="1_3tfba"]
+[ext_resource type="SpriteFrames" uid="uid://v3xm4wmerdtc" path="res://assets/controls.tres" id="1_cb2kv"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_hig1h"]
+
+[node name="Control" type="Control" unique_id=1886638424]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_3tfba")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=850585475]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1498004692]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=1047537517]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1890887710]
+layout_mode = 2
+
+[node name="movement_label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer" unique_id=1813968626]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_hig1h")
+theme_override_font_sizes/font_size = 22
+text = "Movement"
+horizontal_alignment = 1
+
+[node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer" unique_id=2124322595]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="movement_controls" type="AnimatedSprite2D" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer/Control" unique_id=1908255776]
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("1_cb2kv")
+centered = false
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1390410975]
+layout_mode = 2
+
+[node name="attack_label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer2" unique_id=2085156595]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_hig1h")
+theme_override_font_sizes/font_size = 22
+text = "Attack"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer2" unique_id=2061103160]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="attack_controls" type="AnimatedSprite2D" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer2/Control" unique_id=9474169]
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("1_cb2kv")
+frame = 5
+centered = false
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=603802368]
+layout_mode = 2
+
+[node name="special_label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer3" unique_id=1660839374]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_hig1h")
+theme_override_font_sizes/font_size = 22
+text = "Special"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer3" unique_id=2059241859]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="special_controls" type="AnimatedSprite2D" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer3/Control" unique_id=722716767]
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("1_cb2kv")
+frame = 6
+centered = false
