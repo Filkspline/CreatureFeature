@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="2_crtscript"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_n3l24"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="3_crtshader"]
+[ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="5_prompts"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_p1"]
 bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
@@ -103,6 +104,28 @@ theme_override_font_sizes/font_size = 38
 text = "SELECT YOUR UPGRADES"
 horizontal_alignment = 1
 metadata/_edit_use_anchors_ = true
+
+[node name="P1ControlPrompts" parent="Node2D" instance=ExtResource("5_prompts")]
+offset_left = -312.0
+offset_top = 148.0
+offset_right = -92.0
+offset_bottom = 172.0
+player_id = 1
+preset = 1
+icon_scale = 0.2
+entry_spacing = 78.0
+font_size = 12
+
+[node name="P2ControlPrompts" parent="Node2D" instance=ExtResource("5_prompts")]
+offset_left = 72.0
+offset_top = 148.0
+offset_right = 292.0
+offset_bottom = 172.0
+player_id = 2
+preset = 1
+icon_scale = 0.2
+entry_spacing = 78.0
+font_size = 12
 
 [node name="p1_panel" type="Panel" parent="Node2D" unique_id=4002]
 offset_left = -312.0

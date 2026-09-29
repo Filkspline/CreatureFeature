@@ -3,10 +3,29 @@
 [ext_resource type="Shader" uid="uid://b7le4r353toal" path="res://scripts/pause.gdshader" id="1_f1d2v"]
 [ext_resource type="Script" uid="uid://bxe41plmo0row" path="res://scripts/pause.gd" id="1_r8yp4"]
 [ext_resource type="PackedScene" uid="uid://c8x1ruuobur8t" path="res://scenes/controls_ui.tscn" id="3_m0klm"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="4_m3x6f"]
+[ext_resource type="SpriteFrames" uid="uid://0mk8q5j8lmya" path="res://scripts/selector_anim.tres" id="5_selector"]
+[ext_resource type="Script" uid="uid://s3l3ct10nptr" path="res://scripts/selection_pointer.gd" id="6_pointer"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_f3y2i"]
 shader = ExtResource("1_f1d2v")
 shader_parameter/lod = 0.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pause_panel"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pause_button"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
 
 [sub_resource type="Animation" id="Animation_f1d2v"]
 length = 0.001
@@ -161,6 +180,7 @@ modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_pause_panel")
 
 [node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/PanelContainer" unique_id=1788412643]
 layout_mode = 2
@@ -179,12 +199,36 @@ layout_mode = 2
 
 [node name="Resume" type="Button" parent="HBoxContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1699538165]
 process_mode = 3
+custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("4_m3x6f")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_pause_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_pause_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_pause_button")
+theme_override_styles/focus = SubResource("StyleBoxFlat_pause_button")
 text = "Resume"
 
 [node name="Quit" type="Button" parent="HBoxContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1482489777]
 process_mode = 3
+custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("4_m3x6f")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_pause_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_pause_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_pause_button")
+theme_override_styles/focus = SubResource("StyleBoxFlat_pause_button")
 text = "Quit to Menu"
 
 [node name="p2_controls" parent="HBoxContainer" unique_id=1653097799 instance=ExtResource("3_m0klm")]
@@ -194,6 +238,17 @@ player_controls_id = 2
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1366510586]
 libraries/ = SubResource("AnimationLibrary_m0klm")
+
+[node name="SelectionPointer" type="AnimatedSprite2D" parent="." unique_id=771002002]
+process_mode = 3
+scale = Vector2(0.4, 0.4)
+sprite_frames = ExtResource("5_selector")
+animation = &"selector_blink"
+autoplay = "selector_blink"
+script = ExtResource("6_pointer")
+edge_distance = 20.0
+base_rotation_degrees = -90.0
+pointer_scale = 0.4
 
 [connection signal="pressed" from="HBoxContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/Resume" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="HBoxContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/Quit" to="." method="_on_quit_pressed"]

@@ -11,5 +11,5 @@ description = "+ DAMAGE
 icon = ExtResource("1_uvl8k")
 effect_type = 1
 stat_names_array = Array[String](["damage_dealt_bonus", "attack_speed_multiplier"])
-stat_amounts_array = Array[float]([2.0, -10.0])
+stat_amounts_array = Array[float]([1.7, -8.5])
 is_percents_array = Array[bool]([false, true])

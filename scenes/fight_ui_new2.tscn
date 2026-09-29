@@ -13,6 +13,7 @@
 [ext_resource type="SpriteFrames" uid="uid://d2sxaksvdqjkp" path="res://assets/Eyeidlelook.tres" id="9_r81cq"]
 [ext_resource type="Texture2D" uid="uid://dgbctip1r2uex" path="res://assets/deatheffect.jpg" id="12_3jwpd"]
 [ext_resource type="Texture2D" uid="uid://ci4b6t2rmir0b" path="res://assets/Playerexe.png" id="13_25xed"]
+[ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="14_prompts"]
 
 [sub_resource type="Theme" id="Theme_ict5u"]
 default_font = ExtResource("8_dnckg")
@@ -193,6 +194,29 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="P1ControlPrompts" parent="UIRoot" instance=ExtResource("14_prompts")]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 324.0
+offset_right = 244.0
+offset_bottom = 348.0
+player_id = 1
+icon_scale = 0.2
+entry_spacing = 74.0
+font_size = 12
+
+[node name="P2ControlPrompts" parent="UIRoot" instance=ExtResource("14_prompts")]
+layout_mode = 0
+offset_left = 396.0
+offset_top = 324.0
+offset_right = 636.0
+offset_bottom = 348.0
+player_id = 2
+icon_scale = 0.2
+entry_spacing = 74.0
+font_size = 12
+alignment = 2
+
 [node name="P1BarContainer" type="Control" parent="UIRoot" unique_id=672075524]
 anchors_preset = 0
 anchor_left = 0.02
@@ -280,6 +304,8 @@ layout_mode = 0
 anchor_left = 0.02
 anchor_right = 0.3
 anchor_bottom = 0.03
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("8_dnckg")
 text = "Player 1"
 
 [node name="P2NameLabel" type="Label" parent="UIRoot" unique_id=2076001778]
@@ -289,6 +315,8 @@ anchors_preset = -1
 anchor_left = 0.7
 anchor_right = 0.98
 anchor_bottom = 0.03
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("8_dnckg")
 text = "Player 2"
 horizontal_alignment = 2
 

@@ -12,5 +12,5 @@ description = "+ DAMAGE
 icon = ExtResource("1_a5wpa")
 effect_type = 1
 stat_names_array = Array[String](["damage_dealt_bonus", "attack_speed_multiplier", "max_health"])
-stat_amounts_array = Array[float]([1.0, 10.0, -30.0])
+stat_amounts_array = Array[float]([0.85, 8.5, -25.5])
 is_percents_array = Array[bool]([false, true, false])

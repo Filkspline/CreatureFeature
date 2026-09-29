@@ -1,6 +1,7 @@
-[gd_scene format=3 uid="uid://1wkmtwclh16c"]
+[gd_scene load_steps=3 format=3 uid="uid://1wkmtwclh16c"]
 
 [ext_resource type="Script" uid="uid://clqtgm6dbr0la" path="res://scripts/multiplayer_test.gd" id="1_4k8ny"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_m3x6f"]
 
 [node name="MultiplayerTest" type="Control" unique_id=180376276]
 layout_mode = 3
@@ -15,6 +16,8 @@ offset_left = 528.0
 offset_top = 8.0
 offset_right = 622.0
 offset_bottom = 44.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_m3x6f")
 text = "Host Game"
 
 [node name="SessionID" type="LineEdit" parent="." unique_id=2011915703]
@@ -23,6 +26,8 @@ offset_left = 11.0
 offset_top = 9.0
 offset_right = 152.0
 offset_bottom = 43.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_m3x6f")
 placeholder_text = "Enter Session ID"
 
 [node name="JoinButton" type="Button" parent="." unique_id=1852573422]
@@ -31,6 +36,8 @@ offset_left = 411.0
 offset_top = 10.0
 offset_right = 498.0
 offset_bottom = 47.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_m3x6f")
 text = "Join Game"
 
 [node name="StatusLabel" type="Label" parent="." unique_id=1129669941]
@@ -39,3 +46,5 @@ offset_left = 161.0
 offset_top = 115.0
 offset_right = 241.0
 offset_bottom = 154.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_m3x6f")

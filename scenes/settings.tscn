@@ -1,7 +1,8 @@
-[gd_scene format=3 uid="uid://chxghgygxfvox"]
+[gd_scene load_steps=4 format=3 uid="uid://chxghgygxfvox"]
 
 [ext_resource type="Script" uid="uid://b61kluldxjmqb" path="res://scripts/settings.gd" id="1_5p8wc"]
 [ext_resource type="PackedScene" uid="uid://friydixf4el0" path="res://scenes/settings_tab_container.tscn" id="2_r6d6q"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="3_m3x6f"]
 
 [node name="Control" type="Control" unique_id=944065080]
 layout_mode = 3
@@ -30,6 +31,8 @@ offset_right = 50.5
 offset_bottom = 36.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_m3x6f")
 theme_override_font_sizes/font_size = 26
 text = "Settings"
 
@@ -45,6 +48,8 @@ anchor_bottom = 1.0
 offset_top = -31.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_m3x6f")
 text = "Exit"
 
 [connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

@@ -1,6 +1,7 @@
-[gd_scene format=3 uid="uid://friydixf4el0"]
+[gd_scene load_steps=3 format=3 uid="uid://friydixf4el0"]
 
 [ext_resource type="Script" uid="uid://drn8ep5ino6s7" path="res://scripts/settings_tab_container.gd" id="1_xpwon"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_m3x6f"]
 
 [node name="Settings_Tab_Container" type="Control" unique_id=576454110]
 layout_mode = 3
@@ -22,6 +23,8 @@ offset_right = -50.0
 offset_bottom = -50.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_m3x6f")
 tab_alignment = 1
 current_tab = 0
 
@@ -34,6 +37,8 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_m3x6f")
 text = "Test: General"
 
 [node name="Sound" type="Control" parent="TabContainer" unique_id=389589682]
@@ -46,6 +51,8 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_m3x6f")
 text = "Test: Sound"
 
 [node name="Controls" type="Control" parent="TabContainer" unique_id=1506623580]
@@ -58,5 +65,7 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_m3x6f")
 text = "Test: Controls
 "
