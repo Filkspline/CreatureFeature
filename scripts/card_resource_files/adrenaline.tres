@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_qihk0")
 name = "Adrenaline"
-description = "When hit become faster and stronger"
+description = "Hit me, get stronger"
 icon = ExtResource("1_ajk3w")
 effect_type = 4
 show_in_pre_fight = false

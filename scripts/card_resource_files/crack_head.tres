@@ -6,9 +6,7 @@
 [resource]
 script = ExtResource("1_mgxh0")
 name = "Berserker"
-description = "+ DAMAGE
-+ ATTACK SPEED
-- MAX HEALTH"
+description = "Hits hard, breaks easy"
 icon = ExtResource("1_a5wpa")
 effect_type = 1
 stat_names_array = Array[String](["damage_dealt_bonus", "attack_speed_multiplier", "max_health"])

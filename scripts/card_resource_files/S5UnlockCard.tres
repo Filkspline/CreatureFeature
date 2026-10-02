@@ -7,8 +7,7 @@
 [resource]
 script = ExtResource("2_script")
 name = "Bite"
-description = "Select Bite as your
-grounded special move"
+description = "Get close, chew"
 icon = ExtResource("1_o85x6")
 effect_type = 2
 unlocked_move = ExtResource("3_move")

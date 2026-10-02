@@ -7,8 +7,7 @@
 [resource]
 script = ExtResource("2_script")
 name = "Uppercut"
-description = "Select Uppercut as your
-grounded special move"
+description = "Launch them skyward"
 icon = ExtResource("1_gluk3")
 effect_type = 2
 unlocked_move = ExtResource("3_move")

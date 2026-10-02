@@ -77,7 +77,11 @@ enum Kind { NORMAL, SPECIAL, GRAB }
 @export var projectile_scene: PackedScene
 ## Local offset from the spawning player's position. X is mirrored
 ## automatically to match the player's facing direction.
-@export var projectile_spawn_offset: Vector2 = Vector2(40.0, -20.0)
+@export var projectile_spawn_offset: Vector2 = Vector2(40.0, -150.0)
+## Frame of this move's animation at which fire_projectile() should go off.
+## Player drives the release itself rather than leaning on a Call Method key,
+## since attacks are advanced with seek().
+@export var projectile_fire_frame: int = 12
 
 @export_group("Upgrade state")
 @export var upgrade_slot_id: StringName = ""

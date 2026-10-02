@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_vf16i")
 name = "Hornet"
-description = "Take damage to deal increased damage"
+description = "Pain in, pain out"
 icon = ExtResource("1_p101l")
 effect_type = 4
 show_in_pre_fight = false

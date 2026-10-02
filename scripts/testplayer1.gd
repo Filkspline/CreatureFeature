@@ -10,8 +10,16 @@ class_name Player
 @export_group("Movement")
 @export var walk_forward_speed: float = 170.0
 @export var walk_backward_speed: float = 170.0
-@export var jump_velocity: float = -720.0
+@export var jump_velocity: float = -600.0
+## Frames of airtime that must pass after leaving the ground before an airborne
+## attack can come out. Kept small on purpose: this only exists so an aerial
+## can't fire on the frames where the character is visibly still on the floor,
+## it is not a limit on aerial timing otherwise. A press made inside the window
+## is held in the input buffer rather than eaten, so a mashed attack still comes
+## out as soon as the window closes. See _can_start_aerial().
+@export var min_airborne_frames_for_aerial: int = 6
 @export var gravity: float = 1600.0
+
 @export var jump_apex_threshold: float = 200.0
 ##@experimental: Currently used as a stopgap solution for the stat application.
 ## Just used as the variable that is applied to walk_forward_speed, and
@@ -22,7 +30,7 @@ class_name Player
 @export var pushback_deceleration: float = 600.0
 
 @export_group("Hurtbox")
-@export var hurtbox_vertical_reduction: float = 60.0
+@export var hurtbox_vertical_reduction: float = 50.0
 
 @export_group("Combat Timing")
 @export var gatling_buffer_frames: int = 26
@@ -34,7 +42,7 @@ class_name Player
 ## instead of being silently dropped like a raw is_action_just_pressed
 ## check would be. Standard fighting-game buffer windows are roughly
 ## 3-10 frames; keep this on the low end so it doesn't feel laggy.
-@export var input_buffer_frames: int = 10
+@export var input_buffer_frames: int = 6
 ## Scales how fast ALL of this player's animations advance in real time
 ## (walk, idle, attacks, hit reactions). 1.0 = normal, 2.0 = double speed,
 ## 0.5 = half speed. Applied via animation_player.speed_scale for normal
@@ -44,6 +52,12 @@ class_name Player
 ## Max time (in milliseconds) between two taps of the same direction that
 ## still counts as a double-tap for the base-kit dash moves.
 @export var double_tap_window_ms: int = 550
+## Aerial normal (NA) dive: how far the burst is angled off straight down,
+## towards whichever way the player is facing. 0 is a straight drop, 90 a
+## purely horizontal lunge. The move's own advance_speed is the burst speed.
+@export var aerial_dive_angle_degrees: float = 42.0
+## Burst speed for that dive, used if the move has no advance_speed of its own.
+@export var aerial_dive_fallback_speed: float = 150.0
 
 @export_group("Health")
 @export var max_health: float = 100.0
@@ -135,7 +149,24 @@ var state: State = State.NEUTRAL :
 signal landed
 signal hitstun_finished
 
+## Air control is purely additive: it never touches air_horizontal_velocity,
+## which carries the full-strength drift a jump sets from the direction held at
+## takeoff. These two only describe the small nudge layered on top of that.
+## How fast that nudge builds up (and reverses when the stick flips).
+@export var air_control_accel: float = 420.0
+## Most the nudge can ever add, in px/s. Walk speed is around 190, so this stays
+## a fraction of a walk: enough to steer with, never the main source of air
+## movement.
+@export var air_control_max_speed: float = 60.0
+
+## Horizontal drift carried through a jump: the full velocity a jump set from
+## the held direction, or whatever an attack or knockback left behind. Air
+## control never writes to this.
 var air_horizontal_velocity: float = 0.0
+## The additive air-control nudge, kept separate from the drift above so
+## steering adds on top of it instead of competing with it. Always 0 on the
+## ground and at the start of every jump.
+var air_control_velocity: float = 0.0
 
 var last_direction: int = Direction.NONE
 var direction_buffer_timer: float = 0.0
@@ -194,6 +225,11 @@ var attack_instance_id: int = 0
 # spawn more than one projectile per attack, even if seek() ends up
 # re-visiting that frame.
 var _projectile_fired_this_attack: bool = false
+## The one projectile this player is allowed to have out. Firing again retires
+## it (it plays its death) before the new one is spawned, so a player can never
+## have two on screen. Cleared implicitly: a freed projectile fails
+## is_instance_valid().
+var active_projectile: Projectile = null
 # One attack sound per attack, fired when the move's startup frames are done.
 var _attack_sound_played: bool = false
 var opponent = null
@@ -211,7 +247,24 @@ var gatling_buffer_timer: int = 0
 var gatling_cancel_window_open: bool = false
 
 var pushback_velocity_x: float = 0.0
+## Set by take_hit() on the frame a launcher connects, cleared again as soon as
+## the launch is actually under way. is_on_floor() still reports the floor on
+## that frame (it reflects the last move_and_slide), so without this
+## _hitstun_process() would zero the upward velocity before the player ever
+## left the ground, which is what made a launcher read as doing nothing.
+var _launched_this_hit: bool = false
+## One aerial per jump. Set the moment an aerial normal (NA) or an aerial
+## special (SA) comes out, and cleared on landing, so a second press in the
+## same jump resolves to nothing. JA has its own separate gate
+## (has_used_air_jump_attack) and is deliberately not affected by this one.
 var has_used_aerial: bool = false
+## Airtime in physics frames, reset on the frame the player is back on the floor.
+## Only read by _can_start_aerial().
+var airborne_frames: int = 0
+## Floor state at the end of the previous physics frame, so a touchdown can be
+## spotted in any state (see _physics_process). Running the landing reaction is
+## still NEUTRAL's job.
+var _was_on_floor_last_frame: bool = true
 ## Separate one-shot gate for JA, reset on landing alongside
 ## has_used_aerial. Kept independent per design: NA and JA are not
 ## mutually exclusive within the same jump.
@@ -714,6 +767,26 @@ func _physics_process(delta: float) -> void:
 		State.BLOCKSTUN:
 			_blockstun_process(delta)
 
+	# Airtime counter for the aerial window. Counted after this frame's own
+	# move_and_slide, so the frame the player actually leaves the ground is the
+	# first frame counted and the frame they land is already back to zero.
+	var grounded_now := is_on_floor()
+	var just_touched_down := not _was_on_floor_last_frame and grounded_now
+	_was_on_floor_last_frame = grounded_now
+	airborne_frames = airborne_frames + 1 if not grounded_now else 0
+
+	# Landing has to be noticed in EVERY state, not just NEUTRAL. NEUTRAL runs
+	# its own landing reaction in _neutral_process, and an airborne attack cut
+	# short lands through _cut_attack_on_landing, but a player who touched down
+	# during HITSTUN - launched, or hit out of their own aerial - used to keep
+	# the one-aerial-per-jump gates from the jump they were knocked out of. The
+	# next jump then silently refused every aerial, which is exactly how "the
+	# aerial special sometimes doesn't come out" showed up. Hitstun keeps its
+	# own reaction pose, so this only clears the air-only state instead of
+	# forcing a landing reaction over it.
+	if just_touched_down and state != State.NEUTRAL:
+		_clear_air_only_state()
+
 	EventBus.player_position[player_id] = global_position
 	EventBus.player_velocity[player_id] = velocity
 	EventBus.player_is_airborne[player_id] = not is_on_floor()
@@ -741,7 +814,9 @@ func _neutral_process(delta: float) -> void:
 	# short-circuit the frame exactly like the Normal/Special buffer
 	# checks below do. Gate is independent from has_used_aerial (NA's
 	# gate) by design — see the has_used_air_jump_attack declaration.
-	if not was_on_floor and not has_used_air_jump_attack and JA and _consume_buffer("Jump"):
+	# The gate sits before _consume_buffer so a Jump pressed inside the window stays
+	# buffered and fires the moment the window closes.
+	if not was_on_floor and _can_start_aerial() and not has_used_air_jump_attack and JA and _consume_buffer("Jump"):
 		has_used_air_jump_attack = true
 		_start_attack(JA)
 		return
@@ -763,12 +838,7 @@ func _neutral_process(delta: float) -> void:
 	var just_landed := is_on_floor() and not was_on_floor
 
 	if just_landed:
-		has_used_aerial = false
-		has_used_air_jump_attack = false
-		is_landing = true
-		landed.emit()
-		sprites.play_jump_land()
-		audio.play_landing()
+		_handle_landing()
 
 	_update_animation(just_landed)
 	_update_hurtbox()
@@ -779,6 +849,15 @@ func _neutral_process(delta: float) -> void:
 	# HITSTUN or BLOCKSTUN still comes out here as long as it's within
 	# input_buffer_frames. Return immediately after starting an attack so
 	# a same-frame Special buffer entry can't also fire and stomp it.
+	# An airborne attack can't come out until the player has actually been off the
+	# ground for min_airborne_frames_for_aerial: pressing an attack straight after a
+	# jump used to fire the aerial on the frames where the character was still
+	# visibly on the floor. Returning here leaves the press in the buffer instead of
+	# consuming it, so it comes out the moment the window opens. Grounded attacks
+	# are untouched.
+	if not is_on_floor() and not _can_start_aerial():
+		return
+
 	if _consume_buffer("Normal"):
 		var move = _resolve_move("normal")
 		if move:
@@ -844,6 +923,14 @@ func _block_posture_beats_hit_level(hit_level: MoveData.HitLevel, was_crouching:
 			return true
 
 
+# True once the player has been airborne for min_airborne_frames_for_aerial
+# frames. Guards every airborne attack (the normal aerial, the aerial special
+# and JA alike) so none of them can come out during the opening frames of a
+# jump, when the character has not visibly left the ground yet.
+func _can_start_aerial() -> bool:
+	return airborne_frames >= min_airborne_frames_for_aerial
+
+
 func _resolve_move(type: String) -> MoveData:
 	if type == "normal":
 		return _resolve_normal_move()
@@ -854,6 +941,8 @@ func _resolve_normal_move() -> MoveData:
 	var dict = normal_moves
 	var key = ""
 	if not is_on_floor():
+		# One aerial per jump: once this jump has spent its aerial the press
+		# resolves to nothing (see has_used_aerial).
 		if has_used_aerial:
 			return null
 		var aerial_move = dict.get("aerial", null)
@@ -883,6 +972,7 @@ func _resolve_normal_move() -> MoveData:
 func _resolve_special_move() -> MoveData:
 	# Aerial special keeps working exactly as before (SA).
 	if not is_on_floor():
+		# Same one-aerial-per-jump gate as the normal aerial above.
 		if has_used_aerial:
 			return null
 		var aerial_move = special_moves.get("aerial", null)
@@ -931,6 +1021,7 @@ func _start_attack(move: MoveData) -> void:
 	if move.is_dash:
 		audio.play_dash()
 
+
 	# A special is slow enough that its startup and its impact read as two
 	# separate moments, so it starts a charge-up here; play_attack_impact()
 	# cuts it off when the active window opens. Normals do nothing here and
@@ -958,9 +1049,15 @@ func _start_attack(move: MoveData) -> void:
 
 
 func _attack_process(delta: float) -> void:
+	# Same floor test the original gravity branch used, read once here because
+	# the landing rule below also needs the transition (was airborne, now is).
+	var was_on_floor := is_on_floor()
 	var move_velocity := velocity
 
-	if not is_on_floor() and current_move:
+	if not was_on_floor and current_move:
+		# Original airborne-attack fall, restored: 15% of the vertical speed
+		# shed per frame plus 60% gravity. The softening is deliberate and is
+		# what makes an aerial hang instead of dropping, so it stays as it was.
 		move_velocity.y *= 0.85
 		move_velocity.y += gravity * delta * 0.6
 	else:
@@ -984,6 +1081,14 @@ func _attack_process(delta: float) -> void:
 	velocity = move_velocity
 	move_and_slide()
 
+	# Hard landing rule: the moment an airborne attack touches the ground it is
+	# cut off, whatever frame its animation is on, and the player goes straight
+	# into the normal landing reaction. Letting it run out meant the move stayed
+	# live, hitbox included, after the player was already standing again.
+	if not was_on_floor and is_on_floor():
+		_cut_attack_on_landing()
+		return
+
 	# Advance by the multiplier (not a fixed 1) so startup/active/recovery
 	# and every Call Method track key scale with attack speed. total_frames
 	# stays unscaled, so a higher multiplier finishes in fewer real ticks.
@@ -1001,6 +1106,18 @@ func _attack_process(delta: float) -> void:
 	var total_frames = int(anim_length * 60.0)
 
 	animation_player.seek(attack_frame / 60.0, true)
+
+	# The projectile release is driven from here rather than from the
+	# animation's Call Method key: attacks advance with seek(), and a seek
+	# that lands exactly on a key does not reliably invoke it, which is why
+	# the projectile never spawned. fire_projectile() is idempotent for the
+	# rest of the attack, so the Call Method key firing as well is harmless.
+	# The total_frames fallback fires it anyway if the animation is shorter
+	# than the authored release frame, so a mistuned move still shoots
+	# instead of silently doing nothing.
+	if current_move.fires_projectile and not _projectile_fired_this_attack:
+		if attack_frame >= float(current_move.projectile_fire_frame) or attack_frame >= total_frames:
+			fire_projectile()
 
 	# Buffering runs every attack frame regardless of hit-confirm or the
 	# cancel window, so an early press isn't lost while waiting for
@@ -1084,9 +1201,18 @@ func fire_projectile() -> void:
 		return
 
 	_projectile_fired_this_attack = true
+
+	# One projectile per player: whatever this player already had out gets
+	# retired first, so the old one plays its death instead of two of them
+	# drifting around at once.
+	if is_instance_valid(active_projectile):
+		active_projectile.retire()
+		_dbg("[PROJECTILE] retired the previous projectile before firing again")
+
 	projectile.setup(self, opponent)
 	get_tree().current_scene.add_child(projectile)
 	projectile.global_position = _projectile_spawn_position(current_move)
+	active_projectile = projectile
 
 
 func _projectile_spawn_position(move: MoveData) -> Vector2:
@@ -1108,7 +1234,10 @@ func _end_attack() -> void:
 	audio.stop_charge()
 
 	if was_airborne:
-		air_horizontal_velocity = velocity.x
+		# Only the drift carries over, not the nudge: keeping the two separate is
+		# what stops steering taken mid-attack from being baked into the baseline
+		# and quietly turning the nudge into the main source of air movement.
+		air_horizontal_velocity = velocity.x - air_control_velocity
 
 	sprites.hide_attack_sprites()
 	_resume_crouch_or_update_animation()
@@ -1161,6 +1290,25 @@ func _play_attack_sound() -> void:
 		return
 	_attack_sound_played = true
 	audio.play_attack_impact(current_move)
+
+
+# Call this from an AnimationPlayer "Call Method" track key, placed at the frame
+# the aerial normal's drill-down burst should actually happen (after the
+# windup), same pattern as open_gatling_cancel_window() and fire_projectile().
+#
+# Deliberately not applied in _start_attack() any more: firing it on frame zero
+# launched the player diagonally before the windup had played at all, which read
+# as sliding rather than attacking. The angle is measured off straight down and
+# is exported; the burst speed is the move's own advance_speed, falling back to
+# aerial_dive_fallback_speed when the move has none.
+func apply_aerial_dive() -> void:
+	if not current_move or is_on_floor():
+		return
+	var angle := deg_to_rad(aerial_dive_angle_degrees)
+	var facing := 1.0 if facing_right else -1.0
+	var direction := Vector2(sin(angle) * facing, cos(angle))
+	var speed := current_move.advance_speed if current_move.advance_speed > 0.0 else aerial_dive_fallback_speed
+	velocity = direction * speed
 
 
 func _check_hit() -> void:
@@ -1217,7 +1365,13 @@ func _hitstun_process(delta: float) -> void:
 	# ticks down and the player returns to NEUTRAL when it runs out. An
 	# airborne/launcher hit just keeps falling during that time instead of
 	# forcing any extra state on landing.
-	if is_on_floor():
+	# A launch gets exactly one frame of grace: the launch velocity is set this
+	# frame, while is_on_floor() is still reporting the floor from the last
+	# move_and_slide. Without that, the grounded branch below cancels the launch
+	# before it moves anything, whatever launcher_strength happens to be.
+	if _launched_this_hit and not is_on_floor():
+		_launched_this_hit = false
+	if is_on_floor() and not _launched_this_hit:
 		pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, pushback_deceleration * delta)
 		velocity.x = pushback_velocity_x
 		velocity.y = 0.0
@@ -1321,6 +1475,10 @@ func take_hit(move_data: MoveData, attacker: Node2D) -> bool:
 func _resolve_block(move_data: MoveData, attacker: Node2D, was_crouching: bool) -> void:
 	is_blocking_low = was_crouching
 	pushback_velocity_x = _direction_away_from(attacker) * move_data.block_knock_back
+	# The shield icon takes a small squash-and-stretch punch as the hit is
+	# absorbed, so a blocked hit visibly lands on it instead of the icon just
+	# sitting there. No-ops when no warning is up (PlayerVisuals checks).
+	sprites.punch_block_warning()
 
 	var stun_frames = max(move_data.recovery + move_data.block_advantage, 0)
 	var reaction_anim := "crouch_block_idle" if is_blocking_low else "block_idle"
@@ -1393,6 +1551,7 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) ->
 	pushback_velocity_x = _direction_away_from(attacker) * effective_knockback
 	if move_is_launcher:
 		velocity.y = -move_data.launcher_strength
+		_launched_this_hit = true
 
 	_dbg("[RESOLVE HIT] '%s' is_launcher=%s launcher_strength=%.1f -> move_is_launcher=%s velocity.y=%.1f" % [
 		move_data.move_name, move_data.is_launcher, move_data.launcher_strength, move_is_launcher, velocity.y
@@ -1417,6 +1576,36 @@ func _apply_hit_reaction_visuals(was_crouching: bool, is_air_hit: bool) -> void:
 	sprites.play_hit_reaction(was_crouching, is_air_hit)
 
 
+# Everything that happens the frame the player touches the ground. Shared by the
+# normal landing in _neutral_process and by an airborne attack being cut short
+# on landing, so both landings behave identically.
+func _handle_landing() -> void:
+	_clear_air_only_state()
+	is_landing = true
+	landed.emit()
+	sprites.play_jump_land()
+	audio.play_landing()
+
+
+# The state that only means anything while airborne, cleared at both ends of a
+# jump: the one-aerial-per-jump gates (NA and SA share has_used_aerial, JA has
+# its own) and the air-control nudge. Called from every landing whichever state
+# the player was in when they touched down, and again when a new jump starts.
+func _clear_air_only_state() -> void:
+	has_used_aerial = false
+	has_used_air_jump_attack = false
+	air_control_velocity = 0.0
+
+
+# Landing ends an airborne attack on the spot. The animation's own hitbox-off
+# key never runs when a move is cut short, so the hitbox is switched off here as
+# well: otherwise the player would keep a live hitbox while standing idle.
+func _cut_attack_on_landing() -> void:
+	$Hitbox/MainHitbox.set_deferred("disabled", true)
+	_end_attack()
+	_handle_landing()
+
+
 func _apply_gravity(delta: float) -> void:
 	if is_on_floor():
 		return
@@ -1435,6 +1624,11 @@ func _handle_jump() -> void:
 	velocity.y = jump_velocity
 	audio.play_jump()
 	air_horizontal_velocity = _get_horizontal_input() * _current_walk_speed()
+	# A jump defines its own aerial budget, so the gates are cleared here as
+	# well as on landing: a jump can never start holding a spent aerial from a
+	# previous one. The air-control nudge is cleared with them, so takeoff
+	# speed is exactly what the held direction gives and nothing else.
+	_clear_air_only_state()
 	is_landing = false
 
 
@@ -1455,12 +1649,26 @@ func _handle_crouch_input() -> void:
 		wants_to_crouch = true
 
 
+# The additive half of air control. It builds a small velocity towards the held
+# direction (reversing if the stick flips) and decays back to zero when nothing
+# is held. It is only ever added to air_horizontal_velocity, never blended into
+# it, so jumping with a direction held keeps exactly the horizontal speed it
+# always had and steering is extra on top.
+func _update_air_control(delta: float) -> void:
+	var held := 0.0 if _input_locked() else _get_horizontal_input()
+	air_control_velocity = move_toward(air_control_velocity, held * air_control_max_speed, air_control_accel * delta)
+
+
 func _handle_horizontal_movement(delta: float) -> void:
 	if not is_on_floor():
 		if pushback_velocity_x != 0.0:
 			pushback_velocity_x = move_toward(pushback_velocity_x, 0.0, pushback_deceleration * delta)
 			air_horizontal_velocity = pushback_velocity_x
-		velocity.x = air_horizontal_velocity
+		_update_air_control(delta)
+		# Added, never substituted: whatever the jump (or a dive, or a knockback)
+		# gave this player horizontally is carried at full strength, and the
+		# air-control nudge rides on top of it.
+		velocity.x = air_horizontal_velocity + air_control_velocity
 		return
 	if crouch_phase != CrouchPhase.NONE:
 		velocity.x = 0.0

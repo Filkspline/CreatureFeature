@@ -6,9 +6,7 @@
 [resource]
 script = ExtResource("1_vf16i")
 name = "Cloud"
-description = "- GRAVITY
-- JUMP VELOCITY
-+ MOVE SPEED"
+description = "Hop around"
 icon = ExtResource("1_rd3s4")
 effect_type = 1
 stat_name = &"max_health"

@@ -33,8 +33,18 @@ extends AnimatedSprite2D
 @export var move_ease : Tween.EaseType = Tween.EASE_OUT
 @export var pointer_scale : float = 1.0
 
+@export_group("Pop-in")
+## Played the moment the pointer appears, and any time it comes back from
+## hidden, so the selector pops in instead of blinking into existence. Same
+## springy overshoot the card hand's own selector uses.
+@export var pop_in_duration : float = 0.35
+@export_range(0.0, 1.0, 0.05) var pop_in_start_scale : float = 0.0
+@export var pop_in_transition : Tween.TransitionType = Tween.TRANS_BACK
+@export var pop_in_ease : Tween.EaseType = Tween.EASE_OUT
+
 var _target : Control = null
 var _move_tween : Tween
+var _pop_tween : Tween
 
 
 func _ready() -> void:
@@ -62,7 +72,10 @@ func follow(target: Control) -> void:
 		visible = false
 		return
 
+	var was_hidden := not visible
 	visible = true
+	if was_hidden:
+		_play_pop_in()
 	var centre := target.global_position + target.size * 0.5
 	var global_point := Vector2(target.global_position.x - edge_distance, centre.y)
 	# The aim goes from the pointer towards the target, so the art can be a
@@ -74,6 +87,17 @@ func follow(target: Control) -> void:
 	_move_tween = create_tween()
 	_move_tween.set_trans(move_transition).set_ease(move_ease)
 	_move_tween.tween_property(self, "global_position", global_point, move_duration)
+
+
+# The arrival: scales up from (usually) nothing with a back-eased overshoot, so
+# the selector lands on the menu rather than appearing already there.
+func _play_pop_in() -> void:
+	if _pop_tween:
+		_pop_tween.kill()
+	scale = Vector2.ONE * pop_in_start_scale
+	_pop_tween = create_tween()
+	_pop_tween.set_trans(pop_in_transition).set_ease(pop_in_ease)
+	_pop_tween.tween_property(self, "scale", Vector2.ONE * pointer_scale, pop_in_duration)
 
 
 func frames_available() -> bool:

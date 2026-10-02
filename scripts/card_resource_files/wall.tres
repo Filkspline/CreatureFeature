@@ -6,8 +6,7 @@
 [resource]
 script = ExtResource("1_vf16i")
 name = "Tank"
-description = "+ MAX HEALTH
-- DAMAGE"
+description = "Takes a beating"
 icon = ExtResource("1_4gwgb")
 effect_type = 1
 stat_names_array = Array[String](["max_health", "damage_dealt_bonus"])

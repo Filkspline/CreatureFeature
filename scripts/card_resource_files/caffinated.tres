@@ -5,11 +5,8 @@
 
 [resource]
 script = ExtResource("1_vf16i")
-name = "Caffinated"
-description = "+ MOVE SPEED
-+ ATTACK SPEED
-- MAX HEALTH
-- DAMAGE"
+name = "Caffeinated"
+description = "Zoom now, ache later"
 icon = ExtResource("1_kckef")
 effect_type = 1
 stat_names_array = Array[String](["move_speed", "attack_speed_multiplier", "max_health", "damage_dealt_bonus"])
