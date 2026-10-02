@@ -9,8 +9,10 @@ extends Node2D
 #  which entry is selected.
 
 @onready var multiplayer_button = $Buttons/VBoxContainer/Multiplayer
+@onready var singleplayer_button = $Buttons/VBoxContainer/Singleplayer
 @onready var settings_button = $Buttons/VBoxContainer/Settings
 @onready var quit_button = $Buttons/VBoxContainer/Quit
+
 
 var buttons: Array[Button]
 var selected_index := 0
@@ -20,7 +22,7 @@ func _ready():
 	# Node paths above are the real names in the scene. This used to look up
 	# "Play", which does not exist, so the first entry was null and the menu's
 	# keyboard/controller navigation errored on it.
-	buttons = [multiplayer_button, settings_button, quit_button]
+	buttons = [multiplayer_button, singleplayer_button, settings_button, quit_button]
 
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 

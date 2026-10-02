@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://co122u6ltdju2" path="res://scripts/controls_ui_script.gd" id="1_3tfba"]
 [ext_resource type="SpriteFrames" uid="uid://v3xm4wmerdtc" path="res://assets/controls.tres" id="1_cb2kv"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_hig1h"]
+[ext_resource type="StyleBox" uid="uid://bvagcvsl5hcde" path="res://assets/ui_style_box.tres" id="2_pm6h4"]
 
 [node name="Control" type="Control" unique_id=1886638424]
 layout_mode = 3
@@ -26,6 +27,7 @@ offset_right = 20.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = ExtResource("2_pm6h4")
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1498004692]
 layout_mode = 2

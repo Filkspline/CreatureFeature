@@ -295,12 +295,14 @@ func _ready() -> void:
 	sprites.animation_finished.connect(_on_sprites_animation_finished)
 
 	for p in get_tree().get_nodes_in_group("players"):
-		if p != self and p is Player:
+		if p != self and (p is Player or p is Dummy):
 			opponent = p
 			break
 	if not opponent:
 		push_warning("[SETUP] No opponent found in 'players' group.")
-
+	
+	_dbg("[color=green][PLAYER] Registered opponent as: %s" % opponent)
+	
 	sprites.play_idle()
 
 	# Report which special this player starts the round equipped with before
