@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_vf16i")
 name = "Momentum"
-description = "Small damage boost when hitting the opponent"
+description = "Land hits, build steam"
 icon = ExtResource("1_tmegh")
 effect_type = 4
 show_in_pre_fight = false

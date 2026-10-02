@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://86givqmdv42o"]
 
 [ext_resource type="Script" uid="uid://vxjulnwggfwu" path="res://scripts/main_menu.gd" id="1_l6cm7"]
+[ext_resource type="Script" path="res://scripts/menu_focus_emphasis.gd" id="9_focus"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_m3x6f"]
 [ext_resource type="SpriteFrames" uid="uid://0mk8q5j8lmya" path="res://scripts/selector_anim.tres" id="3_selector"]
 [ext_resource type="Script" uid="uid://s3l3ct10nptr" path="res://scripts/selection_pointer.gd" id="4_pointer"]
@@ -164,7 +165,11 @@ flicker = 0.001
 noise_amount = 0.0015
 current_preset = 1
 
+[node name="MenuFocusEmphasis" type="Node" parent="."]
+script = ExtResource("9_focus")
+
 [connection signal="pressed" from="Buttons/VBoxContainer/Multiplayer" to="." method="_on_multiplayer_pressed"]
 [connection signal="pressed" from="Buttons/VBoxContainer/Singleplayer" to="." method="_on_singleplayer_pressed"]
 [connection signal="pressed" from="Buttons/VBoxContainer/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="Buttons/VBoxContainer/Quit" to="." method="_on_quit_pressed"]
+

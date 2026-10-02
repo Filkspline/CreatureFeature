@@ -4,7 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://c2mu48tjqkebi" path="res://assets/projectile.png" id="2_q3m7n"]
 [ext_resource type="Resource" uid="uid://c8rk12jj8pgm1" path="res://scripts/N52.tres" id="2_softn"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_proj"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_proj"]
+size = Vector2(30, 34)
 
 [node name="Projectile" type="Area2D" unique_id=1784449240]
 z_index = 3
@@ -29,6 +30,6 @@ frame = 5
 region_rect = Rect2(312, 200.74277, 5710.285, 148.89703)
 
 [node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=1850705638]
-position = Vector2(0, 3.8146973e-06)
-shape = SubResource("CircleShape2D_proj")
+position = Vector2(0, 0)
+shape = SubResource("RectangleShape2D_proj")
 debug_color = Color(0.86061674, 0.31562346, 0.46746165, 0.41960785)

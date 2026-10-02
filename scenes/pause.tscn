@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bni8vnsm0e1yq"]
 
 [ext_resource type="Shader" uid="uid://b7le4r353toal" path="res://scripts/pause.gdshader" id="1_f1d2v"]
+[ext_resource type="Script" path="res://scripts/menu_focus_emphasis.gd" id="9_focus"]
 [ext_resource type="Script" uid="uid://bxe41plmo0row" path="res://scripts/pause.gd" id="1_r8yp4"]
 [ext_resource type="PackedScene" uid="uid://c8x1ruuobur8t" path="res://scenes/controls_ui.tscn" id="3_m0klm"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="4_m3x6f"]
@@ -250,5 +251,9 @@ edge_distance = 20.0
 base_rotation_degrees = -90.0
 pointer_scale = 0.4
 
+[node name="MenuFocusEmphasis" type="Node" parent="."]
+script = ExtResource("9_focus")
+
 [connection signal="pressed" from="HBoxContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/Resume" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="HBoxContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/Quit" to="." method="_on_quit_pressed"]
+

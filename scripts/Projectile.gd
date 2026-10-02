@@ -71,6 +71,12 @@ class_name Projectile
 @export_group("Lifetime / Safety")
 @export var max_lifetime: float = 6.0
 @export var max_travel_distance: float = 3000.0
+## Hard cap on how long the death sequence is allowed to take. It normally
+## frees itself after its few death frames; this only exists so that if those
+## frames can never finish (no sprite, an empty frame list, a tween that ate
+## the sequence), the projectile still removes itself instead of sitting on
+## screen looking alive but intangible.
+@export var death_failsafe_seconds: float = 0.75
 
 @export_group("Visual")
 ## Only used if no Sprite2D child has a texture.
@@ -126,6 +132,7 @@ var _launched: bool = false
 var _spawn_position: Vector2
 var _life: float = 0.0
 var _dying: bool = false
+var _dying_time: float = 0.0
 
 # Tracks the last attack_instance_id each player has already used to
 # deflect this projectile, so the same swing can't register twice while
@@ -219,6 +226,10 @@ func _physics_process(delta: float) -> void:
 	_update_sprite_sequence(delta)
 
 	if _dying:
+		_dying_time += delta
+		if _dying_time >= death_failsafe_seconds:
+			_dbg("[LIFETIME] death sequence never finished, freeing")
+			queue_free()
 		return
 
 	_life += delta
@@ -467,6 +478,13 @@ func _start_idle_bob() -> void:
 	_idle_bob_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_idle_bob_tween.tween_property(_sprite, "position:y", _sprite_base_position.y - idle_bob_amplitude, idle_bob_duration)
 	_idle_bob_tween.tween_property(_sprite, "position:y", _sprite_base_position.y + idle_bob_amplitude, idle_bob_duration)
+
+
+## Called by the owner when it fires again: one projectile per player, so the
+## one already out plays its death and clears rather than both lingering.
+func retire() -> void:
+	_dbg("[RETIRE] owner fired again, playing death")
+	_play_death_and_free()
 
 
 # Flashes the shared hit frame (also the death sequence's first frame)

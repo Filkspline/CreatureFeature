@@ -73,8 +73,17 @@ var bars: Dictionary = {}
 # built by scanning the actual "Pip*" nodes under P1RoundPips/P2RoundPips —
 # these are real, editable nodes in the scene, not generated at runtime.
 var pips: Dictionary = {1: [], 2: []}
+# One tween per combo label, so a fresh hit cancels a fade that is already
+# running instead of the two racing on the same property.
+var _combo_label_tweens: Dictionary = {}
 
 var _death_popup_base_scale: Vector2
+
+## Same per-player accents the draft and player-select legends use, so the
+## in-fight legend reads as "these are your buttons" on every screen.
+const P1_PROMPT_ACCENT := Color(1.0, 1.0, 1.0)
+const P2_PROMPT_ACCENT := Color(0.79607844, 0.85882354, 0.9882353)
+@export_range(0.0, 1.0, 0.01) var prompt_accent_strength : float = 0.55
 
 @onready var p1_name_label: Label = $UIRoot/P1NameLabel
 @onready var p2_name_label: Label = $UIRoot/P2NameLabel
@@ -88,6 +97,11 @@ var _death_popup_base_scale: Vector2
 @onready var death_impact_effect: Sprite2D = $UIRoot/DeathImpactEffect
 @onready var death_popup: Sprite2D = $DeathPopUp
 @onready var death_popup_text: Label = $DeathPopUp/text
+# The in-fight control legends. Same ControlPrompts node the pre-fight select
+# and the draft screens use, so they get the same per-player tint here and the
+# legend looks the same everywhere.
+@onready var p1_control_prompts : ControlPrompts = get_node_or_null("UIRoot/P1ControlPrompts")
+@onready var p2_control_prompts : ControlPrompts = get_node_or_null("UIRoot/P2ControlPrompts")
 
 # The "teeth" sprites driven by the player1death/player2death animation
 # tracks. Whether these start hidden depends on whatever visible = ...
@@ -102,6 +116,7 @@ var _death_popup_base_scale: Vector2
 
 
 func _ready() -> void:
+	_apply_prompt_tints()
 	bars[1] = _collect_bar_refs($UIRoot/P1BarContainer)
 	bars[2] = _collect_bar_refs($UIRoot/P2BarContainer)
 
@@ -142,6 +157,17 @@ func _ready() -> void:
 	p1_combo_label.visible = false
 	p2_combo_label.visible = false
 	ComboManager.combo_changed.connect(_on_combo_changed)
+
+
+# Tints each player's legend with their own accent, exactly like the draft
+# screen does for its prompt strip.
+func _apply_prompt_tints() -> void:
+	if p1_control_prompts:
+		p1_control_prompts.set_player(1)
+		p1_control_prompts.set_tint(Color.WHITE.lerp(P1_PROMPT_ACCENT, prompt_accent_strength))
+	if p2_control_prompts:
+		p2_control_prompts.set_player(2)
+		p2_control_prompts.set_tint(Color.WHITE.lerp(P2_PROMPT_ACCENT, prompt_accent_strength))
 
 
 func _collect_bar_refs(container: Control) -> Dictionary:
@@ -475,20 +501,30 @@ func _sync_slot_wins(slot: int, rounds_won: int) -> void:
 func _on_combo_changed(defender_id: int, combo_count: int) -> void:
 	var label: Label = p1_combo_label if defender_id == 2 else p2_combo_label
 
-	if combo_count >= 2:
-		label.text = "%d HITS" % combo_count
-		label.visible = true
+	# One tween per label: a fresh hit must not fight the fade that was
+	# already running, which used to leave the counter flickering.
+	var running := _combo_label_tweens.get(label) as Tween
+	if running:
+		running.kill()
 
-		var tween := create_tween()
-		tween.tween_property(label, "modulate:a", 1.0, 0.15)
+	# Below two hits there is no combo worth showing. The reset comes from
+	# ComboManager now (the window lapsed, or the attacker was hit), so this no
+	# longer guesses a lifetime with its own timer and can't fade the counter
+	# out from under a combo that is still going.
+	if combo_count < 2:
+		if not label.visible:
+			return
+		var fade := create_tween()
+		_combo_label_tweens[label] = fade
+		fade.tween_property(label, "modulate:a", 0.0, 0.3)
+		fade.tween_callback(label.hide)
+		return
 
-		await get_tree().create_timer(2.0).timeout
-
-		var fade_tween := create_tween()
-		fade_tween.tween_property(label, "modulate:a", 0.0, 0.3)
-		await fade_tween.finished
-
-		label.visible = false
+	label.text = "%d HITS" % combo_count
+	label.visible = true
+	var show_tween := create_tween()
+	_combo_label_tweens[label] = show_tween
+	show_tween.tween_property(label, "modulate:a", 1.0, 0.15)
 
 
 func _on_pip_open_finished(pip: Dictionary) -> void:

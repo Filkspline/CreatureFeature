@@ -6,8 +6,7 @@
 [resource]
 script = ExtResource("1_vf16i")
 name = "Hare"
-description = "+ MOVE SPEED
-+ JUMP HEIGHT"
+description = "Fast legs, bad hops"
 icon = ExtResource("1_yjxvx")
 effect_type = 1
 stat_name = &"max_health"

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_f2s02")
 name = "Thorns"
-description = "When hit while blocking deal small damage back to opponent"
+description = "Blocking bites back"
 icon = ExtResource("1_8y4i1")
 effect_type = 4
 show_in_pre_fight = false

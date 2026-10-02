@@ -41,6 +41,16 @@ const SLOT_2 := 1   # Character 2 / Player 2 / Creature 2
 @export var joy_jump_button : int = JOY_BUTTON_X
 @export var joy_special_button : int = JOY_BUTTON_B
 
+@export_group("Lock-in feedback")
+## How far the cursor punches up the moment a slot is confirmed, and how long
+## it takes to settle back. Confirming used to be visually silent: only the
+## SELECTED label changed. Same springy TRANS_BACK pop the cards use.
+@export var lock_punch_scale : float = 1.4
+@export var lock_punch_duration : float = 0.3
+## The SELECTED label pops in from this scale instead of just appearing.
+@export var selected_label_pop_scale : float = 1.8
+@export var selected_label_pop_duration : float = 0.35
+
 const JOY_DIRECTION_BUTTONS := {
 	"Left": JOY_BUTTON_DPAD_LEFT,
 	"Right": JOY_BUTTON_DPAD_RIGHT,
@@ -260,6 +270,7 @@ func _lock_cursor(cursor: Cursor) -> void:
 	_store_character_choice(slot, cursor)
 	print("P%d locked in by: %s" % [slot, cursor.device.display_name])
 	_refresh_legend(slot)
+	_play_lock_feedback(cursor)
 	_check_both_locked()
 
 
@@ -289,6 +300,35 @@ func _show_selected(slot: int) -> void:
 	var label := character1_selected if slot == 1 else character2_selected
 	label.visible = true
 	label.modulate = P1_ACCENT_COLOR if slot == 1 else P2_ACCENT_COLOR
+	label.modulate.a = 0.0
+	# Pops in rather than blinking on, so the confirmation visibly lands.
+	label.pivot_offset = label.size * 0.5
+	label.scale = Vector2.ONE * selected_label_pop_scale
+	var pop := create_tween()
+	pop.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	pop.tween_property(label, "scale", Vector2.ONE, selected_label_pop_duration)
+	pop.parallel().tween_property(label, "modulate:a", 1.0, selected_label_pop_duration * 0.6)
+
+
+# The moment a slot is confirmed: the cursor punches up and settles while the
+# SELECTED label pops in (see _show_selected). Both use the project's springy
+# TRANS_BACK pop, so confirming has somewhere to land instead of being a silent
+# state change.
+func _play_lock_feedback(cursor: Cursor) -> void:
+	if is_instance_valid(cursor.node):
+		var node := cursor.node
+		node.pivot_offset = node.size * 0.5
+		node.scale = Vector2.ONE * lock_punch_scale
+		var punch := create_tween()
+		punch.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		punch.tween_property(node, "scale", Vector2.ONE, lock_punch_duration)
+	if is_instance_valid(cursor.icon):
+		var icon := cursor.icon
+		var icon_base := icon.scale
+		icon.scale = icon_base * lock_punch_scale
+		var icon_tween := create_tween()
+		icon_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		icon_tween.tween_property(icon, "scale", icon_base, lock_punch_duration)
 
 
 func _store_character_choice(slot: int, cursor: Cursor) -> void:

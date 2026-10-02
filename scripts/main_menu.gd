@@ -9,8 +9,12 @@ extends Node2D
 #  which entry is selected.
 
 @onready var multiplayer_button = $Buttons/VBoxContainer/Multiplayer
+@onready var singleplayer_button = $Buttons/VBoxContainer/Singleplayer
 @onready var settings_button = $Buttons/VBoxContainer/Settings
 @onready var quit_button = $Buttons/VBoxContainer/Quit
+# Grows the focused entry's text so the selection reads at a glance. A real node
+# in the scene, so its scale and timing are tuned in the Inspector.
+@onready var focus_emphasis : MenuFocusEmphasis = get_node_or_null("MenuFocusEmphasis")
 
 var buttons: Array[Button]
 var selected_index := 0
@@ -20,12 +24,18 @@ func _ready():
 	# Node paths above are the real names in the scene. This used to look up
 	# "Play", which does not exist, so the first entry was null and the menu's
 	# keyboard/controller navigation errored on it.
-	buttons = [multiplayer_button, settings_button, quit_button]
+	# Singleplayer is a real entry in the scene with its own handler, it was just
+	# missing from this list, so keyboard and controller navigation could never
+	# reach it.
+	buttons = [multiplayer_button, singleplayer_button, settings_button, quit_button]
 
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 	# Automatically select the first entry when the menu opens.
 	buttons[selected_index].grab_focus()
+
+	if focus_emphasis:
+		focus_emphasis.register_buttons(buttons)
 
 
 func _process(_delta):

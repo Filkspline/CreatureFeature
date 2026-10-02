@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_move")
 move_name = "JA"
-hit_level = 1
+hit_level = 2
 animation_name = &"JA"
 is_advancing = true
 advance_speed = 1800.0

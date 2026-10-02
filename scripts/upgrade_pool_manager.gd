@@ -86,30 +86,10 @@ func is_special_move_card(upgrade: UpgradeData) -> bool:
 	return move != null and move.kind == MoveData.Kind.SPECIAL
 
 
-## The card that grants the special a player already has equipped, or null
-## if no card in the directory grants it. Step one always adds this, so
-## "keep the special I've got" is a legal pick no matter what the pool
-## happens to still contain.
-##
-## Matched on move_name rather than the MoveData instance: move_name is what
-## this project already treats as a move's identity (locked_move_names,
-## all_moves keys), and the player's own copies get duplicated per instance,
-## so comparing instances would be comparing the wrong thing.
-func get_keep_special_card(player_id: int) -> UpgradeData:
-	var current := GameManager.get_selected_special(player_id)
-	if current == null:
-		return null
-	for path in card_array:
-		var upgrade: UpgradeData = load(path)
-		if upgrade and is_special_move_card(upgrade) and upgrade.unlocked_move.move_name == current.move_name:
-			return upgrade
-	return null
-
-
-## Step one: the special-move cards left in this player's pool, plus the
-## keep card. Picking the keep card costs nothing and leaves the pool
-## exactly as it is (see _on_upgrade_picked), so this step can be a
-## required choice without ever being a punishment.
+## Step one: the special-move cards left in this player's pool. Keeping the
+## special already equipped is the draft's own Skip card rather than a card
+## injected here (see card_hand.gd), so this step hands over a full hand of
+## real specials instead of giving a slot away.
 func _draw_special_from_pool(player_id: int) -> Array[String]:
 	var pool: Array = pools.get(player_id, [])
 	var special_paths: Array[String] = []
@@ -119,22 +99,13 @@ func _draw_special_from_pool(player_id: int) -> Array[String]:
 			special_paths.append(path)
 	special_paths.shuffle()
 
-	var keep_card := get_keep_special_card(player_id)
-	var keep_path: String = keep_card.resource_path if keep_card else ""
-	# Only as many pool cards as fit alongside the keep card, and never the
-	# keep card twice: if the current special's own card is still in the
-	# pool, picking it from there is the same free keep, so it needs no
-	# second copy in the hand.
-	var room: int = cards_offered - (1 if keep_card else 0)
+	# The current special's own card can still be in here; picking it means the
+	# same as Skip (see card_hand._is_keep_special_pick), which costs nothing.
 	var offered: Array[String] = []
 	for path in special_paths:
-		if offered.size() >= room:
+		if offered.size() >= cards_offered:
 			break
-		if path == keep_path:
-			continue
 		offered.append(path)
-	if keep_card:
-		offered.append(keep_path)
 	return offered
 
 
