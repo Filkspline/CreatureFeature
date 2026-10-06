@@ -133,6 +133,9 @@ var p2_character_id : int = 0
 var p1_device : PlayerInputDevice
 var p2_device : PlayerInputDevice
 
+var online_mode: bool = false
+var online_player_id: int = 0
+
 var keyboard_layouts : Dictionary = {}
 
 

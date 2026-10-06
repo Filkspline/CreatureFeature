@@ -94,6 +94,7 @@ class Cursor:
 	var locked: bool = false
 	var neutral_position: Vector2 = Vector2.ZERO
 	var icon: AnimatedSprite2D
+	var online_player_id: int = 0
 
 @onready var cursors_container: Node = $Cursors
 @onready var character1: Control = $Characters/Character1
@@ -112,6 +113,7 @@ class Cursor:
 @onready var sprite_frames = preload("res://assets/controls.tres") 
 
 var cursors: Array[Cursor] = []
+var remote_cursor: Cursor = null
 
 var _created_keyboard: Dictionary = {}  # suffix -> true
 var _created_joypad: Dictionary = {}    # device_id -> true
@@ -125,6 +127,8 @@ var _escape_was_pressed: bool = false
 func _ready() -> void:
 	GameManager.reset_player_select()
 	start_button.visible = false
+	if GameManager.online_mode:
+		_create_remote_cursor(1 if GameManager.online_player_id == 2 else 2)
 	_refresh_slot_labels()
 	_refresh_legends()
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
@@ -161,6 +165,9 @@ func _back_out() -> void:
 # ── Detecting input modes and creating cursors ──
 
 func _detect_input_modes() -> void:
+	if GameManager.online_mode:
+		_detect_online_input_mode()
+		return
 	for suffix in KEYBOARD_LAYOUTS:
 		if _created_keyboard.get(suffix, false):
 			continue
@@ -175,6 +182,26 @@ func _detect_input_modes() -> void:
 			_created_joypad[joy_id] = true
 			_create_cursor(PlayerInputDevice.make_joypad(joy_id))
 
+func _detect_online_input_mode() -> void:
+	var suffix := "P%d" % GameManager.online_player_id
+
+	if not _created_keyboard.get(suffix, false):
+		if _keyboard_layout_just_pressed(suffix):
+			_created_keyboard[suffix] = true
+			_create_cursor(
+				PlayerInputDevice.make_keyboard(
+					KEYBOARD_LAYOUTS[suffix],
+					suffix
+				)
+			)
+
+	for joy_id in Input.get_connected_joypads():
+		if _created_joypad.get(joy_id, false):
+			continue
+
+		if _joypad_any_input(joy_id):
+			_created_joypad[joy_id] = true
+			_create_cursor(PlayerInputDevice.make_joypad(joy_id))
 
 func _create_cursor(device: PlayerInputDevice) -> Cursor:
 	var cursor := Cursor.new()
@@ -184,6 +211,8 @@ func _create_cursor(device: PlayerInputDevice) -> Cursor:
 	cursor.device = device
 	cursor.selection = NEUTRAL
 	cursor.locked = false
+	if GameManager.online_mode:
+		cursor.online_player_id = GameManager.online_player_id
 	cursor.neutral_position = _neutral_position(cursors.size())
 
 	var node := ColorRect.new()
@@ -197,6 +226,30 @@ func _create_cursor(device: PlayerInputDevice) -> Cursor:
 	
 	cursor.node.hide()
 	
+	return cursor
+
+func _create_remote_cursor(player_id: int) -> Cursor:
+	var cursor := Cursor.new()
+	cursor.online_player_id = player_id
+	cursor.selection = NEUTRAL
+	cursor.locked = false
+	cursor.neutral_position = _neutral_position(cursors.size())
+
+	var node := ColorRect.new()
+	node.size = CURSOR_SIZE
+	node.color = CURSOR_COLORS[(player_id - 1) % CURSOR_COLORS.size()]
+	cursors_container.add_child(node)
+	cursor.node = node
+
+	var icon := AnimatedSprite2D.new()
+	icon.sprite_frames = sprite_frames
+	icon.z_index = 0
+	icon.frame = 0
+	icon.modulate = CURSOR_COLORS[(player_id - 1) % CURSOR_COLORS.size()]
+	cursor.icon = icon
+	cursor_icons.add_child(icon)
+	remote_cursor = cursor
+	_update_cursor_visual(cursor)
 	return cursor
 
 func _create_cursor_icon(device: PlayerInputDevice, cursor: Cursor) -> void:
@@ -251,7 +304,20 @@ func _move_cursor(cursor: Cursor, delta: int) -> void:
 	# Moving onto a slot shows that slot's legend, so the controls are visible
 	# while merely hovering, before anything is locked in.
 	_refresh_legends()
+	if GameManager.online_mode:
+		_sync_cursor_selection.rpc(GameManager.online_player_id, new_selection)
 
+@rpc("any_peer", "call_local", "reliable")
+func _sync_cursor_selection(player_id: int, selection: int) -> void:
+	if not GameManager.online_mode:
+		return
+
+	if player_id == GameManager.online_player_id:
+		return
+
+	if remote_cursor != null and remote_cursor.online_player_id == player_id:
+		remote_cursor.selection = selection
+		_update_cursor_visual(remote_cursor)
 
 func _slot_occupied_by_other(selection: int, cursor: Cursor) -> bool:
 	for other in cursors:
