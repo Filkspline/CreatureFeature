@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 
 @export var debug = true
 var script_id = "SP Upgrade"
@@ -6,28 +6,30 @@ var script_id = "SP Upgrade"
 #@onready var player_current_cards_container = $MarginContainer/PanelContainer/MarginContainer/HBoxContainer/player_current_cards/current_cards_container
 @onready var player_moves_node = $move_node
 @onready var player_stats_node = $upgrade_node
-
+@onready var active_cards_marker : Marker2D = $active_cards
 
 @export var base_card_scale_multiplier : float = 1.0 # cards read bigger here than in the mid round draft
 @export var focused_extra_scale : float = 1.35 # extra growth on top of the base multiplier for the focused card
 @export var scale_falloff_per_step : float = 0.28 # how much smaller each card gets per slot away from focus
 @export var min_card_scale_fraction : float = 0.35
 @export var alpha_falloff_per_step : float = 0.66 # how much more transparent each card gets per slot away from focus
-@export var min_card_alpha : float = 0.15
+@export var min_card_alpha : float = 0.01
 @export var card_step_spacing : float = 92.0 # horizontal distance between adjacent card slots
 @export var max_rendered_offset : int = 3 # cards further than this from focus are hidden outright
 @export var card_move_duration : float = 0.18
-
-var p1_selection_column : int = 0 # 0 for unlocks, 1 for upgrades
+@export var owned_card_reveal_start_delay : float = 0.01
 
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
+
+var p1_selection_column : int = 0 # 0 for unlocks, 1 for upgrades
+var default_z_index : int = 10
+var menu_open : bool = false
 
 var move_map = {}
 var upgrade_map = {}
 var move_cards = []
 var upgrade_cards = []
-
-var default_z_index : int = 10
+var owned_cards = []
 
 class UpgradeColumn:
 	var anchor : Node2D
@@ -44,7 +46,6 @@ class UpgradeColumn:
 var unlock : UpgradeColumn
 var upgrade : UpgradeColumn
 
-
 func _dbg(msg: String) -> void:
 	if debug:
 		print_rich("[%s] %s" % [script_id, msg])
@@ -54,13 +55,41 @@ func _ready() -> void:
 	if not GameManager.request_first_upgrade_arrays.is_connected(_on_recieve_arrays):
 		GameManager.return_first_upgrade_arrays.connect(_on_recieve_arrays) # Connects to the signal that returns all the arrays with the upgrade data
 	GameManager.request_first_upgrade_arrays.emit() # Emits the signal to request the arrays for the upgrade data
-
+	self.hide()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	_test_toggle_menu()
+	
+	if not menu_open:
+		return
+		
+	_handle_player_input(1)
 
+
+func _test_toggle_menu() -> void:
+	if Input.is_action_just_pressed("UpgradeMenuToggle"):
+		if menu_open:
+			resume()
+		else:
+			pause()
+
+
+func resume():
+	GameManager.player_input_locked = false
+	hide()
+	menu_open = false
+
+func pause():
+	show()
+	GameManager.player_input_locked = true
+	menu_open = true
+
+
+
+# --------------------------------------------------------------------------------------------------
+# Handling building the columns and card tweens
 
 func _build_column(anchor : Node2D, upgrades : Array[UpgradeData]) -> UpgradeColumn:
 	var column := UpgradeColumn.new()
@@ -135,6 +164,9 @@ func _on_recieve_arrays(move_array : Array[UpgradeData], upgrade_array : Array[U
 	_layout_column(unlock, false)
 	_layout_column(upgrade, false)
 
+
+# --------------------------------------------------------------------------------------------------
+# Player input handling in the menu
 
 func _handle_player_input(player_id : int) -> void:
 	var suffix = "P%d" % player_id

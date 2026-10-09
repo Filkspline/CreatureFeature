@@ -40,10 +40,6 @@ func _ready() -> void:
 	
 	_dbg("[color=green][HORSE] Registered opponent as: %s" % opponent)
 	
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta: float) -> void:
-	#await horse_sprite.animation_finished
-	#horse_sprite.play("default")
 
 func _dbg(msg: String) -> void:
 	if debug:
@@ -145,9 +141,6 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) ->
 		move_data.damage, attacker_bonus, damage_reduction, final_damage, combo_scale
 	])
 
-	#if current_health <= 0.0 and not is_defeated:
-	#	is_defeated = true
-	#	EventBus.player_defeated.emit(player_id)
 
 	# is_launcher is treated as true if EITHER the checkbox is on OR
 	# launcher_strength is non-zero. This exists because "set
@@ -166,19 +159,6 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, was_crouching: bool) ->
 	if move_is_launcher:
 		velocity.y = -move_data.launcher_strength
 
-	#_dbg("[RESOLVE HIT] '%s' is_launcher=%s launcher_strength=%.1f -> move_is_launcher=%s velocity.y=%.1f" % [
-	#	move_data.move_name, move_data.is_launcher, move_data.launcher_strength, move_is_launcher, velocity.y
-	#])
-
-	#var hitstun_frames = move_data.hitstun
-	#var reaction_anim := "airhit" if is_air_hit else ("crouch_hit" if was_crouching else "mid_hit")
-	#hitstun_frames = max(hitstun_frames, _min_visible_stun_frames(reaction_anim))
-
-	#stun_timer = hitstun_frames / 60.0
-	#stun_just_started = true
-	#state = State.HITSTUN
-
-	#call_deferred("_apply_hit_reaction_visuals", was_crouching, is_air_hit)
 
 
 func _hit_anim_resolve() -> void:

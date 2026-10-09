@@ -15,6 +15,7 @@
 [ext_resource type="Shader" uid="uid://b0j7kn5w7e5a1" path="res://scripts/impact_tear.gdshader" id="13_fly36"]
 [ext_resource type="PackedScene" uid="uid://bni8vnsm0e1yq" path="res://scenes/pause.tscn" id="14_f1g4l"]
 [ext_resource type="PackedScene" uid="uid://behyexhl4or7c" path="res://scenes/single_player_tutorial_background.tscn" id="15_5l615"]
+[ext_resource type="PackedScene" uid="uid://dy0u2mrsd2wpx" path="res://scenes/singleplayer_upgrade_screen.tscn" id="16_4qyyu"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(1320.5, 154)
@@ -134,7 +135,7 @@ player_id = 2
 [node name="Player" parent="." unique_id=786033213 instance=ExtResource("6_6xgrv")]
 scale = Vector2(0.75, 0.75)
 
-[node name="dummy" parent="." unique_id=1938152320 groups=["players"] instance=ExtResource("7_v0ce2")]
+[node name="dummy" parent="." unique_id=1938152320 instance=ExtResource("7_v0ce2")]
 position = Vector2(550, 254)
 scale = Vector2(0.75, 0.75)
 
@@ -222,3 +223,5 @@ offset_bottom = 155.0
 layer = 15
 
 [node name="Control" parent="Pause Container" unique_id=1706374484 instance=ExtResource("14_f1g4l")]
+
+[node name="singleplayer_upgrade_screen" parent="." unique_id=1640650721 instance=ExtResource("16_4qyyu")]
