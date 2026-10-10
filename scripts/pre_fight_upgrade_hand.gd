@@ -70,6 +70,7 @@ var p2_upgrade : UpgradeColumn
 
 var p1_selection_column : int = 0 # 0 for unlocks, 1 for upgrades
 var p2_selection_column : int = 0
+var _transition_started: bool = false
 
 
 func _ready() -> void:
@@ -82,8 +83,15 @@ func _process(_delta: float) -> void:
 	if _escape_just_pressed():
 		_back_out()
 		return
-	_handle_player_input(1)
-	_handle_player_input(2)
+
+	if GameManager.online_mode:
+		# Only read this computer's assigned player's controls.
+		if GameManager.online_player_id == 1 or GameManager.online_player_id == 2:
+			_handle_player_input(GameManager.online_player_id)
+	else:
+		# Preserve the existing local multiplayer behaviour.
+		_handle_player_input(1)
+		_handle_player_input(2)
 
 
 # Escape specifically, rather than the MenuBack action: MenuBack also carries
@@ -219,6 +227,7 @@ func _cycle_column(column : UpgradeColumn, direction : int) -> void:
 	column.cards[old_focus_index].selection_icon.hide()
 	column.cards[column.focus_index].selection_icon.show()
 	_layout_column(column, true)
+	_sync_local_player_state()
 
 
 func _switch_active_column(player_id : int) -> void:
@@ -231,6 +240,7 @@ func _switch_active_column(player_id : int) -> void:
 	from_column.cards[from_column.focus_index].selection_icon.hide()
 	to_column.cards[to_column.focus_index].selection_icon.show()
 	_set_selection_column(player_id, to_index)
+	_sync_local_player_state()
 
 
 func _handle_player_input(player_id : int) -> void:
@@ -282,6 +292,7 @@ func _unlock_column(player_id : int, column_index : int) -> void:
 	var ready_label = p1_ready_label if player_id == 1 else p2_ready_label
 	ready_label.hide()
 	_update_loading_bar(player_id)
+	_sync_local_player_state()
 
 
 func _select_card(player_id : int, column_index : int) -> void:
@@ -294,6 +305,7 @@ func _select_card(player_id : int, column_index : int) -> void:
 	column.locked_card = column.cards[column.focus_index]
 	_show_lock_feedback(player_id, column_index)
 	_advance_loading_bar(player_id)
+	_sync_local_player_state()
 	_check_selection_status()
 
 
@@ -349,10 +361,103 @@ func _show_ready_label(player_id : int) -> void:
 	tween.tween_property(label, "modulate:a", 1.0, 0.3)
 
 
+# Online selection synchronisation.
+# Only the local player's choices are sent; the receiving peer updates the
+# matching player panel without reading or rebinding the remote device.
+func _sync_local_player_state() -> void:
+	if not GameManager.online_mode:
+		return
+	if GameManager.online_player_id != 1 and GameManager.online_player_id != 2:
+		return
+
+	var player_id: int = GameManager.online_player_id
+	var unlock_column := _get_column(player_id, 0)
+	var upgrade_column := _get_column(player_id, 1)
+
+	_sync_player_state.rpc(
+		player_id,
+		_get_selection_column(player_id),
+		unlock_column.focus_index,
+		unlock_column.locked,
+		upgrade_column.focus_index,
+		upgrade_column.locked
+	)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _sync_player_state(
+	player_id: int,
+	active_column: int,
+	unlock_focus: int,
+	unlock_locked: bool,
+	upgrade_focus: int,
+	upgrade_locked: bool
+) -> void:
+	if not GameManager.online_mode:
+		return
+
+	# call_local executes on the sender too; its local state is already correct.
+	if player_id == GameManager.online_player_id:
+		return
+
+	_set_selection_column(player_id, active_column)
+	_apply_remote_column_state(player_id, 0, unlock_focus, unlock_locked)
+	_apply_remote_column_state(player_id, 1, upgrade_focus, upgrade_locked)
+	_check_selection_status()
+
+
+func _apply_remote_column_state(
+	player_id: int,
+	column_index: int,
+	focus_index: int,
+	is_locked: bool
+) -> void:
+	var column := _get_column(player_id, column_index)
+	if column.cards.is_empty():
+		return
+
+	focus_index = clampi(focus_index, 0, column.cards.size() - 1)
+
+	if column.focus_index != focus_index:
+		column.cards[column.focus_index].selection_icon.hide()
+		column.focus_index = focus_index
+		column.cards[column.focus_index].selection_icon.show()
+		_layout_column(column, true)
+
+	if column.locked == is_locked:
+		return
+
+	column.locked = is_locked
+	var frame := _get_lock_frame(player_id, column_index)
+	var ready_label := p1_ready_label if player_id == 1 else p2_ready_label
+
+	if is_locked:
+		column.locked_card = column.cards[column.focus_index]
+		_show_lock_feedback(player_id, column_index)
+	else:
+		column.locked_card = null
+		if column.lock_tween:
+			column.lock_tween.kill()
+			column.lock_tween = null
+		frame.hide()
+		ready_label.hide()
+
+	_update_loading_bar(player_id)
+
+	if _locked_column_count(player_id) == TOTAL_COLUMNS_PER_PLAYER:
+		_show_ready_label(player_id)
+	else:
+		ready_label.hide()
+
+
 func _check_selection_status() -> void:
+	if _transition_started:
+		return
+
 	print_rich("[color=yellow][PRE FIGHT] P1 Unl: %s, P1 Upg: %s, P2 Unl: %s, P2 Upg: %s" % [p1_unlock.locked, p1_upgrade.locked, p2_unlock.locked, p2_upgrade.locked])
 
 	if p1_unlock.locked and p1_upgrade.locked and p2_unlock.locked and p2_upgrade.locked:
+		_transition_started = true
 		_send_off_upgrades()
 		# Both players are done picking, so hand off to the intro cutscene
 		# instead of the level directly. The cutscene plays its cuts and
