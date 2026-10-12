@@ -1,12 +1,13 @@
 extends CanvasLayer
 
-@export var debug = true
+#@export var debug = true
 var script_id = "SP Upgrade"
 
 #@onready var player_current_cards_container = $MarginContainer/PanelContainer/MarginContainer/HBoxContainer/player_current_cards/current_cards_container
 @onready var player_moves_node = $move_node
 @onready var player_stats_node = $upgrade_node
 @onready var active_cards_marker : Marker2D = $active_cards
+@onready var owned_cards_spawn = $owned_cards_spawn
 
 @export var base_card_scale_multiplier : float = 1.0 # cards read bigger here than in the mid round draft
 @export var focused_extra_scale : float = 1.35 # extra growth on top of the base multiplier for the focused card
@@ -18,18 +19,22 @@ var script_id = "SP Upgrade"
 @export var max_rendered_offset : int = 3 # cards further than this from focus are hidden outright
 @export var card_move_duration : float = 0.18
 @export var owned_card_reveal_start_delay : float = 0.01
+@export var owned_card_z_base : int = 10
+@export var card_z_step : int = 10
+@export var owned_card_scale_fraction : float = 0.85
+@export var owned_card_vertical_offset : float = 50.0
+@export var spawn_scale_fraction : float = 0.05
+@export var owned_card_appear_duration : float = 0.18
+@export var owned_card_flip_stagger_delay : float = 0.0
 
 const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
 
 var p1_selection_column : int = 0 # 0 for unlocks, 1 for upgrades
 var default_z_index : int = 10
 var menu_open : bool = false
-
-var move_map = {}
-var upgrade_map = {}
-var move_cards = []
-var upgrade_cards = []
-var owned_cards = []
+var card_default_scale : Vector2
+var selected_cards = []
+var displayed_cards = []
 
 class UpgradeColumn:
 	var anchor : Node2D
@@ -47,14 +52,14 @@ var unlock : UpgradeColumn
 var upgrade : UpgradeColumn
 
 func _dbg(msg: String) -> void:
-	if debug:
+	if GameManager.debug:
 		print_rich("[%s] %s" % [script_id, msg])
 
 
 func _ready() -> void:
-	if not GameManager.request_first_upgrade_arrays.is_connected(_on_recieve_arrays):
-		GameManager.return_first_upgrade_arrays.connect(_on_recieve_arrays) # Connects to the signal that returns all the arrays with the upgrade data
-	GameManager.request_first_upgrade_arrays.emit() # Emits the signal to request the arrays for the upgrade data
+	if not GameManager.return_singleplayer_upgrade_arrays.is_connected(_on_recieve_arrays):
+		GameManager.return_singleplayer_upgrade_arrays.connect(_on_recieve_arrays) # Connects to the signal that returns all the arrays with the upgrade data
+	GameManager.request_singleplayer_upgrade_arrays.emit() # Emits the signal to request the arrays for the upgrade data
 	self.hide()
 
 
@@ -80,12 +85,28 @@ func resume():
 	GameManager.player_input_locked = false
 	hide()
 	menu_open = false
+	_apply_selected_upgrades()
 
 func pause():
 	show()
 	GameManager.player_input_locked = true
 	menu_open = true
+	# TODO: Reset the player stats here
 
+
+func _select_card(column_index : int) -> void:
+	var column = _get_column(column_index)
+	var selected_card = column.cards[column.focus_index]
+	
+	selected_cards.append(column.upgrade_map.get(selected_card))
+	
+	_dbg("[SELECT CARD] Current card array: %s" % [selected_cards])
+
+
+func _apply_selected_upgrades() -> void:
+	for upgrade in selected_cards:
+		_dbg("[UPGRADE APPLICATION] Applied upgrade: %s" % upgrade)
+		upgrade.apply_to(GameManager.p1_node)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -189,7 +210,8 @@ func _handle_player_input(player_id : int) -> void:
 			return
 		_cycle_column(column, 1)
 	elif Input.is_action_just_pressed("Normal" + suffix):
-		#_select_card(player_id, column_index)
+		_select_card(column_index)
+		_draw_owned_cards(1)
 		pass
 
 
@@ -228,3 +250,75 @@ func _cycle_column(column : UpgradeColumn, direction : int) -> void:
 	column.cards[old_focus_index].selection_icon.hide()
 	column.cards[column.focus_index].selection_icon.show()
 	_layout_column(column, true)
+
+
+# --------------------------------------------------------------------------------------------------
+# Displaying the upgrade in the menu
+
+func _spawn_owned_card(upgrade: UpgradeData, index: int) -> Node2D:
+	var owned_card := UPGRADE_CARD.instantiate() as Node2D
+	if not owned_card:
+		return null
+	# Keeps this copy out of the hand's highlight/selection sweep.
+	owned_card.is_display_only = true
+	owned_cards_spawn.add_child(owned_card)
+	owned_card.set_upgrade(upgrade)
+	owned_card.z_index = owned_card_z_base + index * card_z_step
+
+	var base_scale = card_default_scale #if defaults_set else owned_card.scale
+	var target_scale = base_scale * owned_card_scale_fraction
+	owned_card.rotation = 0.0
+	owned_card.position = active_cards_marker.position + Vector2(0, index * owned_card_vertical_offset)
+	owned_card.scale = target_scale * spawn_scale_fraction
+
+	var appear_tween = create_tween()
+	appear_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	appear_tween.tween_property(owned_card, "scale", target_scale, owned_card_appear_duration)
+
+	displayed_cards.append(owned_card)
+	return owned_card
+
+
+func _draw_owned_cards(player_id: int) -> void:
+	_clear_owned_cards()
+
+	var picked: Array = selected_cards
+	if picked.is_empty():
+		return
+
+	# Let the scene transition's wipe clear first, otherwise the whole
+	# reveal plays out behind a closed mouth and is never actually seen.
+	if owned_card_reveal_start_delay > 0.0:
+		await get_tree().create_timer(owned_card_reveal_start_delay).timeout
+
+	var index := 0
+	for upgrade in picked:
+		if upgrade == null:
+			continue
+
+		var owned_card := _spawn_owned_card(upgrade, index)
+		index += 1
+		if owned_card == null:
+			continue
+		await _reveal_owned_card(owned_card)
+
+		if owned_card_flip_stagger_delay > 0.0:
+			await get_tree().create_timer(owned_card_flip_stagger_delay).timeout
+
+
+func _clear_owned_cards() -> void:
+	for card in displayed_cards:
+		if is_instance_valid(card):
+			card.queue_free()
+	displayed_cards.clear()
+
+
+func _reveal_owned_card(owned_card: Node2D) -> void:
+	if not is_instance_valid(owned_card):
+		return
+	if owned_card_appear_duration > 0.0:
+		await get_tree().create_timer(owned_card_appear_duration).timeout
+	if not is_instance_valid(owned_card):
+		return
+	owned_card.flip_card()
+	await owned_card.card_flip_finished

@@ -29,3 +29,6 @@ position = Vector2(450, 260)
 
 [node name="active_cards" type="Marker2D" parent="." unique_id=1437177854]
 position = Vector2(110, 110)
+
+[node name="owned_cards_spawn" type="Node2D" parent="." unique_id=1319473015]
+position = Vector2(-110, 161)

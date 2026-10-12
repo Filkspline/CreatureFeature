@@ -8,6 +8,9 @@ extends Node
 #  and holds live references to both Player nodes so the upgrade system
 #  has someone to apply upgrades to.
 
+@export_group("Debug")
+@export var debug: bool = true
+
 @export_group("Hitstop")
 @export var enabled: bool = true
 ## Freeze duration (seconds, real-time) when a hit actually lands.
@@ -97,6 +100,9 @@ signal match_over(winner_id: int)
 
 signal request_first_upgrade_arrays()
 signal return_first_upgrade_arrays(move_array : Array[UpgradeData], upgrade_array : Array[UpgradeData])
+
+signal request_singleplayer_upgrade_arrays()
+signal return_singleplayer_upgrade_arrays(move_array : Array[UpgradeData], upgrade_array : Array[UpgradeData])
 
 signal event_card_unlock(event_card_name: StringName)
 

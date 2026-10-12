@@ -63,8 +63,8 @@ class_name Player
 
 @export var attack_z_index: int = 1
 
-@export_group("Debug")
-@export var debug: bool = true
+#@export_group("Debug")
+#@export var debug: bool = true
 
 @export_group("Upgrades")
 ## Move names (MoveData.move_name, NOT the slot var name like "S6") that
@@ -245,7 +245,7 @@ var wants_to_crouch: bool = false
 
 
 func _dbg(msg: String) -> void:
-	if debug:
+	if GameManager.debug:
 		print_rich("[P%d] %s" % [player_id, msg])
 
 
