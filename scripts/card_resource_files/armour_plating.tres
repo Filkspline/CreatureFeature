@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_i7oxv")
 name = "Armour Plating"
-description = "Flat damage reducion on the first few hits of a round"
+description = "Shrugs off the first hits"
 icon = ExtResource("1_rgqnn")
 effect_type = 4
 show_in_pre_fight = false

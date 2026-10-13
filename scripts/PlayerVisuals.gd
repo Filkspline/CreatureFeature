@@ -44,6 +44,14 @@ signal animation_finished(anim_name: String)
 @export var bounce_duration: float = 0.15
 @export var bounce_excluded_anims: Array[String] = ["crouch_down", "crouch_idle","jump_land","SA","jump_peak"]
 
+# -- Block warning impact punch -------------------------------------
+## Squash the block warning icon takes the instant a hit is absorbed, so a
+## blocked hit reads as landing on the shield instead of the icon just sitting
+## there. Same approach as the animation-start bounce above, deliberately
+## smaller, and it settles with the same elastic ease.
+@export var block_warning_punch_scale: Vector2 = Vector2(1.3, 0.72)
+@export var block_warning_punch_duration: float = 0.18
+
 # ── Block warning (manual frame-stepping, no Animation resource) ──
 @export var block_warning_frame_duration: float = 0.04
 @export var block_warning_start_frames: PackedInt32Array = [0, 1]
@@ -95,6 +103,13 @@ var attack_sprites: Dictionary = {}
 var animation_player: AnimationPlayer
 var active_sprite: Sprite2D = null
 var bounce_tween: Tween = null
+var _block_warning_punch_tween: Tween = null
+# Scale each warning icon is authored with, kept per icon. They are not the
+# same (the low/crouch one is wider than the mid one in player.tscn), so the
+# punch has to squash around and settle back to its own icon's base: sharing
+# one value left the crouch icon shrunk and barely moved.
+var _mid_warning_base_scale: Vector2 = Vector2.ONE
+var _low_warning_base_scale: Vector2 = Vector2.ONE
 var current_anim: String = ""
 
 var block_warning_phase: int = BlockWarningPhase.NONE
@@ -131,6 +146,9 @@ func setup(anim_player: AnimationPlayer, move_names: Array = []) -> void:
 			attack_sprites[move_name] = node
 		else:
 			_dbg("[SPRITES] no Sprite2D child named '%s' — that move won't show a sprite until one's added" % move_name)
+
+	_mid_warning_base_scale = mid_block_warning.scale
+	_low_warning_base_scale = low_block_warning.scale
 
 	# Blocking sprites off
 	mid_block_warning.visible = false
@@ -413,6 +431,39 @@ func update_block_warning(delta: float, should_show: bool, is_crouching: bool) -
 		if block_warning_timer >= block_warning_frame_duration:
 			_dbg("[BLOCK WARN] END finished -> reset")
 			reset_block_warning()
+
+
+## A small squash-and-stretch punch on the block warning icon, called by Player
+## the moment a hit is actually absorbed. Does nothing unless a warning is
+## currently showing, so it only ever fires while the shield is up.
+func punch_block_warning() -> void:
+	var warning := _visible_block_warning()
+	if warning == null:
+		# Nothing to punch: the icon is only up while a block is being readied.
+		_dbg("[BLOCK PUNCH] no warning icon showing, skipped")
+		return
+	var base := _warning_base_scale(warning)
+	if _block_warning_punch_tween:
+		_block_warning_punch_tween.kill()
+	warning.scale = base * block_warning_punch_scale
+	_dbg("[BLOCK PUNCH] %s %s -> %s (settling back to %s)" % [warning.name, base, warning.scale, base])
+	_block_warning_punch_tween = create_tween()
+	_block_warning_punch_tween.tween_property(warning, "scale", base, block_warning_punch_duration) \
+		.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+
+# Whichever base scale belongs to the icon that is up.
+func _warning_base_scale(warning: Sprite2D) -> Vector2:
+	return _low_warning_base_scale if warning == low_block_warning else _mid_warning_base_scale
+
+
+# Whichever warning icon is currently on screen, or null when none is up.
+func _visible_block_warning() -> Sprite2D:
+	if mid_block_warning.visible:
+		return mid_block_warning
+	if low_block_warning.visible:
+		return low_block_warning
+	return null
 
 
 func reset_block_warning() -> void:

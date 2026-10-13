@@ -35,17 +35,17 @@ const MOVEMENT_FRAME := {
 	Scheme.CONTROLLER: 15,
 }
 
-## Normal attack icon per scheme. The keyboard frames are the ones the
-## project's original mapping listed for those rows; the controller ones are
-## its A and B buttons.
+## Attack icon per scheme. The arrow-key row had normal and special the wrong
+## way round (each pointing at the other's key); the WASD row was correct. The
+## controller's are its A and B buttons.
 const NORMAL_FRAME := {
 	Scheme.WASD: 5,
-	Scheme.ARROWS: 12,
+	Scheme.ARROWS: 13,
 	Scheme.CONTROLLER: 16,
 }
 const SPECIAL_FRAME := {
 	Scheme.WASD: 6,
-	Scheme.ARROWS: 13,
+	Scheme.ARROWS: 12,
 	Scheme.CONTROLLER: 17,
 }
 

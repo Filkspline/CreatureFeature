@@ -13,6 +13,7 @@ block_advantage = 0
 hitstun = 4
 damage = 4.0
 animation_name = &"N5"
+pushback_on_block = 250.0
 knock_back = 90.0
 block_knock_back = 40.0
 gatlings_into = Array[StringName]([&"N52"])

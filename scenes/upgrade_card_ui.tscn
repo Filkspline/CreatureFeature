@@ -8,9 +8,10 @@
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="4_ovphs"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="5_h7cfo"]
 [ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="6_prompts"]
+[ext_resource type="PackedScene" uid="uid://csk1pb7tn5x2w" path="res://scenes/skip_button.tscn" id="7_skip"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(479, 256)
+size = Vector2(469, 122)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1ifr4"]
 shader = ExtResource("4_ovphs")
@@ -69,7 +70,7 @@ script = ExtResource("1_l8650")
 position = Vector2(-92, -35)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Camera2D/hand/cardspawnarea" unique_id=468811304]
-position = Vector2(110.5, 24)
+position = Vector2(105.5, -5)
 shape = SubResource("RectangleShape2D_g4v7s")
 
 [node name="cardspawner" type="Marker2D" parent="Camera2D/hand" unique_id=558817203]
@@ -77,6 +78,14 @@ position = Vector2(-276, 168)
 
 [node name="ownedcards" type="Marker2D" parent="Camera2D/hand" unique_id=1708363756]
 position = Vector2(-291, -125)
+
+[node name="skipmarker" type="Marker2D" parent="Camera2D/hand" unique_id=558817204]
+position = Vector2(-12.49, 87.78)
+
+[node name="skipbutton" parent="Camera2D/hand" unique_id=1366161825 instance=ExtResource("7_skip")]
+z_index = 60
+position = Vector2(-48, 92)
+scale = Vector2(0.635, 0.635)
 
 [node name="title_label" type="Label" parent="." unique_id=612672962]
 layout_mode = 1
@@ -115,7 +124,7 @@ text = "PICK A SPECIAL MOVE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="control_prompts" parent="." unique_id=1142505521 instance=ExtResource("6_prompts")]
+[node name="control_prompts" parent="." unique_id=28077954 instance=ExtResource("6_prompts")]
 visible = false
 layout_mode = 0
 offset_left = 60.0

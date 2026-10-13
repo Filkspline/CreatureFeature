@@ -99,6 +99,7 @@ enum DraftStep { SPECIAL, NORMAL }
 @export var normal_step_sound : AudioStream = preload("res://assets/soundeffects/PICKAFEATUREsoundeffect.mp3")
 @export var normal_step_volume_db : float = 0.0
 
+
 @onready var hand : Node2D = self
 @onready var cardspawner : Marker2D = $cardspawner
 @onready var card_spawn_shape : CollisionShape2D = $cardspawnarea/CollisionShape2D
@@ -115,6 +116,13 @@ enum DraftStep { SPECIAL, NORMAL }
 # button selects and which backs out. Placed in the scene, so its size,
 # spacing and position are tuned there.
 @onready var control_prompts : ControlPrompts = get_node_or_null("../../control_prompts")
+# The special step's standalone Skip button, and the marker that places it.
+# Both are real nodes in the draft scene (upgrade_card_ui.tscn), so the button
+# can be dragged around and tuned in the Inspector like the card spawner and
+# the owned-cards marker. It never enters the hand's offer, so it never takes
+# a card slot: it is only ever an extra focus target the selector can land on.
+@onready var skip_button : Node2D = $skipbutton
+@onready var skip_marker : Marker2D = $skipmarker
 
 @export_group("Draft tint")
 ## Established per-player colours: player one plain white, player two the
@@ -210,6 +218,9 @@ func _draw_step(step: DraftStep) -> void:
 	_show_step_banner(step)
 	_play_step_sound(step)
 	_draw_hand(offered)
+	# Step one's Skip button sits at its own marker, outside the card slots, so it
+	# is shown or hidden here rather than being part of the hand's offer.
+	_set_skip_button_offered(step == DraftStep.SPECIAL)
 
 
 # The "this phase is starting" stinger. Only played for a step that actually
@@ -223,6 +234,42 @@ func _play_step_sound(step: DraftStep) -> void:
 
 func _offer_for(step: DraftStep) -> Array[UpgradeData]:
 	return _special_offer if step == DraftStep.SPECIAL else _normal_offer
+
+
+# Everything the selector can land on this step: the hand's cards, plus step
+# one's Skip button. One list rather than special cases scattered through the
+# navigation code, so Left/Right, the highlight tweens and the confirm input all
+# treat the button the same way they treat a card, without it ever being one.
+func _focus_targets() -> Array[Node2D]:
+	var targets: Array[Node2D] = []
+	targets.assign(cards)
+	if _skip_button_offered():
+		targets.append(skip_button)
+	return targets
+
+
+func _skip_button_offered() -> bool:
+	return skip_button != null and skip_button.visible and _step == DraftStep.SPECIAL
+
+
+
+# Shows the Skip button at its own marker for step one and hides it for every
+# other step, resetting it to an unhighlighted state each time so a previous
+# step's focus cannot leak into this one. Deliberately kept out of `cards`: it
+# never occupies a card slot, so the special hand stays a full hand.
+func _set_skip_button_offered(offered: bool) -> void:
+	# Parked on its marker every time, so moving the marker in the editor moves
+	# the button without touching this script.
+	skip_button.position = skip_marker.position
+	# One band above the fan's top card, so whichever flourish follows (a card
+	# pick or the button's own) clears the rest of the hand.
+	skip_button.z_index = card_default_z_index + card_z_step * 2
+	skip_button.scale = card_default_scale if defaults_set else Vector2.ONE
+	skip_button.modulate = Color.WHITE
+	skip_button.currently_highlighted = false
+	if skip_button.selection_icon:
+		skip_button.selection_icon.hide()
+	skip_button.visible = offered
 
 
 # Frees whatever is left of the previous step's hand and resets the hand
@@ -309,6 +356,11 @@ func _show_step_banner(step: DraftStep) -> void:
 
 
 func _draw_hand(offered: Array[UpgradeData]) -> void:
+	# Controls are held off until the hand has finished laying out, so a press
+	# made while cards are still flying out of the folder cannot race the
+	# spread. Released at the end of _spread_cards(), and again if this scene
+	# is torn down mid-layout.
+	GameManager.set_player_input_locked(true)
 	# Recomputed per step rather than once per draft: the two steps can
 	# offer different numbers of cards, and the bands have to clear the
 	# owned stack either way.
@@ -456,11 +508,15 @@ func _spread_cards() -> void:
 		await get_tree().create_timer(card_stagger_delay).timeout
 
 	if cards.is_empty() or not is_instance_valid(cards[0]):
+		GameManager.set_player_input_locked(false)
 		return
 	cards[0].currently_highlighted = true
 	cards[0]._handle_highlight()
 	_tween_card_scale(cards[0], card_default_scale * highlighted_scale)
 	selected_card_idx = 0
+	# Hand is laid out and the first card is highlighted: the player can act.
+	GameManager.set_player_input_locked(false)
+
 
 
 func _get_spawn_area_bounds() -> Rect2:
@@ -519,19 +575,22 @@ func _tween_card_scale(card: Node2D, target_scale: Vector2) -> void:
 
 
 func _move_highlight(new_idx: int) -> void:
-	# Shared by keyboard and joypad handling below - un-highlights and
-	# shrinks the old card, then highlights and grows the new one.
+	# Shared by keyboard and joypad handling below - un-highlights and shrinks
+	# whatever had the focus, then highlights and grows whatever takes it.
+	# Operates on _focus_targets() rather than `cards` so the Skip button is
+	# reachable, and drops its highlight, exactly like a card does.
 	SfxManager.play_ui_hover()
-	var old_card = cards[selected_card_idx]
-	old_card.currently_highlighted = false
-	old_card._handle_highlight()
-	_tween_card_scale(old_card, card_default_scale)
+	var targets := _focus_targets()
+	var old_focus = targets[selected_card_idx]
+	old_focus.currently_highlighted = false
+	old_focus._handle_highlight()
+	_tween_card_scale(old_focus, card_default_scale)
 
 	selected_card_idx = new_idx
-	var new_card = cards[selected_card_idx]
-	new_card.currently_highlighted = true
-	new_card._handle_highlight()
-	_tween_card_scale(new_card, card_default_scale * highlighted_scale)
+	var new_focus = targets[selected_card_idx]
+	new_focus.currently_highlighted = true
+	new_focus._handle_highlight()
+	_tween_card_scale(new_focus, card_default_scale * highlighted_scale)
 
 
 # ── Per-device input resolution ──
@@ -624,17 +683,22 @@ func _joy_axis_just_pressed(device_id: int, action_name: String) -> bool:
 
 func _process(_delta: float) -> void:
 	# Once a card's been picked and the rest are queue_free()-ing, don't
-	# let navigation touch them (the old out-of-bounds crash).
-	if currently_handling_card or cards.is_empty():
+	# let navigation touch them (the old out-of-bounds crash). The input lock
+	# covers the same window from the other side: nothing navigates while the
+	# hand is still laying itself out.
+	var targets := _focus_targets()
+	if currently_handling_card or targets.is_empty() or GameManager.player_input_locked:
 		return
 
 	var device := _current_device()
 	if device == null:
 		return
 
-	# Bound against the hand's actual current card count rather than a
-	# fixed hand_limit, so this can't overshoot on a short hand.
-	var last_idx = cards.size() - 1
+	# Bound against what the selector can actually reach this step rather than a
+	# fixed hand_limit, so this can't overshoot on a short hand or a hand with
+	# the Skip button attached to it.
+	var last_idx = targets.size() - 1
+	selected_card_idx = clampi(selected_card_idx, 0, last_idx)
 
 	if _device_just_pressed(device, "Left"):
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
@@ -647,35 +711,59 @@ func _process(_delta: float) -> void:
 
 	if _device_just_pressed(device, "Normal"):
 		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
-		_handle_clicked_card()
+		if targets[selected_card_idx] == skip_button:
+			_handle_skip_pressed()
+		else:
+			_handle_clicked_card()
 
 
 func _handle_clicked_card():
-	var highlighted_card : Node2D
 	currently_handling_card = true
 	SfxManager.play_ui_select()
-	for card in cards:
-		if card.currently_highlighted == false:
-			var tween = create_tween()
-			tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-			tween.tween_property(card, "scale", Vector2(0.01, 0.01), 0.5)
-			tween.parallel().tween_property(card, "modulate", Color.TRANSPARENT, 0.5)
-			tween.tween_callback(card.queue_free)
+	var targeted := _focus_targets()
+	var picked = targeted[selected_card_idx]
+	for target in targeted:
+		if target != picked:
+			_dismiss_target(target)
+	_play_pick_flourish(picked)
+	_resolve_pick(card_map.get(picked))
 
-		else:
-			highlighted_card = card
-	# Handles moving the selected card to the center of the screen,
-	# can be changed to move to a specific node down the line
-	# One band above the top of the fan, so the picked card's whole stack
-	# (art included) clears every other card while it flies out.
-	highlighted_card.z_index = card_default_z_index + card_z_step
+
+# The Skip button was confirmed. Same presentation as a card pick, but the pick
+# itself is nothing: the special is left exactly as it is and step two follows.
+func _handle_skip_pressed() -> void:
+	currently_handling_card = true
+	SfxManager.play_ui_select()
+	for target in _focus_targets():
+		if target != skip_button:
+			_dismiss_target(target)
+	_play_pick_flourish(skip_button)
+	_resolve_skip()
+
+
+# Shrinks and fades something the player did not choose. Cards are freed here;
+# the Skip button belongs to the scene, so it is only faded out and is reset the
+# next time _set_skip_button_offered() runs.
+func _dismiss_target(target: Node2D) -> void:
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(target, "scale", Vector2(0.01, 0.01), 0.5)
+	tween.parallel().tween_property(target, "modulate", Color.TRANSPARENT, 0.5)
+	if target != skip_button:
+		tween.tween_callback(target.queue_free)
+
+
+# Flies whatever was picked to the centre of the screen and grows it, card and
+# Skip button alike (for the button, that is the death pop-up face shown large).
+# One band above the top of the fan, so its whole layer stack clears the rest of
+# the hand while it flies out.
+func _play_pick_flourish(picked: Node2D) -> void:
+	picked.z_index = card_default_z_index + card_z_step
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(highlighted_card, "position", card_default_transform.origin, 0.4)
-	tween.parallel().tween_property(highlighted_card, "rotation", card_default_rotation, 0.4)
-	tween.parallel().tween_property(highlighted_card, "scale", Vector2.ONE * picked_card_scale, 0.4)
-
-	_resolve_pick(card_map.get(highlighted_card))
+	tween.tween_property(picked, "position", card_default_transform.origin, 0.4)
+	tween.parallel().tween_property(picked, "rotation", card_default_rotation, 0.4)
+	tween.parallel().tween_property(picked, "scale", Vector2.ONE * picked_card_scale, 0.4)
 
 
 # A pick was confirmed. This is where the draft's two steps are sequenced:
@@ -708,11 +796,21 @@ func _resolve_pick(upgrade : UpgradeData) -> void:
 		_leave_draft()
 
 
+# The Skip button was confirmed. Step one always leads into step two, so this is
+# the same sequencing a card pick does, minus the pick itself: nothing is
+# emitted, the special stays exactly as it was, and the pool is left alone, so
+# the special cards on offer this round can still come up in a later draft.
+func _resolve_skip() -> void:
+	print("[TRACE] draft skip | player=%d kept their current special (free, pool untouched)" % current_player_id)
+	if pick_settle_delay > 0.0:
+		await get_tree().create_timer(pick_settle_delay).timeout
+	_draw_step(DraftStep.NORMAL)
+
+
 # True when this pick is the special the player already has equipped. Only
-# meaningful in step one; the same card picked out of the pool counts too,
-# since it means the same thing (keep what I have), which is why the pool
-# manager doesn't need to add a second copy of it to the hand. Compared by
-# move_name, the identity the rest of the project uses for moves.
+# meaningful in step one, and only reachable if their own special's card is
+# still in the pool: the Skip button is the explicit way to keep what you have.
+# Compared by move_name, the identity the rest of the project uses for moves.
 func _is_keep_special_pick(upgrade : UpgradeData) -> bool:
 	if _step != DraftStep.SPECIAL or upgrade.unlocked_move == null:
 		return false
@@ -720,7 +818,18 @@ func _is_keep_special_pick(upgrade : UpgradeData) -> bool:
 	return current != null and upgrade.unlocked_move.move_name == current.move_name
 
 
+# Safety net for the layout lock, mirroring the round countdown's: if this
+# scene is torn down while cards are still laying out (quitting to the menu
+# mid-draft, for instance), players must not be left locked out.
+func _exit_tree() -> void:
+	if GameManager:
+		GameManager.set_player_input_locked(false)
+
+
 func _leave_draft() -> void:
+	# Belt and braces with the release in _spread_cards(): whichever way this
+	# screen ends, the controls are handed back.
+	GameManager.set_player_input_locked(false)
 	# Routed through SceneTransition (mouth wipe) instead of a raw
 	# change_scene_to_file, same as every other scene change in the project.
 	SceneTransition.change_scene(FIGHT_SCENE)

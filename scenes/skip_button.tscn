@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://csk1pb7tn5x2w"]
+
+[ext_resource type="Script" uid="uid://k4o0t457pfbj" path="res://scripts/skip_button.gd" id="1_skipbtn"]
+[ext_resource type="Texture2D" uid="uid://ci4b6t2rmir0b" path="res://assets/Playerexe.png" id="2_popup"]
+[ext_resource type="SpriteFrames" uid="uid://0mk8q5j8lmya" path="res://scripts/selector_anim.tres" id="3_sel"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="4_font"]
+
+[node name="SkipButton" type="Node2D" unique_id=805806164]
+script = ExtResource("1_skipbtn")
+
+[node name="Control" type="Control" parent="." unique_id=587502992]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(0.08, 0.08)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="PopUp" type="Sprite2D" parent="Control" unique_id=1919655585]
+scale = Vector2(24.60964, 24.60963)
+texture = ExtResource("2_popup")
+
+[node name="Title" type="Label" parent="Control" unique_id=397537208]
+layout_mode = 0
+offset_left = -825.0
+offset_top = -500.0
+offset_right = -361.05264
+offset_bottom = -257.23682
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 24
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 262
+text = "Skip"
+
+[node name="text" type="Label" parent="Control" unique_id=268474778]
+layout_mode = 0
+offset_left = -512.5
+offset_top = -237.5
+offset_right = 787.5
+offset_bottom = 250.0
+theme_override_constants/outline_size = 30
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 283
+text = "Keep current special move"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="selection_icon" type="AnimatedSprite2D" parent="Control" unique_id=1599029545]
+visible = false
+position = Vector2(0, -700)
+scale = Vector2(4, 4)
+sprite_frames = ExtResource("3_sel")
+animation = &"selector_blink"

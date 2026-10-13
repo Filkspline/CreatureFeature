@@ -4,6 +4,8 @@ extends Control
 @onready var quit_button = $HBoxContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/Quit
 @onready var p1_controls : Control = $HBoxContainer/p1_controls
 @onready var p2_controls : Control = $HBoxContainer/p2_controls
+# Grows the focused entry's text, same node and tuning as the main menu.
+@onready var focus_emphasis : MenuFocusEmphasis = get_node_or_null("MenuFocusEmphasis")
 
 var buttons: Array[Button]
 var selected_index := 0
@@ -11,6 +13,9 @@ var selected_index := 0
 
 func _ready():
 	buttons = [resume_button, quit_button]
+
+	if focus_emphasis:
+		focus_emphasis.register_buttons(buttons)
 
 	# Guarded: this node is instantiated with the level, and a device is only
 	# claimed once someone has picked one, so dereferencing either device here

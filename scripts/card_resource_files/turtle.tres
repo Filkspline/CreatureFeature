@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_vf16i")
 name = "Turtle"
-description = "Heals a small amount of health when blocking"
+description = "Heal while you block"
 icon = ExtResource("1_3ft2o")
 effect_type = 4
 show_in_pre_fight = false

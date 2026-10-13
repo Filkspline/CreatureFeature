@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_3dyhk")
 name = "Vampire"
-description = "Regain HP when dealing damage"
+description = "Hits feed you"
 icon = ExtResource("1_e3p1y")
 effect_type = 4
 show_in_pre_fight = false

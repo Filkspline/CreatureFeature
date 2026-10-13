@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="UpgradeData" format=3 uid="uid://g1gxawfsxrew"]
+
+[ext_resource type="Texture2D" uid="uid://df7r6eegeffom" path="res://assets/backspecial.png" id="1_kx01r"]
+[ext_resource type="Script" uid="uid://bd1fwy7c88cpg" path="res://scripts/upgrade_data.gd" id="2_lowb2"]
+[ext_resource type="Resource" uid="uid://baqa0bxcvaoly" path="res://scripts/ProjectileMove.tres" id="3_lowb2"]
+
+[resource]
+script = ExtResource("2_lowb2")
+name = "Projectile Buddy"
+description = "Throws a buddy at them"
+icon = ExtResource("1_kx01r")
+effect_type = 2
+unlocked_move = ExtResource("3_lowb2")

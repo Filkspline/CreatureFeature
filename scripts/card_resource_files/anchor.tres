@@ -6,9 +6,7 @@
 [resource]
 script = ExtResource("1_vf16i")
 name = "Anchor"
-description = "+ DAMAGE
-+ GRAVITY
-- KNOCKBACK"
+description = "Rooted and heavy-handed"
 icon = ExtResource("1_pj5sh")
 effect_type = 1
 stat_names_array = Array[String](["knockback_reduction", "damage_dealt_bonus", "gravity"])
