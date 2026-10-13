@@ -269,8 +269,8 @@ func _on_singleplayer_array_request() -> void:
 		if upgrade == null:
 			continue
 		
-		match upgrade.effect_type:
-			UpgradeData.EffectType.STAT_BOOST, UpgradeData.EffectType.MULTI_STAT_BOOST, UpgradeData.EffectType.MOVE_MODIFY, UpgradeData.EffectType.EVENT_CARD:
+		match upgrade.effect_type:																							# NOTE: Temp sending this to hell as I don't want to think about it for now
+			UpgradeData.EffectType.STAT_BOOST, UpgradeData.EffectType.MULTI_STAT_BOOST, UpgradeData.EffectType.MOVE_MODIFY: #, UpgradeData.EffectType.EVENT_CARD:
 				offered_upgrades.append(upgrade)
 			UpgradeData.EffectType.UNLOCK_MOVE:
 				offered_unlocks.append(upgrade)

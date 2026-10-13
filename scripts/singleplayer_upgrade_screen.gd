@@ -1,14 +1,20 @@
 extends CanvasLayer
 
-#@export var debug = true
+# Used for _dbg
 var script_id = "SP Upgrade"
 
-#@onready var player_current_cards_container = $MarginContainer/PanelContainer/MarginContainer/HBoxContainer/player_current_cards/current_cards_container
+const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
+
+# Handling the nodes in the UI
 @onready var player_moves_node = $move_node
 @onready var player_stats_node = $upgrade_node
 @onready var active_cards_marker : Marker2D = $active_cards
 @onready var owned_cards_spawn = $owned_cards_spawn
 
+@onready var temp_text_list = $temp_text_list
+
+# Card visual variables ----------------------------------------------------------------------------
+# Handles all the info for tweens and flipping the cards for visual flair
 @export var base_card_scale_multiplier : float = 1.0 # cards read bigger here than in the mid round draft
 @export var focused_extra_scale : float = 1.35 # extra growth on top of the base multiplier for the focused card
 @export var scale_falloff_per_step : float = 0.28 # how much smaller each card gets per slot away from focus
@@ -26,16 +32,20 @@ var script_id = "SP Upgrade"
 @export var spawn_scale_fraction : float = 0.05
 @export var owned_card_appear_duration : float = 0.18
 @export var owned_card_flip_stagger_delay : float = 0.0
-
-const UPGRADE_CARD = preload("res://scenes/upgrade_card.tscn")
-
-var p1_selection_column : int = 0 # 0 for unlocks, 1 for upgrades
-var default_z_index : int = 10
-var menu_open : bool = false
 var card_default_scale : Vector2
+
+# Menu handling ------------------------------------------------------------------------------------
+var menu_open : bool = false
+
+# Card storage -------------------------------------------------------------------------------------
+# Handles the data storage for both the active card data as well as the visual cards for what the
+# player has active
 var selected_cards = []
 var displayed_cards = []
 
+# Column habdling ----------------------------------------------------------------------------------
+# Handles all the information regarding the columns built for the cards in the menu as well as the
+# scrolling and selection
 class UpgradeColumn:
 	var anchor : Node2D
 	var wrappers : Array[CanvasGroup] = []
@@ -48,9 +58,12 @@ class UpgradeColumn:
 	# this the frame keeps blinking after the column has been released.
 	var lock_tween : Tween
 
+var p1_selection_column : int = 0 # 0 for unlocks, 1 for upgrades
 var unlock : UpgradeColumn
 var upgrade : UpgradeColumn
 
+
+# Scripts ------------------------------------------------------------------------------------------
 func _dbg(msg: String) -> void:
 	if GameManager.debug:
 		print_rich("[%s] %s" % [script_id, msg])
@@ -63,13 +76,10 @@ func _ready() -> void:
 	self.hide()
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	_test_toggle_menu()
-	
 	if not menu_open:
 		return
-		
 	_handle_player_input(1)
 
 
@@ -91,14 +101,21 @@ func pause():
 	show()
 	GameManager.player_input_locked = true
 	menu_open = true
-	# TODO: Reset the player stats here
+	EventBus.sp_player_upgrade_reset.emit()
 
 
 func _select_card(column_index : int) -> void:
 	var column = _get_column(column_index)
 	var selected_card = column.cards[column.focus_index]
+	var selected_card_data = column.upgrade_map.get(selected_card)
 	
-	selected_cards.append(column.upgrade_map.get(selected_card))
+	if selected_cards.has(selected_card_data):
+		var card_index = selected_cards.find(selected_card_data, 0)
+		selected_cards.remove_at(card_index)
+		temp_text_list.remove_item(card_index)
+	else:
+		selected_cards.append(selected_card_data)
+		temp_text_list.add_item(selected_card_data.name, null, false)
 	
 	_dbg("[SELECT CARD] Current card array: %s" % [selected_cards])
 
@@ -186,9 +203,9 @@ func _on_recieve_arrays(move_array : Array[UpgradeData], upgrade_array : Array[U
 	_layout_column(upgrade, false)
 
 
-# --------------------------------------------------------------------------------------------------
-# Player input handling in the menu
-
+# Menu input handling ------------------------------------------------------------------------------
+# Handles the logic for player input while in the upgrade menu as well as the logic for cycling
+# columns
 func _handle_player_input(player_id : int) -> void:
 	var suffix = "P%d" % player_id
 	var column_index = _get_selection_column()
@@ -252,9 +269,9 @@ func _cycle_column(column : UpgradeColumn, direction : int) -> void:
 	_layout_column(column, true)
 
 
-# --------------------------------------------------------------------------------------------------
-# Displaying the upgrade in the menu
-
+# Displaying the active cards ----------------------------------------------------------------------
+# Handles the logic for displaying the owned cards and moving them to the marker in the ui
+# NOTE: Currently does not work, need to investiagte
 func _spawn_owned_card(upgrade: UpgradeData, index: int) -> Node2D:
 	var owned_card := UPGRADE_CARD.instantiate() as Node2D
 	if not owned_card:

@@ -32,3 +32,9 @@ position = Vector2(110, 110)
 
 [node name="owned_cards_spawn" type="Node2D" parent="." unique_id=1319473015]
 position = Vector2(-110, 161)
+
+[node name="temp_text_list" type="ItemList" parent="." unique_id=83744421]
+offset_left = 50.0
+offset_top = 48.0
+offset_right = 175.0
+offset_bottom = 314.0
