@@ -94,6 +94,7 @@ class Cursor:
 	var locked: bool = false
 	var neutral_position: Vector2 = Vector2.ZERO
 	var icon: AnimatedSprite2D
+	var online_player_id: int = 0
 
 @onready var cursors_container: Node = $Cursors
 @onready var character1: Control = $Characters/Character1
@@ -112,6 +113,7 @@ class Cursor:
 @onready var sprite_frames = preload("res://assets/controls.tres") 
 
 var cursors: Array[Cursor] = []
+var remote_cursor: Cursor = null
 
 var _created_keyboard: Dictionary = {}  # suffix -> true
 var _created_joypad: Dictionary = {}    # device_id -> true
@@ -121,10 +123,13 @@ var _key_prev_state: Dictionary = {}
 var _joy_button_prev_state: Dictionary = {}
 var _joy_axis_prev_state: Dictionary = {}
 var _escape_was_pressed: bool = false
+var _starting_match: bool = false
 
 func _ready() -> void:
 	GameManager.reset_player_select()
 	start_button.visible = false
+	if GameManager.online_mode:
+		_create_remote_cursor(1 if GameManager.online_player_id == 2 else 2)
 	_refresh_slot_labels()
 	_refresh_legends()
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
@@ -161,6 +166,9 @@ func _back_out() -> void:
 # ── Detecting input modes and creating cursors ──
 
 func _detect_input_modes() -> void:
+	if GameManager.online_mode:
+		_detect_online_input_mode()
+		return
 	for suffix in KEYBOARD_LAYOUTS:
 		if _created_keyboard.get(suffix, false):
 			continue
@@ -175,6 +183,26 @@ func _detect_input_modes() -> void:
 			_created_joypad[joy_id] = true
 			_create_cursor(PlayerInputDevice.make_joypad(joy_id))
 
+func _detect_online_input_mode() -> void:
+	var suffix := "P%d" % GameManager.online_player_id
+
+	if not _created_keyboard.get(suffix, false):
+		if _keyboard_layout_has_input(suffix):
+			_created_keyboard[suffix] = true
+			_create_cursor(
+				PlayerInputDevice.make_keyboard(
+					KEYBOARD_LAYOUTS[suffix],
+					suffix
+				)
+			)
+
+	for joy_id in Input.get_connected_joypads():
+		if _created_joypad.get(joy_id, false):
+			continue
+
+		if _joypad_any_input(joy_id):
+			_created_joypad[joy_id] = true
+			_create_cursor(PlayerInputDevice.make_joypad(joy_id))
 
 func _create_cursor(device: PlayerInputDevice) -> Cursor:
 	var cursor := Cursor.new()
@@ -184,6 +212,8 @@ func _create_cursor(device: PlayerInputDevice) -> Cursor:
 	cursor.device = device
 	cursor.selection = NEUTRAL
 	cursor.locked = false
+	if GameManager.online_mode:
+		cursor.online_player_id = GameManager.online_player_id
 	cursor.neutral_position = _neutral_position(cursors.size())
 
 	var node := ColorRect.new()
@@ -197,6 +227,30 @@ func _create_cursor(device: PlayerInputDevice) -> Cursor:
 	
 	cursor.node.hide()
 	
+	return cursor
+
+func _create_remote_cursor(player_id: int) -> Cursor:
+	var cursor := Cursor.new()
+	cursor.online_player_id = player_id
+	cursor.selection = NEUTRAL
+	cursor.locked = false
+	cursor.neutral_position = _neutral_position(cursors.size())
+
+	var node := ColorRect.new()
+	node.size = CURSOR_SIZE
+	node.color = CURSOR_COLORS[(player_id - 1) % CURSOR_COLORS.size()]
+	cursors_container.add_child(node)
+	cursor.node = node
+
+	var icon := AnimatedSprite2D.new()
+	icon.sprite_frames = sprite_frames
+	icon.z_index = 0
+	icon.frame = 0
+	icon.modulate = CURSOR_COLORS[(player_id - 1) % CURSOR_COLORS.size()]
+	cursor.icon = icon
+	cursor_icons.add_child(icon)
+	remote_cursor = cursor
+	_update_cursor_visual(cursor)
 	return cursor
 
 func _create_cursor_icon(device: PlayerInputDevice, cursor: Cursor) -> void:
@@ -239,8 +293,12 @@ func _handle_cursor(cursor: Cursor) -> void:
 
 
 func _move_cursor(cursor: Cursor, delta: int) -> void:
+	if cursor.locked:
+		return
 	var new_selection := clampi(cursor.selection + delta, SLOT_1, SLOT_2)
 	if new_selection == cursor.selection:
+		return
+	if GameManager.online_mode and new_selection != NEUTRAL and new_selection != (SLOT_1 if GameManager.online_player_id == 1 else SLOT_2):
 		return
 	# Entering a character slot is only allowed while it's unoccupied.
 	if new_selection != NEUTRAL and _slot_occupied_by_other(new_selection, cursor):
@@ -251,11 +309,16 @@ func _move_cursor(cursor: Cursor, delta: int) -> void:
 	# Moving onto a slot shows that slot's legend, so the controls are visible
 	# while merely hovering, before anything is locked in.
 	_refresh_legends()
-
+	if GameManager.online_mode:
+		_sync_cursor_state.rpc(GameManager.online_player_id, new_selection, false)
+	_refresh_ready_state()
 
 func _slot_occupied_by_other(selection: int, cursor: Cursor) -> bool:
 	for other in cursors:
 		if other != cursor and other.selection == selection:
+			return true
+	if GameManager.online_mode and remote_cursor != null and remote_cursor != cursor:
+		if remote_cursor.selection == selection:
 			return true
 	return false
 
@@ -263,19 +326,22 @@ func _slot_occupied_by_other(selection: int, cursor: Cursor) -> bool:
 func _lock_cursor(cursor: Cursor) -> void:
 	if cursor.selection == NEUTRAL:
 		return
+	if GameManager.online_mode and cursor.selection != (SLOT_1 if GameManager.online_player_id == 1 else SLOT_2):
+		return
 	SfxManager.play_ui_select()
 	cursor.locked = true
 	var slot := 1 if cursor.selection == SLOT_1 else 2
 	_show_selected(slot)
 	_store_character_choice(slot, cursor)
-	print("P%d locked in by: %s" % [slot, cursor.device.display_name])
+	if cursor.device != null:
+		print("P%d locked in by: %s" % [slot, cursor.device.display_name])
 	_refresh_legend(slot)
 	_play_lock_feedback(cursor)
-	_check_both_locked()
+	if GameManager.online_mode:
+		_sync_cursor_state.rpc(GameManager.online_player_id, cursor.selection, true)
+	_refresh_ready_state()
 
 
-# Backing out of a locked slot, so a player who confirmed by mistake can pick
-# again instead of being stuck with it. Reached by pressing Special.
 func _unlock_cursor(cursor: Cursor) -> void:
 	if not cursor.locked:
 		return
@@ -291,9 +357,41 @@ func _unlock_cursor(cursor: Cursor) -> void:
 		GameManager.p2_character_id = 0
 		GameManager.p2_device = null
 	_refresh_legend(slot)
-	# Both slots are only "ready" while they are locked.
-	start_button.visible = _locked_count() >= 2
+	if GameManager.online_mode:
+		_sync_cursor_state.rpc(GameManager.online_player_id, cursor.selection, false)
+	_refresh_ready_state()
 	_refresh_slot_labels()
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _sync_cursor_state(player_id: int, selection: int, locked: bool) -> void:
+	if not GameManager.online_mode or player_id == GameManager.online_player_id:
+		return
+	if remote_cursor == null or remote_cursor.online_player_id != player_id:
+		return
+
+	remote_cursor.selection = selection
+	var was_locked := remote_cursor.locked
+	remote_cursor.locked = locked
+	_update_cursor_visual(remote_cursor)
+
+	var slot := 1 if selection == SLOT_1 else 2
+	var label := character1_selected if slot == 1 else character2_selected
+	if locked:
+		if slot == 1:
+			GameManager.p1_character_id = 1
+		else:
+			GameManager.p2_character_id = 2
+		if not was_locked:
+			_show_selected(slot)
+	else:
+		label.visible = false
+		if slot == 1:
+			GameManager.p1_character_id = 0
+		else:
+			GameManager.p2_character_id = 0
+
+	_refresh_ready_state()
 
 
 func _show_selected(slot: int) -> void:
@@ -351,7 +449,7 @@ func _refresh_legend(slot: int) -> void:
 	if legend == null:
 		return
 	var cursor := _cursor_on_slot(slot)
-	if cursor == null:
+	if cursor == null or cursor.device == null:
 		legend.visible = false
 		return
 	legend.set_tint(P1_ACCENT_COLOR if slot == 1 else P2_ACCENT_COLOR)
@@ -374,8 +472,19 @@ func _cursor_on_slot(slot: int) -> Cursor:
 
 
 func _check_both_locked() -> void:
-	if _locked_count() >= 2:
-		start_button.visible = true
+	_refresh_ready_state()
+
+
+func _refresh_ready_state() -> void:
+	if GameManager.online_mode:
+		var local_locked := false
+		for cursor in cursors:
+			if cursor.locked:
+				local_locked = true
+				break
+		start_button.visible = local_locked and remote_cursor != null and remote_cursor.locked
+	else:
+		start_button.visible = _locked_count() >= 2
 
 
 func _locked_count() -> int:
@@ -383,6 +492,8 @@ func _locked_count() -> int:
 	for cursor in cursors:
 		if cursor.locked:
 			count += 1
+	if GameManager.online_mode and remote_cursor != null and remote_cursor.locked:
+		count += 1
 	return count
 
 
@@ -427,6 +538,8 @@ func _refresh_slot_labels() -> void:
 func _slot_label(cursor: Cursor) -> String:
 	if cursor == null:
 		return "PRESS A BUTTON TO JOIN"
+	if cursor.device == null:
+		return "ONLINE PLAYER %d" % cursor.online_player_id
 	return "DEVICE: %s" % cursor.device.display_name
 
 
@@ -500,6 +613,20 @@ func _keyboard_action_just_pressed(base: String, suffix: String) -> bool:
 	return just_pressed
 
 
+func _keyboard_layout_has_input(suffix: String) -> bool:
+	for action in KEYBOARD_ACTIONS:
+		var keys: Array = GameManager.keyboard_layouts.get(suffix, {}).get(action, [])
+		for event in keys:
+			if not (event is InputEventKey):
+				continue
+			var key_event := event as InputEventKey
+			if key_event.physical_keycode != KEY_NONE and Input.is_physical_key_pressed(key_event.physical_keycode):
+				return true
+			if key_event.physical_keycode == KEY_NONE and key_event.keycode != KEY_NONE and Input.is_key_pressed(key_event.keycode):
+				return true
+	return false
+
+
 func _keyboard_layout_just_pressed(suffix: String) -> bool:
 	var any := false
 	for action in KEYBOARD_ACTIONS:
@@ -554,6 +681,15 @@ func _joypad_any_input(device_id: int) -> bool:
 
 
 func _on_button_pressed() -> void:
+	if _starting_match:
+		return
+	if GameManager.online_mode:
+		if not start_button.visible:
+			return
+		SfxManager.play_ui_select()
+		_start_online_match.rpc()
+		return
+
 	SfxManager.play_ui_select()
 	var slot1 := _cursor_at(SLOT_1)
 	var slot2 := _cursor_at(SLOT_2)
@@ -567,3 +703,22 @@ func _on_button_pressed() -> void:
 			SceneTransition.change_scene(FIGHT_SCENE)
 		2:
 			SceneTransition.change_scene(LABBING_SCENE)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _start_online_match() -> void:
+	if _starting_match:
+		return
+	_starting_match = true
+	if GameManager.online_player_id == 1:
+		GameManager.p1_device = _local_cursor_device()
+	else:
+		GameManager.p2_device = _local_cursor_device()
+	SceneTransition.change_scene(FIGHT_SCENE)
+
+
+func _local_cursor_device() -> PlayerInputDevice:
+	for cursor in cursors:
+		if cursor.device != null:
+			return cursor.device
+	return null

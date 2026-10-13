@@ -4,6 +4,7 @@ signal session_created(session_id: String)
 signal session_joined
 signal session_left
 signal connection_error(message: String)
+signal peer_connected(peer_id)
 
 @onready var tube_client: TubeClient = $TubeClient
 
@@ -13,7 +14,11 @@ func _ready():
 	tube_client.session_joined.connect(_on_session_joined)
 	tube_client.session_left.connect(_on_session_left)
 	tube_client.error_raised.connect(_on_error_raised)
-
+	tube_client.peer_connected.connect(_on_peer_connected)
+	
+func _on_peer_connected(peer_id):
+	print("PEER CONNECTED: ", peer_id)
+	peer_connected.emit(peer_id)
 
 func host_game():
 	print("=== TUBE DEBUG ===")

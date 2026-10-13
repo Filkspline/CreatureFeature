@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://3bhfvjgauiob" path="res://scripts/player_select.gd" id="1_6qhff"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="2_crtscript"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_hx7tf"]
-[ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="4_prompts"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="3_crtshader"]
+[ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="4_prompts"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
 bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
@@ -144,14 +144,12 @@ theme_override_font_sizes/font_size = 12
 text = "SELECTED!"
 horizontal_alignment = 1
 
-[node name="ControlPrompts" parent="Characters/Character1" instance=ExtResource("4_prompts")]
+[node name="ControlPrompts" parent="Characters/Character1" unique_id=1008886496 instance=ExtResource("4_prompts")]
 visible = false
 layout_mode = 0
-offset_left = 0.0
 offset_top = 150.0
 offset_right = 130.0
 offset_bottom = 300.0
-player_id = 1
 vertical = true
 icon_scale = 0.2
 entry_spacing = 14.0
@@ -182,10 +180,9 @@ theme_override_font_sizes/font_size = 12
 text = "SELECTED!"
 horizontal_alignment = 1
 
-[node name="ControlPrompts" parent="Characters/Character2" instance=ExtResource("4_prompts")]
+[node name="ControlPrompts" parent="Characters/Character2" unique_id=1670640276 instance=ExtResource("4_prompts")]
 visible = false
 layout_mode = 0
-offset_left = 0.0
 offset_top = 150.0
 offset_right = 130.0
 offset_bottom = 300.0

@@ -84,3 +84,8 @@ func _on_quit_pressed():
 	print("Quit pressed")
 	SfxManager.play_ui_select()
 	get_tree().quit()
+
+
+func _on_online_pressed():
+	print("Online Multiplayer pressed")
+	SceneTransition.change_scene("res://scenes/OnlineLobby.tscn")
