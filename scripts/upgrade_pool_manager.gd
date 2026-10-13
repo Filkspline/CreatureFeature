@@ -10,6 +10,9 @@ extends Node
 #  player_id is 1 or 2 throughout — replaces the old p1_selecting bool,
 #  which had no way to extend past two hardcoded branches.
 
+#@export_group("Debug")
+#@export var debug: bool = true
+
 @export_group("Card source")
 @export_dir var card_resource_dir: String = "res://scripts/card_resource_files/"
 
@@ -41,6 +44,7 @@ func _ready() -> void:
 	EventBus.player_registered.connect(_on_player_registered)
 	
 	GameManager.request_first_upgrade_arrays.connect(_on_array_request)
+	GameManager.request_singleplayer_upgrade_arrays.connect(_on_singleplayer_array_request)
 
 
 ## Fresh copy of the full pool for both players. Call at the start of
@@ -187,7 +191,11 @@ func _get_files_from_dir() -> void:
 		if file_name.ends_with(".tres"):
 			card_array.append(card_resource_dir + file_name)
 		file_name = dir.get_next()
-
+	
+	if GameManager.debug:
+		for card in card_array:
+			print_rich("[color=yellow][FILE GRAB] Card: %s" % card)
+		
 
 func _remove_from_pool(tres_path: String, player_id: int) -> void:
 	var pool: Array = pools.get(player_id, [])
@@ -216,3 +224,32 @@ func _on_array_request() -> void:
 			UpgradeData.EffectType.UNLOCK_MOVE:
 				offered_unlocks.append(upgrade)
 	GameManager.return_first_upgrade_arrays.emit(offered_unlocks, offered_upgrades)
+
+
+
+## Function to, upon request from the single player upgrade menu, get an array of every single
+## upgrade and unlock to be displayed in the menu. Functionally the same as _on_array_request but
+## without the show_in_pre_fight check. This is largely for experimentation, can be streamlined
+## into the above function.
+func _on_singleplayer_array_request() -> void:
+	var offered_upgrades: Array[UpgradeData] = []
+	var offered_unlocks: Array[UpgradeData] = []
+
+	for path in card_array:
+		var upgrade: UpgradeData = load(path)
+		if upgrade == null:
+			continue
+		
+		match upgrade.effect_type:																							# NOTE: Temp sending this to hell as I don't want to think about it for now
+			UpgradeData.EffectType.STAT_BOOST, UpgradeData.EffectType.MULTI_STAT_BOOST, UpgradeData.EffectType.MOVE_MODIFY: #, UpgradeData.EffectType.EVENT_CARD:
+				offered_upgrades.append(upgrade)
+			UpgradeData.EffectType.UNLOCK_MOVE:
+				offered_unlocks.append(upgrade)
+	
+	if GameManager.debug:
+		for upgrade in offered_upgrades:
+			print_rich("[color=yellow][SP ARRAY REQUEST - UPGRADES] Upgarde: %s" % upgrade)
+		for unlock in offered_unlocks:
+			print_rich("[color=yellow][SP ARRAY REQUEST - UNLOCKS] Unlock: %s" % unlock)
+	
+	GameManager.return_singleplayer_upgrade_arrays.emit(offered_unlocks, offered_upgrades)

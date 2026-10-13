@@ -77,8 +77,8 @@ class_name Player
 
 @export var attack_z_index: int = 1
 
-@export_group("Debug")
-@export var debug: bool = true
+#@export_group("Debug")
+#@export var debug: bool = true
 
 @export_group("Upgrades")
 ## Move names (MoveData.move_name, NOT the slot var name like "S6") that
@@ -114,6 +114,8 @@ var state: State = State.NEUTRAL :
 		if new_state != State.ATTACK:
 			_set_dash_afterimages(false)
 
+
+# All the variables that are used by the various event cards
 @export_group("Effect card variables")
 @export_subgroup("Vampire")
 @export var vamp_delta_health : int = 2
@@ -145,6 +147,18 @@ var state: State = State.NEUTRAL :
 @export var hornet_selected : bool = false
 @export var hornet_delta_health : int = 3
 @export var hornet_delta_damage : float = 2
+
+# Used for storing default values for when the player goes into singleplayer
+var default_max_health : float
+var default_damage_bonus : float
+var default_damage_reduction : float
+var default_knockback_reduction: float
+var default_attack_speed_modifier : float
+var default_move_speed : float
+var default_gravity : float
+var default_jump_velocity : float
+
+
 
 signal landed
 signal hitstun_finished
@@ -298,7 +312,7 @@ var wants_to_crouch: bool = false
 
 
 func _dbg(msg: String) -> void:
-	if debug:
+	if GameManager.debug:
 		print_rich("[P%d] %s" % [player_id, msg])
 
 
@@ -316,6 +330,11 @@ func _input_locked() -> bool:
 
 
 func _ready() -> void:
+	# Handles the tedium of the singleplayer stat work
+	if GameManager.mode_id == 2:
+		_set_defaults()
+		if not EventBus.sp_player_upgrade_reset.is_connected(on_reset_signal_recieved):
+			EventBus.sp_player_upgrade_reset.connect(on_reset_signal_recieved)
 	
 	facing_right = (player_id == 1)
 	current_health = max_health
@@ -348,12 +367,14 @@ func _ready() -> void:
 	sprites.animation_finished.connect(_on_sprites_animation_finished)
 
 	for p in get_tree().get_nodes_in_group("players"):
-		if p != self and p is Player:
+		if p != self and (p is Player or p is Dummy):
 			opponent = p
 			break
 	if not opponent:
 		push_warning("[SETUP] No opponent found in 'players' group.")
-
+	
+	_dbg("[color=green][PLAYER] Registered opponent as: %s" % opponent)
+	
 	sprites.play_idle()
 
 	# Report which special this player starts the round equipped with before
@@ -486,7 +507,6 @@ func reset_health() -> void:
 
 func apply_stat_boost(stat_name: StringName, amount: float, is_percent: bool) -> void:
 	if not (stat_name in self):
-		#push_warning("[P%d] apply_stat_boost: no property named '%s' on Player" % [player_id, stat_name])
 		_dbg("[color=red][P%d] apply_stat_boost: no property named '%s' on Player" % [player_id, stat_name])
 		return
 	var current = get(stat_name)
@@ -699,6 +719,47 @@ func _effect_hornet() -> float:
 		return 0.0
 	else:
 		return hornet_delta_damage
+
+# ──────────────────────────────────────────────────────────────────
+# Singleplayer stat handling
+#
+# Where the singleplayer upgrade menu signals get sent to reset upgrades as well
+# as setting defaults when the player spawns in to be used in resetting stats
+
+func _set_defaults() -> void:
+	default_max_health = max_health
+	default_damage_bonus = damage_dealt_bonus
+	default_damage_reduction = damage_reduction
+	default_knockback_reduction = knockback_reduction
+	default_attack_speed_modifier = attack_speed_multiplier
+	default_move_speed = move_speed
+	default_gravity = gravity
+	default_jump_velocity = jump_velocity
+
+
+func on_reset_signal_recieved() -> void:
+	max_health = default_max_health
+	damage_dealt_bonus = default_damage_bonus
+	damage_reduction = default_damage_reduction
+	knockback_reduction = default_knockback_reduction
+	attack_speed_multiplier = default_attack_speed_modifier
+	move_speed = default_move_speed
+	gravity = default_gravity
+	jump_velocity = default_jump_velocity
+	
+	armour_plating_selected = false
+	turtle_selected = false
+	thorns_selected = false
+	hornet_selected = false
+	
+	if EventBus.player_hit_landed.is_connected(_effect_vampire):
+		EventBus.player_hit_landed.disconnect(_effect_vampire)
+	if EventBus.player_health_changed.is_connected(_effect_underdog):
+		EventBus.player_health_changed.disconnect(_effect_underdog)
+	if EventBus.player_hit_landed.is_connected(_effect_adrenaline):
+		EventBus.player_hit_landed.disconnect(_effect_adrenaline)
+	if EventBus.player_hit_landed.is_connected(_effect_momentum):
+		EventBus.player_hit_landed.disconnect(_effect_momentum)
 
 # ──────────────────────────────────────────────────────────────────
 #  Input buffering

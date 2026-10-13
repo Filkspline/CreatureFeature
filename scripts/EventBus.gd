@@ -32,6 +32,10 @@ signal upgrade_picked(player_id: int, upgrade: UpgradeData)    # UI -> pool mana
 signal upgrade_applied(player_id: int, upgrade: UpgradeData)   # pool manager -> anyone (vfx, ui)
 signal game_ended(loser_id: int)
 
+# The signal sent by the singleplayer upgrade screen upon open to reset the
+# player to a default state before applying the upgrades upon close
+signal sp_player_upgrade_reset
+
 # ── Continuous per-frame state, keyed by player_id ──
 var player_position: Dictionary = {}     # int -> Vector2
 var player_velocity: Dictionary = {}     # int -> Vector2

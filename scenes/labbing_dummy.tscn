@@ -1,43 +1,135 @@
 [gd_scene format=3 uid="uid://dglrw7o1lj4g1"]
 
-[ext_resource type="Texture2D" uid="uid://c3on55l4e3ygw" path="res://assets/TempAssets/temp_horse.png" id="1_8pd00"]
+[ext_resource type="Texture2D" uid="uid://crmcr0oht5dh1" path="res://assets/Horse-Sheet.png" id="2_7qwo8"]
 [ext_resource type="Script" uid="uid://dvnntcf4h36gm" path="res://scripts/labbing_dummy.gd" id="2_w5umm"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_c5xgw"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(0, 0, 500, 200)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_w5umm"]
-atlas = ExtResource("1_8pd00")
-region = Rect2(0, 0, 1250, 750)
+atlas = ExtResource("2_7qwo8")
+region = Rect2(0, 0, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7qwo8"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(500, 0, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p6q4t"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(1000, 0, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7fy70"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(0, 200, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pedeg"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(500, 200, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6v3j6"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(1000, 200, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r53fl"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(0, 400, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mgks7"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(0, 200, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1moxk"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(1000, 0, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yq8aq"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(500, 0, 500, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8jgag"]
+atlas = ExtResource("2_7qwo8")
+region = Rect2(0, 0, 500, 200)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_m2va7"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_w5umm")
+"texture": SubResource("AtlasTexture_c5xgw")
 }],
 "loop": 1,
 "name": &"default",
 "speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w5umm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7qwo8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p6q4t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7fy70")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pedeg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6v3j6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r53fl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mgks7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1moxk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yq8aq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8jgag")
+}],
+"loop": 0,
+"name": &"take_hit",
+"speed": 7.0
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m2va7"]
-size = Vector2(885, 362)
+size = Vector2(353, 187)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_t2dwb"]
-size = Vector2(884, 2015)
+size = Vector2(348, 726)
 
-[node name="dummy" type="CharacterBody2D" unique_id=1938152320]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oxha2"]
+
+[node name="dummy" type="CharacterBody2D" unique_id=1938152320 groups=["players"]]
 script = ExtResource("2_w5umm")
 metadata/_custom_type_script = "uid://b1q73d0u8j2hl"
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1334692252]
+[node name="horse_sprite" type="AnimatedSprite2D" parent="." unique_id=1334692252 groups=["players"]]
 sprite_frames = SubResource("SpriteFrames_m2va7")
+animation = &"take_hit"
+frame = 10
+frame_progress = 1.0
 
-[node name="Area2D" type="Area2D" parent="." unique_id=567388899]
+[node name="Hurtbox" type="Area2D" parent="." unique_id=567388899]
 
-[node name="hurtbox" type="CollisionShape2D" parent="Area2D" unique_id=1340871093]
-position = Vector2(67.5, 89)
+[node name="hurtbox" type="CollisionShape2D" parent="Hurtbox" unique_id=1340871093]
+position = Vector2(11.5, 3.5)
 shape = SubResource("RectangleShape2D_m2va7")
 
 [node name="collision_box" type="CollisionShape2D" parent="." unique_id=1428052766]
-position = Vector2(73, -737.5)
+position = Vector2(12, -269)
 shape = SubResource("RectangleShape2D_t2dwb")
 debug_color = Color(0.32208934, 0.5997156, 0.5001908, 0.41960785)
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=2119155487]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=827170954]
+shape = SubResource("RectangleShape2D_oxha2")

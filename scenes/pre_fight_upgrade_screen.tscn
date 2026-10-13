@@ -105,18 +105,16 @@ text = "SELECT YOUR UPGRADES"
 horizontal_alignment = 1
 metadata/_edit_use_anchors_ = true
 
-[node name="P1ControlPrompts" parent="Node2D" instance=ExtResource("5_prompts")]
+[node name="P1ControlPrompts" parent="Node2D" unique_id=1198394906 instance=ExtResource("5_prompts")]
 offset_left = -312.0
 offset_top = 148.0
 offset_right = -92.0
 offset_bottom = 172.0
-player_id = 1
 preset = 1
 icon_scale = 0.2
 entry_spacing = 78.0
-font_size = 12
 
-[node name="P2ControlPrompts" parent="Node2D" instance=ExtResource("5_prompts")]
+[node name="P2ControlPrompts" parent="Node2D" unique_id=1349010462 instance=ExtResource("5_prompts")]
 offset_left = 72.0
 offset_top = 148.0
 offset_right = 292.0
@@ -125,7 +123,6 @@ player_id = 2
 preset = 1
 icon_scale = 0.2
 entry_spacing = 78.0
-font_size = 12
 
 [node name="p1_panel" type="Panel" parent="Node2D" unique_id=4002]
 offset_left = -312.0
