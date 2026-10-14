@@ -122,8 +122,14 @@ const DEATH_FRAMES: Array[int] = [6, 7, 8]
 ## flash whenever the projectile gets hit without dying.
 const HIT_FLASH_FRAME := 6
 
-var owner_player: Player = null
-var target_player: Player = null
+# Typed as Node2D rather than Player on purpose: single player points this at
+# the training Dummy, which is not a Player. The typed Player signature here is
+# what broke the projectile special in single player - setup() refused the dummy
+# and errored out, so nothing ever spawned. Both classes carry the members used
+# below (player_id, current_move, take_hit, a Hurtbox child); the two
+# Player-only members are read through guards further down.
+var owner_player: Node2D = null
+var target_player: Node2D = null
 
 var velocity: Vector2 = Vector2.ZERO
 
@@ -168,7 +174,7 @@ var _playing_death: bool = false
 
 
 # Call this right after instantiating, before add_child().
-func setup(spawning_player: Player, opposing_player: Player = null) -> void:
+func setup(spawning_player: Node2D, opposing_player: Node2D = null) -> void:
 	owner_player = spawning_player
 	if spawning_player:
 		owner_player_id = spawning_player.player_id
@@ -188,7 +194,9 @@ func _ready() -> void:
 	if not target_player and auto_find_target:
 		target_player = _find_opponent_of(owner_player)
 
-	if owner_player:
+	# A Dummy has no facing of its own, so anything without one falls back to
+	# the exported direction instead of erroring.
+	if owner_player and "facing_right" in owner_player:
 		_facing_dir = 1.0 if owner_player.facing_right else -1.0
 	elif fallback_direction.x != 0.0:
 		_facing_dir = signf(fallback_direction.x)
@@ -298,14 +306,16 @@ func _check_deflect() -> bool:
 # current_move. Gated per-player by attack_instance_id so the same
 # swing can't deflect twice while it overlaps across frames, but a
 # later swing with the same MoveData resource still counts.
-func _try_deflect(hitting_player: Player) -> bool:
+func _try_deflect(hitting_player: Node2D) -> bool:
 	if not hitting_player:
 		return false
 
-	var move := hitting_player.current_move
+	# Typed explicitly: hitting_player is a Node2D (it can be the training
+	# dummy), so the property read comes back untyped and := cannot infer it.
+	var move : MoveData = hitting_player.current_move
 	if not move:
 		return false
-	if _resolved_attack_ids.get(hitting_player, -1) == hitting_player.attack_instance_id:
+	if _resolved_attack_ids.get(hitting_player, -1) == _attack_instance_id_of(hitting_player):
 		return false
 
 	var hitbox_shape: CollisionShape2D = hitting_player.get_node_or_null("Hitbox/MainHitbox")
@@ -316,12 +326,12 @@ func _try_deflect(hitting_player: Player) -> bool:
 	if not hitbox_area or hitbox_area not in get_overlapping_areas():
 		return false
 
-	_resolved_attack_ids[hitting_player] = hitting_player.attack_instance_id
+	_resolved_attack_ids[hitting_player] = _attack_instance_id_of(hitting_player)
 	_apply_deflect(hitting_player, move)
 	return true
 
 
-func _apply_deflect(hitting_player: Player, move: MoveData) -> void:
+func _apply_deflect(hitting_player: Node2D, move: MoveData) -> void:
 	var was_return: bool = _launched and hitting_player != owner_player
 	var was_first_launch: bool = not _launched
 	if was_return:
@@ -338,7 +348,8 @@ func _apply_deflect(hitting_player: Player, move: MoveData) -> void:
 	if max_launch_speed > 0.0:
 		new_speed = minf(new_speed, max_launch_speed)
 
-	_facing_dir = 1.0 if hitting_player.facing_right else -1.0
+	if "facing_right" in hitting_player:
+		_facing_dir = 1.0 if hitting_player.facing_right else -1.0
 	velocity.x = new_speed * _facing_dir
 
 	_launched = true
@@ -389,18 +400,30 @@ func _resolve_target_hit() -> void:
 		_play_hit_bounce()
 
 
-func _find_player_by_id(id: int) -> Player:
+# Accepts a Dummy as well as a Player: in single player the only other thing in
+# the players group is the training dummy.
+func _find_player_by_id(id: int) -> Node2D:
 	for p in get_tree().get_nodes_in_group("players"):
-		if p is Player and p.player_id == id:
+		if p.has_method("take_hit") and p.player_id == id:
 			return p
 	return null
 
 
-func _find_opponent_of(from_player: Player) -> Player:
+func _find_opponent_of(from_player: Node2D) -> Node2D:
 	for p in get_tree().get_nodes_in_group("players"):
-		if p is Player and p != from_player:
+		if p.has_method("take_hit") and p != from_player:
 			return p
 	return null
+
+
+# The per-swing guard key. Anything without its own attack_instance_id (the
+# dummy) counts as -1, which is also the "never seen this fighter" default, so
+# such a fighter simply can never deflect - which is what a training dummy
+# should do anyway.
+func _attack_instance_id_of(fighter) -> int:
+	if "attack_instance_id" in fighter:
+		return fighter.attack_instance_id
+	return -1
 
 
 func _update_sprite_facing() -> void:

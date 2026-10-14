@@ -140,10 +140,10 @@ position = Vector2(550, 254)
 scale = Vector2(0.75, 0.75)
 
 [node name="TempCrtShader" type="ColorRect" parent="." unique_id=73426657]
-visible = false
 z_index = 6
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 2
 script = ExtResource("8_3y6c2")
 shader_material = SubResource("ShaderMaterial_7gix3")
 curvature = 0.001
@@ -214,14 +214,11 @@ shape = SubResource("RectangleShape2D_yf5fn")
 
 [node name="SinglePlayerTutorialBackground" parent="." unique_id=2086917281 instance=ExtResource("15_5l615")]
 z_index = -1
-offset_left = 388.0
-offset_top = 155.0
-offset_right = 388.0
-offset_bottom = 155.0
 
 [node name="Pause Container" type="CanvasLayer" parent="." unique_id=1430346933]
 layer = 15
 
 [node name="Control" parent="Pause Container" unique_id=1706374484 instance=ExtResource("14_f1g4l")]
 
-[node name="singleplayer_upgrade_screen" parent="." unique_id=1640650721 instance=ExtResource("16_4qyyu")]
+[node name="singleplayer_upgrade_screen" parent="." unique_id=1640650721 node_paths=PackedStringArray("equipped_cards_anchor") instance=ExtResource("16_4qyyu")]
+equipped_cards_anchor = NodePath("../SinglePlayerTutorialBackground/EquippedCards")

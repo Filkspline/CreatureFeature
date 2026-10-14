@@ -20,8 +20,14 @@ extends Node
 #  text animates, and the pointer's target stays where it is.
 
 @export_group("Emphasis")
-## How much bigger the focused entry's text gets than the rest.
+## How much bigger the focused entry's text gets than the rest. A button whose
+## art already carries its label has no text, so for those this has nothing to
+## grow and focused_scale below does the work instead.
 @export var focused_font_scale : float = 1.35
+## How much the focused button itself scales up. Works for every button, text
+## or art, and is applied to the Control's own transform so a container can't
+## re-flow around it.
+@export var focused_scale : float = 1.06
 @export var emphasis_duration : float = 0.16
 ## Same springy pop the cards and the selection pointer use.
 @export var emphasis_transition : Tween.TransitionType = Tween.TRANS_BACK
@@ -60,9 +66,18 @@ func register_buttons(buttons: Array) -> void:
 		if button == null:
 			continue
 		_base_font_sizes[button] = _font_size_of(button)
-		button.focus_entered.connect(_on_button_focused.bind(button))
-		if hover_selects:
+		# Guarded: a menu can register again when it swaps which set of buttons
+		# is on screen, and connecting twice would run the emphasis twice per
+		# focus change.
+		if not button.focus_entered.is_connected(_on_button_focused):
+			button.focus_entered.connect(_on_button_focused.bind(button))
+		if hover_selects and not button.mouse_entered.is_connected(_on_button_hovered):
 			button.mouse_entered.connect(_on_button_hovered.bind(button))
+		# The scale emphasis pivots on the button's centre; registering happens
+		# before the container has laid anything out, so keep it in step.
+		button.pivot_offset = button.size * 0.5
+		if not button.resized.is_connected(_on_button_resized):
+			button.resized.connect(_on_button_resized.bind(button))
 	_reserve_space()
 	# If something already holds focus (a menu selects its first entry in
 	# _ready), start it emphasised immediately rather than waiting for the
@@ -70,6 +85,10 @@ func register_buttons(buttons: Array) -> void:
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus is Button and _base_font_sizes.has(focus):
 		_emphasise(focus as Button)
+
+
+func _on_button_resized(button: Button) -> void:
+	button.pivot_offset = button.size * 0.5
 
 
 func _on_button_focused(button: Button) -> void:
@@ -86,18 +105,29 @@ func _emphasise(button: Button) -> void:
 	var previous := _emphasised
 	_emphasised = button
 	if previous != null and _base_font_sizes.has(previous):
-		_tween_font(previous, _base_size_of(previous))
-	_tween_font(button, _focused_size_of(button))
+		_tween_emphasis(previous, false)
+	_tween_emphasis(button, true)
 
 
-func _tween_font(button: Button, target_size: int) -> void:
+# One tween per button, driving both halves of the emphasis: the text grows
+# (skipped for a button with no text, since its art carries the label) and the
+# button scales up a little.
+func _tween_emphasis(button: Button, focused: bool) -> void:
 	var existing := _tweens.get(button) as Tween
 	if existing:
 		existing.kill()
+	# Scaling happens around the middle of the button, whichever size the
+	# container has laid it out at.
+	button.pivot_offset = button.size * 0.5
 	var tween := create_tween()
 	_tweens[button] = tween
+	tween.set_parallel(true)
 	tween.set_trans(emphasis_transition).set_ease(emphasis_ease)
-	tween.tween_property(button, "theme_override_font_sizes/font_size", target_size, emphasis_duration)
+	if not button.text.is_empty():
+		var target_size := _focused_size_of(button) if focused else _base_size_of(button)
+		tween.tween_property(button, "theme_override_font_sizes/font_size", target_size, emphasis_duration)
+	var target_scale := Vector2.ONE * (focused_scale if focused else 1.0)
+	tween.tween_property(button, "scale", target_scale, emphasis_duration)
 
 
 func _base_size_of(button: Button) -> int:

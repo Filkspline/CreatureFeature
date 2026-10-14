@@ -367,7 +367,11 @@ func _ready() -> void:
 	sprites.animation_finished.connect(_on_sprites_animation_finished)
 
 	for p in get_tree().get_nodes_in_group("players"):
-		if p != self and (p is Player or p is Dummy):
+		# Duck-typed rather than p is Dummy: anything that can be hit answers
+		# take_hit(), so this keeps working without depending on the Dummy class
+		# being registered globally. The horse's sprite is in this group too and
+		# does not answer it, so it is skipped.
+		if p != self and p.has_method("take_hit"):
 			opponent = p
 			break
 	if not opponent:

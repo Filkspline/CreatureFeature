@@ -64,4 +64,7 @@ func _on_connection_error(message: String):
 
 
 func _on_back_button_pressed() -> void:
+	# Leaving the screen without leaving the session would keep the lobby open
+	# on the relay for whoever joins that session id next.
+	MultiplayerManager.leave_game()
 	SceneTransition.change_scene("res://scenes/main_menu.tscn")

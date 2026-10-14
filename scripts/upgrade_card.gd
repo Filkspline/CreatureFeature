@@ -63,6 +63,11 @@ const HOVER_MULTIPLIER := 1.15
 const HOVER_OVERSHOOT := 1.08
 const HOVER_DURATION := 0.15
 
+## Pixels of the idle float's cycle this card starts part-way through. Set by
+## whatever spawns a row of cards, so a row can be staggered instead of every
+## card bobbing in lockstep. 0 is the un-staggered cycle.
+@export var idle_bob_phase_offset : float = 0.0
+
 var _base_scale : Vector2
 var _hover_tween : Tween
 
@@ -101,6 +106,12 @@ func _on_anim_finished(anim_name: StringName) -> void:
 func _start_idle_bob() -> void:
 	# Gentle up/down float so cards don't sit dead still. Runs forever,
 	# independent of the hover/selection scale tweens below.
+	# idle_bob_phase_offset shifts the whole cycle up by that much first: the
+	# tween always runs between "here" and "here minus IDLE_BOB_AMOUNT", so
+	# starting from a raised position is what puts this card out of phase with
+	# its neighbours. It is applied before the endpoints are read so both of
+	# them move together and the travel distance stays exactly IDLE_BOB_AMOUNT.
+	card_control.position.y -= idle_bob_phase_offset
 	var idle_tween := create_tween().set_loops()
 	idle_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	idle_tween.tween_property(card_control, "position:y", card_control.position.y - IDLE_BOB_AMOUNT, IDLE_BOB_DURATION)

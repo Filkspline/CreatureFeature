@@ -1,0 +1,186 @@
+[gd_scene format=3 uid="uid://cspselectl4b"]
+
+[ext_resource type="Script" path="res://scripts/single_player_select.gd" id="1_spsel"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_font"]
+[ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="3_prompts"]
+[ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="4_crtscript"]
+[ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="5_crtshader"]
+[ext_resource type="Texture2D" path="res://assets/MainScreenAssets/MainmenuBackground.png" id="6_bg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_character_box"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 0.5882353)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_start"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
+shader = ExtResource("5_crtshader")
+shader_parameter/curvature = 0.01
+shader_parameter/scanline_intensity = 0.05
+shader_parameter/scanline_count = 400.0
+shader_parameter/vignette_size = 0.08
+shader_parameter/brightness = 1.05
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 1.0
+shader_parameter/chromatic_aberration = 0.0004
+shader_parameter/noise_amount = 0.0015
+shader_parameter/flicker = 0.001
+shader_parameter/distortion = 0.006
+
+[node name="SinglePlayerSelect" type="Control" unique_id=2011000010]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_spsel")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=2011000011]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+
+[node name="Background" type="TextureRect" parent="." unique_id=2011000012]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Title" type="Label" parent="." unique_id=2011000013]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 18.0
+offset_right = 520.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 38
+text = "PRACTICE RANGE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Characters" type="Node2D" parent="." unique_id=2011000014]
+
+[node name="Character1" type="Panel" parent="Characters" unique_id=2011000015]
+offset_left = 256.0
+offset_top = 96.0
+offset_right = 384.0
+offset_bottom = 240.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_character_box")
+
+[node name="SelectedLabel" type="Label" parent="Characters/Character1" unique_id=2011000016]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_right = 50.0
+offset_bottom = 23.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 14
+text = "READY!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ControlPrompts" parent="Characters/Character1" unique_id=2011000017 instance=ExtResource("3_prompts")]
+visible = false
+layout_mode = 0
+offset_left = -150.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = 160.0
+vertical = true
+icon_scale = 0.2
+entry_spacing = 14.0
+font_size = 13
+reactive = false
+
+[node name="DeviceLabel" type="Label" parent="." unique_id=2011000018]
+layout_mode = 0
+offset_left = 196.0
+offset_top = 252.0
+offset_right = 444.0
+offset_bottom = 276.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 14
+text = "PRESS A BUTTON TO JOIN"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StartButton" type="Button" parent="." unique_id=2011000019]
+visible = false
+layout_mode = 0
+offset_left = 240.0
+offset_top = 292.0
+offset_right = 400.0
+offset_bottom = 330.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_start")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_start")
+theme_override_styles/hover = SubResource("StyleBoxFlat_start")
+theme_override_styles/focus = SubResource("StyleBoxFlat_start")
+text = "START"
+
+[node name="Cursors" type="Node" parent="." unique_id=2011000020]
+
+[node name="CursorIcons" type="Node" parent="." unique_id=2011000021]
+
+[node name="TempCrtShader" type="ColorRect" parent="." unique_id=2011000022]
+z_index = 4
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4_crtscript")
+shader_material = SubResource("ShaderMaterial_crt")
+curvature = 0.01
+scanline_intensity = 0.05
+scanline_count = 400.0
+distortion = 0.006
+flicker = 0.001
+noise_amount = 0.0015
+current_preset = 1
+
+[connection signal="pressed" from="StartButton" to="." method="_start_lab"]

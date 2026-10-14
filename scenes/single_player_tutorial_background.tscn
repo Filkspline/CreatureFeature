@@ -1,114 +1,185 @@
 [gd_scene format=3 uid="uid://behyexhl4or7c"]
 
-[ext_resource type="SpriteFrames" uid="uid://v3xm4wmerdtc" path="res://assets/controls.tres" id="1_hsbf3"]
-[ext_resource type="StyleBox" uid="uid://bvagcvsl5hcde" path="res://assets/ui_style_box.tres" id="1_umyfd"]
+[ext_resource type="SpriteFrames" uid="uid://v3xm4wmerdtc" path="res://assets/controls.tres" id="1_sheet"]
+[ext_resource type="StyleBox" uid="uid://bvagcvsl5hcde" path="res://assets/ui_style_box.tres" id="2_panel"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="3_font"]
+[ext_resource type="Script" path="res://scripts/single_player_tutorial.gd" id="4_script"]
 
-[node name="SinglePlayerTutorialBackground" type="Control" unique_id=2086917281]
+[node name="SinglePlayerTutorialBackground" type="Control" unique_id=2086917281 node_paths=PackedStringArray("controls_text", "menus_text", "movement_icon", "normal_icon", "special_icon", "jump_icon")]
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_right = 640.0
+offset_bottom = 360.0
+mouse_filter = 2
+script = ExtResource("4_script")
+controls_text = NodePath("Panel/Padding/Columns/Controls/ControlsText")
+menus_text = NodePath("Panel/Padding/Columns/Menus/MenusText")
+movement_icon = NodePath("Panel/Padding/Columns/Controls/Icons/Movement/Icon")
+normal_icon = NodePath("Panel/Padding/Columns/Controls/Icons/Normal/Icon")
+special_icon = NodePath("Panel/Padding/Columns/Controls/Icons/Special/Icon")
+jump_icon = NodePath("Panel/Padding/Columns/Controls/Icons/Jump/Icon")
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1065987241]
+[node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 50
-theme_override_constants/margin_top = 50
-theme_override_constants/margin_right = 50
-theme_override_constants/margin_bottom = 50
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 634.0
+offset_bottom = 196.0
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("2_panel")
 
-[node name="PanelContainer" type="PanelContainer" parent="MarginContainer" unique_id=733788049]
+[node name="Padding" type="MarginContainer" parent="Panel"]
 layout_mode = 2
-theme_override_styles/panel = ExtResource("1_umyfd")
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer" unique_id=1178247277]
+[node name="Columns" type="HBoxContainer" parent="Panel/Padding"]
 layout_mode = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 20
+mouse_filter = 2
+theme_override_constants/separation = 12
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer" unique_id=314620100]
-layout_mode = 2
-theme_override_constants/separation = 30
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer" unique_id=2095388656]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=144730398]
+[node name="Controls" type="VBoxContainer" parent="Panel/Padding/Columns"]
+custom_minimum_size = Vector2(218, 0)
 layout_mode = 2
 size_flags_horizontal = 0
-size_flags_vertical = 0
-text = "Blocking"
+mouse_filter = 2
+theme_override_constants/separation = 4
 
-[node name="Label2" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=594759304]
+[node name="Heading" type="Label" parent="Panel/Padding/Columns/Controls"]
 layout_mode = 2
-text = "Dashing"
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 15
+text = "CONTROLS"
 
-[node name="Label3" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=2036461052]
+[node name="Icons" type="HBoxContainer" parent="Panel/Padding/Columns/Controls"]
 layout_mode = 2
-text = "Air Dashing"
+mouse_filter = 2
+theme_override_constants/separation = 4
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer" unique_id=985455039]
+[node name="Movement" type="Control" parent="Panel/Padding/Columns/Controls/Icons"]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
-theme_override_constants/separation = 20
+mouse_filter = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1221573313]
+[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Columns/Controls/Icons/Movement"]
+position = Vector2(12, 12)
+scale = Vector2(0.22, 0.22)
+sprite_frames = ExtResource("1_sheet")
+frame = 0
+
+[node name="Normal" type="Control" parent="Panel/Padding/Columns/Controls/Icons"]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
-theme_override_constants/separation = 50
+mouse_filter = 2
 
-[node name="Control" type="Control" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=624904792]
+[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Columns/Controls/Icons/Normal"]
+position = Vector2(12, 12)
+scale = Vector2(0.22, 0.22)
+sprite_frames = ExtResource("1_sheet")
+frame = 5
+
+[node name="Special" type="Control" parent="Panel/Padding/Columns/Controls/Icons"]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
+mouse_filter = 2
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer/Control" unique_id=935933432]
-scale = Vector2(0.5, 0.5)
-sprite_frames = ExtResource("1_hsbf3")
-frame = 4
+[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Columns/Controls/Icons/Special"]
+position = Vector2(12, 12)
+scale = Vector2(0.22, 0.22)
+sprite_frames = ExtResource("1_sheet")
+frame = 6
 
-[node name="Control2" type="Control" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=727683964]
+[node name="Jump" type="Control" parent="Panel/Padding/Columns/Controls/Icons"]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
+mouse_filter = 2
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer/Control2" unique_id=1590671393]
-scale = Vector2(0.5, 0.5)
-sprite_frames = ExtResource("1_hsbf3")
-frame = 9
+[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Columns/Controls/Icons/Jump"]
+position = Vector2(12, 12)
+scale = Vector2(0.22, 0.22)
+sprite_frames = ExtResource("1_sheet")
+frame = 18
 
-[node name="Control3" type="Control" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=720552190]
+[node name="ControlsText" type="Label" parent="Panel/Padding/Columns/Controls"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/line_spacing = 1
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 12
+text = "MOVE     A  D
+JUMP     Space / W / U
+NORMAL   O / T
+SPECIAL  I / Y
+CROUCH   S
+BLOCK    hold A
+DASH     tap A or D twice"
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer/Control3" unique_id=1699064681]
-scale = Vector2(0.5, 0.5)
-sprite_frames = ExtResource("1_hsbf3")
-frame = 15
-
-[node name="empty" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=1832525843]
+[node name="Menus" type="VBoxContainer" parent="Panel/Padding/Columns"]
+custom_minimum_size = Vector2(186, 0)
 layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 4
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1573674012]
+[node name="Heading" type="Label" parent="Panel/Padding/Columns/Menus"]
 layout_mode = 2
-theme_override_constants/separation = 50
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 15
+text = "MENU & CARDS"
 
-[node name="Label2" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer2" unique_id=1207203208]
+[node name="MenusText" type="Label" parent="Panel/Padding/Columns/Menus"]
 layout_mode = 2
-text = "TEMP - PUT ICON OF DOUBLE INPUT HERE"
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/line_spacing = 1
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 12
+text = "OPEN     Tab or Enter
+MOVE     W  S
+PICK     A  D
+TAKE     Enter
+REMOVE   I / Y
+CLOSE    Back, or OPEN
+DAMAGE   shows each hit
+DUMMY    cycles its own
+         block: mids either,
+         lows crouch only,
+         overheads stand only"
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer" unique_id=225897397]
+[node name="CardSpace" type="Control" parent="Panel/Padding/Columns"]
 layout_mode = 2
-theme_override_constants/separation = 50
+size_flags_horizontal = 3
+mouse_filter = 2
 
-[node name="Label2" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer3" unique_id=1072216543]
-layout_mode = 2
-text = "TEMP - PUT ICON OF DOUBLE INPUT HERE"
+[node name="CardsHeading" type="Label" parent="."]
+layout_mode = 1
+offset_left = 445.0
+offset_top = 20.0
+offset_right = 621.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 15
+text = "EQUIPPED CARDS"
+horizontal_alignment = 1
+
+[node name="EquippedCards" type="Node2D" parent="."]
+position = Vector2(533, 108)

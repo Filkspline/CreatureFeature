@@ -74,11 +74,11 @@ const JOY_DETECT_BUTTONS := [
 ]
 const JOY_DETECT_AXES := [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y, JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y]
 
+# White and the light blue accent only: this project's palette is white, blue
+# and black, and the cursors were the one place off-palette colours crept in.
 const CURSOR_COLORS := [
 	Color(1.0, 1.0, 1.0),                            # white
 	Color(0.79607844, 0.85882354, 0.9882353),        # cbdbfc
-	Color(1.0, 0.85, 0.4),                           # amber
-	Color(0.55, 1.0, 0.6),                           # green
 ]
 
 const CURSOR_SIZE := Vector2(51.0, 46.0)

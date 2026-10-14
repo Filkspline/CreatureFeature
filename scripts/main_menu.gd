@@ -3,42 +3,79 @@ extends Node2D
 # ──────────────────────────────────────────────────────────────────
 #  MainMenu
 #
+#  Two sets of buttons that swap in place: the top-level set (Play /
+#  Settings / Quit) and the mode set that Play opens (Practice Range /
+#  Online Multiplayer / Local Multiplayer / Back). Only one set is ever
+#  visible, both sit in the same spot, so pressing Play reads as the buttons
+#  themselves changing rather than a new screen opening.
+#
+#  Navigation, the SelectionPointer and MenuFocusEmphasis all work off the
+#  button list of whichever set is up, so each set is navigable on its own
+#  and neither can scroll into the other's entries.
+#
 #  Mouse stays visible here (the fight hides it), and selection moves by
-#  keyboard/controller or by clicking a button. The scene's SelectionPointer
-#  follows whatever button holds focus, so navigation always shows clearly
-#  which entry is selected.
+#  keyboard/controller or by clicking a button.
 
-@onready var multiplayer_button = $Buttons/VBoxContainer/Multiplayer
-@onready var singleplayer_button = $Buttons/VBoxContainer/Singleplayer
-@onready var settings_button = $Buttons/VBoxContainer/Settings
-@onready var quit_button = $Buttons/VBoxContainer/Quit
-# Grows the focused entry's text so the selection reads at a glance. A real node
-# in the scene, so its scale and timing are tuned in the Inspector.
+@onready var main_set : VBoxContainer = $Buttons/MainMenuButtons
+@onready var mode_set : VBoxContainer = $Buttons/ModeButtons
+
+@onready var play_button : Button = $Buttons/MainMenuButtons/Play
+@onready var settings_button : Button = $Buttons/MainMenuButtons/Settings
+@onready var quit_button : Button = $Buttons/MainMenuButtons/Quit
+
+@onready var practice_button : Button = $Buttons/ModeButtons/PracticeRange
+@onready var online_button : Button = $Buttons/ModeButtons/Online
+@onready var local_button : Button = $Buttons/ModeButtons/Local
+@onready var back_button : Button = $Buttons/ModeButtons/Back
+
+# Grows the focused entry so the selection reads at a glance. A real node in
+# the scene, so its scale and timing are tuned in the Inspector.
 @onready var focus_emphasis : MenuFocusEmphasis = get_node_or_null("MenuFocusEmphasis")
 
-var buttons: Array[Button]
+const PLAYER_SELECT_SCENE := "res://scenes/player_select.tscn"
+const SINGLE_PLAYER_SELECT_SCENE := "res://scenes/single_player_select.tscn"
+const ONLINE_LOBBY_SCENE := "res://scenes/OnlineLobby.tscn"
+const SETTINGS_SCENE := "res://scenes/settings.tscn"
+
+# The buttons belonging to whichever set is on screen. Everything below reads
+# this instead of a fixed list, so the two sets can't bleed into each other.
+var buttons: Array[Button] = []
 var selected_index := 0
 
 
 func _ready():
-	# Node paths above are the real names in the scene. This used to look up
-	# "Play", which does not exist, so the first entry was null and the menu's
-	# keyboard/controller navigation errored on it.
-	# Singleplayer is a real entry in the scene with its own handler, it was just
-	# missing from this list, so keyboard and controller navigation could never
-	# reach it.
-	buttons = [multiplayer_button, singleplayer_button, settings_button, quit_button]
-
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_show_main_set()
 
-	# Automatically select the first entry when the menu opens.
-	buttons[selected_index].grab_focus()
 
+# Swaps the visible set and hands navigation the matching button list. Called
+# with the set that should be shown; the other one is hidden outright.
+func _show_set(set_root: VBoxContainer, set_buttons: Array[Button]) -> void:
+	main_set.visible = set_root == main_set
+	mode_set.visible = set_root == mode_set
+
+	buttons = set_buttons
+	selected_index = 0
+
+	if buttons.is_empty():
+		return
+	buttons[0].grab_focus()
 	if focus_emphasis:
 		focus_emphasis.register_buttons(buttons)
 
 
+func _show_main_set() -> void:
+	_show_set(main_set, [play_button, settings_button, quit_button])
+
+
+func _show_mode_set() -> void:
+	_show_set(mode_set, [practice_button, online_button, local_button, back_button])
+
+
 func _process(_delta):
+	if buttons.is_empty():
+		return
+
 	# Move selection down
 	if Input.is_action_just_pressed("MenuDown"):
 		selected_index += 1
@@ -62,30 +99,51 @@ func _process(_delta):
 		buttons[selected_index].pressed.emit()
 
 
-func _on_multiplayer_pressed():
-	print("Multiplayer pressed")
-	SfxManager.play_ui_select()
-	GameManager.mode_id = 1
-	SceneTransition.change_scene("res://scenes/player_select.tscn")
+# ── Top-level set ──
 
-func _on_singleplayer_pressed() -> void:
-	print("Singleplayer pressed")
+func _on_play_pressed() -> void:
 	SfxManager.play_ui_select()
-	GameManager.mode_id = 2
-	SceneTransition.change_scene("res://scenes/player_select.tscn")
+	_show_mode_set()
 
 
 func _on_settings_pressed():
 	SfxManager.play_ui_select()
-	SceneTransition.change_scene("res://scenes/settings.tscn")
+	SceneTransition.change_scene(SETTINGS_SCENE)
 
 
 func _on_quit_pressed():
-	print("Quit pressed")
 	SfxManager.play_ui_select()
 	get_tree().quit()
 
 
-func _on_online_pressed():
-	print("Online Multiplayer pressed")
-	SceneTransition.change_scene("res://scenes/OnlineLobby.tscn")
+# ── Mode set ──
+
+# Practice Range is the single-player mode, and it has its own one-slot select
+# screen: there is no second player in the lab, so the multiplayer player
+# select would be asking for a character nobody plays. mode_id 2 is what the
+# select screen and the lab key off.
+func _on_practice_range_pressed() -> void:
+	SfxManager.play_ui_select()
+	GameManager.mode_id = 2
+	SceneTransition.change_scene(SINGLE_PLAYER_SELECT_SCENE)
+
+
+# Online goes to the lobby first: the lobby owns the session handshake and
+# hands off to player select once a peer is actually connected. mode_id is
+# pinned to 1 (the fighting flow) so a previous Practice Range session can't
+# leave mode_id on 2 and send a connected online session to the lab.
+func _on_online_pressed() -> void:
+	SfxManager.play_ui_select()
+	GameManager.mode_id = 1
+	SceneTransition.change_scene(ONLINE_LOBBY_SCENE)
+
+
+func _on_local_multiplayer_pressed() -> void:
+	SfxManager.play_ui_select()
+	GameManager.mode_id = 1
+	SceneTransition.change_scene(PLAYER_SELECT_SCENE)
+
+
+func _on_back_pressed() -> void:
+	SfxManager.play_ui_select()
+	_show_main_set()
