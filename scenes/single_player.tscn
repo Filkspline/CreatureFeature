@@ -136,7 +136,7 @@ player_id = 2
 scale = Vector2(0.75, 0.75)
 
 [node name="dummy" parent="." unique_id=1938152320 instance=ExtResource("7_v0ce2")]
-position = Vector2(550, 254)
+position = Vector2(553, 238)
 scale = Vector2(0.75, 0.75)
 
 [node name="TempCrtShader" type="ColorRect" parent="." unique_id=73426657]

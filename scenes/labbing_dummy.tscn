@@ -112,8 +112,6 @@ size = Vector2(348, 726)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_oxha2"]
 
 [node name="dummy" type="CharacterBody2D" unique_id=1938152320 node_paths=PackedStringArray("state_label", "float_label_template", "total_damage_display", "total_damage_label", "total_damage_timer", "mid_block_barrier", "low_block_barrier") groups=["players"]]
-cycle_block_states = true
-float_label_offset = Vector2(0, -5)
 script = ExtResource("2_w5umm")
 state_label = NodePath("StateLabel")
 float_label_template = NodePath("DamageNumbers/FloatLabelTemplate")
@@ -125,8 +123,8 @@ low_block_barrier = NodePath("LowBlockBarrier")
 metadata/_custom_type_script = "uid://b1q73d0u8j2hl"
 
 [node name="horse_sprite" type="AnimatedSprite2D" parent="." unique_id=1334692252 groups=["players"]]
-position = Vector2(7, -14)
-scale = Vector2(1.205, 1.205)
+position = Vector2(3, -0.9999995)
+scale = Vector2(1.0225, 1.0225)
 sprite_frames = SubResource("SpriteFrames_m2va7")
 animation = &"take_hit"
 
@@ -147,10 +145,10 @@ debug_color = Color(0.32208934, 0.5997156, 0.5001908, 0.41960785)
 shape = SubResource("RectangleShape2D_oxha2")
 
 [node name="StateLabel" type="Label" parent="." unique_id=2013000001]
-offset_left = -225.0
-offset_top = -115.0
-offset_right = 95.0
-offset_bottom = -83.0
+offset_left = -226.0
+offset_top = -77.0
+offset_right = 94.0
+offset_bottom = -45.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
 theme_override_constants/outline_size = 4
@@ -162,9 +160,9 @@ vertical_alignment = 1
 
 [node name="MidBlockBarrier" type="Sprite2D" parent="." unique_id=2013100001]
 modulate = Color(4.9472184, 18.892157, 18.892157, 0.58431375)
-position = Vector2(-102.00001, -124.000015)
+position = Vector2(-115.16457, -79.37118)
 rotation = 0.2617994
-scale = Vector2(-0.96, 1)
+scale = Vector2(-0.7707772, 0.70759773)
 texture = ExtResource("4_barrier")
 hframes = 3
 frame = 1
@@ -172,9 +170,9 @@ frame = 1
 [node name="LowBlockBarrier" type="Sprite2D" parent="." unique_id=2013100002]
 modulate = Color(0.27058825, 1, 1, 0.5686275)
 self_modulate = Color(18.892157, 18.892157, 18.892157, 1)
-position = Vector2(-113.99999, -20)
+position = Vector2(-134.99997, -5.999996)
 rotation = -0.05235988
-scale = Vector2(-1.122, 1)
+scale = Vector2(-0.7904551, 0.6598769)
 texture = ExtResource("4_barrier")
 hframes = 3
 frame = 1
@@ -200,28 +198,27 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="TotalDamage" type="Node2D" parent="." unique_id=2013100008]
-visible = false
 position = Vector2(0, -113)
 
 [node name="Frame" type="Sprite2D" parent="TotalDamage" unique_id=2013100009]
 z_index = 5
-scale = Vector2(0.6, 0.6)
+position = Vector2(55.99999, 10.999998)
+scale = Vector2(1.375, 1.3799999)
 texture = ExtResource("5_quitframe")
 
 [node name="Value" type="Label" parent="TotalDamage" unique_id=2013100010]
 z_index = 5
-offset_left = -58.0
-offset_top = -26.0
-offset_right = 58.0
-offset_bottom = 26.0
+offset_left = -10.0
+offset_top = -11.0
+offset_right = 110.0
+offset_bottom = 47.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
 theme_override_constants/line_spacing = 2
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 14
-text = "TOTAL DAMAGE
-0.0"
+theme_override_font_sizes/font_size = 30
+text = "0.0"
 horizontal_alignment = 1
 vertical_alignment = 1
 

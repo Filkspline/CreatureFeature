@@ -27,7 +27,7 @@ menus_text = NodePath("Panel/Padding/Rows/Columns/Menus/MenusText")
 layout_mode = 1
 offset_left = 6.0
 offset_top = 6.0
-offset_right = 634.0
+offset_right = 542.0
 offset_bottom = 146.0
 mouse_filter = 2
 theme_override_styles/panel = ExtResource("2_panel")
@@ -199,10 +199,10 @@ mouse_filter = 2
 
 [node name="CardsHeading" type="Label" parent="." unique_id=98779398]
 layout_mode = 1
-offset_left = 440.0
-offset_top = 20.0
-offset_right = 621.0
-offset_bottom = 40.0
+offset_left = 345.0
+offset_top = 23.0
+offset_right = 526.0
+offset_bottom = 43.0
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
 theme_override_constants/outline_size = 3
@@ -212,4 +212,4 @@ text = "EQUIPPED CARDS"
 horizontal_alignment = 1
 
 [node name="EquippedCards" type="Node2D" parent="." unique_id=462277542]
-position = Vector2(440, 88)
+position = Vector2(429, 78)
