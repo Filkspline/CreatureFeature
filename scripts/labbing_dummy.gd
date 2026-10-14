@@ -33,15 +33,18 @@ const BLOCKED_READOUT_COLOUR := Color(0.79607844, 0.85882354, 0.9882353, 1.0)
 @onready var hitbox_shape: RectangleShape2D = $collision_box.shape
 @onready var horse_sprite: AnimatedSprite2D = $horse_sprite
 
-## Scene-wired debug readout. The float readout is a hidden template: every hit
-## duplicates it, so its frame art, font, size and outline stay tuned in the
-## scene. It is a Node2D holding the plaque sprite and the number label, so the
-## whole thing drifts and fades as one piece.
+## Scene-wired readouts. The float readout is a hidden template: every hit
+## duplicates it, so its font, size and outline stay tuned in the scene. It is
+## a bare label on purpose - a temporary number over the horse reads better with
+## no frame behind it, and the frame art is spent on the running total instead.
 @export var state_label: Label
-@export var float_label_template: Node2D
-## Name of the label inside the readout template. Looked up rather than
-## exported separately, so the template stays one draggable node.
-@export var float_label_child_name: StringName = &"Value"
+@export var float_label_template: Label
+
+## The running total: a stationary framed readout above the horse, as its own
+## scene node, plus the timer that clears it once the hits stop.
+@export var total_damage_display: Node2D
+@export var total_damage_label: Label
+@export var total_damage_timer: Timer
 
 @export_group("Blocking")
 ## Cycle through the three block states on a timer. Off means it holds
@@ -78,9 +81,10 @@ const BLOCKED_READOUT_COLOUR := Color(0.79607844, 0.85882354, 0.9882353, 1.0)
 ## How far it drifts upwards over that time.
 @export var float_label_rise: float = 46.0
 ## Where a hit's readout appears, relative to the dummy, in screen pixels.
-## Offsets the plaque up over the horse's head; the readout itself is never
-## attached to the player.
-@export var float_label_offset: Vector2 = Vector2(0.0, -118.0)
+## Offsets the number up over the horse's body; the readout itself is never
+## attached to the player, and the stationary total display sits above where
+## these fade out.
+@export var float_label_offset: Vector2 = Vector2(0.0, -20.0)
 ## Whether the state label is shown at all.
 @export var show_state_label: bool = true
 
@@ -341,7 +345,10 @@ func _resolve_hit(move_data: MoveData, attacker: Node2D, _was_crouching: bool) -
 	if player_attacker:
 		attacker_bonus = player_attacker.damage_dealt_bonus
 	var final_damage: float = max(move_data.damage + attacker_bonus - damage_reduction, 0.0)
-	total_damage_taken += final_damage
+	# Through the running-total path rather than a bare += : that is what shows
+	# the display and restarts its hold. A blocked hit never reaches here, so it
+	# never counts toward the total.
+	_add_total_damage(final_damage)
 
 	var move_is_launcher = move_data.is_launcher or move_data.launcher_strength > 0.0
 	var effective_knockback: float = max(move_data.knock_back - knockback_reduction, 0.0)
@@ -427,36 +434,62 @@ func hit_level_name(hit_level: MoveData.HitLevel) -> String:
 func _spawn_float_label(text: String, blocked: bool) -> void:
 	if float_label_template == null or not is_inside_tree():
 		return
-	var readout := float_label_template.duplicate() as Node2D
-	if readout == null:
+	var label := float_label_template.duplicate() as Label
+	if label == null:
 		return
-	float_label_template.get_parent().add_child(readout)
-
-	var value := readout.get_node_or_null(NodePath(float_label_child_name)) as Label
-	if value:
-		value.text = text
-		# White for a hit that landed, light blue for one that was blocked: the
-		# palette is white, blue and black, and the outcome is in the text anyway.
-		value.modulate = BLOCKED_READOUT_COLOUR if blocked else Color(1, 1, 1, 1)
+	float_label_template.get_parent().add_child(label)
+	label.text = text
+	# White for a hit that landed, light blue for one that was blocked: the
+	# palette is white, blue and black, and the outcome is in the text anyway.
+	label.modulate = BLOCKED_READOUT_COLOUR if blocked else Color.WHITE
 	# The template is hidden in the scene so it never draws itself; the duplicate
 	# inherits that, so it has to be shown explicitly.
-	readout.visible = true
-	readout.modulate = Color(1, 1, 1, 1)
-	readout.global_position = _readout_spawn_position()
+	label.visible = true
+	label.global_position = _readout_spawn_position()
 
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(readout, "global_position:y", readout.global_position.y - float_label_rise, float_label_duration)
-	tween.tween_property(readout, "modulate:a", 0.0, float_label_duration)
-	tween.chain().tween_callback(readout.queue_free)
+	tween.tween_property(label, "global_position:y", label.global_position.y - float_label_rise, float_label_duration)
+	tween.tween_property(label, "modulate:a", 0.0, float_label_duration)
+	tween.chain().tween_callback(label.queue_free)
 
 
 # The readout is parented to the DamageNumbers CanvasLayer, which is screen
 # space, while this dummy lives in world space. Converting through the camera
-# puts the plaque over the horse's head instead of at a fixed screen offset
-# that drifts the moment the camera follows the player. It is placed once, at
-# spawn, and the float is its own drift: nothing here follows anything.
+# puts the number over the horse rather than at a fixed screen offset that
+# drifts the moment the camera follows the player. It is placed once, at spawn,
+# and the float is its own drift: nothing here follows anything.
 func _readout_spawn_position() -> Vector2:
 	var screen_position := get_viewport().get_canvas_transform() * global_position
 	return screen_position + float_label_offset
+
+
+# ── Running total ──
+# A separate display from the per-hit numbers: it stays where it is above the
+# horse, counts every point of damage dealt, and clears itself five seconds
+# after the last hit. The hold lives on a Timer node in the scene, so its length
+# is Inspector-editable rather than a number buried in code, and restarting the
+# timer on every hit is what makes the five seconds "since the last hit" rather
+# than "since the first".
+
+func _add_total_damage(amount: float) -> void:
+	total_damage_taken += amount
+	if total_damage_display:
+		total_damage_display.visible = true
+	_refresh_total_label()
+	if total_damage_timer:
+		total_damage_timer.start()
+
+
+func _on_total_damage_timeout() -> void:
+	total_damage_taken = 0.0
+	_refresh_total_label()
+	if total_damage_display:
+		total_damage_display.visible = false
+
+
+func _refresh_total_label() -> void:
+	if total_damage_label == null:
+		return
+	total_damage_label.text = "TOTAL DAMAGE\n%.1f" % total_damage_taken

@@ -101,6 +101,7 @@ class Cursor:
 @onready var character2: Control = $Characters/Character2
 @onready var character1_selected: Label = $Characters/Character1/SelectedLabel
 @onready var character2_selected: Label = $Characters/Character2/SelectedLabel
+@onready var creature2_label: Label = get_node_or_null("Creature2")
 @onready var p1_device_label: Label = $DeviceLabels/P1DeviceLabel
 @onready var p2_device_label: Label = $DeviceLabels/P2DeviceLabel
 @onready var start_button: Button = $Button
@@ -130,9 +131,31 @@ func _ready() -> void:
 	start_button.visible = false
 	if GameManager.online_mode:
 		_create_remote_cursor(1 if GameManager.online_player_id == 2 else 2)
+	_apply_mode_labels()
 	_refresh_slot_labels()
 	_refresh_legends()
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
+
+
+# ── Single player ──
+# Practice Range runs through THIS screen rather than a cut-down copy of it, so
+# every device that presses a button gets its own cursor, any of them can take
+# the player's slot, and changing your mind (Special to release, Normal to take
+# it again) works exactly as it does in local multiplayer. Nothing is claimed
+# until a device confirms.
+#
+# The one difference is the second slot: in the lab that creature is the
+# training dummy, so it is labelled as one and cannot be entered. That is what
+# keeps "input select" from meaning two different things depending on the mode.
+func _single_player() -> bool:
+	return GameManager.mode_id == 2 and not GameManager.online_mode
+
+
+func _apply_mode_labels() -> void:
+	if not _single_player():
+		return
+	if creature2_label:
+		creature2_label.text = "TRAINING DUMMY"
 
 
 func _process(_delta: float) -> void:
@@ -300,6 +323,10 @@ func _move_cursor(cursor: Cursor, delta: int) -> void:
 		return
 	if GameManager.online_mode and new_selection != NEUTRAL and new_selection != (SLOT_1 if GameManager.online_player_id == 1 else SLOT_2):
 		return
+	# Practice Range's second slot is the training dummy: it is there to be read,
+	# not entered, so a cursor stops at the middle rather than sliding onto it.
+	if _single_player() and new_selection == SLOT_2:
+		return
 	# Entering a character slot is only allowed while it's unoccupied.
 	if new_selection != NEUTRAL and _slot_occupied_by_other(new_selection, cursor):
 		return
@@ -327,6 +354,9 @@ func _lock_cursor(cursor: Cursor) -> void:
 	if cursor.selection == NEUTRAL:
 		return
 	if GameManager.online_mode and cursor.selection != (SLOT_1 if GameManager.online_player_id == 1 else SLOT_2):
+		return
+	# The dummy's slot is never claimable, in either mode.
+	if _single_player() and cursor.selection == SLOT_2:
 		return
 	SfxManager.play_ui_select()
 	cursor.locked = true
@@ -483,8 +513,12 @@ func _refresh_ready_state() -> void:
 				local_locked = true
 				break
 		start_button.visible = local_locked and remote_cursor != null and remote_cursor.locked
-	else:
-		start_button.visible = _locked_count() >= 2
+		return
+	if _single_player():
+		# One creature to claim out here, so one locked slot is enough to start.
+		start_button.visible = _locked_count() >= 1
+		return
+	start_button.visible = _locked_count() >= 2
 
 
 func _locked_count() -> int:
@@ -532,6 +566,11 @@ func _neutral_position(index: int) -> Vector2:
 
 func _refresh_slot_labels() -> void:
 	p1_device_label.text = _slot_label(_cursor_at(SLOT_1))
+	if _single_player():
+		# Nothing can claim this slot in the lab, so it is not an invitation to
+		# press a button - it is a statement of what is standing over there.
+		p2_device_label.text = "NOT CONTROLLED"
+		return
 	p2_device_label.text = _slot_label(_cursor_at(SLOT_2))
 
 
@@ -569,12 +608,14 @@ func _remove_cursor(cursor: Cursor) -> void:
 			GameManager.p2_device = null
 		# A pad pulling out takes its legend with it.
 		_refresh_legend(slot)
-		start_button.visible = _locked_count() >= 2
 
 	cursors.erase(cursor)
 	if is_instance_valid(cursor.node):
 		cursor.node.queue_free()
-	start_button.visible = _locked_count() >= 2
+	# Through the mode-aware check rather than a hardcoded "both slots": in
+	# Practice Range one locked slot is the whole requirement, so a pad being
+	# unplugged there must not leave the Start button unable to come back.
+	_refresh_ready_state()
 
 
 

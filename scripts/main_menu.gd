@@ -33,7 +33,6 @@ extends Node2D
 @onready var focus_emphasis : MenuFocusEmphasis = get_node_or_null("MenuFocusEmphasis")
 
 const PLAYER_SELECT_SCENE := "res://scenes/player_select.tscn"
-const SINGLE_PLAYER_SELECT_SCENE := "res://scenes/single_player_select.tscn"
 const ONLINE_LOBBY_SCENE := "res://scenes/OnlineLobby.tscn"
 const SETTINGS_SCENE := "res://scenes/settings.tscn"
 
@@ -118,14 +117,19 @@ func _on_quit_pressed():
 
 # ── Mode set ──
 
-# Practice Range is the single-player mode, and it has its own one-slot select
-# screen: there is no second player in the lab, so the multiplayer player
-# select would be asking for a character nobody plays. mode_id 2 is what the
-# select screen and the lab key off.
+# Practice Range is the single-player mode, and it goes through the SAME input
+# select screen local multiplayer uses, in its single-player mode (mode_id 2).
+# That is the point: the cut-down one-slot screen it used to have claimed the
+# first device that pressed anything and then ignored every other one, so a
+# player who brushed the keyboard was stuck with it for the whole session. Here
+# every device that presses a button gets its own cursor, the player takes the
+# creature's slot with Normal, can release it with Special, and starts once it
+# is held - identical to local multiplayer, with the second creature being the
+# training dummy rather than a second player.
 func _on_practice_range_pressed() -> void:
 	SfxManager.play_ui_select()
 	GameManager.mode_id = 2
-	SceneTransition.change_scene(SINGLE_PLAYER_SELECT_SCENE)
+	SceneTransition.change_scene(PLAYER_SELECT_SCENE)
 
 
 # Online goes to the lobby first: the lobby owns the session handshake and

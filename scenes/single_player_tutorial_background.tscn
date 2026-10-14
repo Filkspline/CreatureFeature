@@ -3,31 +3,36 @@
 [ext_resource type="SpriteFrames" uid="uid://v3xm4wmerdtc" path="res://assets/controls.tres" id="1_sheet"]
 [ext_resource type="StyleBox" uid="uid://bvagcvsl5hcde" path="res://assets/ui_style_box.tres" id="2_panel"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="3_font"]
-[ext_resource type="Script" path="res://scripts/single_player_tutorial.gd" id="4_script"]
+[ext_resource type="Script" uid="uid://co0iny4bweb73" path="res://scripts/single_player_tutorial.gd" id="4_script"]
 
-[node name="SinglePlayerTutorialBackground" type="Control" unique_id=2086917281 node_paths=PackedStringArray("controls_text", "menus_text", "movement_icon", "normal_icon", "special_icon", "jump_icon")]
+[node name="SinglePlayerTutorialBackground" type="Control" unique_id=2086917281 node_paths=PackedStringArray("movement_item", "normal_item", "special_item", "jump_item", "movement_icon", "normal_icon", "special_icon", "jump_icon", "controls_text", "menus_text")]
 layout_mode = 3
+anchors_preset = 0
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
 script = ExtResource("4_script")
-controls_text = NodePath("Panel/Padding/Columns/Controls/ControlsText")
-menus_text = NodePath("Panel/Padding/Columns/Menus/MenusText")
-movement_icon = NodePath("Panel/Padding/Columns/Controls/Icons/Movement/Icon")
-normal_icon = NodePath("Panel/Padding/Columns/Controls/Icons/Normal/Icon")
-special_icon = NodePath("Panel/Padding/Columns/Controls/Icons/Special/Icon")
-jump_icon = NodePath("Panel/Padding/Columns/Controls/Icons/Jump/Icon")
+movement_item = NodePath("Panel/Padding/Rows/Icons/Movement")
+normal_item = NodePath("Panel/Padding/Rows/Icons/Normal")
+special_item = NodePath("Panel/Padding/Rows/Icons/Special")
+jump_item = NodePath("Panel/Padding/Rows/Icons/Jump")
+movement_icon = NodePath("Panel/Padding/Rows/Icons/Movement/Icon")
+normal_icon = NodePath("Panel/Padding/Rows/Icons/Normal/Icon")
+special_icon = NodePath("Panel/Padding/Rows/Icons/Special/Icon")
+jump_icon = NodePath("Panel/Padding/Rows/Icons/Jump/Icon")
+controls_text = NodePath("Panel/Padding/Rows/Columns/Controls/ControlsText")
+menus_text = NodePath("Panel/Padding/Rows/Columns/Menus/MenusText")
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="Panel" type="PanelContainer" parent="." unique_id=1925627970]
 layout_mode = 1
 offset_left = 6.0
 offset_top = 6.0
 offset_right = 634.0
-offset_bottom = 196.0
+offset_bottom = 146.0
 mouse_filter = 2
 theme_override_styles/panel = ExtResource("2_panel")
 
-[node name="Padding" type="MarginContainer" parent="Panel"]
+[node name="Padding" type="MarginContainer" parent="Panel" unique_id=559001833]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 10
@@ -35,80 +40,125 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="Columns" type="HBoxContainer" parent="Panel/Padding"]
+[node name="Rows" type="VBoxContainer" parent="Panel/Padding" unique_id=2141700727]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 6
 
-[node name="Controls" type="VBoxContainer" parent="Panel/Padding/Columns"]
-custom_minimum_size = Vector2(218, 0)
+[node name="Icons" type="HBoxContainer" parent="Panel/Padding/Rows" unique_id=577023130]
 layout_mode = 2
-size_flags_horizontal = 0
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="Heading" type="Label" parent="Panel/Padding/Columns/Controls"]
+[node name="Movement" type="Control" parent="Panel/Padding/Rows/Icons" unique_id=97878519]
+custom_minimum_size = Vector2(52, 42)
 layout_mode = 2
 mouse_filter = 2
+
+[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Rows/Icons/Movement" unique_id=1334844443]
+position = Vector2(26, 11)
+scale = Vector2(0.22, 0.22)
+sprite_frames = ExtResource("1_sheet")
+
+[node name="Caption" type="Label" parent="Panel/Padding/Rows/Icons/Movement" unique_id=1909407699]
+layout_mode = 0
+offset_top = 26.0
+offset_right = 52.0
+offset_bottom = 42.0
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 15
-text = "CONTROLS"
+theme_override_font_sizes/font_size = 11
+text = "MOVE"
+horizontal_alignment = 1
 
-[node name="Icons" type="HBoxContainer" parent="Panel/Padding/Columns/Controls"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-
-[node name="Movement" type="Control" parent="Panel/Padding/Columns/Controls/Icons"]
-custom_minimum_size = Vector2(24, 24)
+[node name="Normal" type="Control" parent="Panel/Padding/Rows/Icons" unique_id=37267400]
+custom_minimum_size = Vector2(52, 42)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Columns/Controls/Icons/Movement"]
-position = Vector2(12, 12)
-scale = Vector2(0.22, 0.22)
-sprite_frames = ExtResource("1_sheet")
-frame = 0
-
-[node name="Normal" type="Control" parent="Panel/Padding/Columns/Controls/Icons"]
-custom_minimum_size = Vector2(24, 24)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Columns/Controls/Icons/Normal"]
-position = Vector2(12, 12)
+[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Rows/Icons/Normal" unique_id=547077607]
+position = Vector2(26, 11)
 scale = Vector2(0.22, 0.22)
 sprite_frames = ExtResource("1_sheet")
 frame = 5
 
-[node name="Special" type="Control" parent="Panel/Padding/Columns/Controls/Icons"]
-custom_minimum_size = Vector2(24, 24)
+[node name="Caption" type="Label" parent="Panel/Padding/Rows/Icons/Normal" unique_id=16476198]
+layout_mode = 0
+offset_top = 26.0
+offset_right = 52.0
+offset_bottom = 42.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 11
+text = "NORMAL"
+horizontal_alignment = 1
+
+[node name="Special" type="Control" parent="Panel/Padding/Rows/Icons" unique_id=1645806731]
+custom_minimum_size = Vector2(52, 42)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Columns/Controls/Icons/Special"]
-position = Vector2(12, 12)
+[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Rows/Icons/Special" unique_id=179790748]
+position = Vector2(26, 11)
 scale = Vector2(0.22, 0.22)
 sprite_frames = ExtResource("1_sheet")
 frame = 6
 
-[node name="Jump" type="Control" parent="Panel/Padding/Columns/Controls/Icons"]
-custom_minimum_size = Vector2(24, 24)
+[node name="Caption" type="Label" parent="Panel/Padding/Rows/Icons/Special" unique_id=1385962827]
+layout_mode = 0
+offset_top = 26.0
+offset_right = 52.0
+offset_bottom = 42.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 11
+text = "SPECIAL"
+horizontal_alignment = 1
+
+[node name="Jump" type="Control" parent="Panel/Padding/Rows/Icons" unique_id=113982724]
+custom_minimum_size = Vector2(52, 42)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Columns/Controls/Icons/Jump"]
-position = Vector2(12, 12)
+[node name="Icon" type="AnimatedSprite2D" parent="Panel/Padding/Rows/Icons/Jump" unique_id=1351484186]
+position = Vector2(26, 11)
 scale = Vector2(0.22, 0.22)
 sprite_frames = ExtResource("1_sheet")
 frame = 18
 
-[node name="ControlsText" type="Label" parent="Panel/Padding/Columns/Controls"]
+[node name="Caption" type="Label" parent="Panel/Padding/Rows/Icons/Jump" unique_id=1531759721]
+layout_mode = 0
+offset_top = 26.0
+offset_right = 52.0
+offset_bottom = 42.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 11
+text = "JUMP"
+horizontal_alignment = 1
+
+[node name="Columns" type="HBoxContainer" parent="Panel/Padding/Rows" unique_id=223561980]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="Controls" type="VBoxContainer" parent="Panel/Padding/Rows/Columns" unique_id=1651215265]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 1
+
+[node name="ControlsText" type="Label" parent="Panel/Padding/Rows/Columns/Controls" unique_id=1823107701]
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
 theme_override_constants/line_spacing = 1
@@ -116,63 +166,43 @@ theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 12
 text = "MOVE     A  D
-JUMP     Space / W / U
-NORMAL   O / T
-SPECIAL  I / Y
+JUMP     Space
 CROUCH   S
 BLOCK    hold A
 DASH     tap A or D twice"
 
-[node name="Menus" type="VBoxContainer" parent="Panel/Padding/Columns"]
-custom_minimum_size = Vector2(186, 0)
+[node name="Menus" type="VBoxContainer" parent="Panel/Padding/Rows/Columns" unique_id=1541987570]
+custom_minimum_size = Vector2(190, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 mouse_filter = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 1
 
-[node name="Heading" type="Label" parent="Panel/Padding/Columns/Menus"]
+[node name="MenusText" type="Label" parent="Panel/Padding/Rows/Columns/Menus" unique_id=1864845117]
 layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
-theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 15
-text = "MENU & CARDS"
-
-[node name="MenusText" type="Label" parent="Panel/Padding/Columns/Menus"]
-layout_mode = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
 theme_override_constants/line_spacing = 1
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 12
-text = "OPEN     Tab or Enter
-MOVE     W  S
+text = "MENU     Tab or Enter
 PICK     A  D
 TAKE     Enter
-REMOVE   I / Y
-CLOSE    Back, or OPEN
-DAMAGE   shows each hit
-DUMMY    cycles its own
-         block: mids either,
-         lows crouch only,
-         overheads stand only"
+REMOVE   Special
+CLOSE    Back"
 
-[node name="CardSpace" type="Control" parent="Panel/Padding/Columns"]
+[node name="CardSpace" type="Control" parent="Panel/Padding/Rows/Columns" unique_id=1123692957]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="CardsHeading" type="Label" parent="."]
+[node name="CardsHeading" type="Label" parent="." unique_id=98779398]
 layout_mode = 1
-offset_left = 445.0
+offset_left = 440.0
 offset_top = 20.0
 offset_right = 621.0
 offset_bottom = 40.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
 theme_override_constants/outline_size = 3
@@ -181,5 +211,5 @@ theme_override_font_sizes/font_size = 15
 text = "EQUIPPED CARDS"
 horizontal_alignment = 1
 
-[node name="EquippedCards" type="Node2D" parent="."]
-position = Vector2(533, 108)
+[node name="EquippedCards" type="Node2D" parent="." unique_id=462277542]
+position = Vector2(440, 88)

@@ -1,20 +1,19 @@
 extends Control
 
 # ──────────────────────────────────────────────────────────────────
-#  SinglePlayerSelect
+#  SUPERSEDED - nothing loads this any more.
 #
-#  Practice Range's own select screen: one creature slot instead of two,
-#  because the lab is a single player against the training dummy and there is
-#  nothing for a second player to claim.
+#  Practice Range now runs through player_select.tscn with mode_id 2 (see
+#  main_menu.gd's _on_practice_range_pressed and player_select.gd's
+#  _single_player()). This one-slot screen was replaced because it claimed the
+#  FIRST device to press anything and then ignored every other device for the
+#  rest of the session - a player who brushed the keyboard was stuck with it.
+#  The shared screen gives every device its own cursor, lets any of them take
+#  the creature's slot, and lets a player release it and change their mind.
 #
-#  Everything else works like player_select.gd: any input mode that presses a
-#  button joins and claims the slot with its device, Normal confirms, Special
-#  backs out of a confirmed slot, and Start (once the slot is confirmed) binds
-#  that device and moves on to the lab.
-#
-#  Input is resolved per device through PlayerInputDevice and GameManager's
-#  captured keyboard layouts, the way every other menu does it, rather than
-#  reading raw action names.
+#  Kept only as a reference; safe to delete along with
+#  scenes/single_player_select.tscn.
+# ──────────────────────────────────────────────────────────────────
 
 const LAB_SCENE := "res://scenes/single_player.tscn"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"

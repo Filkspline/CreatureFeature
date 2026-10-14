@@ -23,11 +23,21 @@ const ROW_COUNT := 3
 ## key.
 const MENU_CLOSE_KEY := KEY_TAB
 
+## Tint for a card that is equipped. It goes on the card's frame sprite, which
+## is the same border art every card in the game is drawn with, so a taken card
+## is outlined in the project's blue without any new asset - and self_modulate
+## keeps it to the border, leaving the icon and text inside the card alone.
+const SELECTED_BORDER_COLOUR := Color(0.79607844, 0.85882354, 0.9882353, 1.0)
+
 # Handling the nodes in the UI
 @onready var player_moves_node = $move_node
 @onready var player_stats_node = $upgrade_node
 @onready var back_button : Button = $BackButton
 @onready var focus_emphasis : MenuFocusEmphasis = get_node_or_null("MenuFocusEmphasis")
+# What is equipped, and what the buttons do, written in the menu itself. Both
+# are optional: the menu works without them, it just says less.
+@onready var status_label : Label = get_node_or_null("StatusLabel")
+@onready var hint_label : Label = get_node_or_null("HintLabel")
 
 # The training dummy this menu drives. Wired in the scene as a NodePath, so
 # which node it points at is editable rather than hardcoded. Typed as Node2D
@@ -106,6 +116,9 @@ class UpgradeColumn:
 	## True while this row is the one the selector is on. An inactive row stays
 	## dimmer and its focused card gives up the selector icon and the scale-up.
 	var is_active : bool = false
+	## The card's authored selector-icon scale, captured before anything has had
+	## a chance to animate it. See _apply_focus_marker().
+	var selector_scale : Vector2 = Vector2.ZERO
 
 var p1_selection_column : int = 0 # 0 for unlocks, 1 for upgrades, 2 for the Back button
 # Edge-detection state for per-device input resolution.
@@ -192,6 +205,7 @@ func pause() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	EventBus.sp_player_upgrade_reset.emit()
 	_refresh_row_focus()
+	_refresh_selection_feedback()
 
 
 # ── Picking cards ──
@@ -203,9 +217,22 @@ func _select_card(column_index : int) -> void:
 	if selected_cards.has(data):
 		_remove_card(data)
 		return
+
+	# Only one special can be equipped. Taking a second one replaces the first
+	# rather than stacking, which is exactly what the game does with a special:
+	# Player.unlock_move() OVERWRITES selected_special instead of adding to a
+	# list, so two special cards picked at once could never both take effect -
+	# one of them would silently do nothing.
+	if _is_special(data):
+		var previous := _selected_special()
+		if previous != null and previous != data:
+			selected_cards.erase(previous)
+			_dbg("[SELECT CARD] '%s' replaced the equipped special '%s'" % [data.name, previous.name])
+
 	selected_cards.append(data)
 	SfxManager.play_ui_select()
 	_dbg("[SELECT CARD] Current card array: %s" % [selected_cards])
+	_refresh_selection_feedback()
 	_draw_owned_cards()
 
 
@@ -225,7 +252,68 @@ func _remove_card(upgrade : UpgradeData) -> void:
 	selected_cards.remove_at(index)
 	SfxManager.play_ui_hover()
 	_dbg("[DESELECT CARD] Current card array: %s" % [selected_cards])
+	_refresh_selection_feedback()
 	_draw_owned_cards()
+
+
+# ── What is equipped, and how it reads ──
+
+## The card that sets this player's special, per the same test the round draft
+## uses to split its first step off (UpgradePoolManager), so "a special card"
+## means one thing in both menus.
+func _is_special(upgrade : UpgradeData) -> bool:
+	return UpgradePoolManager.is_special_move_card(upgrade)
+
+
+func _selected_special() -> UpgradeData:
+	for upgrade in selected_cards:
+		if _is_special(upgrade):
+			return upgrade
+	return null
+
+
+# Everything the menu says about what is currently equipped, refreshed from
+# selected_cards rather than tracked alongside it, so there is only ever one
+# answer to "what have I taken".
+func _refresh_selection_feedback() -> void:
+	_apply_card_borders()
+	_refresh_status()
+
+
+# Equipped cards are marked on the card's own border art: the frame sprite is
+# tinted with the project's blue while that card is taken and left white while
+# it is not, so what is equipped is readable at a glance from the row itself
+# rather than only from a list somewhere else.
+func _apply_card_borders() -> void:
+	for column in [unlock, upgrade]:
+		if column == null:
+			continue
+		for card in column.cards:
+			var data : UpgradeData = column.upgrade_map.get(card)
+			var equipped := data != null and selected_cards.has(data)
+			if card.card_front:
+				card.card_front.self_modulate = SELECTED_BORDER_COLOUR if equipped else Color.WHITE
+
+
+func _refresh_status() -> void:
+	if status_label:
+		var special := _selected_special()
+		status_label.text = "CARDS %d      SPECIAL %s" % [
+			selected_cards.size(),
+			special.name if special != null else "NONE",
+		]
+	if hint_label:
+		hint_label.text = _hint_text()
+
+
+# The one line of instruction the menu needs, in the words of the device that
+# is actually driving it - the same per-device split the tutorial card and the
+# rest of the game's menus use.
+func _hint_text() -> String:
+	var device := _current_device()
+	if device != null and device.kind == PlayerInputDevice.Kind.JOYPAD:
+		return "A takes the focused card  -  B puts it back  -  one special only"
+	return "Enter takes the focused card  -  Special puts it back  -  one special only"
 
 
 func _apply_selected_upgrades() -> void:
@@ -263,6 +351,10 @@ func _build_column(anchor : Node2D, upgrades : Array[UpgradeData], row : int) ->
 			card_default_scale = card.scale
 		if card_art_width <= 0.0 and card.card_front and card.card_front.texture:
 			card_art_width = float(card.card_front.texture.get_width()) * card.card_control.scale.x * card_default_scale.x
+		# Captured while the marker is still at its authored scale, before any
+		# highlight has had the chance to animate it down to nothing.
+		if column.selector_scale == Vector2.ZERO and card.selection_icon:
+			column.selector_scale = card.selection_icon.scale
 
 		card.set_upgrade(upgrade)
 		card.flip_card()
@@ -334,6 +426,7 @@ func _on_recieve_arrays(move_array : Array[UpgradeData], upgrade_array : Array[U
 	_layout_column(unlock, false)
 	_layout_column(upgrade, false)
 	_refresh_row_focus()
+	_refresh_selection_feedback()
 
 
 # Menu input handling ------------------------------------------------------------------------------
@@ -464,6 +557,14 @@ func _cycle_column(column : UpgradeColumn, direction : int) -> void:
 # (see card_hand.gd), which brings the blinking selector icon, its elastic pop
 # and the springy scale-up with it. Doing it any other way here would be a
 # second, subtly different definition of "selected".
+#
+# The marker's scale is pinned straight afterwards rather than left to that
+# pop. The card's pop starts the icon at zero and relies on its own tween to
+# bring it back up; a second highlight call (moving along the row, changing
+# rows) replaces the first tween, and an interrupted pop leaves the icon sitting
+# at zero - visible as "the selector icon is missing". Pinning the authored
+# scale means it is on screen from the frame it is asked for, and the blink
+# animation still plays on top of it.
 func _apply_focus_marker(column : UpgradeColumn, index : int, highlighted : bool) -> void:
 	if column == null or index < 0 or index >= column.cards.size():
 		return
@@ -474,6 +575,12 @@ func _apply_focus_marker(column : UpgradeColumn, index : int, highlighted : bool
 		return
 	card.currently_highlighted = highlighted
 	card._handle_highlight()
+
+	var marker = card.selection_icon
+	if marker:
+		marker.visible = highlighted
+		if highlighted and column.selector_scale != Vector2.ZERO:
+			marker.scale = column.selector_scale
 
 
 func _focused_card_data(column : UpgradeColumn) -> UpgradeData:
@@ -570,7 +677,7 @@ func _joy_axis_just_pressed(device_id: int, action_name: String) -> bool:
 # --------------------------------------------------------------------------------------------------
 # Displaying the equipped cards
 #
-# A horizontal row of everything picked so far, laid out around the anchor the
+# A horizontal row of everything picked so far, starting at the anchor the
 # tutorial background provides. Each entry is a real UpgradeCard, so it arrives
 # with the same idle float every other card in the game has - there is no second
 # animation system here.
@@ -586,21 +693,21 @@ func _draw_owned_cards() -> void:
 		return
 
 	var count := selected_cards.size()
-	# Fit the row into the width the tutorial background gives it. A short
-	# loadout stays at full size; a long one closes up and shrinks only as far
-	# as it has to. The 0.92 leaves a visible gap between neighbours instead of
-	# letting them touch.
+	# Laid out left to right from the anchor, which is the row's left edge: card
+	# i always occupies slot i, so adding or removing one never shuffles the
+	# others along. A short loadout keeps full size; a long one closes up and
+	# shrinks only as far as it must to stay inside equipped_row_width. The 0.92
+	# keeps a visible gap between neighbours instead of letting them touch.
 	var spacing : float = minf(equipped_card_spacing, equipped_row_width / float(maxi(count, 1)))
 	var width_per_card : float = maxf(card_art_width, 1.0)
 	var fraction : float = minf(owned_card_scale_fraction, spacing * 0.92 / width_per_card)
 	var row_scale : Vector2 = card_default_scale * fraction
-	var first_x : float = -spacing * float(count - 1) * 0.5
 
 	for i in count:
 		var upgrade : UpgradeData = selected_cards[i]
 		if upgrade == null:
 			continue
-		var offset := Vector2(first_x + spacing * float(i), 0.0)
+		var offset := Vector2(spacing * float(i), 0.0)
 		var owned_card := _spawn_owned_card(upgrade, offset, row_scale, i)
 		if owned_card == null:
 			continue

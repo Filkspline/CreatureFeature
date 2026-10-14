@@ -111,10 +111,15 @@ size = Vector2(348, 726)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_oxha2"]
 
-[node name="dummy" type="CharacterBody2D" unique_id=1938152320 node_paths=PackedStringArray("state_label", "float_label_template", "mid_block_barrier", "low_block_barrier") groups=["players"]]
+[node name="dummy" type="CharacterBody2D" unique_id=1938152320 node_paths=PackedStringArray("state_label", "float_label_template", "total_damage_display", "total_damage_label", "total_damage_timer", "mid_block_barrier", "low_block_barrier") groups=["players"]]
+cycle_block_states = true
+float_label_offset = Vector2(0, -5)
 script = ExtResource("2_w5umm")
 state_label = NodePath("StateLabel")
 float_label_template = NodePath("DamageNumbers/FloatLabelTemplate")
+total_damage_display = NodePath("TotalDamage")
+total_damage_label = NodePath("TotalDamage/Value")
+total_damage_timer = NodePath("TotalDamageTimer")
 mid_block_barrier = NodePath("MidBlockBarrier")
 low_block_barrier = NodePath("LowBlockBarrier")
 metadata/_custom_type_script = "uid://b1q73d0u8j2hl"
@@ -177,25 +182,51 @@ frame = 1
 [node name="DamageNumbers" type="CanvasLayer" parent="." unique_id=2013100003]
 layer = 2
 
-[node name="FloatLabelTemplate" type="Node2D" parent="DamageNumbers" unique_id=2013100004]
+[node name="FloatLabelTemplate" type="Label" parent="DamageNumbers" unique_id=2013100004]
 visible = false
+offset_left = -70.0
+offset_top = -20.0
+offset_right = 70.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/line_spacing = 2
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 16
+text = "Mid
+0.0"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Plaque" type="Sprite2D" parent="DamageNumbers/FloatLabelTemplate" unique_id=2013100007]
-scale = Vector2(0.72, 0.72)
+[node name="TotalDamage" type="Node2D" parent="." unique_id=2013100008]
+visible = false
+position = Vector2(0, -113)
+
+[node name="Frame" type="Sprite2D" parent="TotalDamage" unique_id=2013100009]
+z_index = 5
+scale = Vector2(0.6, 0.6)
 texture = ExtResource("5_quitframe")
 
-[node name="Value" type="Label" parent="DamageNumbers/FloatLabelTemplate" unique_id=2013100005]
-offset_left = -70.0
-offset_top = -18.0
-offset_right = 70.0
-offset_bottom = 18.0
+[node name="Value" type="Label" parent="TotalDamage" unique_id=2013100010]
+z_index = 5
+offset_left = -58.0
+offset_top = -26.0
+offset_right = 58.0
+offset_bottom = 26.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
 theme_override_constants/line_spacing = 2
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 14
-text = "Mid
+text = "TOTAL DAMAGE
 0.0"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TotalDamageTimer" type="Timer" parent="." unique_id=2013100011]
+wait_time = 5.0
+one_shot = true
+
+[connection signal="timeout" from="TotalDamageTimer" to="." method="_on_total_damage_timeout"]
