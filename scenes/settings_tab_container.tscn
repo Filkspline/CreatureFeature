@@ -118,6 +118,38 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
 theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
 text = "WINDOWED"
 
+[node name="ResolutionRow" type="HBoxContainer" parent="TabContainer/General" unique_id=1652187571]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ResolutionLabel" type="Label" parent="TabContainer/General/ResolutionRow" unique_id=1652187572]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "RESOLUTION"
+vertical_alignment = 1
+
+[node name="ResolutionButton" type="Button" parent="TabContainer/General/ResolutionRow" unique_id=1652187573]
+custom_minimum_size = Vector2(200, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "1080P  1920X1080"
+
 [node name="VsyncRow" type="HBoxContainer" parent="TabContainer/General" unique_id=1652187567]
 layout_mode = 2
 theme_override_constants/separation = 12
@@ -157,7 +189,7 @@ theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 0.75
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 13
-text = "CHANGES ARE SAVED AS SOON AS THEY ARE MADE, AND REMEMBERED NEXT TIME THE GAME IS OPENED."
+text = "SAVED AS SOON AS THEY ARE MADE. THE RESOLUTION APPLIES WHILE WINDOWED - FULLSCREEN USES THE WHOLE DISPLAY."
 autowrap_mode = 2
 
 [node name="Sound" type="VBoxContainer" parent="TabContainer" unique_id=389589682]
@@ -415,6 +447,7 @@ text = "CONTROLLERS USE THE SAME ACTIONS: D-PAD OR LEFT STICK MOVES, A NORMAL, B
 autowrap_mode = 2
 
 [connection signal="pressed" from="TabContainer/General/WindowModeRow/WindowModeButton" to="." method="_on_window_mode_pressed"]
+[connection signal="pressed" from="TabContainer/General/ResolutionRow/ResolutionButton" to="." method="_on_resolution_pressed"]
 [connection signal="pressed" from="TabContainer/General/VsyncRow/VsyncButton" to="." method="_on_vsync_pressed"]
 [connection signal="pressed" from="TabContainer/Sound/SfxRow/SfxMinus" to="." method="_on_sfx_minus_pressed"]
 [connection signal="pressed" from="TabContainer/Sound/SfxRow/SfxPlus" to="." method="_on_sfx_plus_pressed"]

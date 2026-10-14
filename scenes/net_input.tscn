@@ -6,3 +6,4 @@
 script = ExtResource("1_netin")
 delay_frames = 5
 log_frames = false
+extra_slack_frames = 2

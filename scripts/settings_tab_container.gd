@@ -18,6 +18,7 @@ const ACTION_BASES := ["Normal", "Special", "Jump"]
 
 @onready var tab_container : TabContainer = $TabContainer
 @onready var window_mode_button : Button = $TabContainer/General/WindowModeRow/WindowModeButton
+@onready var resolution_button : Button = $TabContainer/General/ResolutionRow/ResolutionButton
 @onready var vsync_button : Button = $TabContainer/General/VsyncRow/VsyncButton
 @onready var sfx_value : Label = $TabContainer/Sound/SfxRow/SfxValue
 @onready var music_value : Label = $TabContainer/Sound/MusicRow/MusicValue
@@ -56,6 +57,13 @@ func _on_window_mode_pressed() -> void:
 	GameSettings.toggle_fullscreen()
 
 
+func _on_resolution_pressed() -> void:
+	# Steps to the next offered size rather than opening a list: the sizes in
+	# GameSettings are the whole list, and one press is the quickest way through
+	# four of them with a d-pad.
+	GameSettings.cycle_resolution(1)
+
+
 func _on_vsync_pressed() -> void:
 	GameSettings.toggle_vsync()
 
@@ -90,6 +98,7 @@ func _on_ui_plus_pressed() -> void:
 
 func _refresh() -> void:
 	window_mode_button.text = "FULLSCREEN" if GameSettings.fullscreen else "WINDOWED"
+	resolution_button.text = GameSettings.resolution_name()
 	vsync_button.text = "ON" if GameSettings.vsync else "OFF"
 	sfx_value.text = _percent(GameSettings.sfx_volume)
 	music_value.text = _percent(GameSettings.music_volume)

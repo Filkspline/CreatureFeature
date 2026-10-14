@@ -39,7 +39,18 @@ const BASES: Array[String] = ["Left", "Right", "Up", "Down", "Normal", "Special"
 @export var delay_frames : int = 5
 
 ## Print every relayed frame. Noisy, but it is how you check packets arrive.
+## The line it prints per packet reads "N frames from now", which is the delay
+## that packet is actually being applied with - the number to watch if a fight
+## ever feels slow to respond.
 @export var log_frames : bool = false
+
+## How much longer than delay_frames a relayed press may ever wait before it is
+## dropped instead of obeyed. This is the safety net: the two machines' frame
+## counters do NOT stay in step (one window unfocused, one instance behind on
+## frames, a pause on one side), and an estimate of the difference between them
+## that is not re-checked turns straight into input delay. The bound is what
+## stops that becoming a fight that reacts seconds late.
+@export var extra_slack_frames : int = 2
 
 var _tick : int = 0
 ## tick -> { player_id: mask }, applied when _tick reaches that tick.
@@ -155,9 +166,13 @@ func _schedule(tick: int, player_id: int, mask: int) -> void:
 
 func _apply_scheduled() -> void:
 	# Frames that have already gone by are never applied: a stall or a pause
-	# must not make a stale press fire later.
+	# must not make a stale press fire later. Neither is anything scheduled
+	# further ahead than the relay is allowed to delay - that only happens once
+	# the two counters have drifted apart, and obeying those frames is exactly
+	# the multi-second lag the bound exists to prevent.
+	var latest_allowed : int = _tick + delay_frames + extra_slack_frames
 	for tick in _scheduled.keys():
-		if tick < _tick:
+		if tick < _tick or tick > latest_allowed:
 			_scheduled.erase(tick)
 
 	var slot : Dictionary = _scheduled.get(_tick, {})
@@ -180,11 +195,24 @@ func _send_input(tick: int, mask: int) -> void:
 	if player_id == GameManager.online_player_id:
 		return
 
-	if not _clock_aligned:
-		_clock_aligned = true
-		_remote_clock_offset = _tick - tick
+	# The difference between the two counters is re-measured on EVERY packet
+	# instead of being trusted from the first one. The two machines do not tick
+	# at the same rate for long: one window is unfocused, one instance is behind
+	# on frames, someone pauses. A difference measured once is only correct
+	# until then, and afterwards every frame of error is applied input delay -
+	# which is how a five-frame relay turned into a fight that reacted seconds
+	# late on whichever machine had fallen behind.
+	_remote_clock_offset = _tick - tick
+	_clock_aligned = true
 
+	# ...and the result is bounded, so a wrong estimate can never hold a press
+	# back for longer than the relay is meant to delay anything at all. Losing
+	# the odd frame of timing is a much better failure than a fight that stops
+	# responding.
 	var apply_at : int = tick + _remote_clock_offset + delay_frames
+	var latest_allowed : int = _tick + delay_frames + extra_slack_frames
+	if apply_at > latest_allowed:
+		apply_at = latest_allowed
 	if apply_at <= _tick:
 		# Arrived too late to be used on its own frame - typically the first
 		# packet or a hitch. Use it on the next frame rather than dropping it,
@@ -194,8 +222,8 @@ func _send_input(tick: int, mask: int) -> void:
 	_packets += 1
 
 	if log_frames:
-		print("[NetInput] their frame %d -> our frame %d (offset %d)" % [
-			tick, apply_at, _remote_clock_offset
+		print("[NetInput] their frame %d -> our frame %d (in %d frames, offset %d)" % [
+			tick, apply_at, apply_at - _tick, _remote_clock_offset
 		])
 
 
