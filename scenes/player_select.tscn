@@ -44,7 +44,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_6qhff")
-single_player_slot_offset = Vector2(170, 0)
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1357222539]
 layout_mode = 1

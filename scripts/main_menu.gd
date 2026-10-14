@@ -31,6 +31,7 @@ extends Node2D
 @export var focus_emphasis : MenuFocusEmphasis
 
 const PLAYER_SELECT_SCENE := "res://scenes/player_select.tscn"
+const SINGLE_PLAYER_SELECT_SCENE := "res://scenes/single_player_select.tscn"
 const ONLINE_LOBBY_SCENE := "res://scenes/OnlineLobby.tscn"
 const SETTINGS_SCENE := "res://scenes/settings.tscn"
 
@@ -41,6 +42,13 @@ var selected_index := 0
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# Reaching the main menu means no match is in progress, so any session still
+	# open - a fight that finished, a paused match quit out of, a lobby left
+	# behind - is closed here. Otherwise the next Local Multiplayer select would
+	# still believe it is an online match and sit waiting for a peer that is gone.
+	if MultiplayerManager.is_online():
+		MultiplayerManager.leave_game()
+	GameManager.clear_online_state()
 	_show_main_set()
 
 
@@ -134,19 +142,17 @@ func _on_quit_pressed():
 
 # ── Mode set ──
 
-# Practice Range is the single-player mode, and it goes through the SAME input
-# select screen local multiplayer uses, in its single-player mode (mode_id 2).
-# That is the point: the cut-down one-slot screen it used to have claimed the
-# first device that pressed anything and then ignored every other one, so a
-# player who brushed the keyboard was stuck with it for the whole session. Here
-# every device that presses a button gets its own cursor, the player takes the
-# creature's slot with Normal, can release it with Special, and starts once it
-# is held - identical to local multiplayer, with the second creature's box
-# hidden because the lab has nobody to put in it.
+# Practice Range is the single-player mode, so it has its own input select
+# screen (single_player_select.tscn) rather than a single-player mode switch
+# inside local multiplayer's. That screen lays the one creature's slot and the
+# tray of waiting input cursors out in different parts of the screen, so a
+# device that has just pressed a button is never drawn on top of the slot it has
+# not claimed yet. mode_id 2 is what both that screen and the lab read to know
+# they are in the single-player flow.
 func _on_practice_range_pressed() -> void:
 	SfxManager.play_ui_select()
 	GameManager.mode_id = 2
-	SceneTransition.change_scene(PLAYER_SELECT_SCENE)
+	SceneTransition.change_scene(SINGLE_PLAYER_SELECT_SCENE)
 
 
 # Online goes to the lobby first: the lobby owns the session handshake and

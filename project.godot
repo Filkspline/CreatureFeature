@@ -26,6 +26,8 @@ UpgradePoolManager="*uid://dpqtfgabm75kr"
 SceneTransition="*uid://bq0kps56mrd8"
 ComboManager="*uid://c0mb0m4nag3r1"
 MultiplayerManager="*uid://c3dcype6i6vyy"
+NetInput="*res://scenes/net_input.tscn"
+GameSettings="*res://scenes/game_settings.tscn"
 
 [display]
 

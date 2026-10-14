@@ -20,9 +20,13 @@ extends Control
 #  Locking a slot makes that input mode the corresponding player:
 #    slot 1 -> Player 1 (character 1), slot 2 -> Player 2 (character 2).
 #  Once both slots are locked, either player can confirm to start.
+#
+#  This is the screen for two players and for online play. Practice Range is a
+#  single-player flow with its own screen (single_player_select.tscn), so there
+#  is deliberately no single-player mode branching in here: two slots, two
+#  players, or one local player plus one online peer.
 
 const FIGHT_SCENE := "res://scenes/pre_fight_upgrade_screen.tscn"
-const LABBING_SCENE := "res://scenes/single_player.tscn"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 
 ## Icon sheet the cursors draw from.
@@ -40,14 +44,6 @@ const SLOT_2 := 1   # Character 2 / Player 2 / Creature 2
 @export var joy_normal_button : int = JOY_BUTTON_A # confirm / join
 @export var joy_jump_button : int = JOY_BUTTON_X
 @export var joy_special_button : int = JOY_BUTTON_B
-
-@export_group("Single player")
-## Where the playable creature's column moves to in Practice Range, so the one
-## box that is shown sits in the middle of the screen instead of off to the left
-## with an empty half beside it. Everything in that column - the box, its
-## heading, the device line, and the control legend and SELECTED label inside it
-## - is offset together, and the cursor is positioned from the box's own rect.
-@export var single_player_slot_offset : Vector2 = Vector2(170.0, 0.0)
 
 @export_group("Lock-in feedback")
 ## How far the cursor punches up the moment a slot is confirmed, and how long
@@ -109,8 +105,6 @@ class Cursor:
 @onready var character2: Control = $Characters/Character2
 @onready var character1_selected: Label = $Characters/Character1/SelectedLabel
 @onready var character2_selected: Label = $Characters/Character2/SelectedLabel
-@onready var creature1_label: Label = get_node_or_null("Creature1")
-@onready var creature2_label: Label = get_node_or_null("Creature2")
 @onready var p1_device_label: Label = $DeviceLabels/P1DeviceLabel
 @onready var p2_device_label: Label = $DeviceLabels/P2DeviceLabel
 @onready var start_button: Button = $Button
@@ -140,48 +134,9 @@ func _ready() -> void:
 	start_button.visible = false
 	if GameManager.online_mode:
 		_create_remote_cursor(1 if GameManager.online_player_id == 2 else 2)
-	_apply_mode_layout()
 	_refresh_slot_labels()
 	_refresh_legends()
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
-
-
-# ── Single player ──
-# Practice Range runs through THIS screen rather than a cut-down copy of it, so
-# every device that presses a button gets its own cursor, any of them can take
-# the player's slot, and changing your mind (Special to release, Normal to take
-# it again) works exactly as it does in local multiplayer. Nothing is claimed
-# until a device confirms.
-#
-# What single player does not show is the second creature. The lab has one
-# player and a training dummy, so the dummy's box, its heading and its device
-# line are all hidden rather than relabelled: an empty box that invites a button
-# press, in a mode with no second player to press it, is just a thing to be
-# confused by. The creature that IS playable moves to the middle of the screen
-# instead, so the layout is deliberately one-player rather than half a
-# two-player screen.
-func _single_player() -> bool:
-	return GameManager.mode_id == 2 and not GameManager.online_mode
-
-
-func _apply_mode_layout() -> void:
-	if not _single_player():
-		return
-
-	character2.visible = false
-	if creature2_label:
-		creature2_label.visible = false
-	p2_device_label.visible = false
-
-	# Positions rather than anchors: these three are direct children of the
-	# screen (or of a plain Node), so the same offset moves all of them. The
-	# cursor's own position is derived from Character1's rect, and the neutral
-	# position from the viewport centre, so both follow without being told.
-	var shift := single_player_slot_offset
-	character1.position += shift
-	if creature1_label:
-		creature1_label.position += shift
-	p1_device_label.position += shift
 
 
 func _process(_delta: float) -> void:
@@ -300,6 +255,12 @@ func _create_remote_cursor(player_id: int) -> Cursor:
 	cursor_icons.add_child(icon)
 	remote_cursor = cursor
 	_update_cursor_visual(cursor)
+	# Hidden until the other machine actually locks something in. Local cursors
+	# are created hidden for the same reason: a cursor on screen means a choice,
+	# and an empty remote square sitting there from the first frame reads as one
+	# that has already been made.
+	cursor.node.hide()
+	icon.hide()
 	return cursor
 
 func _create_cursor_icon(device: PlayerInputDevice, cursor: Cursor) -> void:
@@ -349,10 +310,6 @@ func _move_cursor(cursor: Cursor, delta: int) -> void:
 		return
 	if GameManager.online_mode and new_selection != NEUTRAL and new_selection != (SLOT_1 if GameManager.online_player_id == 1 else SLOT_2):
 		return
-	# Practice Range's second slot is the training dummy: it is there to be read,
-	# not entered, so a cursor stops at the middle rather than sliding onto it.
-	if _single_player() and new_selection == SLOT_2:
-		return
 	# Entering a character slot is only allowed while it's unoccupied.
 	if new_selection != NEUTRAL and _slot_occupied_by_other(new_selection, cursor):
 		return
@@ -380,9 +337,6 @@ func _lock_cursor(cursor: Cursor) -> void:
 	if cursor.selection == NEUTRAL:
 		return
 	if GameManager.online_mode and cursor.selection != (SLOT_1 if GameManager.online_player_id == 1 else SLOT_2):
-		return
-	# The dummy's slot is never claimable, in either mode.
-	if _single_player() and cursor.selection == SLOT_2:
 		return
 	SfxManager.play_ui_select()
 	cursor.locked = true
@@ -540,10 +494,6 @@ func _refresh_ready_state() -> void:
 				break
 		start_button.visible = local_locked and remote_cursor != null and remote_cursor.locked
 		return
-	if _single_player():
-		# One creature to claim out here, so one locked slot is enough to start.
-		start_button.visible = _locked_count() >= 1
-		return
 	start_button.visible = _locked_count() >= 2
 
 
@@ -592,10 +542,6 @@ func _neutral_position(index: int) -> Vector2:
 
 func _refresh_slot_labels() -> void:
 	p1_device_label.text = _slot_label(_cursor_at(SLOT_1))
-	# In Practice Range the second slot is hidden outright, so there is nothing
-	# to label; writing to it would only be a hidden string nobody ever reads.
-	if _single_player():
-		return
 	p2_device_label.text = _slot_label(_cursor_at(SLOT_2))
 
 
@@ -637,9 +583,7 @@ func _remove_cursor(cursor: Cursor) -> void:
 	cursors.erase(cursor)
 	if is_instance_valid(cursor.node):
 		cursor.node.queue_free()
-	# Through the mode-aware check rather than a hardcoded "both slots": in
-	# Practice Range one locked slot is the whole requirement, so a pad being
-	# unplugged there must not leave the Start button unable to come back.
+	# Start can come back the moment the slot it needs is free again.
 	_refresh_ready_state()
 
 
@@ -764,11 +708,7 @@ func _on_button_pressed() -> void:
 	if slot2:
 		GameManager.p2_device = slot2.device
 	GameManager.bind_player_inputs()
-	match GameManager.mode_id:
-		1:
-			SceneTransition.change_scene(FIGHT_SCENE)
-		2:
-			SceneTransition.change_scene(LABBING_SCENE)
+	SceneTransition.change_scene(FIGHT_SCENE)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -780,11 +720,22 @@ func _start_online_match() -> void:
 		GameManager.p1_device = _local_cursor_device()
 	else:
 		GameManager.p2_device = _local_cursor_device()
+	# Binding is what actually puts this machine's device onto its own slot's
+	# actions. Without it the online fight had no controls at all: the actions
+	# stayed empty for BOTH slots, because the other slot's device is the other
+	# machine's and is never bound here on purpose. The opponent's character is
+	# driven by NetInput instead.
+	GameManager.bind_player_inputs()
 	SceneTransition.change_scene(FIGHT_SCENE)
 
 
+# The device of the cursor sitting on THIS player's own slot. Reading "the first
+# cursor with a device" instead would hand the fight whatever was bumped last:
+# every touched pad gets a cursor of its own, so a controller brushed on the way
+# to locking in with the keyboard would silently take the slot's device with it.
 func _local_cursor_device() -> PlayerInputDevice:
-	for cursor in cursors:
-		if cursor.device != null:
-			return cursor.device
+	var slot := SLOT_1 if GameManager.online_player_id == 1 else SLOT_2
+	var cursor := _cursor_at(slot)
+	if cursor != null and cursor.device != null:
+		return cursor.device
 	return null

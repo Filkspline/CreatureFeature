@@ -16,6 +16,10 @@ extends Node2D
 
 
 func _ready() -> void:
+	# Online, both machines simulate both characters and relay each other's
+	# buttons. This drops any button still held from before the fight, so the
+	# round cannot start with one stuck down.
+	NetInput.reset()
 	_start_round_countdown()
 
 

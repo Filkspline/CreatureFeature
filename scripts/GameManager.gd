@@ -60,6 +60,10 @@ extends Node
 
 var _music_player: AudioStreamPlayer
 
+## Music level in dB, from the settings screen. Held here as well as on the
+## player, so a level chosen before the player exists still applies to it.
+var _music_volume_db : float = 0.0
+
 const CARD_SELECT_SCENE := "res://scenes/upgrade_card_ui.tscn"
 const MATCH_END_SCREEN_SCENE := "res://scenes/end_screen.tscn"
 ## Intro cutscene played once per match, between the pre-fight card select
@@ -172,11 +176,20 @@ func _setup_music_player() -> void:
 	_music_player.stream = background_music
 	add_child(_music_player)
 	_music_player.finished.connect(_on_music_finished)
+	_music_player.volume_db = _music_volume_db
 	_music_player.play()
 
 
 func _on_music_finished() -> void:
 	_music_player.play()
+
+
+## Music level in dB, from the settings screen. Held here as well as on the
+## player so a level chosen before the music player exists still applies.
+func set_music_volume(db: float) -> void:
+	_music_volume_db = db
+	if is_instance_valid(_music_player):
+		_music_player.volume_db = db
 
 
 # Resets the score and tells anything listening (mainly the upgrade pool
@@ -222,6 +235,14 @@ func reset_player_select() -> void:
 	p1_device = null
 	p2_device = null
 	selected_specials.clear()
+
+
+## Leaves online mode. Called when a session closes (the lobby's Back button, an
+## opponent dropping, coming back to the main menu) so no later screen can still
+## believe it is in an online match and sit waiting for a peer that is gone.
+func clear_online_state() -> void:
+	online_mode = false
+	online_player_id = 0
 
 
 

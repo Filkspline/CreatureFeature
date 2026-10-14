@@ -320,6 +320,34 @@ func _action(name: String) -> StringName:
 	return StringName("%sP%d" % [name, player_id])
 
 
+# ── Where this character's buttons come from ──
+# Offline these are the InputMap reads they always were, and the game behaves
+# exactly as before. In an online match they come from NetInput instead: the
+# character belonging to the other machine has no device bound on this one, so
+# its actions would read as "nothing held" forever and the opponent would never
+# move. NetInput delays EVERY character's buttons, this one included, so both
+# machines apply the same press on the same frame instead of drifting apart.
+func _held(action: StringName) -> bool:
+	if NetInput.active_for(player_id):
+		return NetInput.held(player_id, _input_base(action))
+	return Input.is_action_pressed(action)
+
+
+func _pressed(action: StringName) -> bool:
+	if NetInput.active_for(player_id):
+		return NetInput.just_pressed(player_id, _input_base(action))
+	return Input.is_action_just_pressed(action)
+
+
+# "LeftP2" -> "Left": NetInput names buttons by their base, not by slot.
+func _input_base(action: StringName) -> String:
+	var text := String(action)
+	var suffix := "P%d" % player_id
+	if text.ends_with(suffix):
+		return text.substr(0, text.length() - suffix.length())
+	return text
+
+
 # GameManager.player_input_locked is the project-wide "players can't act"
 # flag, held by the round-start countdown. It is checked at every point this
 # player reads the pad or keyboard, so a locked player still falls, still
@@ -782,7 +810,7 @@ func _capture_buffered_inputs() -> void:
 	if _input_locked():
 		return
 	for action in ["Jump", "Normal", "Special"]:
-		if Input.is_action_just_pressed(_action(action)):
+		if _pressed(_action(action)):
 			input_buffer[action] = input_buffer_frames
 
 
@@ -951,7 +979,7 @@ func _consume_double_tap(action: StringName) -> bool:
 	# countdown from pairing with one made right after it into a dash.
 	if _input_locked():
 		return false
-	if not Input.is_action_just_pressed(action):
+	if not _pressed(action):
 		return false
 	var now := Time.get_ticks_msec()
 	var last: int = _last_tap_time_ms.get(action, -1000000)
@@ -971,7 +999,7 @@ func _is_block_ready() -> bool:
 	# needs the back direction held.
 	if crouch_phase != CrouchPhase.NONE:
 		return true
-	if not Input.is_action_pressed(_get_backward_action()):
+	if not _held(_get_backward_action()):
 		return false
 	return true
 
@@ -1017,7 +1045,7 @@ func _resolve_normal_move() -> MoveData:
 		key = "up"
 	elif crouch_phase == CrouchPhase.LOOP:
 		key = "crouching"
-	elif Input.is_action_pressed(_action("Up")):
+	elif _held(_action("Up")):
 		key = "up"
 	else:
 		var dir = _get_horizontal_input()
@@ -1201,7 +1229,7 @@ func _attack_process(delta: float) -> void:
 
 
 func _update_gatling_buffer() -> void:
-	if Input.is_action_just_pressed(_action("Normal")):
+	if _pressed(_action("Normal")):
 		gatling_input_buffered = _action("Normal")
 		gatling_buffer_timer = gatling_buffer_frames
 		return
@@ -1481,7 +1509,7 @@ func _blockstun_process(delta: float) -> void:
 # to crouch idle instead of showing standing idle for one frame and
 # re-triggering the crouch down transition right after.
 func _resume_crouch_or_update_animation() -> void:
-	if is_on_floor() and Input.is_action_pressed(_action("Down")):
+	if is_on_floor() and _held(_action("Down")):
 		wants_to_crouch = true
 		crouch_phase = CrouchPhase.LOOP
 		sprites.play_crouch_idle()
@@ -1698,7 +1726,7 @@ func _handle_jump() -> void:
 
 
 func _handle_crouch_input() -> void:
-	var down_pressed = is_on_floor() and not _input_locked() and Input.is_action_pressed(_action("Down"))
+	var down_pressed = is_on_floor() and not _input_locked() and _held(_action("Down"))
 
 	if down_pressed and crouch_phase == CrouchPhase.NONE:
 		wants_to_crouch = true
@@ -1770,8 +1798,8 @@ func _get_raw_direction() -> int:
 	# settle to neutral through their normal code paths.
 	if _input_locked():
 		return Direction.NONE
-	var left := Input.is_action_pressed(_action("Left"))
-	var right := Input.is_action_pressed(_action("Right"))
+	var left := _held(_action("Left"))
+	var right := _held(_action("Right"))
 	if left == right:
 		return Direction.NONE
 	return Direction.LEFT if left else Direction.RIGHT
@@ -1790,9 +1818,9 @@ func _get_horizontal_input() -> float:
 	if _input_locked():
 		return 0.0
 	var dir := 0.0
-	if Input.is_action_pressed(_action("Left")):
+	if _held(_action("Left")):
 		dir -= 1.0
-	if Input.is_action_pressed(_action("Right")):
+	if _held(_action("Right")):
 		dir += 1.0
 	return dir
 

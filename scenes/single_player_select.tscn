@@ -5,19 +5,22 @@
 [ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="3_prompts"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="4_crtscript"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="5_crtshader"]
-[ext_resource type="Texture2D" uid="uid://duieogb37ldte" path="res://assets/MainScreenAssets/MainmenuBackground.png" id="6_bg"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_character_box"]
-content_margin_left = 6.0
-content_margin_top = 6.0
-content_margin_right = 6.0
-content_margin_bottom = 6.0
-bg_color = Color(0.13333334, 0.1254902, 0.20392157, 0.5882353)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
 border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bay"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 0.6)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 0.45)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_start"]
 bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
@@ -49,6 +52,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_spsel")
+cursor_size = Vector2(51, 46)
+cursor_icon_scale = 0.46
+tray_bay_spacing = 76.0
+open_border_color = Color(1, 1, 1, 1)
+claimed_border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+lock_punch_scale = 1.4
+lock_punch_duration = 0.3
+selected_label_pop_scale = 1.8
+selected_label_pop_duration = 0.35
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=2011000011]
 layout_mode = 1
@@ -60,42 +72,31 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.13333334, 0.1254902, 0.20392157, 1)
 
-[node name="Background" type="TextureRect" parent="." unique_id=2011000012]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("6_bg")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Title" type="Label" parent="." unique_id=2011000013]
+[node name="Title" type="Label" parent="." unique_id=2011000012]
 layout_mode = 0
 offset_left = 120.0
-offset_top = 18.0
+offset_top = 4.0
 offset_right = 520.0
-offset_bottom = 66.0
+offset_bottom = 42.0
+mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 5
+theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 38
 text = "PRACTICE RANGE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Characters" type="Node2D" parent="." unique_id=2011000014]
+[node name="Characters" type="Node" parent="." unique_id=2011000013]
 
-[node name="Character1" type="Panel" parent="Characters" unique_id=2011000015]
-offset_left = 256.0
-offset_top = 96.0
-offset_right = 384.0
-offset_bottom = 240.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_character_box")
+[node name="Character1" type="Panel" parent="Characters" unique_id=2011000014]
+offset_left = 250.0
+offset_top = 66.0
+offset_right = 390.0
+offset_bottom = 196.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
 
-[node name="SelectedLabel" type="Label" parent="Characters/Character1" unique_id=2011000016]
+[node name="SelectedLabel" type="Label" parent="Characters/Character1" unique_id=2011000015]
 visible = false
 layout_mode = 1
 anchors_preset = 5
@@ -105,48 +106,143 @@ offset_left = -50.0
 offset_right = 50.0
 offset_bottom = 23.0
 grow_horizontal = 2
+mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 14
-text = "READY!"
+text = "SELECTED!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ControlPrompts" parent="Characters/Character1" unique_id=2011000017 instance=ExtResource("3_prompts")]
+[node name="SlotHeading" type="Label" parent="." unique_id=2011000016]
+layout_mode = 0
+offset_left = 250.0
+offset_top = 44.0
+offset_right = 390.0
+offset_bottom = 62.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "CREATURE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DeviceLabel" type="Label" parent="." unique_id=2011000017]
+layout_mode = 0
+offset_left = 170.0
+offset_top = 200.0
+offset_right = 470.0
+offset_bottom = 220.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "PRESS A BUTTON TO JOIN"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Legends" type="Control" parent="." unique_id=2011000018]
 visible = false
 layout_mode = 0
-offset_left = -150.0
-offset_top = 10.0
-offset_right = -20.0
-offset_bottom = 160.0
+mouse_filter = 2
+
+[node name="LabCaption" type="Label" parent="Legends" unique_id=2011000019]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 52.0
+offset_right = 232.0
+offset_bottom = 68.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+text = "IN THE LAB"
+vertical_alignment = 1
+
+[node name="LabPrompts" parent="Legends" unique_id=2011000020 instance=ExtResource("3_prompts")]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 72.0
+offset_right = 232.0
+offset_bottom = 232.0
 vertical = true
 icon_scale = 0.2
 entry_spacing = 14.0
 font_size = 13
 reactive = false
 
-[node name="DeviceLabel" type="Label" parent="." unique_id=2011000018]
+[node name="ScreenCaption" type="Label" parent="Legends" unique_id=2011000021]
 layout_mode = 0
-offset_left = 196.0
-offset_top = 252.0
-offset_right = 444.0
-offset_bottom = 276.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 3
+offset_left = 408.0
+offset_top = 52.0
+offset_right = 616.0
+offset_bottom = 68.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 13
+text = "ON THIS SCREEN"
+vertical_alignment = 1
+
+[node name="ScreenPrompts" parent="Legends" unique_id=2011000022 instance=ExtResource("3_prompts")]
+layout_mode = 0
+offset_left = 408.0
+offset_top = 72.0
+offset_right = 616.0
+offset_bottom = 232.0
+preset = 1
+vertical = true
+icon_scale = 0.2
+entry_spacing = 14.0
+font_size = 13
+reactive = false
+
+[node name="TrayArea" type="Control" parent="." unique_id=2011000023]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 240.0
+offset_right = 624.0
+offset_bottom = 306.0
+mouse_filter = 2
+
+[node name="TrayTitle" type="Label" parent="." unique_id=2011000024]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 222.0
+offset_right = 580.0
+offset_bottom = 238.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 14
-text = "PRESS A BUTTON TO JOIN"
+text = "PRESS A BUTTON OR KEY TO JOIN"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StartButton" type="Button" parent="." unique_id=2011000019]
+[node name="TrayBays" type="Node" parent="." unique_id=2011000025]
+
+[node name="TrayBayTemplate" type="Panel" parent="." unique_id=2011000026]
 visible = false
 layout_mode = 0
-offset_left = 240.0
-offset_top = 292.0
-offset_right = 400.0
-offset_bottom = 330.0
+offset_right = 62.0
+offset_bottom = 54.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bay")
+
+[node name="StartButton" type="Button" parent="." unique_id=2011000027]
+visible = false
+layout_mode = 0
+offset_left = 280.0
+offset_top = 310.0
+offset_right = 360.0
+offset_bottom = 346.0
+focus_mode = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
@@ -160,18 +256,15 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_start")
 theme_override_styles/focus = SubResource("StyleBoxFlat_start")
 text = "START"
 
-[node name="Cursors" type="Node" parent="." unique_id=2011000020]
+[node name="Cursors" type="Node" parent="." unique_id=2011000028]
 
-[node name="CursorIcons" type="Node" parent="." unique_id=2011000021]
+[node name="CursorIcons" type="Node" parent="." unique_id=2011000029]
 
-[node name="TempCrtShader" type="ColorRect" parent="." unique_id=2011000022]
+[node name="TempCrtShader" type="ColorRect" parent="." unique_id=2011000030]
 z_index = 4
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
 mouse_filter = 2
 script = ExtResource("4_crtscript")
 shader_material = SubResource("ShaderMaterial_crt")
@@ -183,4 +276,4 @@ flicker = 0.001
 noise_amount = 0.0015
 current_preset = 1
 
-[connection signal="pressed" from="StartButton" to="." method="_start_lab"]
+[connection signal="pressed" from="StartButton" to="." method="_on_button_pressed"]

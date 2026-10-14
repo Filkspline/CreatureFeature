@@ -16,26 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://cr8xduddy1a7e" path="res://assets/MainScreenAssets/Singplayer.png" id="16_btn_single"]
 [ext_resource type="Texture2D" uid="uid://c2agbg1agrigm" path="res://assets/MainScreenAssets/Multiplayer.png" id="17_btn_shared"]
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_play"]
-texture = ExtResource("17_btn_shared")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_settings"]
-texture = ExtResource("15_btn_settings")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_quit"]
-texture = ExtResource("14_btn_quit")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_practice"]
-texture = ExtResource("16_btn_single")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_online"]
-texture = ExtResource("13_btn_online")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_local"]
-texture = ExtResource("12_btn_local")
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_back"]
-texture = ExtResource("17_btn_shared")
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_menu"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
 shader = ExtResource("6_crtshader")
@@ -58,18 +39,20 @@ mode_set = NodePath("Buttons/ModeButtons")
 focus_emphasis = NodePath("MenuFocusEmphasis")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1113584678]
+visible = false
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
 color = Color(0.13333334, 0.1254902, 0.20392157, 1)
 
 [node name="Background" type="Sprite2D" parent="." unique_id=1123584679]
+z_index = -1
 position = Vector2(320, 180)
 texture = ExtResource("10_bg")
 
 [node name="Logo" type="Sprite2D" parent="." unique_id=1123584680]
-position = Vector2(316, 132)
-scale = Vector2(0.71666664, 0.71666664)
+position = Vector2(315, 113.99999)
+scale = Vector2(0.615, 0.615)
 texture = ExtResource("11_logo")
 
 [node name="Label" type="Label" parent="." unique_id=1380732384]
@@ -107,7 +90,6 @@ grow_vertical = 2
 theme_override_constants/separation = 10
 
 [node name="Play" type="Button" parent="Buttons/MainMenuButtons" unique_id=831137130]
-texture_filter = 1
 custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -118,14 +100,20 @@ theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxTexture_play")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_play")
-theme_override_styles/hover = SubResource("StyleBoxTexture_play")
-theme_override_styles/focus = SubResource("StyleBoxTexture_play")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
 text = "Play"
 
-[node name="Settings" type="Button" parent="Buttons/MainMenuButtons" unique_id=2028871752]
+[node name="Art" type="Sprite2D" parent="Buttons/MainMenuButtons/Play" unique_id=831137131]
+z_index = -1
 texture_filter = 1
+position = Vector2(99, 27.999998)
+scale = Vector2(0.69750005, 0.81499994)
+texture = ExtResource("17_btn_shared")
+
+[node name="Settings" type="Button" parent="Buttons/MainMenuButtons" unique_id=2028871752]
 custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -136,14 +124,20 @@ theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxTexture_settings")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_settings")
-theme_override_styles/hover = SubResource("StyleBoxTexture_settings")
-theme_override_styles/focus = SubResource("StyleBoxTexture_settings")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
 text = "Settings"
 
-[node name="Quit" type="Button" parent="Buttons/MainMenuButtons" unique_id=1088563648]
+[node name="Art" type="Sprite2D" parent="Buttons/MainMenuButtons/Settings" unique_id=2028871753]
+z_index = -1
 texture_filter = 1
+position = Vector2(98, 27)
+scale = Vector2(0.725, 0.79)
+texture = ExtResource("15_btn_settings")
+
+[node name="Quit" type="Button" parent="Buttons/MainMenuButtons" unique_id=1088563648]
 custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -154,11 +148,18 @@ theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxTexture_quit")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_quit")
-theme_override_styles/hover = SubResource("StyleBoxTexture_quit")
-theme_override_styles/focus = SubResource("StyleBoxTexture_quit")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
 text = "Quit"
+
+[node name="Art" type="Sprite2D" parent="Buttons/MainMenuButtons/Quit" unique_id=1088563649]
+z_index = -1
+texture_filter = 1
+position = Vector2(100, 26)
+scale = Vector2(0.7, 0.77)
+texture = ExtResource("14_btn_quit")
 
 [node name="ModeButtons" type="VBoxContainer" parent="Buttons" unique_id=122466986]
 visible = false
@@ -168,52 +169,16 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -100.0
-offset_top = -150.0
+offset_top = -66.0
 offset_right = 100.0
-offset_bottom = 150.0
+offset_bottom = 165.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
-
-[node name="PracticeRange" type="Button" parent="Buttons/ModeButtons" unique_id=831137140]
-texture_filter = 1
-custom_minimum_size = Vector2(200, 60)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
-theme_override_constants/outline_size = 4
-theme_override_fonts/font = ExtResource("2_m3x6f")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxTexture_practice")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_practice")
-theme_override_styles/hover = SubResource("StyleBoxTexture_practice")
-theme_override_styles/focus = SubResource("StyleBoxTexture_practice")
-text = "Practice Range"
-
-[node name="Online" type="Button" parent="Buttons/ModeButtons" unique_id=1556952625]
-texture_filter = 1
-custom_minimum_size = Vector2(200, 60)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
-theme_override_constants/outline_size = 4
-theme_override_fonts/font = ExtResource("2_m3x6f")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxTexture_online")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_online")
-theme_override_styles/hover = SubResource("StyleBoxTexture_online")
-theme_override_styles/focus = SubResource("StyleBoxTexture_online")
-text = "Online Multiplayer"
+alignment = 1
 
 [node name="Local" type="Button" parent="Buttons/ModeButtons" unique_id=758517524]
-texture_filter = 1
-custom_minimum_size = Vector2(200, 60)
+custom_minimum_size = Vector2(200, 49.815)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
@@ -223,15 +188,69 @@ theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxTexture_local")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_local")
-theme_override_styles/hover = SubResource("StyleBoxTexture_local")
-theme_override_styles/focus = SubResource("StyleBoxTexture_local")
-text = "Local Multiplayer"
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
+text = "Local "
+
+[node name="Art" type="Sprite2D" parent="Buttons/ModeButtons/Local" unique_id=758517526]
+z_index = -1
+texture_filter = 1
+position = Vector2(97.5, 20.499998)
+scale = Vector2(0.645, 0.79)
+texture = ExtResource("12_btn_local")
+
+[node name="PracticeRange" type="Button" parent="Buttons/ModeButtons" unique_id=831137140]
+custom_minimum_size = Vector2(200, 47.11)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
+text = "Practice Range"
+
+[node name="Art" type="Sprite2D" parent="Buttons/ModeButtons/PracticeRange" unique_id=831137141]
+z_index = -1
+texture_filter = 1
+position = Vector2(101, 22)
+scale = Vector2(0.82, 0.81)
+texture = ExtResource("16_btn_single")
+
+[node name="Online" type="Button" parent="Buttons/ModeButtons" unique_id=1556952625]
+custom_minimum_size = Vector2(200, 43.775)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
+text = "Online "
+
+[node name="Art" type="Sprite2D" parent="Buttons/ModeButtons/Online" unique_id=1556952626]
+z_index = -1
+texture_filter = 1
+position = Vector2(97, 4)
+scale = Vector2(0.73, 0.69)
+texture = ExtResource("13_btn_online")
 
 [node name="Back" type="Button" parent="Buttons/ModeButtons" unique_id=758517525]
-texture_filter = 1
-custom_minimum_size = Vector2(200, 60)
+custom_minimum_size = Vector2(200, 33.98)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
@@ -241,11 +260,18 @@ theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxTexture_back")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_back")
-theme_override_styles/hover = SubResource("StyleBoxTexture_back")
-theme_override_styles/focus = SubResource("StyleBoxTexture_back")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
 text = "Back"
+
+[node name="Art" type="Sprite2D" parent="Buttons/ModeButtons/Back" unique_id=758517527]
+z_index = -1
+texture_filter = 1
+position = Vector2(98, 16)
+scale = Vector2(0.615, 0.62)
+texture = ExtResource("17_btn_shared")
 
 [node name="SelectionPointer" type="AnimatedSprite2D" parent="." unique_id=771002001]
 rotation = -1.5707964
@@ -277,7 +303,7 @@ script = ExtResource("9_focus")
 [connection signal="pressed" from="Buttons/MainMenuButtons/Play" to="." method="_on_play_pressed"]
 [connection signal="pressed" from="Buttons/MainMenuButtons/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="Buttons/MainMenuButtons/Quit" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="Buttons/ModeButtons/Local" to="." method="_on_local_multiplayer_pressed"]
 [connection signal="pressed" from="Buttons/ModeButtons/PracticeRange" to="." method="_on_practice_range_pressed"]
 [connection signal="pressed" from="Buttons/ModeButtons/Online" to="." method="_on_online_pressed"]
-[connection signal="pressed" from="Buttons/ModeButtons/Local" to="." method="_on_local_multiplayer_pressed"]
 [connection signal="pressed" from="Buttons/ModeButtons/Back" to="." method="_on_back_pressed"]

@@ -38,20 +38,71 @@ outstanding, and the traps that have already cost this project several rounds.
 
 **Main menu** (`scenes/main_menu.tscn`, `scripts/main_menu.gd`)
 - Two button sets swapping in place: Play / Settings / Quit, then Practice Range / Online Multiplayer /
-  Local Multiplayer / Back. Buttons carry their art via `StyleBoxTexture` sub-resources in the scene,
-  plus `text` using the project font, sizes, colours and `texture_filter`. Play and Back reuse the
-  shared `Multiplayer.png` art.
+  Local Multiplayer / Back. Each button's art is a child `Art` Sprite2D (`z_index = -1`,
+  `texture_filter` nearest, `scale` 0.5) inside a button whose four stylebox slots are all
+  `StyleBoxEmpty`, so the **sprite** is what gets sized and positioned in the Inspector and no
+  stylebox ever draws. Play and Back reuse the shared `Multiplayer.png` art. The button's own `text`
+  still doubles the label baked into the art - blank whichever side you prefer.
 - Practice Range routes to `scenes/single_player_select.tscn` with `GameManager.mode_id = 2`.
 - NOTE: the button art already contains its own label, so the `text` field doubles it. Blank whichever
   side you prefer, in the Inspector.
 
 **Single-player select** (`scenes/single_player_select.tscn`, `scripts/single_player_select.gd`)
-- One creature slot, any input mode joins by pressing a button, Normal/Enter confirms (a pop on the
-  READY label plus a border colour change), Special unlocks, Start binds the device and enters the lab.
-- Per-device input helpers (keyboard layouts + d-pad/stick), Escape backs out, pad unplug releases.
-- This screen is a **custom one-slot version of `player_select.gd`**. The requested change is to
-  delete it and reuse `player_select.gd` with the second slot hidden, which is what makes
-  browse/assign/confirm/change-your-mind behave identically to local multiplayer. Not done.
+- Practice Range's own input select, reached from the main menu with `GameManager.mode_id = 2`.
+  `player_select.tscn` is now the two-player/online screen only: its single-player mode - and the
+  `single_player_slot_offset` that slid the surviving creature's box to the middle of the screen - is
+  gone.
+- The layout keeps "where my input is" and "what my input has claimed" apart: the creature's **slot**
+  is the box in the upper middle, and every detected input mode waits in its own outlined **bay** in
+  the tray along the bottom. Up (or Select) takes the creature, Select locks it in (SELECTED! pops,
+  the slot border turns blue, Start appears), Down or Special gives it back and returns the cursor to
+  its bay. Only one cursor may hold it.
+- Two `ControlPrompts` legends follow the device on the slot, or the most recently joined device:
+  "ON THIS SCREEN" (Select/Deselect) and "IN THE LAB" (Normal/Special/Jump).
+- Per-device input helpers as in `player_select.gd` (both keyboard layouts, every connected pad,
+  d-pad and left stick). Enter counts as Select for a keyboard device and Escape backs out to the
+  main menu; a pad unplugged drops its claim and its bay closes up.
+- Everything is set in the scene - cursor size, `TrayBayTemplate` bay size and look, bay spacing, the
+  `TrayArea` rect, border colours, pop timings. Only the bay row itself is built at runtime, from the
+  template panel, because the number of devices is not known until someone presses a button.
+- Deliberately not carried over from the multiplayer screen: the second creature's box, and the
+  online cursor sync and its RPCs.
+
+**Online multiplayer** (`scripts/MultiplayerManager.gd`, `scenes/MultiplayerManager.tscn`, `scenes/OnlineLobby.tscn`, `scripts/net_input.gd`)
+- Transport is the **Tube** addon (`addons/tube`: WebRTC peer-to-peer, no server to deploy). Its `TubeContext`
+  lives inline in `scenes/MultiplayerManager.tscn` and needs **tracker URLs and STUN servers** as well as the
+  15-character app id: with no trackers configured, `create_session()` only opens a LAN-only session, which is
+  why two machines on different networks could never find each other. The desktop half of that is
+  `addons/webrtc_native` (Windows DLLs are present; without that GDExtension Tube fails with no error at all).
+- Flow: `OnlineLobby` → the host shows the session id / the other player types it in → on `peer_connected`
+  both peers set `GameManager.online_mode` + `online_player_id` (host = 1, client = 2) and change to
+  `player_select.tscn`. The id is shown as soon as Host is pressed, not when a tracker answers: with trackers
+  configured, "session created" only arrives once a tracker WebSocket is up.
+- `player_select.tscn` syncs the other player's cursor with `_sync_cursor_state.rpc`, and
+  `_start_online_match` sets **this** machine's device, calls `GameManager.bind_player_inputs()` (the online
+  path never did, so the fight had no controls) and deliberately leaves the remote slot's actions unbound.
+- `NetInput` (autoload) is the fight's input relay. Both machines simulate both characters, so the character
+  belonging to the other machine has no device here; `testplayer1.gd` reads every button through
+  `_held()` / `_pressed()`, which switch to `NetInput` while an online match is live. Every player's input -
+  the local one included - is delayed by the same `delay_frames` on both machines, which is what keeps the two
+  simulations applying the same press on the same frame. Raise `delay_frames` if the two players end up seeing
+  different things, lower it if the controls feel sluggish.
+- `GameManager.clear_online_state()` runs when a session closes and whenever the main menu loads, so a
+  finished or abandoned online match cannot leave later local play stuck in the online branch.
+- Known limits: no round-end/rematch RPC (each machine ends the round from its own identical simulation), no
+  reconnect handling, no TURN server (symmetric-NAT pairs will still fail to connect), and both peers must be
+  running the same build.
+
+**Settings** (`scenes/settings.tscn`, `scenes/settings_tab_container.tscn`, `scripts/game_settings.gd`)
+- `GameSettings` (autoload) owns the values, applies them and saves them to `user://settings.cfg` - the only
+  file the game writes at runtime. Volume is stored as a **multiplier**: every sound in the project is
+  hand-tuned, so the level each system starts with is captured as its reference and the row scales it
+  (100% = the mix the project shipped with, 0% = silent).
+- Tabs: **General** (window mode, V-Sync), **Sound** (sound effects, music, menu sounds), **Controls** (the
+  current P1/P2 key bindings read from `GameManager.keyboard_layouts`, plus the pad mapping).
+- Volume rows are a value plus two buttons rather than sliders, because a slider is the one control a d-pad
+  cannot drive. `MenuTabLeft` / `MenuTabRight` switch tabs; `MenuSelect` confirms, `MenuBack` leaves.
+- Music has no audio bus, so `GameManager.set_music_volume()` sets the music player's `volume_db` directly.
 
 **Training dummy** (`scenes/labbing_dummy.tscn`, `scripts/labbing_dummy.gd`)
 - Three block states (none / crouch / stand) with the player's rules: overhead beats a crouch block,
