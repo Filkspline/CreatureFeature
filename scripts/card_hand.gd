@@ -718,6 +718,12 @@ func _process(_delta: float) -> void:
 
 
 func _handle_clicked_card():
+	# Online, only the machine belonging to the player who is drafting may
+	# choose. The other machine is showing this draft as a spectator and takes
+	# its cards from _sync_draft_pick, so a stray click or pad press there must
+	# not walk the draft forward on its own.
+	if not _may_pick_locally():
+		return
 	currently_handling_card = true
 	SfxManager.play_ui_select()
 	var targeted := _focus_targets()
@@ -726,19 +732,86 @@ func _handle_clicked_card():
 		if target != picked:
 			_dismiss_target(target)
 	_play_pick_flourish(picked)
+	_broadcast_pick(card_map.get(picked), false)
 	_resolve_pick(card_map.get(picked))
 
 
 # The Skip button was confirmed. Same presentation as a card pick, but the pick
 # itself is nothing: the special is left exactly as it is and step two follows.
 func _handle_skip_pressed() -> void:
+	if not _may_pick_locally():
+		return
 	currently_handling_card = true
 	SfxManager.play_ui_select()
 	for target in _focus_targets():
 		if target != skip_button:
 			_dismiss_target(target)
 	_play_pick_flourish(skip_button)
+	_broadcast_pick(null, true)
 	_resolve_skip()
+
+
+# ── Online ──
+# Online, a draft belongs to ONE player - whoever lost the round - and both
+# machines run this screen: the drafting player's machine decides, and the other
+# machine follows the same picks, so it walks the same steps and leaves for the
+# next round at the same moment.
+#
+# It has to work this way. The machine that is not drafting holds no device for
+# that player at all (online, GameManager only ever learns the LOCAL player's
+# device), so _current_device() returns null there, _process() returns early,
+# and the screen has nothing to read: it would sit on the cards forever while
+# the other player's round started without it.
+
+## Whether this machine owns the choices on this screen.
+func _may_pick_locally() -> bool:
+	if not GameManager.online_mode:
+		return true
+	return GameManager.online_player_id == current_player_id
+
+
+## Tells the other machine what this player took. Sent by the drafting machine
+## only. A skip goes out as an empty path so the other machine advances a step
+## rather than treating it as a pick that ends the draft.
+func _broadcast_pick(upgrade: UpgradeData, skipped: bool) -> void:
+	if not GameManager.online_mode:
+		return
+	if not _may_pick_locally():
+		return
+	var path := ""
+	if upgrade != null and not skipped:
+		path = upgrade.resource_path
+	_sync_draft_pick.rpc(current_player_id, path, skipped)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _sync_draft_pick(player_id: int, upgrade_path: String, skipped: bool) -> void:
+	if not GameManager.online_mode:
+		return
+	# call_local: the drafting machine applied its own pick before sending it.
+	if player_id == GameManager.online_player_id:
+		return
+
+	# Follow whichever player the other machine is actually drafting for, in
+	# case this screen came up for a different one here.
+	if player_id != current_player_id:
+		current_player_id = player_id
+		_apply_draft_tint(player_id)
+		_update_title_label(player_id)
+
+	if skipped:
+		_resolve_skip()
+		return
+
+	# Looked up by resource path rather than by position in the hand: the two
+	# machines need not have been offered the same cards, and what has to match
+	# between them is the upgrade that gets applied, not the art that was
+	# clicked. Every card comes from the pool's resource directory, so the path
+	# is always there.
+	var upgrade : UpgradeData = null
+	if not upgrade_path.is_empty():
+		upgrade = load(upgrade_path) as UpgradeData
+	_resolve_pick(upgrade)
 
 
 # Shrinks and fades something the player did not choose. Cards are freed here;
