@@ -19,6 +19,18 @@ extends Node
 @export_group("Draft")
 @export var cards_offered: int = 4
 
+## Added to the seed an online draft's offers are shuffled with. Both machines
+## derive that seed from the session id, so they deal themselves the same hand
+## without having to tell each other anything; this only moves where the shared
+## sequence starts.
+@export var online_seed_salt : int = 0
+
+## Seeded per draw (see _shuffle_paths) instead of using Array.shuffle(), which
+## draws from the engine's global random source - the one thing two machines
+## have no reason to agree on.
+var _offer_rng := RandomNumberGenerator.new()
+var _offer_draw_index : int = 0
+
 var card_array: Array[String] = []      ## every .tres path found in card_resource_dir
 var pools: Dictionary = {}              ## int player_id -> Array[String] remaining picks
 var current_upgrades: Dictionary = {}   ## int player_id -> Array[String] picked so far this match
@@ -101,7 +113,7 @@ func _draw_special_from_pool(player_id: int) -> Array[String]:
 		var upgrade: UpgradeData = load(path)
 		if is_special_move_card(upgrade):
 			special_paths.append(path)
-	special_paths.shuffle()
+	_shuffle_paths(special_paths)
 
 	# The current special's own card can still be in here; picking it means the
 	# same as Skip (see card_hand._is_keep_special_pick), which costs nothing.
@@ -169,13 +181,38 @@ func _draw_normal_from_pool(player_id: int) -> Array[String]:
 		var upgrade: UpgradeData = load(path)
 		if upgrade and not is_special_move_card(upgrade):
 			normal_paths.append(path)
-	normal_paths.shuffle()
+	_shuffle_paths(normal_paths)
 
 	var count: int = min(cards_offered, normal_paths.size())
 	var picked: Array[String] = []
 	for i in count:
 		picked.append(normal_paths[i])
 	return picked
+
+
+## Shuffles a list of card paths in place.
+##
+## Online this has to produce the SAME hand on both machines: the whole draft
+## follows from the offer, and a pick travels between the machines as a
+## resource path, so two different hands would be two different games. The seed
+## comes from the session id - which both machines already know - plus how many
+## draws this match has made, so it agrees without a packet being sent.
+##
+## Offline there is nothing to agree with, so it stays random per run.
+func _shuffle_paths(paths: Array[String]) -> void:
+	if GameManager.online_mode:
+		_offer_rng.seed = hash(MultiplayerManager.session_id) + online_seed_salt + _offer_draw_index
+	else:
+		_offer_rng.randomize()
+	_offer_draw_index += 1
+
+	# Fisher-Yates against that generator: Array.shuffle() would use the global
+	# one, which is exactly what the two machines disagree about.
+	for i in range(paths.size() - 1, 0, -1):
+		var j := _offer_rng.randi_range(0, i)
+		var swap := paths[i]
+		paths[i] = paths[j]
+		paths[j] = swap
 
 
 ## Grabs every .tres file from card_resource_dir into card_array.

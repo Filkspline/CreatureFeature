@@ -186,7 +186,13 @@ var last_direction: int = Direction.NONE
 var direction_buffer_timer: float = 0.0
 var pending_direction: int = Direction.NONE
 # Double-tap dash tracking: last tap time (ms) per direction action name.
-var _last_tap_time_ms: Dictionary = {}
+## Last tap of each direction action, in PHYSICS FRAMES rather than in
+## milliseconds. The wall clock reads differently on two machines, so a
+## double-tap window measured with Time.get_ticks_msec() could pair two taps on
+## one machine and not on the other - a dash on one screen and not the other.
+## Frames are the same count on both machines, which is also what any snapshot
+## has to be able to reproduce.
+var _last_tap_frame: Dictionary = {}
 
 # Generic "remembered" inputs. Keys are the base action names ("Jump",
 # "Normal", "Special" — before _action() appends "P1"/"P2"), values are
@@ -346,6 +352,22 @@ func _input_base(action: StringName) -> String:
 	if text.ends_with(suffix):
 		return text.substr(0, text.length() - suffix.length())
 	return text
+
+
+# ── Health from the network ──
+# The two machines simulate the fight independently, so they can disagree about
+# a hit by a frame or two. Health is the value that decides who wins a round, so
+# it is the one the host keeps authority over and re-sends on a timer: a fight
+# that drifted is pulled back together instead of ending differently on the two
+# screens. Emits what a real hit would, so the health bar follows and a zero
+# that arrives this way ends the round here too.
+func set_health_from_network(value: float) -> void:
+	if is_equal_approx(current_health, value):
+		return
+	current_health = maxf(value, 0.0)
+	EventBus.player_health_changed.emit(player_id, current_health)
+	if current_health <= 0.0:
+		EventBus.player_defeated.emit(player_id)
 
 
 # GameManager.player_input_locked is the project-wide "players can't act"
@@ -981,13 +1003,21 @@ func _consume_double_tap(action: StringName) -> bool:
 		return false
 	if not _pressed(action):
 		return false
-	var now := Time.get_ticks_msec()
-	var last: int = _last_tap_time_ms.get(action, -1000000)
-	if now - last <= double_tap_window_ms:
-		_last_tap_time_ms[action] = -1000000  # consumed, reset for the next double-tap
+	var now : int = Engine.get_physics_frames()
+	var last: int = _last_tap_frame.get(action, -1000000)
+	if now - last <= _double_tap_window_frames():
+		_last_tap_frame[action] = -1000000  # consumed, reset for the next double-tap
 		return true
-	_last_tap_time_ms[action] = now
+	_last_tap_frame[action] = now
 	return false
+
+
+# The window is authored in milliseconds, because that is how a person feels it,
+# but it is compared in frames: both machines count the same frames, and the
+# project's tick rate is what converts between the two.
+func _double_tap_window_frames() -> int:
+	var per_second := float(Engine.physics_ticks_per_second)
+	return maxi(int(round(double_tap_window_ms * per_second / 1000.0)), 1)
 
 
 func _is_block_ready() -> bool:

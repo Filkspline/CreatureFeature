@@ -32,11 +32,35 @@ extends Node
 ## Buttons relayed, by their InputMap base names ("LeftP1", "NormalP2", ...).
 const BASES: Array[String] = ["Left", "Right", "Up", "Down", "Normal", "Special", "Jump"]
 
-## How many frames every player's input is delayed by, this machine's included.
-## It has to cover one network trip plus the difference between when the two
-## machines started counting, so: raise it if the two players end up seeing
-## different things, lower it if the controls feel sluggish.
+## The input delay every player's presses are held back by, in frames, this
+## machine's included. Set from measured latency when a match starts and then
+## kept: a delay that keeps moving is worse than one a frame too generous,
+## because moving it shifts the timing of every press already in flight.
+##
+## Both machines use the same value - the host picks it and tells the other -
+## because it is the number of frames the two simulations have to agree on.
 @export var delay_frames : int = 5
+
+@export_group("Delay from latency")
+## Bounds on the delay. The point of measuring is to sit at the bottom of this
+## range on a good connection - 2 frames is a same-machine or LAN match - and to
+## climb only as far as a bad one actually needs.
+@export var min_delay_frames : int = 2
+@export var max_delay_frames : int = 12
+
+## Added to half the measured round trip before rounding up. This is the jitter
+## headroom, and it is the part that decides whether a press arrives before the
+## frame that needs it.
+@export var jitter_margin_frames : int = 2
+
+## How much of each new measurement to take. A single sample is as likely to be
+## a hitch as a measurement, so the estimate moves a quarter of the way at a
+## time.
+@export var ping_smoothing : float = 0.25
+
+## How often the round trip is measured, in seconds. Pings are unreliable on
+## purpose: a lost one just means the estimate is a little older.
+@export var ping_interval_seconds : float = 0.5
 
 ## Print every relayed frame. Noisy, but it is how you check packets arrive.
 ## The line it prints per packet reads "N frames from now", which is the delay
@@ -44,6 +68,14 @@ const BASES: Array[String] = ["Left", "Right", "Up", "Down", "Normal", "Special"
 ## ever feels slow to respond.
 @export var log_frames : bool = false
 
+@export_group("Resync")
+## How often the host re-sends the match's health and round counts, in seconds.
+## The two machines simulate the fight independently, so they can drift apart -
+## and a round that ends differently on the two screens is the one desync a
+## player actually sees.
+@export var state_sync_resend_seconds : float = 0.25
+
+@export_group("Relaying")
 ## How much longer than delay_frames a relayed press may ever wait before it is
 ## dropped instead of obeyed. This is the safety net: the two machines' frame
 ## counters do NOT stay in step (one window unfocused, one instance behind on
@@ -64,6 +96,13 @@ var _previous : Dictionary = {}
 var _remote_clock_offset : int = 0
 var _clock_aligned : bool = false
 var _packets : int = 0
+## Seconds since the last resync was sent.
+var _sync_timer : float = 0.0
+## Smoothed round trip in frames, and time since the last ping.
+var _rtt_frames : float = 0.0
+var _ping_timer : float = 0.0
+## Whether this match has settled on a delay yet.
+var _delay_decided : bool = false
 
 
 func _ready() -> void:
@@ -72,7 +111,7 @@ func _ready() -> void:
 	MultiplayerManager.peer_connected.connect(_on_peer_connected)
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if not active():
 		return
 	# Autoloads process before the scene, so the buttons for this frame are in
@@ -80,6 +119,16 @@ func _physics_process(_delta: float) -> void:
 	_tick += 1
 	_apply_scheduled()
 	_sample_and_send()
+
+	_ping_timer += delta
+	if _ping_timer >= ping_interval_seconds:
+		_ping_timer = 0.0
+		_measure_latency()
+
+	_sync_timer += delta
+	if _sync_timer >= state_sync_resend_seconds:
+		_sync_timer = 0.0
+		_send_state_snapshot()
 
 
 # ── What the player script asks ──
@@ -231,3 +280,125 @@ func _clear() -> void:
 	_scheduled.clear()
 	_held.clear()
 	_previous.clear()
+
+
+# ── Resync ──
+# Both machines simulate the fight, so they can drift: one can land the killing
+# hit a frame before the other, and then the two screens disagree about who won
+# the round. Instead of trying to make two independent simulations perfectly
+# identical, the host is treated as the authority for the two values that decide
+# a round - health and rounds won - and re-sends them a few times a second, so a
+# fight that drifted is pulled back together rather than ending differently.
+#
+# Positions are deliberately NOT synced. They are driven every frame by input
+# both machines already agree on, so they track each other closely, and snapping
+# them would show as a stutter to fix a difference nobody can see. Health is the
+# one that changes who wins.
+
+func _send_state_snapshot() -> void:
+	# The session's server peer is player 1, and is the authority.
+	if not multiplayer.is_server():
+		return
+	_state_snapshot.rpc(
+		_health_of(GameManager.p1_node),
+		_health_of(GameManager.p2_node),
+		GameManager.p1_rounds_won,
+		GameManager.p2_rounds_won
+	)
+
+
+# "authority", not "any_peer": the host is the node's multiplayer authority, so
+# only the machine that owns the truth is allowed to send this.
+@rpc("authority", "call_remote", "reliable")
+func _state_snapshot(p1_health: float, p2_health: float, p1_rounds: int, p2_rounds: int) -> void:
+	_apply_health(GameManager.p1_node, p1_health)
+	_apply_health(GameManager.p2_node, p2_health)
+	GameManager.p1_rounds_won = p1_rounds
+	GameManager.p2_rounds_won = p2_rounds
+
+
+# -1.0 means "there is no such character here to sync", which is true between
+# rounds, while a scene change is in flight.
+func _health_of(player_node: Node) -> float:
+	if player_node == null or not player_node.has_method("set_health_from_network"):
+		return -1.0
+	var health : float = player_node.get("current_health")
+	return health
+
+
+# Asked for rather than assumed, the same way the rest of the project treats
+# anything that can take a hit: the node arrives as a plain Node.
+func _apply_health(player_node: Node, health: float) -> void:
+	if health < 0.0:
+		return
+	if player_node != null and player_node.has_method("set_health_from_network"):
+		player_node.call("set_health_from_network", health)
+
+
+# ── Input delay from measured latency ──
+# A fixed delay is either too small - the other player's press arrives after the
+# frame that needed it, and the two machines disagree about that frame - or too
+# large, and the game feels heavy for no reason. So the delay is derived from
+# the round trip actually being made: half of it is the one-way trip a press has
+# to survive, plus a margin for jitter, rounded up to whole frames.
+#
+# The HOST decides it and tells the other machine, because both simulations have
+# to hold inputs back by the same number of frames. A delay differing by one
+# frame between the machines would be exactly the disagreement the delay is
+# there to prevent.
+#
+# It is only ever raised during a match, never lowered: the first estimate can
+# be too optimistic and needs to loosen, but tightening mid-match would shift
+# the timing of presses already in flight for no gain the player can feel.
+#
+# Measured in frames rather than milliseconds, so it needs no wall clock and
+# agrees with the numbering the inputs themselves use.
+
+func _measure_latency() -> void:
+	_ping.rpc(_tick)
+
+
+@rpc("any_peer", "call_remote", "unreliable")
+func _ping(their_frame: int) -> void:
+	if not active():
+		return
+	# Straight back: the sender measures the trip on its own counter, so nothing
+	# here needs to know anything about their clock.
+	_pong.rpc(their_frame)
+
+
+@rpc("any_peer", "call_remote", "unreliable")
+func _pong(our_frame: int) -> void:
+	if not active():
+		return
+	var sample := float(_tick - our_frame)
+	if _rtt_frames <= 0.0:
+		_rtt_frames = sample
+	else:
+		_rtt_frames = lerpf(_rtt_frames, sample, ping_smoothing)
+	if multiplayer.is_server():
+		_choose_delay()
+
+
+## Turns the measured round trip into a delay, and tells the other machine when
+## it changes. Host only.
+func _choose_delay() -> void:
+	var wanted : int = clampi(
+		int(ceil(_rtt_frames * 0.5)) + jitter_margin_frames,
+		min_delay_frames,
+		max_delay_frames
+	)
+	if not _delay_decided:
+		_delay_decided = true
+		delay_frames = wanted
+		_set_delay.rpc(wanted)
+		return
+	if wanted > delay_frames:
+		delay_frames = wanted
+		_set_delay.rpc(wanted)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _set_delay(frames: int) -> void:
+	delay_frames = clampi(frames, min_delay_frames, max_delay_frames)
+	_delay_decided = true
