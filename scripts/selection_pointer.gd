@@ -43,6 +43,8 @@ extends AnimatedSprite2D
 @export var pop_in_ease : Tween.EaseType = Tween.EASE_OUT
 
 var _target : Control = null
+## Set when follow() could not place the pointer yet, so _process retries.
+var _needs_refresh : bool = false
 var _move_tween : Tween
 var _pop_tween : Tween
 
@@ -61,7 +63,12 @@ func _process(_delta: float) -> void:
 	if not follow_focus:
 		return
 	var focus := get_viewport().gui_get_focus_owner()
-	if focus != _target:
+	# _needs_refresh covers the case follow() bailed out on: it was handed a
+	# target that was not visible in the tree yet (a menu that has just been
+	# shown), returned without placing the pointer, and would otherwise never
+	# be asked again because _target now matches the focus owner. That is what
+	# left the pause menu's selector parked in the wrong spot until an input.
+	if focus != _target or _needs_refresh:
 		follow(focus)
 
 
@@ -70,7 +77,11 @@ func follow(target: Control) -> void:
 	_target = target
 	if target == null or not is_instance_valid(target) or not target.is_visible_in_tree():
 		visible = false
+		# Retry while the target exists but cannot be placed yet. Nothing to
+		# retry for a null target.
+		_needs_refresh = target != null and is_instance_valid(target)
 		return
+	_needs_refresh = false
 
 	var was_hidden := not visible
 	visible = true

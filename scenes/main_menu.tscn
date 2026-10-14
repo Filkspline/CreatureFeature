@@ -7,14 +7,16 @@
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="5_crtscript"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="6_crtshader"]
 [ext_resource type="Script" uid="uid://b7ciwpjhbyueo" path="res://scripts/menu_focus_emphasis.gd" id="9_focus"]
+[ext_resource type="Texture2D" uid="uid://duieogb37ldte" path="res://assets/MainScreenAssets/MainmenuBackground.png" id="10_bg"]
+[ext_resource type="Texture2D" uid="uid://bhtiemx8arx1e" path="res://assets/MainScreenAssets/MainMenuLogo.png" id="11_logo"]
+[ext_resource type="Texture2D" uid="uid://bhm5xkdb6dfkg" path="res://assets/MainScreenAssets/Local.png" id="12_btn_local"]
+[ext_resource type="Texture2D" uid="uid://deic722dvjr7k" path="res://assets/MainScreenAssets/Online.png" id="13_btn_online"]
+[ext_resource type="Texture2D" uid="uid://cexie4nh4erw8" path="res://assets/MainScreenAssets/Quit.png" id="14_btn_quit"]
+[ext_resource type="Texture2D" uid="uid://cql33q47senr5" path="res://assets/MainScreenAssets/Settings.png" id="15_btn_settings"]
+[ext_resource type="Texture2D" uid="uid://cr8xduddy1a7e" path="res://assets/MainScreenAssets/Singplayer.png" id="16_btn_single"]
+[ext_resource type="Texture2D" uid="uid://c2agbg1agrigm" path="res://assets/MainScreenAssets/Multiplayer.png" id="17_btn_shared"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_button"]
-bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 1)
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_menu"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
 shader = ExtResource("6_crtshader")
@@ -30,16 +32,31 @@ shader_parameter/noise_amount = 0.0015
 shader_parameter/flicker = 0.001
 shader_parameter/distortion = 0.006
 
-[node name="MainMenu" type="Node2D" unique_id=639569004]
+[node name="MainMenu" type="Node2D" unique_id=639569004 node_paths=PackedStringArray("main_set", "mode_set", "focus_emphasis")]
 script = ExtResource("1_l6cm7")
+main_set = NodePath("Buttons/MainMenuButtons")
+mode_set = NodePath("Buttons/ModeButtons")
+focus_emphasis = NodePath("MenuFocusEmphasis")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1113584678]
+visible = false
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
 color = Color(0.13333334, 0.1254902, 0.20392157, 1)
 
+[node name="Background" type="Sprite2D" parent="." unique_id=1123584679]
+z_index = -1
+position = Vector2(320, 180)
+texture = ExtResource("10_bg")
+
+[node name="Logo" type="Sprite2D" parent="." unique_id=1123584680]
+position = Vector2(315, 113.99999)
+scale = Vector2(0.615, 0.615)
+texture = ExtResource("11_logo")
+
 [node name="Label" type="Label" parent="." unique_id=1380732384]
+visible = false
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -58,105 +75,203 @@ vertical_alignment = 1
 
 [node name="Buttons" type="Node" parent="." unique_id=884993386]
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Buttons" unique_id=122466985]
+[node name="MainMenuButtons" type="VBoxContainer" parent="Buttons" unique_id=122466985]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -110.0
-offset_top = -70.0
-offset_right = 110.0
-offset_bottom = 70.0
+offset_left = -100.0
+offset_top = -42.0
+offset_right = 100.0
+offset_bottom = 158.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="Multiplayer" type="Button" parent="Buttons/VBoxContainer" unique_id=831137130]
-custom_minimum_size = Vector2(220, 42)
+[node name="Play" type="Button" parent="Buttons/MainMenuButtons" unique_id=831137130]
+custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
-focus_neighbor_bottom = NodePath("../Settings")
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 3
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/focus = SubResource("StyleBoxFlat_menu_button")
-text = "Multiplayer"
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
+text = "Play"
 
-[node name="Online" type="Button" parent="Buttons/VBoxContainer" unique_id=1556952625]
-visible = false
-custom_minimum_size = Vector2(220, 42)
-layout_mode = 2
-focus_neighbor_bottom = NodePath("../Settings")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("2_m3x6f")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/focus = SubResource("StyleBoxFlat_menu_button")
-text = "Online Multiplayer"
+[node name="Art" type="Sprite2D" parent="Buttons/MainMenuButtons/Play" unique_id=831137131]
+z_index = -1
+texture_filter = 1
+position = Vector2(99, 27.999998)
+scale = Vector2(0.69750005, 0.81499994)
+texture = ExtResource("17_btn_shared")
 
-[node name="Singleplayer" type="Button" parent="Buttons/VBoxContainer" unique_id=758517524]
-custom_minimum_size = Vector2(220, 42)
+[node name="Settings" type="Button" parent="Buttons/MainMenuButtons" unique_id=2028871752]
+custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 3
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/focus = SubResource("StyleBoxFlat_menu_button")
-text = "Singleplayer"
-
-[node name="Settings" type="Button" parent="Buttons/VBoxContainer" unique_id=2028871752]
-custom_minimum_size = Vector2(220, 42)
-layout_mode = 2
-focus_neighbor_top = NodePath("../Multiplayer")
-focus_neighbor_bottom = NodePath("../Quit")
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("2_m3x6f")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/focus = SubResource("StyleBoxFlat_menu_button")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
 text = "Settings"
 
-[node name="Quit" type="Button" parent="Buttons/VBoxContainer" unique_id=1088563648]
-custom_minimum_size = Vector2(220, 42)
+[node name="Art" type="Sprite2D" parent="Buttons/MainMenuButtons/Settings" unique_id=2028871753]
+z_index = -1
+texture_filter = 1
+position = Vector2(98, 27)
+scale = Vector2(0.725, 0.79)
+texture = ExtResource("15_btn_settings")
+
+[node name="Quit" type="Button" parent="Buttons/MainMenuButtons" unique_id=1088563648]
+custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
-focus_neighbor_top = NodePath("../Settings")
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 3
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_menu_button")
-theme_override_styles/focus = SubResource("StyleBoxFlat_menu_button")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
 text = "Quit"
+
+[node name="Art" type="Sprite2D" parent="Buttons/MainMenuButtons/Quit" unique_id=1088563649]
+z_index = -1
+texture_filter = 1
+position = Vector2(100, 26)
+scale = Vector2(0.7, 0.77)
+texture = ExtResource("14_btn_quit")
+
+[node name="ModeButtons" type="VBoxContainer" parent="Buttons" unique_id=122466986]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -66.0
+offset_right = 100.0
+offset_bottom = 165.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Local" type="Button" parent="Buttons/ModeButtons" unique_id=758517524]
+custom_minimum_size = Vector2(200, 49.815)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
+text = "Local "
+
+[node name="Art" type="Sprite2D" parent="Buttons/ModeButtons/Local" unique_id=758517526]
+z_index = -1
+texture_filter = 1
+position = Vector2(97.5, 20.499998)
+scale = Vector2(0.645, 0.79)
+texture = ExtResource("12_btn_local")
+
+[node name="PracticeRange" type="Button" parent="Buttons/ModeButtons" unique_id=831137140]
+custom_minimum_size = Vector2(200, 47.11)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
+text = "Practice Range"
+
+[node name="Art" type="Sprite2D" parent="Buttons/ModeButtons/PracticeRange" unique_id=831137141]
+z_index = -1
+texture_filter = 1
+position = Vector2(101, 22)
+scale = Vector2(0.82, 0.81)
+texture = ExtResource("16_btn_single")
+
+[node name="Online" type="Button" parent="Buttons/ModeButtons" unique_id=1556952625]
+custom_minimum_size = Vector2(200, 43.775)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
+text = "Online "
+
+[node name="Art" type="Sprite2D" parent="Buttons/ModeButtons/Online" unique_id=1556952626]
+z_index = -1
+texture_filter = 1
+position = Vector2(97, 4)
+scale = Vector2(0.73, 0.69)
+texture = ExtResource("13_btn_online")
+
+[node name="Back" type="Button" parent="Buttons/ModeButtons" unique_id=758517525]
+custom_minimum_size = Vector2(200, 33.98)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_menu")
+text = "Back"
+
+[node name="Art" type="Sprite2D" parent="Buttons/ModeButtons/Back" unique_id=758517527]
+z_index = -1
+texture_filter = 1
+position = Vector2(98, 16)
+scale = Vector2(0.615, 0.62)
+texture = ExtResource("17_btn_shared")
 
 [node name="SelectionPointer" type="AnimatedSprite2D" parent="." unique_id=771002001]
 rotation = -1.5707964
@@ -185,9 +300,10 @@ current_preset = 1
 [node name="MenuFocusEmphasis" type="Node" parent="." unique_id=1994538625]
 script = ExtResource("9_focus")
 
-[connection signal="pressed" from="Buttons/VBoxContainer/Multiplayer" to="." method="_on_multiplayer_pressed"]
-[connection signal="pressed" from="Buttons/VBoxContainer/Online" to="." method="_on_multiplayer_pressed"]
-[connection signal="pressed" from="Buttons/VBoxContainer/Online" to="." method="_on_online_pressed"]
-[connection signal="pressed" from="Buttons/VBoxContainer/Singleplayer" to="." method="_on_singleplayer_pressed"]
-[connection signal="pressed" from="Buttons/VBoxContainer/Settings" to="." method="_on_settings_pressed"]
-[connection signal="pressed" from="Buttons/VBoxContainer/Quit" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="Buttons/MainMenuButtons/Play" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="Buttons/MainMenuButtons/Settings" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="Buttons/MainMenuButtons/Quit" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="Buttons/ModeButtons/Local" to="." method="_on_local_multiplayer_pressed"]
+[connection signal="pressed" from="Buttons/ModeButtons/PracticeRange" to="." method="_on_practice_range_pressed"]
+[connection signal="pressed" from="Buttons/ModeButtons/Online" to="." method="_on_online_pressed"]
+[connection signal="pressed" from="Buttons/ModeButtons/Back" to="." method="_on_back_pressed"]

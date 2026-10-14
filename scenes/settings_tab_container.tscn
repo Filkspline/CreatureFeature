@@ -1,7 +1,48 @@
-[gd_scene load_steps=3 format=3 uid="uid://friydixf4el0"]
+[gd_scene format=3 uid="uid://friydixf4el0"]
 
 [ext_resource type="Script" uid="uid://drn8ep5ino6s7" path="res://scripts/settings_tab_container.gd" id="1_xpwon"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_m3x6f"]
+[ext_resource type="StyleBoxFlat" uid="uid://bvagcvsl5hcde" path="res://assets/ui_style_box.tres" id="3_shared"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_selected"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_unselected"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 0.6)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 0.3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_hovered"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 0.85)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 0.7)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_row_button"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_row_button_active"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 
 [node name="Settings_Tab_Container" type="Control" unique_id=576454110]
 layout_mode = 3
@@ -17,55 +58,400 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 50.0
-offset_top = 50.0
-offset_right = -50.0
-offset_bottom = -50.0
+offset_left = 44.0
+offset_top = 46.0
+offset_right = -44.0
+offset_bottom = -56.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/outline_size = 2
+theme_override_colors/font_selected_color = Color(1, 1, 1, 1)
+theme_override_colors/font_unselected_color = Color(0.79607844, 0.85882354, 0.9882353, 0.65)
+theme_override_colors/font_hovered_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 3
+theme_override_constants/side_margin = 6
+theme_override_constants/tab_separation = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/panel = ExtResource("3_shared")
+theme_override_styles/tab_selected = SubResource("StyleBoxFlat_tab_selected")
+theme_override_styles/tab_unselected = SubResource("StyleBoxFlat_tab_unselected")
+theme_override_styles/tab_hovered = SubResource("StyleBoxFlat_tab_hovered")
+theme_override_styles/tab_focus = SubResource("StyleBoxFlat_tab_selected")
 tab_alignment = 1
 current_tab = 0
 
-[node name="General" type="Control" parent="TabContainer" unique_id=1643613744]
+[node name="General" type="VBoxContainer" parent="TabContainer" unique_id=1643613744]
 layout_mode = 2
 metadata/_tab_index = 0
+theme_override_constants/separation = 14
 
-[node name="Label" type="Label" parent="TabContainer/General" unique_id=1652187564]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+[node name="WindowModeRow" type="HBoxContainer" parent="TabContainer/General" unique_id=1652187564]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="WindowModeLabel" type="Label" parent="TabContainer/General/WindowModeRow" unique_id=1652187565]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "WINDOW MODE"
+vertical_alignment = 1
+
+[node name="WindowModeButton" type="Button" parent="TabContainer/General/WindowModeRow" unique_id=1652187566]
+custom_minimum_size = Vector2(160, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "WINDOWED"
+
+[node name="ResolutionRow" type="HBoxContainer" parent="TabContainer/General" unique_id=1652187571]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ResolutionLabel" type="Label" parent="TabContainer/General/ResolutionRow" unique_id=1652187572]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "RESOLUTION"
+vertical_alignment = 1
+
+[node name="ResolutionButton" type="Button" parent="TabContainer/General/ResolutionRow" unique_id=1652187573]
+custom_minimum_size = Vector2(200, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "1080P  1920X1080"
+
+[node name="VsyncRow" type="HBoxContainer" parent="TabContainer/General" unique_id=1652187567]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="VsyncLabel" type="Label" parent="TabContainer/General/VsyncRow" unique_id=1652187568]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "V-SYNC"
+vertical_alignment = 1
+
+[node name="VsyncButton" type="Button" parent="TabContainer/General/VsyncRow" unique_id=1652187569]
+custom_minimum_size = Vector2(160, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "ON"
+
+[node name="GeneralHint" type="Label" parent="TabContainer/General" unique_id=1652187570]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 0.75)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
-text = "Test: General"
+theme_override_font_sizes/font_size = 13
+text = "SAVED AS SOON AS THEY ARE MADE. THE RESOLUTION APPLIES WHILE WINDOWED - FULLSCREEN USES THE WHOLE DISPLAY."
+autowrap_mode = 2
 
-[node name="Sound" type="Control" parent="TabContainer" unique_id=389589682]
+[node name="Sound" type="VBoxContainer" parent="TabContainer" unique_id=389589682]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
+theme_override_constants/separation = 14
 
-[node name="Label" type="Label" parent="TabContainer/Sound" unique_id=763627021]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+[node name="SfxRow" type="HBoxContainer" parent="TabContainer/Sound" unique_id=763627021]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SfxLabel" type="Label" parent="TabContainer/Sound/SfxRow" unique_id=763627022]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "SOUND EFFECTS"
+vertical_alignment = 1
+
+[node name="SfxValue" type="Label" parent="TabContainer/Sound/SfxRow" unique_id=763627023]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "100%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="SfxMinus" type="Button" parent="TabContainer/Sound/SfxRow" unique_id=763627024]
+custom_minimum_size = Vector2(38, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "-"
+
+[node name="SfxPlus" type="Button" parent="TabContainer/Sound/SfxRow" unique_id=763627025]
+custom_minimum_size = Vector2(38, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "+"
+
+[node name="MusicRow" type="HBoxContainer" parent="TabContainer/Sound" unique_id=763627026]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MusicLabel" type="Label" parent="TabContainer/Sound/MusicRow" unique_id=763627027]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "MUSIC"
+vertical_alignment = 1
+
+[node name="MusicValue" type="Label" parent="TabContainer/Sound/MusicRow" unique_id=763627028]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "100%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="MusicMinus" type="Button" parent="TabContainer/Sound/MusicRow" unique_id=763627029]
+custom_minimum_size = Vector2(38, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "-"
+
+[node name="MusicPlus" type="Button" parent="TabContainer/Sound/MusicRow" unique_id=763627030]
+custom_minimum_size = Vector2(38, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "+"
+
+[node name="UiRow" type="HBoxContainer" parent="TabContainer/Sound" unique_id=763627031]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="UiLabel" type="Label" parent="TabContainer/Sound/UiRow" unique_id=763627032]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "MENU SOUNDS"
+vertical_alignment = 1
+
+[node name="UiValue" type="Label" parent="TabContainer/Sound/UiRow" unique_id=763627033]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+text = "100%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="UiMinus" type="Button" parent="TabContainer/Sound/UiRow" unique_id=763627034]
+custom_minimum_size = Vector2(38, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "-"
+
+[node name="UiPlus" type="Button" parent="TabContainer/Sound/UiRow" unique_id=763627035]
+custom_minimum_size = Vector2(38, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_row_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_row_button_active")
+theme_override_styles/focus = SubResource("StyleBoxFlat_row_button_active")
+text = "+"
+
+[node name="SoundHint" type="Label" parent="TabContainer/Sound" unique_id=763627036]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 0.75)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
-text = "Test: Sound"
+theme_override_font_sizes/font_size = 13
+text = "100% IS THE LEVEL THE GAME WAS MIXED AT, 0% IS SILENT. MUSIC AND MENU SOUNDS ALSO FOLLOW THE SYSTEM VOLUME."
+autowrap_mode = 2
 
-[node name="Controls" type="Control" parent="TabContainer" unique_id=1506623580]
+[node name="Controls" type="VBoxContainer" parent="TabContainer" unique_id=1506623580]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2
+theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="TabContainer/Controls" unique_id=974100385]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+[node name="P1Caption" type="Label" parent="TabContainer/Controls" unique_id=974100385]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 16
+text = "PLAYER 1 KEYBOARD"
+
+[node name="P1Keys" type="Label" parent="TabContainer/Controls" unique_id=974100386]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 15
+text = "MOVE - - - -"
+autowrap_mode = 2
+
+[node name="P2Caption" type="Label" parent="TabContainer/Controls" unique_id=974100387]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 16
+text = "PLAYER 2 KEYBOARD"
+
+[node name="P2Keys" type="Label" parent="TabContainer/Controls" unique_id=974100388]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_m3x6f")
+theme_override_font_sizes/font_size = 15
+text = "MOVE - - - -"
+autowrap_mode = 2
+
+[node name="PadNote" type="Label" parent="TabContainer/Controls" unique_id=974100389]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 0.75)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
-text = "Test: Controls
-"
+theme_override_font_sizes/font_size = 13
+text = "CONTROLLERS USE THE SAME ACTIONS: D-PAD OR LEFT STICK MOVES, A NORMAL, B SPECIAL, X JUMP. THE DEVICE YOU CLAIM ON THE SELECT SCREEN IS THE ONE THAT PLAYS, AND THE LEGEND IN A MATCH ALWAYS SHOWS THAT DEVICE'S OWN BUTTONS."
+autowrap_mode = 2
+
+[connection signal="pressed" from="TabContainer/General/WindowModeRow/WindowModeButton" to="." method="_on_window_mode_pressed"]
+[connection signal="pressed" from="TabContainer/General/ResolutionRow/ResolutionButton" to="." method="_on_resolution_pressed"]
+[connection signal="pressed" from="TabContainer/General/VsyncRow/VsyncButton" to="." method="_on_vsync_pressed"]
+[connection signal="pressed" from="TabContainer/Sound/SfxRow/SfxMinus" to="." method="_on_sfx_minus_pressed"]
+[connection signal="pressed" from="TabContainer/Sound/SfxRow/SfxPlus" to="." method="_on_sfx_plus_pressed"]
+[connection signal="pressed" from="TabContainer/Sound/MusicRow/MusicMinus" to="." method="_on_music_minus_pressed"]
+[connection signal="pressed" from="TabContainer/Sound/MusicRow/MusicPlus" to="." method="_on_music_plus_pressed"]
+[connection signal="pressed" from="TabContainer/Sound/UiRow/UiMinus" to="." method="_on_ui_minus_pressed"]
+[connection signal="pressed" from="TabContainer/Sound/UiRow/UiPlus" to="." method="_on_ui_plus_pressed"]

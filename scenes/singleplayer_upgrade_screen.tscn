@@ -1,12 +1,43 @@
 [gd_scene format=3 uid="uid://dy0u2mrsd2wpx"]
 
 [ext_resource type="StyleBox" uid="uid://bvagcvsl5hcde" path="res://assets/ui_style_box.tres" id="1_8hh0d"]
+[ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="9_font"]
 [ext_resource type="Script" uid="uid://b82xsf35csamr" path="res://scripts/singleplayer_upgrade_screen.gd" id="1_775ga"]
+[ext_resource type="Script" path="res://scripts/menu_focus_emphasis.gd" id="2_focus"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_back_focus"]
+bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 
 [node name="singleplayer_upgrade_screen" type="CanvasLayer" unique_id=1579255368]
+layer = 4
 script = ExtResource("1_775ga")
+base_card_scale_multiplier = 0.92
+focused_extra_scale = 1.0
+scale_falloff_per_step = 0.18
+min_card_scale_fraction = 0.52
+alpha_falloff_per_step = 0.28
+min_card_alpha = 0.15
+inactive_row_alpha = 0.45
+card_step_spacing = 96.0
+max_rendered_offset = 2
+card_move_duration = 0.18
+owned_card_z_base = 10
+card_z_step = 10
+owned_card_scale_fraction = 0.85
+equipped_grid_size = Vector2(180, 88)
+equipped_grid_columns = 4
+equipped_card_bob_phase = 3.0
+spawn_scale_fraction = 0.05
+owned_card_appear_duration = 0.18
+owned_card_flip_stagger_delay = 0.0
+fallback_flip_seconds = 0.45
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=57718058]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -17,24 +48,60 @@ theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
-[node name="PanelContainer" type="PanelContainer" parent="MarginContainer" unique_id=776760878]
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer"]
 layout_mode = 2
 theme_override_styles/panel = ExtResource("1_8hh0d")
 
-[node name="move_node" type="Node2D" parent="." unique_id=190898596]
-position = Vector2(450, 110)
+[node name="StatusLabel" type="Label" parent="."]
+offset_left = 36.0
+offset_top = 40.0
+offset_right = 430.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("9_font")
+theme_override_font_sizes/font_size = 15
+text = "CARDS 0      SPECIAL NONE"
 
-[node name="upgrade_node" type="Node2D" parent="." unique_id=726684295]
-position = Vector2(450, 260)
+[node name="HintLabel" type="Label" parent="."]
+offset_left = 36.0
+offset_top = 60.0
+offset_right = 430.0
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.78431374)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("9_font")
+theme_override_font_sizes/font_size = 12
+text = "Enter takes the focused card  -  Special puts it back  -  one special only"
 
-[node name="active_cards" type="Marker2D" parent="." unique_id=1437177854]
-position = Vector2(110, 110)
+[node name="move_node" type="Node2D" parent="."]
+position = Vector2(320, 136)
 
-[node name="owned_cards_spawn" type="Node2D" parent="." unique_id=1319473015]
-position = Vector2(-110, 161)
+[node name="upgrade_node" type="Node2D" parent="."]
+position = Vector2(320, 252)
 
-[node name="temp_text_list" type="ItemList" parent="." unique_id=83744421]
-offset_left = 50.0
-offset_top = 48.0
-offset_right = 175.0
-offset_bottom = 314.0
+[node name="BackButton" type="Button" parent="."]
+offset_left = 470.0
+offset_top = 40.0
+offset_right = 590.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980392, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("9_font")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = ExtResource("1_8hh0d")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_back_focus")
+theme_override_styles/hover = SubResource("StyleBoxFlat_back_focus")
+theme_override_styles/focus = SubResource("StyleBoxFlat_back_focus")
+text = "Back"
+
+[node name="MenuFocusEmphasis" type="Node" parent="."]
+script = ExtResource("2_focus")
+
+[connection signal="pressed" from="BackButton" to="." method="_on_back_pressed"]

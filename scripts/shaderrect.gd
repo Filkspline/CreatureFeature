@@ -85,11 +85,11 @@ enum Presets {CUSTOM, SUBTLE_RETRO, VERY_LIGHT, ARCADE_LIGHT, FIGHTING_GAME}
 		current_preset = value
 		apply_preset(value)
 
-# Layer this gets moved into. Higher than the implicit base layer (0) that
-# everything outside a CanvasLayer draws on — including your gameplay world
-# and the hit/block particle effects — so this always draws last, on top,
-# with a clean SCREEN_TEXTURE snapshot of everything below it.
-const CRT_LAYER := 10
+# Layer this gets moved into. Above every other CanvasLayer in the project -
+# the pause menu is 15, the round countdown 3, the fight UI 4, the scene
+# transition 5 - so this always draws last, on top, with a clean
+# SCREEN_TEXTURE snapshot of everything below it, pause menu included.
+const CRT_LAYER := 100
 
 
 func _ready():
@@ -97,6 +97,14 @@ func _ready():
 	size = get_viewport_rect().size
 	anchor_right = 1.0
 	anchor_bottom = 1.0
+
+	# This covers every layer below it, the pause menu included, so it must never
+	# intercept input: with a blocking mouse filter a full-screen overlay up here
+	# would swallow every click meant for the menu underneath. Set here rather
+	# than only in each scene, for the same reason process_mode is set in code in
+	# the scene transition - it is a property of the effect, not a per-instance
+	# style choice.
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# Create or assign shader material
 	if not shader_material:

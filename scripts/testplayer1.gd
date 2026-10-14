@@ -186,7 +186,13 @@ var last_direction: int = Direction.NONE
 var direction_buffer_timer: float = 0.0
 var pending_direction: int = Direction.NONE
 # Double-tap dash tracking: last tap time (ms) per direction action name.
-var _last_tap_time_ms: Dictionary = {}
+## Last tap of each direction action, in PHYSICS FRAMES rather than in
+## milliseconds. The wall clock reads differently on two machines, so a
+## double-tap window measured with Time.get_ticks_msec() could pair two taps on
+## one machine and not on the other - a dash on one screen and not the other.
+## Frames are the same count on both machines, which is also what any snapshot
+## has to be able to reproduce.
+var _last_tap_frame: Dictionary = {}
 
 # Generic "remembered" inputs. Keys are the base action names ("Jump",
 # "Normal", "Special" — before _action() appends "P1"/"P2"), values are
@@ -320,6 +326,50 @@ func _action(name: String) -> StringName:
 	return StringName("%sP%d" % [name, player_id])
 
 
+# ── Where this character's buttons come from ──
+# Offline these are the InputMap reads they always were, and the game behaves
+# exactly as before. In an online match they come from NetInput instead: the
+# character belonging to the other machine has no device bound on this one, so
+# its actions would read as "nothing held" forever and the opponent would never
+# move. NetInput delays EVERY character's buttons, this one included, so both
+# machines apply the same press on the same frame instead of drifting apart.
+func _held(action: StringName) -> bool:
+	if NetInput.active_for(player_id):
+		return NetInput.held(player_id, _input_base(action))
+	return Input.is_action_pressed(action)
+
+
+func _pressed(action: StringName) -> bool:
+	if NetInput.active_for(player_id):
+		return NetInput.just_pressed(player_id, _input_base(action))
+	return Input.is_action_just_pressed(action)
+
+
+# "LeftP2" -> "Left": NetInput names buttons by their base, not by slot.
+func _input_base(action: StringName) -> String:
+	var text := String(action)
+	var suffix := "P%d" % player_id
+	if text.ends_with(suffix):
+		return text.substr(0, text.length() - suffix.length())
+	return text
+
+
+# ── Health from the network ──
+# The two machines simulate the fight independently, so they can disagree about
+# a hit by a frame or two. Health is the value that decides who wins a round, so
+# it is the one the host keeps authority over and re-sends on a timer: a fight
+# that drifted is pulled back together instead of ending differently on the two
+# screens. Emits what a real hit would, so the health bar follows and a zero
+# that arrives this way ends the round here too.
+func set_health_from_network(value: float) -> void:
+	if is_equal_approx(current_health, value):
+		return
+	current_health = maxf(value, 0.0)
+	EventBus.player_health_changed.emit(player_id, current_health)
+	if current_health <= 0.0:
+		EventBus.player_defeated.emit(player_id)
+
+
 # GameManager.player_input_locked is the project-wide "players can't act"
 # flag, held by the round-start countdown. It is checked at every point this
 # player reads the pad or keyboard, so a locked player still falls, still
@@ -367,7 +417,11 @@ func _ready() -> void:
 	sprites.animation_finished.connect(_on_sprites_animation_finished)
 
 	for p in get_tree().get_nodes_in_group("players"):
-		if p != self and (p is Player or p is Dummy):
+		# Duck-typed rather than p is Dummy: anything that can be hit answers
+		# take_hit(), so this keeps working without depending on the Dummy class
+		# being registered globally. The horse's sprite is in this group too and
+		# does not answer it, so it is skipped.
+		if p != self and p.has_method("take_hit"):
 			opponent = p
 			break
 	if not opponent:
@@ -778,7 +832,7 @@ func _capture_buffered_inputs() -> void:
 	if _input_locked():
 		return
 	for action in ["Jump", "Normal", "Special"]:
-		if Input.is_action_just_pressed(_action(action)):
+		if _pressed(_action(action)):
 			input_buffer[action] = input_buffer_frames
 
 
@@ -947,15 +1001,23 @@ func _consume_double_tap(action: StringName) -> bool:
 	# countdown from pairing with one made right after it into a dash.
 	if _input_locked():
 		return false
-	if not Input.is_action_just_pressed(action):
+	if not _pressed(action):
 		return false
-	var now := Time.get_ticks_msec()
-	var last: int = _last_tap_time_ms.get(action, -1000000)
-	if now - last <= double_tap_window_ms:
-		_last_tap_time_ms[action] = -1000000  # consumed, reset for the next double-tap
+	var now : int = Engine.get_physics_frames()
+	var last: int = _last_tap_frame.get(action, -1000000)
+	if now - last <= _double_tap_window_frames():
+		_last_tap_frame[action] = -1000000  # consumed, reset for the next double-tap
 		return true
-	_last_tap_time_ms[action] = now
+	_last_tap_frame[action] = now
 	return false
+
+
+# The window is authored in milliseconds, because that is how a person feels it,
+# but it is compared in frames: both machines count the same frames, and the
+# project's tick rate is what converts between the two.
+func _double_tap_window_frames() -> int:
+	var per_second := float(Engine.physics_ticks_per_second)
+	return maxi(int(round(double_tap_window_ms * per_second / 1000.0)), 1)
 
 
 func _is_block_ready() -> bool:
@@ -967,7 +1029,7 @@ func _is_block_ready() -> bool:
 	# needs the back direction held.
 	if crouch_phase != CrouchPhase.NONE:
 		return true
-	if not Input.is_action_pressed(_get_backward_action()):
+	if not _held(_get_backward_action()):
 		return false
 	return true
 
@@ -1013,7 +1075,7 @@ func _resolve_normal_move() -> MoveData:
 		key = "up"
 	elif crouch_phase == CrouchPhase.LOOP:
 		key = "crouching"
-	elif Input.is_action_pressed(_action("Up")):
+	elif _held(_action("Up")):
 		key = "up"
 	else:
 		var dir = _get_horizontal_input()
@@ -1197,7 +1259,7 @@ func _attack_process(delta: float) -> void:
 
 
 func _update_gatling_buffer() -> void:
-	if Input.is_action_just_pressed(_action("Normal")):
+	if _pressed(_action("Normal")):
 		gatling_input_buffered = _action("Normal")
 		gatling_buffer_timer = gatling_buffer_frames
 		return
@@ -1477,7 +1539,7 @@ func _blockstun_process(delta: float) -> void:
 # to crouch idle instead of showing standing idle for one frame and
 # re-triggering the crouch down transition right after.
 func _resume_crouch_or_update_animation() -> void:
-	if is_on_floor() and Input.is_action_pressed(_action("Down")):
+	if is_on_floor() and _held(_action("Down")):
 		wants_to_crouch = true
 		crouch_phase = CrouchPhase.LOOP
 		sprites.play_crouch_idle()
@@ -1694,7 +1756,7 @@ func _handle_jump() -> void:
 
 
 func _handle_crouch_input() -> void:
-	var down_pressed = is_on_floor() and not _input_locked() and Input.is_action_pressed(_action("Down"))
+	var down_pressed = is_on_floor() and not _input_locked() and _held(_action("Down"))
 
 	if down_pressed and crouch_phase == CrouchPhase.NONE:
 		wants_to_crouch = true
@@ -1766,8 +1828,8 @@ func _get_raw_direction() -> int:
 	# settle to neutral through their normal code paths.
 	if _input_locked():
 		return Direction.NONE
-	var left := Input.is_action_pressed(_action("Left"))
-	var right := Input.is_action_pressed(_action("Right"))
+	var left := _held(_action("Left"))
+	var right := _held(_action("Right"))
 	if left == right:
 		return Direction.NONE
 	return Direction.LEFT if left else Direction.RIGHT
@@ -1786,9 +1848,9 @@ func _get_horizontal_input() -> float:
 	if _input_locked():
 		return 0.0
 	var dir := 0.0
-	if Input.is_action_pressed(_action("Left")):
+	if _held(_action("Left")):
 		dir -= 1.0
-	if Input.is_action_pressed(_action("Right")):
+	if _held(_action("Right")):
 		dir += 1.0
 	return dir
 

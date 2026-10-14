@@ -20,9 +20,13 @@ extends Control
 #  Locking a slot makes that input mode the corresponding player:
 #    slot 1 -> Player 1 (character 1), slot 2 -> Player 2 (character 2).
 #  Once both slots are locked, either player can confirm to start.
+#
+#  This is the screen for two players and for online play. Practice Range is a
+#  single-player flow with its own screen (single_player_select.tscn), so there
+#  is deliberately no single-player mode branching in here: two slots, two
+#  players, or one local player plus one online peer.
 
 const FIGHT_SCENE := "res://scenes/pre_fight_upgrade_screen.tscn"
-const LABBING_SCENE := "res://scenes/single_player.tscn"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 
 ## Icon sheet the cursors draw from.
@@ -74,11 +78,11 @@ const JOY_DETECT_BUTTONS := [
 ]
 const JOY_DETECT_AXES := [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y, JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y]
 
+# White and the light blue accent only: this project's palette is white, blue
+# and black, and the cursors were the one place off-palette colours crept in.
 const CURSOR_COLORS := [
 	Color(1.0, 1.0, 1.0),                            # white
 	Color(0.79607844, 0.85882354, 0.9882353),        # cbdbfc
-	Color(1.0, 0.85, 0.4),                           # amber
-	Color(0.55, 1.0, 0.6),                           # green
 ]
 
 const CURSOR_SIZE := Vector2(51.0, 46.0)
@@ -251,6 +255,12 @@ func _create_remote_cursor(player_id: int) -> Cursor:
 	cursor_icons.add_child(icon)
 	remote_cursor = cursor
 	_update_cursor_visual(cursor)
+	# Hidden until the other machine actually locks something in. Local cursors
+	# are created hidden for the same reason: a cursor on screen means a choice,
+	# and an empty remote square sitting there from the first frame reads as one
+	# that has already been made.
+	cursor.node.hide()
+	icon.hide()
 	return cursor
 
 func _create_cursor_icon(device: PlayerInputDevice, cursor: Cursor) -> void:
@@ -483,8 +493,8 @@ func _refresh_ready_state() -> void:
 				local_locked = true
 				break
 		start_button.visible = local_locked and remote_cursor != null and remote_cursor.locked
-	else:
-		start_button.visible = _locked_count() >= 2
+		return
+	start_button.visible = _locked_count() >= 2
 
 
 func _locked_count() -> int:
@@ -569,12 +579,12 @@ func _remove_cursor(cursor: Cursor) -> void:
 			GameManager.p2_device = null
 		# A pad pulling out takes its legend with it.
 		_refresh_legend(slot)
-		start_button.visible = _locked_count() >= 2
 
 	cursors.erase(cursor)
 	if is_instance_valid(cursor.node):
 		cursor.node.queue_free()
-	start_button.visible = _locked_count() >= 2
+	# Start can come back the moment the slot it needs is free again.
+	_refresh_ready_state()
 
 
 
@@ -698,11 +708,7 @@ func _on_button_pressed() -> void:
 	if slot2:
 		GameManager.p2_device = slot2.device
 	GameManager.bind_player_inputs()
-	match GameManager.mode_id:
-		1:
-			SceneTransition.change_scene(FIGHT_SCENE)
-		2:
-			SceneTransition.change_scene(LABBING_SCENE)
+	SceneTransition.change_scene(FIGHT_SCENE)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -714,11 +720,22 @@ func _start_online_match() -> void:
 		GameManager.p1_device = _local_cursor_device()
 	else:
 		GameManager.p2_device = _local_cursor_device()
+	# Binding is what actually puts this machine's device onto its own slot's
+	# actions. Without it the online fight had no controls at all: the actions
+	# stayed empty for BOTH slots, because the other slot's device is the other
+	# machine's and is never bound here on purpose. The opponent's character is
+	# driven by NetInput instead.
+	GameManager.bind_player_inputs()
 	SceneTransition.change_scene(FIGHT_SCENE)
 
 
+# The device of the cursor sitting on THIS player's own slot. Reading "the first
+# cursor with a device" instead would hand the fight whatever was bumped last:
+# every touched pad gets a cursor of its own, so a controller brushed on the way
+# to locking in with the keyboard would silently take the slot's device with it.
 func _local_cursor_device() -> PlayerInputDevice:
-	for cursor in cursors:
-		if cursor.device != null:
-			return cursor.device
+	var slot := SLOT_1 if GameManager.online_player_id == 1 else SLOT_2
+	var cursor := _cursor_at(slot)
+	if cursor != null and cursor.device != null:
+		return cursor.device
 	return null
