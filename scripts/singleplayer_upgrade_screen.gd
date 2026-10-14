@@ -46,9 +46,9 @@ const SELECTED_BORDER_COLOUR := Color(0.79607844, 0.85882354, 0.9882353, 1.0)
 @export var dummy_path: NodePath = ^"../dummy"
 @onready var dummy: Node2D = get_node_or_null(dummy_path)
 
-# Where the equipped-card row is laid out. Points at the anchor inside the
-# tutorial background, so the row lives on that background rather than in this
-# menu - it stays on screen while the menu is closed.
+# Where the equipped cards are laid out. Points at the grid's own anchor inside
+# the tutorial background, so the cards live on that background rather than in
+# this menu - they stay on screen while the menu is closed.
 @export var equipped_cards_anchor : Node2D
 
 # Card visual variables ----------------------------------------------------------------------------
@@ -72,15 +72,19 @@ const SELECTED_BORDER_COLOUR := Color(0.79607844, 0.85882354, 0.9882353, 1.0)
 @export var card_move_duration : float = 0.18
 @export var owned_card_z_base : int = 10
 @export var card_z_step : int = 10
-## How big an equipped card is, as a fraction of the card scene's own scale.
+## How big an equipped card is drawn at most, as a fraction of the card scene's
+## own scale. The grid uses less than this whenever a cell is tighter than that.
 @export var owned_card_scale_fraction : float = 0.85
-## Horizontal gap between equipped cards, before the row is squeezed to fit.
-@export var equipped_card_spacing : float = 62.0
-## Width the equipped row has to fit inside. Set from the tutorial background's
-## card area; the cards shrink and close up to honour it.
-@export var equipped_row_width : float = 176.0
+## The grid the equipped cards are laid out in. equipped_cards_anchor is its
+## top-left corner, this is the room it has, and equipped_grid_columns is how
+## many cards go across before wrapping to the next row. Rows are added as they
+## are needed and every card shrinks with them, so the whole grid always fits
+## the space it was given - which is what keeps cards from overlapping, spilling
+## off the panel, or landing on top of each other.
+@export var equipped_grid_size : Vector2 = Vector2(181.0, 111.0)
+@export var equipped_grid_columns : int = 3
 ## Pixels of the idle float's cycle that alternating equipped cards start
-## part-way through, so the row breathes instead of bobbing in lockstep.
+## part-way through, so the grid breathes instead of bobbing in lockstep.
 @export var equipped_card_bob_phase : float = 3.0
 @export var spawn_scale_fraction : float = 0.05
 @export var owned_card_appear_duration : float = 0.18
@@ -88,10 +92,11 @@ const SELECTED_BORDER_COLOUR := Color(0.79607844, 0.85882354, 0.9882353, 1.0)
 ## Only used if a card has no flip animation to read a length from.
 @export var fallback_flip_seconds : float = 0.45
 var card_default_scale : Vector2
-## A card face's width in pixels at card_default_scale, measured off the card
+## A card face's size in pixels at card_default_scale, measured off the card
 ## scene the first time one is built rather than hardcoded, so re-exporting the
-## card art cannot silently break the equipped row's fit.
+## card art cannot silently break the equipped grid's fit.
 var card_art_width : float = 0.0
+var card_art_height : float = 0.0
 
 # Menu handling ------------------------------------------------------------------------------------
 var menu_open : bool = false
@@ -351,6 +356,7 @@ func _build_column(anchor : Node2D, upgrades : Array[UpgradeData], row : int) ->
 			card_default_scale = card.scale
 		if card_art_width <= 0.0 and card.card_front and card.card_front.texture:
 			card_art_width = float(card.card_front.texture.get_width()) * card.card_control.scale.x * card_default_scale.x
+			card_art_height = float(card.card_front.texture.get_height()) * card.card_control.scale.y * card_default_scale.y
 		# Captured while the marker is still at its authored scale, before any
 		# highlight has had the chance to animate it down to nothing.
 		if column.selector_scale == Vector2.ZERO and card.selection_icon:
@@ -677,10 +683,11 @@ func _joy_axis_just_pressed(device_id: int, action_name: String) -> bool:
 # --------------------------------------------------------------------------------------------------
 # Displaying the equipped cards
 #
-# A horizontal row of everything picked so far, starting at the anchor the
-# tutorial background provides. Each entry is a real UpgradeCard, so it arrives
-# with the same idle float every other card in the game has - there is no second
-# animation system here.
+# A grid of everything picked so far, growing out from the top-left corner the
+# tutorial background provides: three across, then down, so card i always
+# occupies slot i and taking or dropping one never moves the others. Each entry
+# is a real UpgradeCard, so it arrives with the same idle float every other card
+# in the game has - there is no second animation system here.
 
 func _draw_owned_cards() -> void:
 	_clear_owned_cards()
@@ -689,25 +696,40 @@ func _draw_owned_cards() -> void:
 		return
 	if card_default_scale == Vector2.ZERO:
 		# The card scene has not been built yet (no upgrade arrays arrived), so
-		# the scale to size the row against is not known.
+		# the scale to size the grid against is not known.
 		return
 
 	var count := selected_cards.size()
-	# Laid out left to right from the anchor, which is the row's left edge: card
-	# i always occupies slot i, so adding or removing one never shuffles the
-	# others along. A short loadout keeps full size; a long one closes up and
-	# shrinks only as far as it must to stay inside equipped_row_width. The 0.92
-	# keeps a visible gap between neighbours instead of letting them touch.
-	var spacing : float = minf(equipped_card_spacing, equipped_row_width / float(maxi(count, 1)))
+	var columns : int = maxi(equipped_grid_columns, 1)
+	var rows : int = int(ceil(float(count) / float(columns)))
+	var pitch := Vector2(
+		equipped_grid_size.x / float(columns),
+		equipped_grid_size.y / float(maxi(rows, 1))
+	)
+	# One scale for the whole grid, decided by whichever of the cell's two
+	# dimensions is the tighter fit, with 8% of the cell kept clear as a gap. A
+	# full loadout therefore makes every card smaller together instead of any of
+	# them crowding its neighbour.
 	var width_per_card : float = maxf(card_art_width, 1.0)
-	var fraction : float = minf(owned_card_scale_fraction, spacing * 0.92 / width_per_card)
+	var height_per_card : float = maxf(card_art_height, 1.0)
+	var fraction : float = minf(owned_card_scale_fraction, minf(
+		pitch.x * 0.92 / width_per_card,
+		pitch.y * 0.92 / height_per_card
+	))
 	var row_scale : Vector2 = card_default_scale * fraction
 
 	for i in count:
 		var upgrade : UpgradeData = selected_cards[i]
 		if upgrade == null:
 			continue
-		var offset := Vector2(spacing * float(i), 0.0)
+		# Row-major from the top-left, and placed at a cell's centre rather than
+		# its corner, so a half-full last row still lines up with the ones above.
+		var column : int = i % columns
+		var row : int = i / columns
+		var offset := Vector2(
+			pitch.x * (float(column) + 0.5),
+			pitch.y * (float(row) + 0.5)
+		)
 		var owned_card := _spawn_owned_card(upgrade, offset, row_scale, i)
 		if owned_card == null:
 			continue

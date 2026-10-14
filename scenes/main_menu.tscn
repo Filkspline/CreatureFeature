@@ -16,7 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://cr8xduddy1a7e" path="res://assets/MainScreenAssets/Singplayer.png" id="16_btn_single"]
 [ext_resource type="Texture2D" uid="uid://c2agbg1agrigm" path="res://assets/MainScreenAssets/Multiplayer.png" id="17_btn_shared"]
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_shared"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_play"]
 texture = ExtResource("17_btn_shared")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_settings"]
@@ -34,6 +34,9 @@ texture = ExtResource("13_btn_online")
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_local"]
 texture = ExtResource("12_btn_local")
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_back"]
+texture = ExtResource("17_btn_shared")
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
 shader = ExtResource("6_crtshader")
 shader_parameter/curvature = 0.01
@@ -48,8 +51,11 @@ shader_parameter/noise_amount = 0.0015
 shader_parameter/flicker = 0.001
 shader_parameter/distortion = 0.006
 
-[node name="MainMenu" type="Node2D" unique_id=639569004]
+[node name="MainMenu" type="Node2D" unique_id=639569004 node_paths=PackedStringArray("main_set", "mode_set", "focus_emphasis")]
 script = ExtResource("1_l6cm7")
+main_set = NodePath("Buttons/MainMenuButtons")
+mode_set = NodePath("Buttons/ModeButtons")
+focus_emphasis = NodePath("MenuFocusEmphasis")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1113584678]
 offset_right = 640.0
@@ -62,7 +68,8 @@ position = Vector2(320, 180)
 texture = ExtResource("10_bg")
 
 [node name="Logo" type="Sprite2D" parent="." unique_id=1123584680]
-position = Vector2(320, 180)
+position = Vector2(316, 132)
+scale = Vector2(0.71666664, 0.71666664)
 texture = ExtResource("11_logo")
 
 [node name="Label" type="Label" parent="." unique_id=1380732384]
@@ -111,10 +118,10 @@ theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxTexture_shared")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_shared")
-theme_override_styles/hover = SubResource("StyleBoxTexture_shared")
-theme_override_styles/focus = SubResource("StyleBoxTexture_shared")
+theme_override_styles/normal = SubResource("StyleBoxTexture_play")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_play")
+theme_override_styles/hover = SubResource("StyleBoxTexture_play")
+theme_override_styles/focus = SubResource("StyleBoxTexture_play")
 text = "Play"
 
 [node name="Settings" type="Button" parent="Buttons/MainMenuButtons" unique_id=2028871752]
@@ -234,10 +241,10 @@ theme_override_colors/font_outline_color = Color(0.07058824, 0.06666667, 0.10980
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxTexture_shared")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_shared")
-theme_override_styles/hover = SubResource("StyleBoxTexture_shared")
-theme_override_styles/focus = SubResource("StyleBoxTexture_shared")
+theme_override_styles/normal = SubResource("StyleBoxTexture_back")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_back")
+theme_override_styles/hover = SubResource("StyleBoxTexture_back")
+theme_override_styles/focus = SubResource("StyleBoxTexture_back")
 text = "Back"
 
 [node name="SelectionPointer" type="AnimatedSprite2D" parent="." unique_id=771002001]

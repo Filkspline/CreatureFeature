@@ -41,6 +41,14 @@ const SLOT_2 := 1   # Character 2 / Player 2 / Creature 2
 @export var joy_jump_button : int = JOY_BUTTON_X
 @export var joy_special_button : int = JOY_BUTTON_B
 
+@export_group("Single player")
+## Where the playable creature's column moves to in Practice Range, so the one
+## box that is shown sits in the middle of the screen instead of off to the left
+## with an empty half beside it. Everything in that column - the box, its
+## heading, the device line, and the control legend and SELECTED label inside it
+## - is offset together, and the cursor is positioned from the box's own rect.
+@export var single_player_slot_offset : Vector2 = Vector2(170.0, 0.0)
+
 @export_group("Lock-in feedback")
 ## How far the cursor punches up the moment a slot is confirmed, and how long
 ## it takes to settle back. Confirming used to be visually silent: only the
@@ -101,6 +109,7 @@ class Cursor:
 @onready var character2: Control = $Characters/Character2
 @onready var character1_selected: Label = $Characters/Character1/SelectedLabel
 @onready var character2_selected: Label = $Characters/Character2/SelectedLabel
+@onready var creature1_label: Label = get_node_or_null("Creature1")
 @onready var creature2_label: Label = get_node_or_null("Creature2")
 @onready var p1_device_label: Label = $DeviceLabels/P1DeviceLabel
 @onready var p2_device_label: Label = $DeviceLabels/P2DeviceLabel
@@ -131,7 +140,7 @@ func _ready() -> void:
 	start_button.visible = false
 	if GameManager.online_mode:
 		_create_remote_cursor(1 if GameManager.online_player_id == 2 else 2)
-	_apply_mode_labels()
+	_apply_mode_layout()
 	_refresh_slot_labels()
 	_refresh_legends()
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
@@ -144,18 +153,35 @@ func _ready() -> void:
 # it again) works exactly as it does in local multiplayer. Nothing is claimed
 # until a device confirms.
 #
-# The one difference is the second slot: in the lab that creature is the
-# training dummy, so it is labelled as one and cannot be entered. That is what
-# keeps "input select" from meaning two different things depending on the mode.
+# What single player does not show is the second creature. The lab has one
+# player and a training dummy, so the dummy's box, its heading and its device
+# line are all hidden rather than relabelled: an empty box that invites a button
+# press, in a mode with no second player to press it, is just a thing to be
+# confused by. The creature that IS playable moves to the middle of the screen
+# instead, so the layout is deliberately one-player rather than half a
+# two-player screen.
 func _single_player() -> bool:
 	return GameManager.mode_id == 2 and not GameManager.online_mode
 
 
-func _apply_mode_labels() -> void:
+func _apply_mode_layout() -> void:
 	if not _single_player():
 		return
+
+	character2.visible = false
 	if creature2_label:
-		creature2_label.text = "TRAINING DUMMY"
+		creature2_label.visible = false
+	p2_device_label.visible = false
+
+	# Positions rather than anchors: these three are direct children of the
+	# screen (or of a plain Node), so the same offset moves all of them. The
+	# cursor's own position is derived from Character1's rect, and the neutral
+	# position from the viewport centre, so both follow without being told.
+	var shift := single_player_slot_offset
+	character1.position += shift
+	if creature1_label:
+		creature1_label.position += shift
+	p1_device_label.position += shift
 
 
 func _process(_delta: float) -> void:
@@ -566,10 +592,9 @@ func _neutral_position(index: int) -> Vector2:
 
 func _refresh_slot_labels() -> void:
 	p1_device_label.text = _slot_label(_cursor_at(SLOT_1))
+	# In Practice Range the second slot is hidden outright, so there is nothing
+	# to label; writing to it would only be a hidden string nobody ever reads.
 	if _single_player():
-		# Nothing can claim this slot in the lab, so it is not an invitation to
-		# press a button - it is a statement of what is standing over there.
-		p2_device_label.text = "NOT CONTROLLED"
 		return
 	p2_device_label.text = _slot_label(_cursor_at(SLOT_2))
 
