@@ -140,6 +140,7 @@ position = Vector2(553, 238)
 scale = Vector2(0.75, 0.75)
 
 [node name="TempCrtShader" type="ColorRect" parent="." unique_id=73426657]
+visible = false
 z_index = 6
 offset_right = 40.0
 offset_bottom = 40.0
