@@ -98,6 +98,7 @@ var card_default_scale : Vector2
 var card_art_width : float = 0.0
 var card_art_height : float = 0.0
 
+
 # Menu handling ------------------------------------------------------------------------------------
 var menu_open : bool = false
 ## Previous state of the close key, for the hand-rolled edge in
@@ -200,10 +201,12 @@ func resume() -> void:
 	hide()
 	menu_open = false
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	_draw_owned_cards()
 	_apply_selected_upgrades()
 
 func pause() -> void:
 	show()
+	_clear_owned_cards()
 	GameManager.player_input_locked = true
 	menu_open = true
 	# The mouse is shown while the menu is up so the Back button can be clicked.
@@ -218,6 +221,7 @@ func pause() -> void:
 func _select_card(column_index : int) -> void:
 	var data := _focused_card_data(_get_column(column_index))
 	if data == null:
+		_dbg("[color=red] Null data in 'select card'")
 		return
 	if selected_cards.has(data):
 		_remove_card(data)
@@ -238,7 +242,7 @@ func _select_card(column_index : int) -> void:
 	SfxManager.play_ui_select()
 	_dbg("[SELECT CARD] Current card array: %s" % [selected_cards])
 	_refresh_selection_feedback()
-	_draw_owned_cards()
+	#_draw_owned_cards()
 
 
 # Special takes the focused card back off again. Same public path the confirm
@@ -258,7 +262,7 @@ func _remove_card(upgrade : UpgradeData) -> void:
 	SfxManager.play_ui_hover()
 	_dbg("[DESELECT CARD] Current card array: %s" % [selected_cards])
 	_refresh_selection_feedback()
-	_draw_owned_cards()
+	#_draw_owned_cards()
 
 
 # ── What is equipped, and how it reads ──
@@ -690,8 +694,9 @@ func _joy_axis_just_pressed(device_id: int, action_name: String) -> bool:
 # in the game has - there is no second animation system here.
 
 func _draw_owned_cards() -> void:
+	_dbg("[color=yellow][DRAW CARDS] Function called")
 	_clear_owned_cards()
-
+	
 	if equipped_cards_anchor == null or selected_cards.is_empty():
 		return
 	if card_default_scale == Vector2.ZERO:
@@ -717,11 +722,19 @@ func _draw_owned_cards() -> void:
 		pitch.y * 0.92 / height_per_card
 	))
 	var row_scale : Vector2 = card_default_scale * fraction
-
-	for i in count:
-		var upgrade : UpgradeData = selected_cards[i]
+	
+	
+	for upgrade in selected_cards:
+		_dbg("[color=yellow][DRAW CARDS] Loop | Current upgrade: %s" % upgrade)
+		# Crashing because the 'i' index is looking for a card in the array that
+		# does not exist because we are editing the array while the loop is
+		# running, so it would get to the index of a card that got removed, that
+		# index doesn't have a value so it then crashes
+		#var upgrade : UpgradeData = selected_cards[i]
+		var i = selected_cards.find(upgrade, 0)
 		if upgrade == null:
 			continue
+
 		# Row-major from the top-left, and placed at a cell's centre rather than
 		# its corner, so a half-full last row still lines up with the ones above.
 		var column : int = i % columns
@@ -736,6 +749,7 @@ func _draw_owned_cards() -> void:
 		await _reveal_owned_card(owned_card)
 		if owned_card_flip_stagger_delay > 0.0:
 			await get_tree().create_timer(owned_card_flip_stagger_delay).timeout
+
 
 
 func _spawn_owned_card(upgrade: UpgradeData, offset: Vector2, target_scale: Vector2, index: int) -> Node2D:
