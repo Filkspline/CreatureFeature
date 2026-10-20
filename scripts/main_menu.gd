@@ -50,6 +50,22 @@ func _ready():
 		MultiplayerManager.leave_game()
 	GameManager.clear_online_state()
 	_show_main_set()
+	_bob_logo()
+
+
+# The logo breathes, the same way an idle card does: a small vertical bob that
+# never settles, so the menu is never completely still.
+func _bob_logo() -> void:
+	# Cast rather than left as Node: get_node_or_null() returns a Node, whose
+	# .position has no type for the analyser to infer from.
+	var logo := get_node_or_null("Logo") as Node2D
+	if logo == null:
+		return
+	var base_y : float = logo.position.y
+	var tween := create_tween().set_loops()
+	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(logo, "position:y", base_y - 3.0, 1.6)
+	tween.tween_property(logo, "position:y", base_y, 1.6)
 
 
 # Swaps the visible set and hands navigation the entries found inside it. Called

@@ -26,6 +26,9 @@ enum Preset {
 	## The two buttons a selection screen needs: Normal confirms, Special
 	## backs out.
 	SELECT_DESELECT,
+	## FULL, labelled with what those buttons do on a select screen, for screens
+	## where both readings are true at once.
+	FULL_SELECT,
 }
 
 enum Alignment { LEFT, CENTER, RIGHT }
@@ -84,6 +87,11 @@ const ENTRIES := {
 	Preset.SELECT_DESELECT: [
 		["normal", "Select"],
 		["special", "Deselect"],
+	],
+	Preset.FULL_SELECT: [
+		["normal", "Normal / Confirm"],
+		["special", "Special / Deselect"],
+		["jump", "Jump"],
 	],
 }
 

@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://c5nrk3ih2m14m" path="res://scripts/single_player_select.gd" id="1_spsel"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_font"]
 [ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="3_prompts"]
+[ext_resource type="PackedScene" path="res://scenes/menu_button.tscn" id="6_menubtn"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="4_crtscript"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="5_crtshader"]
 
@@ -235,26 +236,14 @@ offset_right = 62.0
 offset_bottom = 54.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_bay")
 
-[node name="StartButton" type="Button" parent="." unique_id=2011000027]
+[node name="StartButton" parent="." unique_id=2011000027 instance=ExtResource("6_menubtn")]
 visible = false
 layout_mode = 0
-offset_left = 280.0
-offset_top = 310.0
-offset_right = 360.0
-offset_bottom = 346.0
-focus_mode = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_start")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_start")
-theme_override_styles/hover = SubResource("StyleBoxFlat_start")
-theme_override_styles/focus = SubResource("StyleBoxFlat_start")
-text = "START"
+offset_left = 220.0
+offset_top = 304.0
+offset_right = 420.0
+offset_bottom = 360.0
+selector_offset = Vector2(-130, -6)
 
 [node name="Cursors" type="Node" parent="." unique_id=2011000028]
 

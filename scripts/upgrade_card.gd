@@ -56,6 +56,11 @@ var is_display_only : bool = false
 ## flip fired but was never seen", which look identical on screen.
 @export var debug_flip: bool = false
 
+## Largest and smallest font size a description is fitted to, in card space (the
+## card is scaled down as a whole, so these are not screen pixels).
+const DESCRIPTION_MAX_FONT_SIZE := 120
+const DESCRIPTION_MIN_FONT_SIZE := 22
+
 # ── Juice settings ──
 const IDLE_BOB_AMOUNT := 6.0
 const IDLE_BOB_DURATION := 1.4
@@ -215,6 +220,34 @@ func set_upgrade(upgrade : UpgradeData) -> void:
 		card_icon.texture = upgrade.icon
 	title_label.text = upgrade.name
 	description_label.text = upgrade.description
+	# Deferred: the label's rect is what the text is fitted to, and it is only
+	# settled once the card has been laid out by its parent.
+	call_deferred("_fit_description")
+
+
+# Fills the card with its description. The label's own rect is the space the
+# card has for text, so the largest font size that still measures inside that
+# rect is used: every card ends up as readable as its own wording allows, and
+# none of them can spill outside the card. Measured with get_multiline_string_size
+# rather than by resizing and waiting a frame, so it needs no async.
+func _fit_description() -> void:
+	if description_label == null:
+		return
+	var available := description_label.size
+	if available.x <= 0.0 or available.y <= 0.0:
+		return
+	var font : Font = description_label.get_theme_font("font")
+	if font == null:
+		return
+	var size := DESCRIPTION_MAX_FONT_SIZE
+	while size > DESCRIPTION_MIN_FONT_SIZE:
+		var measured := font.get_multiline_string_size(
+			description_label.text, HORIZONTAL_ALIGNMENT_LEFT, available.x, size
+		)
+		if measured.y <= available.y:
+			break
+		size -= 1
+	description_label.add_theme_font_size_override("font_size", size)
 
 
 # NOTE what happens when a card is confirmed lives in CardHand now

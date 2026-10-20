@@ -6,11 +6,11 @@
 [resource]
 script = ExtResource("1_vf16i")
 name = "Hare"
-description = "Fast legs, bad hops"
+description = "Quick feet, quick strikes"
 icon = ExtResource("1_yjxvx")
 effect_type = 1
 stat_name = &"max_health"
 stat_amount = 8.5
-stat_names_array = Array[String](["move_speed", "gravity", "jump_velocity"])
-stat_amounts_array = Array[float]([42.5, 510.0, -34.0])
-is_percents_array = Array[bool]([true, false, true])
+stat_names_array = Array[String](["move_speed", "attack_speed_multiplier", "max_health"])
+stat_amounts_array = Array[float]([35.0, 9.0, -15.0])
+is_percents_array = Array[bool]([true, true, false])
