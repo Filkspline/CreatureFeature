@@ -59,6 +59,9 @@ const PLACE_SLOT := 1
 ## The cursor square a device is drawn as. Sized to match a tray bay, so a
 ## device looks the same waiting in its bay as it does sitting in the slot.
 @export var cursor_size : Vector2 = Vector2(51.0, 46.0)
+## How long a cursor takes to travel between its bay and the creature. Same beat
+## as the versus select screen and the menu focus emphasis.
+const CURSOR_SLIDE_SECONDS := 0.16
 ## The sheet's frames are 100x100, so this is roughly pixels of icon per 100
 ## pixels of sheet.
 @export var cursor_icon_scale : float = 0.46
@@ -125,6 +128,9 @@ class Cursor:
 	var locked: bool = false
 	## Which bay in the tray belongs to this device. Kept in join order.
 	var bay_index: int = 0
+	## The tween currently sliding this cursor, so a new move can take over from
+	## one still in flight instead of fighting it.
+	var slide: Tween = null
 
 @onready var cursors_container : Node = $Cursors
 @onready var cursor_icons : Node = $CursorIcons
@@ -240,12 +246,26 @@ func _add_cursor(device: PlayerInputDevice) -> Cursor:
 
 	cursors.append(cursor)
 	_rebuild_bays()
+	_place_cursor_offscreen(cursor)
 	_update_cursor_visual(cursor)
 	_refresh_legends()
 	_refresh_ready_state()
 	SfxManager.play_ui_hover()
 
 	return cursor
+
+
+# New cursors start above the top edge of the screen, horizontally centred, so
+# they slide in from the top middle rather than from the origin.
+func _place_cursor_offscreen(cursor: Cursor) -> void:
+	var spawn := Vector2(
+		get_viewport_rect().size.x * 0.5 - cursor_size.x * 0.5,
+		-cursor_size.y * 1.5
+	)
+	if is_instance_valid(cursor.node):
+		cursor.node.position = spawn
+	if is_instance_valid(cursor.icon):
+		cursor.icon.position = spawn + (cursor_size * 0.5)
 
 
 func _create_cursor_icon(device: PlayerInputDevice, cursor: Cursor) -> void:
@@ -440,11 +460,28 @@ func _refresh_legends() -> void:
 # ── Visuals ──
 
 func _update_cursor_visual(cursor: Cursor) -> void:
+	var target : Vector2
 	if cursor.place == PLACE_SLOT:
-		cursor.node.position = _slot_position()
+		target = _slot_position()
 	else:
-		cursor.node.position = _bay_cursor_position(cursor.bay_index)
-	cursor.icon.position = cursor.node.position + cursor_size * 0.5
+		target = _bay_cursor_position(cursor.bay_index)
+	_slide_cursor(cursor, target)
+
+
+# Cursors travel instead of teleporting, on the same springy TRANS_BACK beat the
+# versus select screen uses. The icon is tweened alongside the square it sits in,
+# so the drawn cursor moves as one piece.
+func _slide_cursor(cursor: Cursor, target: Vector2) -> void:
+	if not is_instance_valid(cursor.node) or not is_instance_valid(cursor.icon):
+		return
+	if cursor.slide != null and cursor.slide.is_valid():
+		cursor.slide.kill()
+	cursor.slide = create_tween()
+	cursor.slide.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	cursor.slide.tween_property(cursor.node, "position", target, CURSOR_SLIDE_SECONDS)
+	cursor.slide.parallel().tween_property(
+		cursor.icon, "position", target + (cursor_size * 0.5), CURSOR_SLIDE_SECONDS
+	)
 
 
 func _slot_position() -> Vector2:
@@ -503,7 +540,13 @@ func _refresh_device_label() -> void:
 
 
 func _refresh_ready_state() -> void:
-	start_button.visible = _claimed_cursor() != null
+	var ready := _claimed_cursor() != null
+	var was_visible := start_button.visible
+	start_button.visible = ready
+	# Popped in on the frame it first appears, on the same beat as the versus
+	# screen and the main menu. Duck-typed, so a plain Button still works here.
+	if ready and not was_visible and start_button.has_method("pop_in"):
+		start_button.call("pop_in")
 
 
 # The device holding the creature, if any.

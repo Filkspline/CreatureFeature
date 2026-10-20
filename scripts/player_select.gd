@@ -86,6 +86,11 @@ const CURSOR_COLORS := [
 ]
 
 const CURSOR_SIZE := Vector2(51.0, 46.0)
+## How long a cursor takes to travel between positions. Same beat as the menu
+## focus emphasis, so every screen moves at the same speed.
+const CURSOR_SLIDE_SECONDS := 0.16
+## How far a rejected cursor wiggles, in pixels.
+const BLOCKED_WIGGLE_PX := 5.0
 const NEUTRAL_BASE_Y := 110.0
 const NEUTRAL_STEP_Y := 79.0
 
@@ -99,6 +104,9 @@ class Cursor:
 	var neutral_position: Vector2 = Vector2.ZERO
 	var icon: AnimatedSprite2D
 	var online_player_id: int = 0
+	## The tween currently sliding this cursor between positions, so a new move
+	## can take over from one still in flight instead of fighting it.
+	var slide: Tween = null
 
 @onready var cursors_container: Node = $Cursors
 @onready var character1: Control = $Characters/Character1
@@ -227,11 +235,26 @@ func _create_cursor(device: PlayerInputDevice) -> Cursor:
 	cursor.node = node
 
 	cursors.append(cursor)
+	_place_cursor_offscreen(cursor)
 	_update_cursor_visual(cursor)
 	
 	cursor.node.hide()
 	
 	return cursor
+
+
+# New cursors start above the top edge of the screen, horizontally centred, so
+# they slide in from the top middle. Without this they are created at the origin
+# and the first slide starts from the top-left corner instead.
+func _place_cursor_offscreen(cursor: Cursor) -> void:
+	var spawn := Vector2(
+		get_viewport_rect().size.x * 0.5 - CURSOR_SIZE.x * 0.5,
+		-CURSOR_SIZE.y * 1.5
+	)
+	if is_instance_valid(cursor.node):
+		cursor.node.position = spawn
+	if is_instance_valid(cursor.icon):
+		cursor.icon.position = spawn + (CURSOR_SIZE * 0.5)
 
 func _create_remote_cursor(player_id: int) -> Cursor:
 	var cursor := Cursor.new()
@@ -312,6 +335,7 @@ func _move_cursor(cursor: Cursor, delta: int) -> void:
 		return
 	# Entering a character slot is only allowed while it's unoccupied.
 	if new_selection != NEUTRAL and _slot_occupied_by_other(new_selection, cursor):
+		_play_blocked_feedback(cursor)
 		return
 	SfxManager.play_ui_hover()
 	cursor.selection = new_selection
@@ -486,15 +510,24 @@ func _check_both_locked() -> void:
 
 
 func _refresh_ready_state() -> void:
+	var ready := false
 	if GameManager.online_mode:
 		var local_locked := false
 		for cursor in cursors:
 			if cursor.locked:
 				local_locked = true
 				break
-		start_button.visible = local_locked and remote_cursor != null and remote_cursor.locked
-		return
-	start_button.visible = _locked_count() >= 2
+		ready = local_locked and remote_cursor != null and remote_cursor.locked
+	else:
+		ready = _locked_count() >= 2
+
+	var was_visible := start_button.visible
+	start_button.visible = ready
+	# Popped in on the frame it first appears, so the button arriving reads as an
+	# event rather than as something that was always there. Duck-typed because
+	# the node is a scene instance: a plain Button here would still work.
+	if ready and not was_visible and start_button.has_method("pop_in"):
+		start_button.call("pop_in")
 
 
 func _locked_count() -> int:
@@ -517,15 +550,53 @@ func _cursor_at(selection: int) -> Cursor:
 # ── Visuals ──
 
 func _update_cursor_visual(cursor: Cursor) -> void:
+	var target : Vector2
 	match cursor.selection:
 		SLOT_1:
-			cursor.node.position = _character_position(character1, cursor.node)
+			target = _character_position(character1, cursor.node)
 		SLOT_2:
-			cursor.node.position = _character_position(character2, cursor.node)
+			target = _character_position(character2, cursor.node)
 		_:
-			cursor.node.position = cursor.neutral_position
-	
-	cursor.icon.position = cursor.node.position + (CURSOR_SIZE * 0.5)
+			target = cursor.neutral_position
+	_slide_cursor(cursor, target)
+
+
+# Cursors travel between positions rather than teleporting into them, using the
+# same springy TRANS_BACK pop the cards and the select buttons already use. The
+# icon is tweened alongside the square it sits in, so the drawn cursor moves as
+# one piece instead of the square sliding out from under the icon.
+func _slide_cursor(cursor: Cursor, target: Vector2) -> void:
+	if not is_instance_valid(cursor.node) or not is_instance_valid(cursor.icon):
+		return
+	if cursor.slide != null and cursor.slide.is_valid():
+		cursor.slide.kill()
+	cursor.slide = create_tween()
+	cursor.slide.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	cursor.slide.tween_property(cursor.node, "position", target, CURSOR_SLIDE_SECONDS)
+	cursor.slide.parallel().tween_property(
+		cursor.icon, "position", target + (CURSOR_SIZE * 0.5), CURSOR_SLIDE_SECONDS
+	)
+
+
+# Someone else's slot: a short wiggle plus the deselect-ish sound, so a rejected
+# press is visibly and audibly a rejection rather than a press that did nothing.
+func _play_blocked_feedback(cursor: Cursor) -> void:
+	SfxManager.play_ui_select()
+	if not is_instance_valid(cursor.node):
+		return
+	var node := cursor.node
+	var base := node.position.x
+	var wiggle := create_tween()
+	wiggle.tween_property(node, "position:x", base - BLOCKED_WIGGLE_PX, 0.05)
+	wiggle.tween_property(node, "position:x", base + BLOCKED_WIGGLE_PX, 0.1)
+	wiggle.tween_property(node, "position:x", base, 0.05)
+	if is_instance_valid(cursor.icon):
+		var icon := cursor.icon
+		var icon_base := icon.position.x
+		var icon_wiggle := create_tween()
+		icon_wiggle.tween_property(icon, "position:x", icon_base - BLOCKED_WIGGLE_PX, 0.05)
+		icon_wiggle.tween_property(icon, "position:x", icon_base + BLOCKED_WIGGLE_PX, 0.1)
+		icon_wiggle.tween_property(icon, "position:x", icon_base, 0.05)
 
 
 func _character_position(character: Control, cursor: Control) -> Vector2:

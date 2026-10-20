@@ -1,0 +1,2223 @@
+commit a80e75f7a04f95b85363c8ec0a946ff3910f2391
+Merge: 1cb262b fc4ed31
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Oct 20 11:23:06 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Oct 20 11:23:06 2026 +1300
+
+    On leopatchwork: !!GitHub_Desktop<leopatchwork>
+
+commit fc4ed31fdf97e83e2f9cf423b6d971b6d654a263
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Oct 20 11:23:06 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Oct 20 11:23:06 2026 +1300
+
+    index on leopatchwork: 1cb262b Fix online desync and input delay
+
+commit 5c0c9612c1b6e97a0f202191256904e4efc0060b
+Merge: 96eeeda 4b94ecd
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Mon Oct 19 16:34:04 2026 +1300
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Oct 19 16:34:04 2026 +1300
+
+    Merge pull request #48 from Filkspline/Braden-19102026-PreSubmissionFixes
+    
+    Minor fixes regarding singleplayer
+
+commit 4b94ecd01227f05955b7194b6efef8e00315efca
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Oct 19 16:33:00 2026 +1300
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Oct 19 16:33:00 2026 +1300
+
+    Minor fixes regarding singleplayer
+
+commit 96eeeda474302ffad257a1f0d33d051ace0db517
+Merge: a60e37c 1cb262b
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Oct 14 21:18:59 2026 +1300
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Oct 14 21:18:59 2026 +1300
+
+    Merge pull request #47 from Filkspline/leopatchwork
+    
+    Leopatchwork
+
+commit 1cb262bc70ae8de8f6079bb488dfc591d2111d41
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Oct 14 21:18:21 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Oct 14 21:18:21 2026 +1300
+
+    Fix online desync and input delay
+    
+    This change adds host-authoritative state resyncs for health and rounds, measures RTT to derive a per-match input delay, and clamps that delay to a sane range with jitter headroom. It also makes double-tap timing frame-based so both machines agree on inputs, and replaces global shuffling in online draft offers with a shared seeded RNG so both clients see the same cards.
+
+commit f85250b0846d3cd6a477f97525c0d88860e0c962
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Oct 14 20:18:45 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Oct 14 20:18:45 2026 +1300
+
+    Guard online draft picks and sync them
+    
+    Prevent non-drafting machines from advancing a draft on stray input and block local picks during remote turns. The drafting client now broadcasts its chosen upgrade or skip to the other peer, and the remote client resolves the same action by resource path so both machines stay in sync during online draft rounds.
+
+commit ba846c235e7e24bab89d880ec3e6901b45dcce03
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Oct 14 20:10:44 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Oct 14 20:10:44 2026 +1300
+
+    Add window resolutions and net input safeguards
+    
+    This change adds a selectable resolution list to the general settings, persists the chosen size, and keeps the window on-screen while restoring its frame after mode changes. It also tightens the network input timing by remeasuring clock drift, bounding delayed packets, and discarding stale or excessively late scheduled inputs.
+
+commit 29e72109aea5615e49908689d043d8aada6d4c48
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Oct 14 19:48:39 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Oct 14 19:48:39 2026 +1300
+
+    Add online lobby and settings systems
+    
+    This change introduces the Tube-based online multiplayer flow with session creation/joining, lobby handoff, and online input relay. It also adds a persistent GameSettings autoload for display and audio settings, refreshes the main menu and settings screen UI, and reworks the single-player and player-select flows to match the project’s updated menu/input behavior.
+
+commit 802804d4aa9efedb60cc3ff04148852c50942532
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Oct 14 15:04:47 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Oct 14 15:04:47 2026 +1300
+
+    Refine single-player menu layouts
+    
+    This change decouples main-menu navigation from hardcoded button lists by using exported button sets, making the scene easier to edit without code changes. It also fixes the Practice Range layout so the single-player slot is centered and the second slot is hidden, and updates the equipped-card display to use a responsive grid instead of a single row so cards fit cleanly in the tutorial background.
+
+commit d9d7b57f857c98050cf82270250c0e64bad8f164
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Oct 14 14:45:50 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Oct 14 14:45:50 2026 +1300
+
+    Adjust UI layout and menu asset refs
+    
+    Updated a set of scene files to align the main menu, single-player, and tutorial layouts with the current art and UI structure. This includes refreshed asset/resource references, repositioned HUD elements for the dummy/player, and tweaks to button and panel sizing for a cleaner presentation.
+
+commit b00cc856cd41031fc5dd33595264a845c8004f36
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Oct 14 14:30:58 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Oct 14 14:30:58 2026 +1300
+
+    Practice range flow and lab UX update
+    
+    Practice Range now reuses the shared player-select flow with a dummy-only second slot, avoiding the old one-device lock and improving mode-specific labeling. The training dummy also shows a timed total-damage readout, while the tutorial and upgrade screens were overhauled for clearer controls, equip feedback, and stable card focus behavior. The upgrade menu now highlights equipped cards, enforces a single special, and refreshes status text from the current selection.
+
+commit 49ef18e0355358d998512be22df76a3a942f791e
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Oct 14 14:14:29 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Oct 14 14:14:29 2026 +1300
+
+    Practice range and single-player UI overhaul
+    
+    Adds the practice-range flow, tutorial panel, card-row polish, and menu/input fixes for the single-player experience. This also updates the training dummy and projectile interaction for proper blocking/hit handling in single-player, improves main-menu mode navigation, and wires the upgrade screen to the new tutorial background and back controls.
+
+commit a60e37c87f545e248f815a49a3f1cda3cc7f3cb4
+Merge: f6d18c2 86f50ba
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Oct 14 12:18:05 2026 +1300
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Oct 14 12:18:05 2026 +1300
+
+    Merge pull request #46 from Filkspline/2102026-Braden-SingleplayerContinued
+    
+    2102026 braden singleplayer continued
+
+commit f6d18c2a40fbe066d08c48f76cdf4984cd2cfff6
+Merge: 5f190ae 233196a
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Oct 14 12:15:41 2026 +1300
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Oct 14 12:15:41 2026 +1300
+
+    Merge pull request #45 from Filkspline/charlotte-online-connect
+    
+    Charlotte online connect
+
+commit 5f190ae0944ddab2c932e63414cb1628952350ed
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Tue Oct 13 20:39:48 2026 +1300
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Tue Oct 13 20:39:48 2026 +1300
+
+    Push Of all Main Menu Assets
+
+commit 86f50ba31d0f53b1cb34016c46dba8615a43bbf8
+Merge: 359f335 9e7f25a
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Oct 13 19:57:26 2026 +1300
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Oct 13 19:57:26 2026 +1300
+
+    Merge branch 'main' into 2102026-Braden-SingleplayerContinued
+
+commit 359f335930418aca4acf9642c391226b2f504983
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Oct 13 17:12:58 2026 +1300
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Oct 13 17:12:58 2026 +1300
+
+    Further functionality to SP upgrade menu
+    
+    SP upgrade menu now correctly applies upgrades and removes them when the card is removed from the list. Temp display for current cards is active as well; need to work on getting the card display to work properly. Visuals can be improved further too
+
+commit 861490c243f3cca4c4b1ea8f3cd07aea304d0bc9
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Oct 12 17:41:34 2026 +1300
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Oct 12 17:41:34 2026 +1300
+
+    Upgrades are now applied on menu close.
+    
+    Upgrades are now applied on menu close in single-player. Resetting upgrades has yet to be implemented, so there are currently issues with effect stacking. Once a reset system has been implemented, it should work as intended for the most part
+
+commit 233196a8c3aadde4d5d2af5b5864b1541d05ddc4
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Sat Oct 10 13:54:55 2026 +1300
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Sat Oct 10 13:54:55 2026 +1300
+
+    Sync for character select adn pre fight upgrades
+
+commit e9147488f3feb2bd9dc1db08e564f72853940b45
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Fri Oct 9 18:04:13 2026 +1300
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Fri Oct 9 18:04:13 2026 +1300
+
+    More work on the singleplayer upgrade menu
+
+commit 9345c002926338b2fe846c2500b13519ca5a35a0
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Tue Oct 6 14:55:35 2026 +1300
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Tue Oct 6 14:55:35 2026 +1300
+
+    Lobby created, started sync on player select
+
+commit e45ed0aa6850ce7eac4f0c09a91fda07dbbffd8f
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Mon Oct 5 16:41:34 2026 +1300
+Commit:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+CommitDate: Mon Oct 5 16:41:34 2026 +1300
+
+    Working on menu for player to pick cards in SP
+    
+    Menu for player to pick cards to apply to themselves while they are in the SP mode
+
+commit 9e7f25a29d66de2229a0bd28479c6029ce2970d7
+Merge: 0b34ecb 283debd
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Fri Oct 2 18:20:59 2026 +1300
+Commit:     GitHub <noreply@github.com>
+CommitDate: Fri Oct 2 18:20:59 2026 +1300
+
+    Merge pull request #44 from Filkspline/postplaytestpass
+    
+    Add projectile move and draft skip flow
+
+commit 283debdc661f17a4b68c8655eef355349bd4a38b
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Oct 2 18:18:15 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Oct 2 18:18:15 2026 +1300
+
+    Add projectile move and draft skip flow
+    
+    Adds a new ProjectileMove special, projectile assets/resources, and projectile firing logic with retirement/death safety. Also introduces a draft Skip button and menu focus emphasis, updates combo tracking and in-fight UI feedback, and tweaks move timings, air control, block warning feedback, and card descriptions to match the new gameplay flow.
+
+commit 60cd36234baf56ef8af35b243d258d20a1904019
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Fri Oct 2 16:36:47 2026 +1300
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Fri Oct 2 16:36:47 2026 +1300
+
+    Horse hit reg implemented
+    
+    Dummy (horse) now has proper hit reg and collision so it can be used as a proper dummy now
+
+commit 0b34ecb3d8f128424a6b8df235f7099bac42a9ba
+Merge: 9090ce2 87fbabb
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Sep 30 12:04:42 2026 +1300
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Sep 30 12:04:42 2026 +1300
+
+    Merge pull request #43 from Filkspline/Playtestpass
+    
+    Add control prompt system and UI polish
+
+commit 87fbabb23cc299eac98106db1f9f0923a3747266
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Sep 30 12:03:32 2026 +1300
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Sep 30 12:03:32 2026 +1300
+
+    Add control prompt system and UI polish
+    
+    This change adds a reusable control-prompt and scheme system for keyboard/controller layouts, updates the pause, player select, upgrade, and fight HUD to show matching per-player controls, and introduces selection pointer navigation for menus. It also improves back-out handling with Escape and special-button flows, tweaks UI styling and fonts across scenes, and rebalance several upgrade card values and draft scaling for better feel.
+
+commit 9090ce2e522da53ac14f2af7afc9d2ca75e2bfc0
+Merge: fc62244 f65118c
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Tue Sep 29 20:07:27 2026 +1300
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Sep 29 20:07:27 2026 +1300
+
+    Merge pull request #42 from Filkspline/Braden-2392026-ControlsAndSingleplayer
+    
+    Braden 2392026 controls and singleplayer
+
+commit f65118c0bc1267dee44c76675279cd2fc7b9450f
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Sep 29 20:05:24 2026 +1300
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Sep 29 20:05:24 2026 +1300
+
+    Controls UI now has colour applied for players
+    
+    Controls in the pause menu are now accented the same as the players to make it clearer
+
+commit 3022e8d03bd53e3383e81974f3689483da49f6f7
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Mon Sep 28 16:46:33 2026 +1300
+Commit:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+CommitDate: Mon Sep 28 16:46:33 2026 +1300
+
+    Squares now replaced with icons on select
+    
+    This was unexpectedly complicated compared to what I thought I needed to do. It's done however
+
+commit 5364ed5386910b8dad58ffb558f4eaaa0ad4c584
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Fri Sep 25 17:12:41 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Fri Sep 25 17:12:41 2026 +1200
+
+    Work on implementing single-player labbing
+    
+    Adds a new scene for single-player testing as well as getting the foundations to make it function
+
+commit fc62244b589a199c0c2c914d5e73aa19b3a5df4b
+Merge: b48a8c5 4fb4ce5
+Author:     brownchar7 <cb4944251@gmail.com>
+AuthorDate: Fri Sep 25 11:47:34 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Fri Sep 25 11:47:34 2026 +1200
+
+    Merge pull request #40 from Filkspline/charlotte-online-multiplayer
+    
+    Connection set up, host/join framework complete
+
+commit d6f085eb2fb19298dcbe36ec2583dedb2df3206d
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Sep 23 17:54:46 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Sep 23 17:54:46 2026 +1200
+
+    Implemented controls screen on pause menu
+    
+    Controls adapt to whatever the players are using as an input. Haven't been able to test with an Xbox controller
+
+commit b48a8c57f81a442287325df2640b3e43348f489a
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Tue Sep 22 17:58:29 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Tue Sep 22 17:58:29 2026 +1200
+
+    Changed Momentum Card
+
+commit 0d336ab4401155237a7c202420402b647876d654
+Merge: 0a2538d a8088fa
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Tue Sep 22 12:25:43 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Sep 22 12:25:43 2026 +1200
+
+    Merge pull request #41 from Filkspline/soundeffects
+    
+    Add centralized SFX and player audio
+
+commit a8088fa81df70e41237b6c83029b31a148f39eef
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Sep 22 12:25:05 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Sep 22 12:25:05 2026 +1200
+
+    Add centralized SFX and player audio
+    
+    Adds a shared SfxManager autoload plus SoundConfig resources for pooled one-shot effects, UI sounds, countdown stingers, and player move/jump/landing/dash audio. Player and game scripts now trigger hit, round, countdown, draft, and menu sounds, while move data allows per-move attack and charge sound overrides.
+
+commit 4fb4ce5ca15d4a6b2a708e197e7ad490fa38d77f
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Mon Sep 21 15:42:12 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Mon Sep 21 15:42:12 2026 +1200
+
+    Connection set up, host/join framework complete
+
+commit 0a2538dbf3c0678bf698bd476b1546b6e6e79769
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Mon Sep 21 15:35:04 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Mon Sep 21 15:35:04 2026 +1200
+
+    Deleted Extra Hornet art and fixed random thing
+
+commit 070fd2420f5416eb2d7248b97cf26205e8c35704
+Merge: 85276ad 15b1a2b
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Mon Sep 21 13:59:28 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Sep 21 13:59:28 2026 +1200
+
+    Merge pull request #39 from Filkspline/dashchange
+    
+    Dashchange
+
+commit 15b1a2bcca0fd18171caab4674f8c8df81ac02c3
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Sep 21 13:58:49 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Sep 21 13:58:49 2026 +1200
+
+    Add draft step banners and UI polish
+    
+    This update adds animated step banners to the draft flow so special-move and feature-pick rounds are clearly announced. It simplifies the player title label and centralizes the step text in the new banner logic in `scripts/card_hand.gd`.
+    
+    The scene work also includes typography and readability pass across the player select, upgrade screens, and cards: custom font usage, text outlining, adjusted sizes, and improved color contrast to make labels easier to read.
+
+commit 85276ad01f39d5b6ba61ed3d71f0b5bcd068cfa4
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Mon Sep 21 13:52:26 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Mon Sep 21 13:52:26 2026 +1200
+
+    momentum cardart
+
+commit 4704a88138c15ed925c1dad09e032e1bfd7ef158
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Sep 21 12:06:31 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Sep 21 12:06:31 2026 +1200
+
+    Two-step upgrade draft (special + normal)
+    
+    Add a two-step upgrade draft: special-move offers first, then normal upgrades. Change EventBus.upgrade_draft_ready signature to include special and normal offers. GameManager tracks selected_specials and exposes helpers; joystick axis mappings and deadzone constants added. card_hand implements DraftStep flow, offer clearing, pick resolution (including free "keep special" handling) and scene transition. UpgradePoolManager now draws/caches special and normal offers, provides a keep-special card, and filters specials from the normal step. player_select and card_hand add stick-as-direction edge detection. testplayer reports/updates selected special. Minor input entries added to project.godot; upgrade_card no longer performs scene changes.
+
+commit fbe204e5e093ee7087201c07f7325b897cb148e0
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Sep 21 10:58:19 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Sep 21 10:58:19 2026 +1200
+
+    Tune dash attack speeds and visuals
+    
+    Adjust dash move advance speeds for JA, S4, and S6 to make them feel smoother and more responsive. Update the dash afterimage tint to a brighter white trail and re-enable the NA/SA sprite nodes while correcting their animation frame values in the player scene.
+
+commit 1e28f486d746c90325f3888cb6ba7263d2053bb8
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Sep 21 10:47:35 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Sep 21 10:47:35 2026 +1200
+
+    Add round countdown and dash trails
+    
+    Adds a round-start 3-2-1 countdown that locks player input until it finishes, plus a shared effects-layer helper for transient runtime effects. Dash-capable moves now trigger afterimage trails, and player input checks were updated so countdown timing and dash behavior stay consistent across rounds.
+
+commit 4c34cf3510408850e5967b22700f5fa59cf8bd3f
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Sun Sep 20 21:42:34 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Sun Sep 20 21:42:34 2026 +1200
+
+    Thorns Card art
+
+commit 001e95603336f561fab3ea7c27bb3ff264108123
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Fri Sep 18 15:06:38 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Fri Sep 18 15:06:38 2026 +1200
+
+    Put in some card art
+
+commit 52c2361e2ba5f4b6a5067389a33c08bba0d932d4
+Merge: c6bb78b 88b11aa
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Thu Sep 17 11:05:09 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Sep 17 11:05:09 2026 +1200
+
+    Merge pull request #38 from Filkspline/visiblecards
+    
+    Add intro cutscene scene and playback script
+
+commit 88b11aabfffd3040aa2bb019d64085ab5a7fc2ca
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Thu Sep 17 11:00:09 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Thu Sep 17 11:00:09 2026 +1200
+
+    Add intro cutscene scene and playback script
+    
+    Add a new CutScene.tscn with animations, shader material and camera, and introduce scripts/cutscene.gd (plus its .uid) to play listed cuts in order and hand off to the fight scene via SceneTransition. Wire the pre-fight flow: pre_fight_upgrade_hand now changes to GameManager.CUTSCENE_SCENE instead of jumping straight to the level. Also add CUTSCENE_SCENE constant to GameManager.gd. The cutscene is designed to play once-per-match (pre-fight pick) and is configurable (animations, next_scene_path, start_delay).
+
+commit c6bb78b968361ac8eb530a25d1ee5c7748e735b5
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Sep 16 16:24:57 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Sep 16 16:24:57 2026 +1200
+
+    Quick fix for art addon and text wrapping for cards
+
+commit 13a6c561b87a4c3df7ea5b701043970b425f9295
+Merge: dea81bb 4686c93
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Wed Sep 16 16:19:44 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Sep 16 16:19:44 2026 +1200
+
+    Merge pull request #37 from Filkspline/Braden-792026-EventCardFunctionality
+    
+    Braden 792026 event card functionality
+
+commit 4686c937dab411a940ff8b970af32455dac6c613
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Sep 16 16:14:32 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Sep 16 16:14:32 2026 +1200
+
+    Implemented the two cards up to wrecking ball
+    
+    Implemented two more event cards as well as testing the ones previously implemented and bug fixing them
+    
+    - Hornet: Take damage to deal more damage
+    - Thorns: Deal damage back to the attacker when blocking
+
+commit aa956c2f63cc1fc96e926f7f046289b7bdc5aa2a
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Mon Sep 14 16:42:50 2026 +1200
+Commit:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+CommitDate: Mon Sep 14 16:42:50 2026 +1200
+
+    Implemented more effect cards
+    
+    None of these things have been tested so there are bound to be bugs galore
+    
+    - Armour plating: Reduces damage by flat amount for the first few hits
+    - Momentum: Damage increase for a few seconds when hitting an opponent
+    - Turtle: Heal back a small amount of HP when getting hit while blocking
+
+commit dea81bb491588e33d375c0e4f848aaa486b4b6d3
+Merge: 60b199c 196aafe
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Mon Sep 14 12:53:26 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Sep 14 12:53:26 2026 +1200
+
+    Merge pull request #36 from Filkspline/visiblecards
+    
+    Improve upgrade draft layering and owned stack
+
+commit 196aafef52a75a30094d2ce1ec34ad453c540d0a
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Sep 14 12:52:59 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Sep 14 12:52:59 2026 +1200
+
+    Improve upgrade draft layering and owned stack
+    
+    This patch fixes overlapping card z-order issues by assigning discrete z bands to offered cards and the owned-card stack, so cards no longer interleave across layers. It adds a display-only owned-card reveal sequence with staggered pop-in and flip timing, updates the draft title label for the active player, and makes face-down/face-up state explicit so cards reliably finish their flip and emit card_flip_finished.
+
+commit 59b7856bd408ef71ab50253fb5b6efd1ca2fddd1
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Sep 9 16:53:39 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Sep 9 16:53:39 2026 +1200
+
+    Quick update to effect variables
+    
+    Now have them labelled as exports so you can change in editor
+
+commit db56a922626ef365bced8553736411243cea42e2
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Sep 9 16:48:42 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Sep 9 16:48:42 2026 +1200
+
+    First set of event cards implemented
+    
+    Functionality of a couple event cards has been implemented.
+    - Vampire, take gain hp when hitting the opponent
+    - Underdog, gain hp and damage when dropped below hp threshold
+    - Adrenaline, gain move speed and damage when hit for a short time
+
+commit 60b199ccaa3a868ec9cc780bd0034e955852b64b
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Wed Sep 9 14:24:25 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Wed Sep 9 14:24:25 2026 +1200
+
+    Upped the contrast on the Bite Art
+
+commit 7e60ff7d3b0fb90400a29e15e14c0a4e27e92ef8
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Tue Sep 8 21:20:52 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Tue Sep 8 21:20:52 2026 +1200
+
+    Slightly Changed Eye Locations to be a bit lower, and speed frames per second to 6 frames per second
+
+commit 1737ae0d1ade08e3e45c241285082972f8f55e13
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Tue Sep 8 21:06:07 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Tue Sep 8 21:06:07 2026 +1200
+
+    Imported Card art for Armoured and Vampirism
+    
+    It's in the Card Asset folder
+
+commit e77d976aa010c558b0fffc06538fd807d71cfb3a
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Tue Sep 8 20:54:42 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Tue Sep 8 20:54:42 2026 +1200
+
+    Added Pictures to Special moves
+
+commit aed96bddc136f385bf4ce28e740e578f44534729
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Tue Sep 8 18:57:23 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Tue Sep 8 18:57:23 2026 +1200
+
+    Update CardBackColourPallette.png
+
+commit ef8acfe01f060b78a640f62259cdb3b78ed9bd14
+Author:     Naut-0 <mrlngntl@gmail.com>
+AuthorDate: Tue Sep 8 18:42:55 2026 +1200
+Commit:     Naut-0 <mrlngntl@gmail.com>
+CommitDate: Tue Sep 8 18:42:55 2026 +1200
+
+    Card Updates
+    
+    Updated The Rabbit Card
+    The Slug Card
+    The GrowthSpurtCard (which I renamed to Normal)
+    and the Card Back
+
+commit 713a2755e765979ab87f2922eb14db6415a139ba
+Merge: 60d5493 b11c039
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Tue Sep 8 13:05:41 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Sep 8 13:05:41 2026 +1200
+
+    Merge pull request #35 from Filkspline/betterhits
+    
+    Betterhits
+
+commit b11c039cb43a1e4e8c089021de59a3044eb0b1f6
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Sep 8 13:05:12 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Sep 8 13:05:12 2026 +1200
+
+    Improve hit effects, particles, and hit/block logic
+    
+    Add hit effect assets and import metadata; tweak particle scenes. Rewrite HitParticle from CPUParticles2D to Node2D flip-book Sprite2D (frame animation, flip_h by hit direction, randomized rotation), fix tear overlay ordering and lifetime, and ensure tear tween frees itself. Update HitEffectManager to detect effect "direction" generically and set it; clean up debug/export formatting. Adjust block_particle start_scale, add Sprite2D to hit_particle.tscn, and make small player changes: collision rect size/position, animation keyframe timings, hurtbox vertical reduction, and fix block-readiness check in take_hit to evaluate before resetting crouch state. Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+commit 8bf5a824b3ae92015321192bc651513f37b89163
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Sep 7 13:40:05 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Sep 7 13:40:05 2026 +1200
+
+    Add hit-spark effects, hit variants, and air-hit handling
+    
+    Adds multiple new hit sprites/assets and a simple hit-spark shader. Reworks hit particles (scripts/HitParticle.gd) to expose tunables, draw dark sparks, and include a dark screen-tear overlay. HitEffectManager now orients spark bursts from attacker -> defender. Player visuals (PlayerVisuals.gd + player.tscn) gain crouch_hit_2, mid_hit_2/3 and airhit sprites/animations with alternating/random selection to add variety. Player logic (scripts/testplayer1.gd) removes the KNOCKDOWN state/pending_knockdown, unifies launcher/air hits as air hits, and simplifies hitstun recovery; MoveData comment updated. Scenes and scripts updated accordingly.
+
+commit 60d5493572a7c98ef88abd06a0c3fec429dd9c32
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sat Sep 5 15:16:58 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sat Sep 5 15:16:58 2026 +1200
+
+    Add block warning sprite & balance knockback
+    
+    Adds a new block warning texture (assets/blockwarningeffct2.png + .import) and wires it into scenes/player.tscn (replaces old Mid/Low warning nodes, adjusts sprite positions/scale, collision shape size/position, and selected_special ordering). Gameplay tuning: N2 hitstun reduced 6→4 and knockback/block_knock_back adjusted; N52 receives pushback_on_block=250.0. testplayer1.gd ensures the warning icon remains visible for the full blockstun window by calling sprites.update_block_warning(...) with an explanatory comment.
+
+commit a6e21323475f3d54f10e25f115d5c1feb0f59379
+Merge: 9f16d29 78118eb
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Sat Sep 5 13:59:00 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sat Sep 5 13:59:00 2026 +1200
+
+    Merge pull request #34 from Filkspline/Specialmoverefactor
+    
+    Specialmoverefactor
+
+commit 78118eb7ecdf3ba0da6f4be5c4d46698406edd8e
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sat Sep 5 13:54:58 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sat Sep 5 13:54:58 2026 +1200
+
+    Add scene combo labels and fade animation
+    
+    Add P1ComboLabel and P2ComboLabel nodes to fight_ui_new2.tscn and switch fight_ui.gd to use those scene labels instead of creating labels at runtime. Initialize both labels hidden, expose them via onready vars, and update _on_combo_changed to show the attacking side's label for combos >= 2. Use a short tween + timer to fade the label out before hiding it. Remove the dynamic combo label creation and related dictionary usage. Files changed: scenes/fight_ui_new2.tscn, scripts/fight_ui.gd.
+
+commit 77533b04896ec50454212a5231c962a3db10417e
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sat Sep 5 13:33:10 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sat Sep 5 13:33:10 2026 +1200
+
+    Gameplay: combos, specials, dashes, UI fixes
+    
+    Adds a ComboManager autoload that tracks per-defender combos and returns a damage scale; combo decay applied in Player._resolve_hit. Fight UI shows per-attacker combo counters. Grounded specials use a single selected_special (defaults to Bite/S5); unlock cards now select specials (N8 -> Uppercut, S5 -> Bite, S8 -> Slam). S4/S6 converted to base-kit double-tap dashes (BackDash/ForwardDash) with tunable window. Crouch auto-blocks without back held. Player sprite lookup switched to animation_name. Pause quit now resets GameManager. Several move/resource files added/renamed and two card files moved to deprecated.
+
+commit 9f16d29424e9729c196cd6c033588e4481d36e29
+Merge: 7f631b7 636b85c
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Sep 2 12:33:18 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Sep 2 12:33:18 2026 +1200
+
+    Merge pull request #33 from Filkspline/finalplaytestpass
+    
+    Finalplaytestpass
+
+commit 636b85cca3134b52058c57ab2cfb506e5bbe8045
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Sep 2 12:32:15 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Sep 2 12:32:15 2026 +1200
+
+    Use exclusive fullscreen mode
+    
+    Switch the project from standard fullscreen to exclusive fullscreen in Godot and remove integer scaling from the stretch config. This keeps the game display at the target 1920x1080 window size without forcing integer-scaled rendering.
+
+commit 511f585ce5747559b55020da95124ca9b9c6f3bf
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Sep 2 12:27:18 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Sep 2 12:27:18 2026 +1200
+
+    Add card art, music loop, and combat tuning
+    
+    This change adds new move and upgrade art assets, enables fullscreen window settings, and tweaks NPC animation timing. It also adds a looping background music player in GameManager, resets match state correctly when restarting from the end screen, and updates several combat values like hitstun, knockback, and move unlock card text/icons. Player attack speed now scales with a multiplier, and flat damage/knockback modifiers are applied to hits for upgrade-based balance tuning.
+
+commit 7f631b79c2243ce760797b217e6c40af01499790
+Merge: 599ddd5 ad20bb6
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Tue Sep 1 19:53:02 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Sep 1 19:53:02 2026 +1200
+
+    Merge pull request #32 from Filkspline/Braden-192026-EndScreen
+    
+    Braden 192026 end screen
+
+commit ad20bb64e40c2a77b9b0c01acfe910a837c65ddc
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Sep 1 18:38:31 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Sep 1 18:38:31 2026 +1200
+
+    Fixed upgrade card bug and implemented end restart
+    
+    - The fourth upgrade card now correctly displays its card art, just needed to increase the z-index
+    - The end screen now has the ability to restart the game to character select using P1 normal input. This is using the standardized input system set up by Leo
+
+commit c51a4d546c579b7f72cd66c10aa5cca51b863103
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Sep 1 17:52:02 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Sep 1 17:52:02 2026 +1200
+
+    Created the End screen and added transition to it
+    
+    - Created the end screen that gets transitioned to at the end of a match
+    - Changed the default scene to the main menu
+
+commit 599ddd5e125d3d94809cd2654f0fcb81c1b82f72
+Merge: ac295f5 7f6723d
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Tue Sep 1 11:44:59 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Sep 1 11:44:59 2026 +1200
+
+    Merge pull request #31 from Filkspline/animationspeedanddamageincrease
+    
+    Animationspeedanddamageincrease
+
+commit 7f6723d3da33bf33485548dcc48aac29ed425887
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Sep 1 11:42:29 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Sep 1 11:42:29 2026 +1200
+
+    Add per-device input handling to card hand
+    
+    Replace the old event-based _input with per-frame, per-device polling in _process. Adds _current_device, _device_just_pressed, _keyboard_action_just_pressed, _joy_button_just_pressed and edge-detection state (_key_prev_state/_joy_button_prev_state). Navigation/confirm now route to the selecting player's input device (GameManager.p1_device / p2_device) and use GameManager.keyboard_layouts for keyboard mapping. Also fixes the out-of-bounds crash when cards are freed and hides the cursor on navigation/confirm. Removes the previous InputEventKey/joypad handling logic.
+
+commit f407c70b7b25c2295be94bed35f37e731ceb878e
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Sep 1 11:19:38 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Sep 1 11:19:38 2026 +1200
+
+    Balance: tweak moves, cards, and upgrades
+    
+    Adjust gameplay data and housekeeping:
+    
+    - Update many move .tres files: add block_advantage, hitstun, knockback values, and adjust damages/advance behavior for balance.
+    - Rename and rework card resources (anchor, caffinated, crack_head, slugger, wall) with clearer names/descriptions and updated stat arrays/types.
+    - Simplify Player (testplayer1.gd): remove per-player attack_speed_multiplier and flat damage modifiers, make attack_frame an int and adjust attack processing/hit resolution accordingly.
+    - Add show_in_pre_fight flag to UpgradeData and filter pre-fight offers in upgrade_pool_manager.gd with safe loading and effect-type matching.
+
+commit b6faf447b252e47c3af72ff99f271c3cf1786a6f
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Sep 1 10:44:45 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Sep 1 10:44:45 2026 +1200
+
+    Update testplayer1.gd
+
+commit ac295f555cabb2969dd4fadc428eebcc89610b73
+Merge: 1a47909 b53989d
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Mon Aug 31 16:54:19 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Aug 31 16:54:19 2026 +1200
+
+    Merge pull request #30 from Filkspline/Braden-2782026-BackgroundNPCs
+    
+    Braden 2782026 background npcs
+
+commit b53989d84fabad8fea66a44e3794eb2c60c9aeb3
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Aug 31 16:50:09 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Aug 31 16:50:09 2026 +1200
+
+    Worked on adding the new cards
+    
+    Currently got the new cards created, but not all of them fully implement their stats as we have no way to currently change player wide attack damage or move speed. Additionally, moved deprecated cards into their own folder
+
+commit 70f758562a6f36166694a5e20c0b80f3a9a6c017
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Fri Aug 28 17:19:01 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Fri Aug 28 17:19:01 2026 +1200
+
+    Slowed down npc animations a bit
+
+commit 1a47909655beb6c0b38255d093170957dec435d2
+Merge: 64f7307 9412e90
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Fri Aug 28 14:12:40 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Fri Aug 28 14:12:40 2026 +1200
+
+    Merge pull request #29 from Filkspline/leovisualchangeforselection
+    
+    Add multi-hit activation tracking and NA balance tweaks
+
+commit 9412e90e3bb9a45a85b6b8990238af34a050b34c
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Aug 28 14:11:56 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Aug 28 14:11:56 2026 +1200
+
+    Add multi-hit activation tracking and NA balance tweaks
+    
+    Allow moves that toggle a hitbox off->on to register multiple hits across activations: testplayer1.gd adds _hit_registered_this_activation and _hitbox_was_disabled_last_frame, resets them on attack start, updates activation tracking each frame, and marks activation on hit. Balance NA move in scripts/NA.tres (block_advantage=2, hitstun=5, damage=3.0, knock_back=30.0, gatlings_into set). Scene tweaks: extend player animation hitbox keys, adjust visibility for several sprites, and enable DamageNumberLayer in fight
+
+commit 75376d3669db419ef0560f16497c996bc7239e5c
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Thu Aug 27 17:18:46 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Thu Aug 27 17:18:46 2026 +1200
+
+    Added animated NPCs
+    
+    New signal to event bus to handle NPC's cheering on players getting hit
+
+commit 64f7307600cae5f068e2baa8be7098b25479ec95
+Merge: 0875edc d112b9d
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Aug 26 12:05:26 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Aug 26 12:05:26 2026 +1200
+
+    Merge pull request #28 from Filkspline/leovisualchangeforselection
+    
+    Leovisualchangeforselection
+
+commit d112b9d4eae0fdae4ac8ddcd3b2ddf849228c332
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 26 12:00:48 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 26 12:00:48 2026 +1200
+
+    Bind slot devices to gameplay inputs
+    
+    Player Select now stores each slot's assigned device and GameManager rewrites the P1/P2 InputMap actions to match that assignment. Keyboard cursors read from captured layout key events instead of mutable InputMap bindings, while joypad input stays scoped to the claimed device ID. This keeps keyboard/controller assignments isolated and lets gameplay scripts continue using the same action names without device-specific logic.
+
+commit 6fb1c34d3116ba95004cf3d043cfe666937a62f6
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 26 00:57:13 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 26 00:57:13 2026 +1200
+
+    Refactor player select to cursor-based input model
+    
+    Replace the static Player1/Player2 ColorRect nodes with dynamic Cursor objects and a device-driven model. Auto-detects keyboard layouts and connected joypads, creates one cursor per input mode, enforces one-cursor-per-slot, handles disconnects, and locks selections per slot. Adds keyboard-only edge detection, joypad axis rebinding (so sticks and dpad follow claimed device), neutral cursor positions, improved device labels/start-button logic, and related helper functions. Also minor comment cleanup in input_device.gd and removal of the two scene cursor nodes.
+
+commit e307bf9c9c204a25eabe62d77875d472cb6a90e6
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 26 00:20:27 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 26 00:20:27 2026 +1200
+
+    Refactor player select; add input device model
+    
+    Introduce PlayerInputDevice (scripts/input_device.gd) and refactor player select flow. Rewrite scripts/player_select.gd to preassign keyboard slots, allow controllers to claim a single open slot, handle disconnect fallback, edge-detect joypad buttons, and bind claimed joypads into the InputMap before starting the fight. Update scenes/player_select.tscn with device labels, styleboxes, shader and UI tweaks. Add p1/p2_character_id and p1/p2_device plus reset_player_select() to scripts/GameManager.gd so selection results persist for the next scene.
+
+commit 9615bc0e5c74e2ee858e96eab60771abb5e7c6a1
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Aug 25 19:12:21 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Aug 25 19:12:21 2026 +1200
+
+    Refactor upgrade hand UI & add unlock card
+    
+    Major refactor of the pre-fight upgrade UI. Rewrote scripts/pre_fight_upgrade_hand.gd to introduce an UpgradeColumn abstraction, card wrappers, animated layout/tweening, lock/ready UI, loading bars, and simplified input handling. Updated scenes (pre_fight_upgrade_screen.tscn, upgrade_card_ui.tscn) with new panels, styles, font, and CRT shader usage. Added new card resource scripts/card_resource_files/S4UnlockCard.tres. Selection/lock logic and EventBus emissions preserved but now read locked cards from column maps. Improves UX, visuals, and paves way for further polish.
+
+commit 0875edc90fac9d1b566ae34deec549c639791778
+Merge: bbd1bc7 d0a1c47
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Tue Aug 25 17:29:44 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Aug 25 17:29:44 2026 +1200
+
+    Merge pull request #27 from Filkspline/S4moveandprojectile
+    
+    S4moveandprojectile
+
+commit d0a1c472fd5a89ac7f7c485423819da94ad2defc
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Aug 25 17:28:58 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Aug 25 17:28:58 2026 +1200
+
+    Adjust projectile parameters and spawn offset
+    
+    Tune projectile scene and S4 spawn point: set z_index (3) and z_as_relative=false, increase launch_speed_multiplier (2 -> 5), add idle_speed (40), returnable=false, min/max_launch_speed (400/2400), and max_lifetime (2.0); also set player_two_color. Update S4 script projectile_spawn_offset from Vector2(40, -80) to Vector2(0, -80) to center the spawn. These changes increase projectile speed/range and adjust visuals/spawn positioning.
+
+commit bbd1bc7054be5cac4a8f0af88e23f5b1c485ef2b
+Merge: 5dc6635 0098489
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Tue Aug 25 16:38:36 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Aug 25 16:38:36 2026 +1200
+
+    Merge pull request #26 from Filkspline/Braden-2182026-PreFightUpgradeTest
+    
+    Braden 2182026 pre fight upgrade test
+
+commit 5dc66357f19b00fb3818768c802b5e878b5684c4
+Merge: e233401 d545819
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Tue Aug 25 16:38:19 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Aug 25 16:38:19 2026 +1200
+
+    Merge pull request #25 from Filkspline/charlotte-menu-functionality
+    
+    Charlotte menu functionality
+
+commit 00984891022cc0308675d52175fd85764b23e24c
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Aug 25 16:29:52 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Aug 25 16:29:52 2026 +1200
+
+    Added the rest of the functionality to pre-fight
+    
+    Players can now individually rotate through their cards and select from the list. Once both players have selected the scene then transitions to the fight
+
+commit be0e17e1f32498b83ba4549ef451338570dfae34
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Aug 24 17:12:38 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Aug 24 17:12:38 2026 +1200
+
+    Created the pre-fight upgrade screen proper
+    
+    The pre-fight upgrade scene is being developed properly. Currently, it gets info from the upgrade pool manager, which passes the information to the script in the scene. The script will be handling a lot of the display work for the cards and also handle the selection stuff like before
+
+commit f5d821d7083f581a3b77b4493545b977a55a768b
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sun Aug 23 22:54:06 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sun Aug 23 22:54:06 2026 +1200
+
+    Add bidirectional projectile + S4 move
+    
+    Add projectile asset/scene and wire S4 move to spawn it. Key changes:
+    
+    - Added projectile and S4 sprite assets and import metadata.
+    - scenes/projectile.tscn: use projectile sprite, collision and impact data.
+    - scenes/player.tscn: register S4 animation, sprite and library entry.
+    - scripts/MoveData.gd: new projectile export fields (scene & spawn offset).
+    - scripts/S4.tres: MoveData resource for S4 that fires the projectile.
+    - scripts/Projectile.gd: implement full bidirectional projectile behavior — idle/launch/return/death sequences, sprite-sheet playback, owner colors, spawn/idle/hit/death animations, deflect/return logic, per-target hit cooldown, per-player attack_instance deduping, and visual squash/tween effects.
+    - scripts/testplayer1.gd: track attack_instance_id, guard against multiple spawns per attack, fire_projectile() helper and spawn position calculation.
+    - scripts/SA.tres: tweak knockback/block knockback values.
+    
+    These changes implement the S4 projectile mechanic: spawning, deflection/returns, visual polish, and safety to avoid duplicate deflects or multiple spawns per attack.
+
+commit d5458192ded2a9ae504a2c5581b69100ad48a123
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Fri Aug 21 20:31:21 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Fri Aug 21 20:31:21 2026 +1200
+
+    Settings Menu fix
+
+commit b46c761b1608484b5800a6ab0009abe86a803e0e
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Fri Aug 21 20:22:16 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Fri Aug 21 20:22:16 2026 +1200
+
+    Controller/keyboard support
+
+commit b1ae502d7e9ac4eadf13e3dca7a80469a900146e
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Fri Aug 21 20:06:53 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Fri Aug 21 20:06:53 2026 +1200
+
+    Bug fix 2
+
+commit 774ac285d5812efc8c83d7036589c8277231be3e
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Fri Aug 21 19:07:36 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Fri Aug 21 19:07:36 2026 +1200
+
+    Comments added
+
+commit 6903256e25f019c01dd51c341131f7c1e9fca1fe
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Fri Aug 21 18:55:43 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Fri Aug 21 18:55:43 2026 +1200
+
+    One bug fixed
+
+commit b00bc7104a84fc2f333fab827f922a6f2d8375e9
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Fri Aug 21 18:39:34 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Fri Aug 21 18:39:34 2026 +1200
+
+    Added Pause, broken
+
+commit 00086ac856d65ec61a7885526bc3d1653f672acf
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Fri Aug 21 18:06:43 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Fri Aug 21 18:06:43 2026 +1200
+
+    Addition of pre-fight upgrade select
+
+commit e233401992b7270f9c57e209a44ce49bd22aa421
+Merge: 3eec9df ba17866
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Fri Aug 21 16:24:39 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Fri Aug 21 16:24:39 2026 +1200
+
+    Merge pull request #24 from Filkspline/leovisualcardupdate
+    
+    Leovisualcardupdate
+
+commit ba17866e28f7b5697f825adbbf770804bbf4c402
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Aug 21 16:23:52 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Aug 21 16:23:52 2026 +1200
+
+    Refactor card-hand spawn & UI tweaks
+    
+    Implement folder-based card spawn animation and spread: add taskbar asset, folder sprite, cardspawnarea, cardspawner and RectangleShape2D; refactor card_hand.gd to spawn cards from folder, squash/stretch, stagger travel, use spawn-area bounds, and store cards in an array (fixes OOB highlight/navigation crash). Adjust upgrade_card.gd to skip non-card children and use TextureRect for icon. Reduce offered cards to 4. Switch scene changes to SceneTransition.change_scene. Minor scene/UI adjustments (scene_transition timing, test_level/fight UI color tweaks, upgrade_card layout). Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+commit ace503bcabb6938b629b5500503c5cdbc084a9ed
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Aug 21 11:35:39 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Aug 21 11:35:39 2026 +1200
+
+    Refresh upgrade cards and UI art
+    
+    Adds new card and desktop art assets, switches the upgrade card scene to the updated palette and V1 card design, and tweaks the layout to support larger icon and shadow styling. Also updates the card hand behaviour so highlighted cards animate smoothly with scale changes and keeps selection movement consistent across keyboard and controller input. Finally, assigns the Goliath upgrade a Turtle icon asset.
+
+commit 3eec9df6f0fc395fe60db45cf7be28f8142c5dfa
+Merge: 35532d5 64daad8
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Thu Aug 20 15:06:28 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Aug 20 15:06:28 2026 +1200
+
+    Merge pull request #23 from Filkspline/Braden-1982026-EasyCardsAndFunctionChanges
+    
+    Small card changes and additions and additional refinement of multi-stat system
+
+commit 35532d5de161de6d8960c18f2e883dd43c0faf2b
+Merge: daa9e70 0ffdd9a
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Thu Aug 20 15:06:02 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Aug 20 15:06:02 2026 +1200
+
+    Merge pull request #19 from Filkspline/charlotte-menus
+    
+    Charlotte menus
+
+commit daa9e70293ef9e8254902f18b02f7bbec083e549
+Merge: 7bbe077 e18e960
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Aug 19 21:41:48 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Aug 19 21:41:48 2026 +1200
+
+    Merge pull request #22 from Filkspline/leoairdashandtweaks
+    
+    Leoairdashandtweaks
+
+commit e18e960786538f06c17700728c3a481a77503d2d
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 19 21:36:33 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 19 21:36:33 2026 +1200
+
+    Hide death 'teeth' sprites on scene load
+    
+    Add a death_health_bar_effects array for the two 'teeth' Sprite2D nodes and explicitly hide them in _ready(). This prevents P2's teeth (which lacked a baked visible key) from appearing on scene load and avoids relying on .tscn visible state. Keeps death_impact_effect and death_popup hidden as before and adds clarifying comments.
+
+commit a83c7be12cad44d77bd54493dd8e7b5d45521065
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 19 21:26:03 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 19 21:26:03 2026 +1200
+
+    Add death-sequence freeze and popup
+    
+    This change adds a dedicated death-sequence flow for defeated players. GameManager now freezes time on player_defeated and only unfreezes once FightUI emits death_sequence_finished, preventing the hitstop from ending mid-sequence. FightUI plays the existing teeth-bar death animation, impact flash, and a popup warning using unscaled-time tweens and timers, while EventBus exposes the new death_sequence_finished signal so the round can advance only after the full sequence completes.
+
+commit 5d69d2d61ef3a58b20dc62b56828c8ea8b762e7a
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 19 21:05:11 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 19 21:05:11 2026 +1200
+
+    Add death-effect UI and warning popup
+    
+    This change adds new asset imports and visual effects for the fight HUD, including a teeth-style health bar sprite, death impact graphic, and a player warning popup. It also introduces player 1 and player 2 death animations in the UI scene and updates the font import configuration used by the HUD.
+
+commit 7b3d887a2c7cf400578acdcad7756d6adbf0f495
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 19 19:28:24 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 19 19:28:24 2026 +1200
+
+    Adjust player hurtbox and transition animation
+    
+    Tweak player scene animations and hurtbox: updated several AnimationPlayer keyframe values, replaced SubHurtbox tracks with MainHurtbox shape/position keys, changed RectangleShape2D size and MainHurtbox position, and adjusted some sprite visibility. In scene_transition, removed the impact_tear shader and its ColorRect node, shortened the SceneTransition animation from 0.75s to 0.6s, and modified mouth frame key timing.
+
+commit c0419ba915f7399d46130f3934971d416c1a7199
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 19 17:58:57 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 19 17:58:57 2026 +1200
+
+    Add scene transition and UI layering fix
+    
+    Adds a new SceneTransition CanvasLayer that plays a mouth wipe animation before swapping scenes, and routes the round-end and upgrade flows through it to avoid mid-hit scene changes. Also updates UI layering for the fight HUD and transition overlay, and adds the new teeth transition assets and animation setup.
+
+commit 64daad843eef66250fde496ac82987b986bc3767
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Aug 19 17:36:06 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Aug 19 17:36:06 2026 +1200
+
+    new cards, card adjustments, and slight changes to the multi stat function
+
+commit d21788aa1b207c9b4f7c3ff2777bdd002464f022
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 19 14:37:54 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 19 14:37:54 2026 +1200
+
+    Update N8 sprite and player animation timing
+    
+    Replace assets/N8.png and update scenes/player.tscn to shorten the N8 animation (length 0.7333 -> 0.6166667) and shift frame/key times accordingly. Adjusted hitbox/hurtbox key times, sizes, and positions to match the new timing and frame set. Also removed the explicit visible=false on the NA Sprite node. Changes align animation data with the updated sprite asset.
+
+commit ed81b77f25d4f1211073e6f93b6f35a8b35aa5d2
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 19 13:31:40 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 19 13:31:40 2026 +1200
+
+    Debug logging, gatling key fix, unlock cards
+    
+    Add trace/debug logging across player, upgrade, and pool manager code to aid replay/load issues and upgrade tracing. Fix gatling lookup bug by casting gatlings_into entries to String before Dictionary.has() so move cancels work reliably. Change S6 and S8 unlock card resources to use the UNLOCK_MOVE effect type so they correctly grant moves. Minor cleanup: comment noisy anim debug line.
+    
+    Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+commit f15e4e5a1ed397770b2aee3d4b5d0b9a0fcb251c
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 19 12:59:40 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 19 12:59:40 2026 +1200
+
+    Add air jump attack (JA) move
+    
+    This commit adds a new aerial jump attack, JA, including its sprite, animation, and move data resource. It also wires the attack into player logic so Jump while airborne triggers JA without reusing the grounded jump path or NA's aerial gate. The JA state resets on landing to allow the move to trigger again on a later jump.
+
+commit 7bbe077455d3610aa2aa1ecd6ae1fa95da3f6ea4
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Aug 18 14:48:52 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Aug 18 14:48:52 2026 +1200
+
+    Implemented support for multi stat cards and applying them
+
+commit ebe2797b1c1a136fce2aa12ec2c271b0dbd1fbf5
+Merge: 56d43ca a867033
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Tue Aug 18 10:37:59 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Aug 18 10:37:59 2026 +1200
+
+    Merge pull request #21 from Filkspline/projectileandplayertweaks
+    
+    Projectileandplayertweaks
+
+commit a8670331c92663e9d4795d9567dc624857f5eea3
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Aug 17 18:23:10 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Aug 17 18:23:10 2026 +1200
+
+    Add input buffering, camera shake & tweak moves
+    
+    Introduce several gameplay and scene tweaks:
+    
+    - Add an input buffering system to Player (testplayer1.gd): configurable buffer frames, capture/decay/consume helpers, and use buffers for Jump/Normal/Special to improve responsiveness. Adjust direction buffer time.
+    - Improve hit handling: disable lingering hit/hurt shapes on hit and restrict when blocking is allowed.
+    - Add camera shake to GameManager (hooked to hit_confirmed) scaled by move damage with min/max and blocked multiplier.
+    - Increase damage for N4 (5->9) and N52 (5->8).
+    - Minor player scene/animation and UI Border position/scale tweaks.
+    
+    These changes aim to make input feel tighter, hits more impactful, and prevent lingering collision shapes after interruptions.
+
+commit b282f3784ee3106053469f95002cb5965f9a835f
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Aug 17 12:36:52 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Aug 17 12:36:52 2026 +1200
+
+    Update jump & SA sprites and animations
+    
+    Add new NewJump.png and SAnew.png (plus import metadata) and switch the player scene to use them. Adjusted multiple animation timings/frames and lengths, updated Jump/SA/NA sprite positions, and modified hitbox sizes/positions. Exclude new animations from bounce scaling in PlayerVisuals.gd and increase jump_apex_threshold in testplayer1.gd (60 -> 200) to change apex detection.
+
+commit b0a16da8a5c1901a624878b8ca7c3542739ca721
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Aug 17 11:30:28 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Aug 17 11:30:28 2026 +1200
+
+    Add bidirectional Projectile and test scene
+    
+    Introduce a new Projectile resource and scene plus integration into the test level. Added scripts/Projectile.gd (and uid) and scenes/projectile.tscn implementing a deflectable/returnable projectile that stacks knockback on returns, routes impacts through Player.take_hit and EventBus, and supports lifetime/travel limits and debug drawing. test_level.tscn now instances the projectile and loads an impact MoveData resource; fog rect offsets were adjusted. Also tuned gameplay values: scripts/NA.tres advance_speed 300->900 and player physics in scripts/testplayer1.gd (jump_velocity, gravity, move_speed) updated.
+
+commit 56d43cac86b17784efd06b14542cfa431165c553
+Merge: 29c68d4 f80b402
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Fri Aug 14 12:37:44 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Fri Aug 14 12:37:44 2026 +1200
+
+    Merge pull request #20 from Filkspline/quickfinaldayMVPadjustmentsleo
+    
+    Quickfinalday mv padjustmentsleo
+
+commit f80b402c87ae2b62a43c3b37d098ad2dcd42668d
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Aug 14 12:36:41 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Aug 14 12:36:41 2026 +1200
+
+    Add milestone 2 docs, README, and adjust attacks
+    
+    Add Milestone 2 contributor notes (Filkspline.rigineleon-m2.md, brownchar7-m2.md), project README, and an MVP video. Update milestone2.md with a process for identifying stuck owners. Tweak gameplay scripts: remove N52 gatling into S5, increase S5 damage from 5 to 12 and add knock_back (100) and block_knock_back (20) to change impact and block responses. These changes combine documentation, media, and small gameplay balance/behavior updates.
+
+commit e5ee16846def4307fa4023e26735976f4126cfd7
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Aug 14 11:48:59 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Aug 14 11:48:59 2026 +1200
+
+    Add S8 move, hitboxes, and unlock card
+    
+    Implements the S8 (Up Special) move: updates the S8 animation length and frame times; adds animation tracks to animate MainHitbox and SubHurtbox (size, position, disabled states) for the S8 animation; adds S8 to Player.locked_move_names and hides the S8 Sprite by default; updates scripts/S8.tres (damage=15, is_advancing=true, advance_speed=20); and adds a new unlock card resource scripts/card_resource_files/S8UnlockCard.tres with icon and metadata to unlock the move.
+
+commit 3c3c44ff628dd7b38db53a036872da6240f1ba70
+Merge: fcfe600 42b4abb
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Aug 14 11:33:58 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Aug 14 11:33:58 2026 +1200
+
+    Merge branch 'S8newmovetrial' into quickfinaldayMVPadjustmentsleo
+
+commit fcfe6004a053762203c7eab286f553c3f27f9fe5
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Aug 14 11:33:45 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Aug 14 11:33:45 2026 +1200
+
+    Adjust draw order and sprite setup
+    
+    Make particle and player draw ordering explicit and update sprite initialization. Added z_as_relative = false to block/hit particle scenes (replacing HitParticle's z_index) and corrected the hit shader resource path. Set S6 sprite to hidden in player scene. In testplayer1.gd added exported base_z_index and attack_z_index and apply z_index on state transitions so attackers overlay opponents; switched sprite setup to use actual move slot names via _all_move_sprite_names(). Minor cleanup around unlock_move.
+
+commit 4ac3e649e9517061ed7f6313fccf0ab98437afca
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Aug 14 11:09:20 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Aug 14 11:09:20 2026 +1200
+
+    Milestone2 doc and gameplay/UI tweaks
+    
+    Add milestone2.md and update player, UI, shader and card resources. Key changes: added Milestone 2 design doc; expanded player collision size and adjusted collision position; added locked_move_names = ["S6"] and hid N52 sprite; tweak upgrade_card theme font colors; add shader, ShaderMaterial and TempCrtShader ColorRect to upgrade_card_ui with tuned shader parameters and adjusted background sprite transform; switch S6UnlockCard icon to assets/idle.png; update several test upgrade .tres files (names, descriptions, and stat_amount values).
+
+commit 0ffdd9ab521a93fffefc17fc3d53c38d2a93ef9b
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Thu Aug 13 21:52:38 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Thu Aug 13 21:52:38 2026 +1200
+
+    Finished basics of assign player, prototype, no assign function
+
+commit 65359c0208fe72376a042dbd3b31cb01beb985df
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Thu Aug 13 21:37:23 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Thu Aug 13 21:37:23 2026 +1200
+
+    Added basic interact for player select
+
+commit 29c68d4e39c971c74f3c23bb2b9a1a2dc7db2f08
+Merge: 22be816 50c16be
+Author:     brownchar7 <cb4944251@gmail.com>
+AuthorDate: Thu Aug 13 21:10:36 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Aug 13 21:10:36 2026 +1200
+
+    Merge pull request #16 from Filkspline/charlotte-controller-support
+    
+    Controller support for the players is just adding controls into the input mad with device IDs attatched
+
+commit 2a89a1b0b5261f9f5159140525841ddff3ede717
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Thu Aug 13 19:32:20 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Thu Aug 13 19:32:20 2026 +1200
+
+    Bug fix with Settings
+
+commit 79317c4d65291ec3256a947f6a447d35de3e20c2
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Thu Aug 13 19:06:28 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Thu Aug 13 19:06:28 2026 +1200
+
+    Added Settings menu with device support
+
+commit 9932aa1f400a3da08788b241c42b7b2b2d3a9f13
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Thu Aug 13 14:40:03 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Thu Aug 13 14:40:03 2026 +1200
+
+    Main menu added with controller support
+
+commit 22be816d9784dd52bf24cd33af6afa7be7227f2a
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Aug 12 17:01:06 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Aug 12 17:01:06 2026 +1200
+
+    Fixed issues with the player stat application
+    
+    Currently haven't done work on fixing the text on the cards
+
+commit 42b4abb529b338713e7ba42c8426d46c676b49e0
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 12 15:15:18 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 12 15:15:18 2026 +1200
+
+    Add S8 sprite, animation, and MoveData
+    
+    Add new asset assets/S8.png (+ import) and a MoveData resource scripts/S8.tres for the S8 move (hit_level=2, pushback_on_block=50, knock_back=300, block_knock_back=200). Integrate S8 into scenes/player.tscn: add ext_resources, animation subresource (S8) with frame keyframes, an AnimationLibrary entry, and a Sprite node configured with the new texture and 9 hframes. This wires the new move/visual into the player scene.
+
+commit 575e9518f215aefb0de33810826c8ca491678547
+Merge: 19f0efb 54f6900
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Aug 12 12:53:47 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Aug 12 12:53:47 2026 +1200
+
+    Merge pull request #18 from Filkspline/upgradeleoversiontest
+    
+    Upgradeleoversiontest
+
+commit 54f69006a5f0c82903528345fdc06942a4e310c9
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 12 12:51:55 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 12 12:51:55 2026 +1200
+
+    Document event-driven combat architecture
+    
+    Add a design note explaining how EventBus, GameManager, UpgradePoolManager, and Player nodes coordinate across round resets and draft transitions. It captures the signal-based flow for combat, round progression, and upgrade replay behavior so the project is easier to reason about and maintain.
+
+commit b4de3294b1dd921e3b9de95a939da68445d18cde
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 12 11:48:56 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 12 11:48:56 2026 +1200
+
+    Add player_defeated & round handling
+    
+    Introduce player_defeated signal and round/match flow: TestPlayer now emits player_defeated once when HP reaches 0. GameManager listens, awards round wins, checks for match victory, emits round_won/match_over, and defers scene change to the upgrade draft (CARD_SELECT_SCENE) to avoid timing issues. start_match is deferred to ensure autoloads are ready. FightUI now syncs existing wins on ready and responds to round_won to open pips. Minor UI tweaks: hide player name labels and increase timer font/offsets. Also simplified dev input handling.
+
+commit e95988604de247bb24fc729a14c8642f47f568ce
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 12 11:37:05 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 12 11:37:05 2026 +1200
+
+    New fight UI scene, assets, and UI logic
+    
+    Add new fight UI assets and spriteframes (healthbars, round pip sheets, eye animations). Replace old scenes/fight_ui.tscn with scenes/fight_ui_new2.tscn and update scenes/test_level.tscn to use it. Revamp fight_ui.gd: TextureProgressBar-based bars, animated borders and pips, bar tweening, hit shake/punch, low-health pulsing, EventBus player registration, and reset helpers. Update GameManager.gd to track rounds, emit round/match signals, and store round scores. Also adjust test4_template_upgrade.tres stat_amount. Remove legacy fight_ui.tscn.
+
+commit d3d27268706dbc2f56e33bcab616dc7141fda41e
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Aug 11 19:28:53 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Aug 11 19:28:53 2026 +1200
+
+    Add upgrade draft system & pool manager
+    
+    Implements a signal-driven upgrade draft flow. Adds assets (font, icon, background) and an example UpgradeData resource. EventBus gains draft/match signals; GameManager tracks live Player references via player_registered and listens for match/round events. UpgradePoolManager rewritten to maintain per-player pools, handle draws, persist last_offer for late-loading UI, and record picks. CardHand and upgrade_card scenes/scripts made signal-driven (upgrade_draft_ready / upgrade_picked) and robust to scene changes. testplayer1 gains upgrade application APIs (stat boosts, unlocks, move modification) and move-registration fixes.
+
+commit 9f63fed718318e7335928b78ec0ad7af8021ce32
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Aug 11 16:39:15 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Aug 11 16:39:15 2026 +1200
+
+    Altered where the upgrade apply to is called and surrounding structure
+
+commit 09e9b5ad34456e37a5d98bffcc9bdab1cea9fa88
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Aug 11 16:12:21 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Aug 11 16:12:21 2026 +1200
+
+    FOR TESTING CURRENTLY IGNORE THIS
+    
+    This is the last batch of changes with the scene restructuring in place; currently, it has lots of issues. This will likely be the last commit of this branch unless no better solution has been found
+
+commit 5dadc5f169d3fdcd81c2edb40b01df70775f6981
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Aug 10 16:56:32 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Aug 10 16:56:32 2026 +1200
+
+    Started changing the scene structure
+    
+    I am going to go insane
+
+commit 19f0efbd846380fb1b6d13a99805cca4a1746430
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Aug 10 15:49:21 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Aug 10 15:49:21 2026 +1200
+
+    Added documentation comments to files
+
+commit 204cacce9b0a617485f3a49b5aa15d1bb9bad1bc
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Aug 10 14:46:46 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Aug 10 14:46:46 2026 +1200
+
+    Quick fix to null cards in upgrade screen
+    
+    Temp fix to null cards in the upgrade scene. Caused by the duplicate check which has since been commented out, works fine now. Dupe check will need to be altered and reimplemented for when we add the move unlocks
+
+commit c5d967edc4db9044762faf8527fd103391be7e29
+Merge: c8bbb11 d671eeb
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Mon Aug 10 14:31:40 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Aug 10 14:31:40 2026 +1200
+
+    Merge pull request #17 from Filkspline/Braden-7082026-UpgradeSystemImprovements
+    
+    Changed over the test cards to the new template and made some adjustments to the upgrade pool manager
+
+commit 50c16be226db9c2c732f531b22695c07dd9c7f82
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Sat Aug 8 18:16:12 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Sat Aug 8 18:16:12 2026 +1200
+
+    Corrected inputs
+
+commit c8bbb11e07db4b255196449f9f7a24ee3b69f272
+Merge: cf8da41 7c6ae1d
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Sat Aug 8 17:44:31 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sat Aug 8 17:44:31 2026 +1200
+
+    Merge pull request #15 from Filkspline/leonewmovesandtweaks
+    
+    Leonewmovesandtweaks
+
+commit dfde5b8f7c8bcb8f81f1389d121025eb36b0626e
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Sat Aug 8 17:24:08 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Sat Aug 8 17:24:08 2026 +1200
+
+    Added controller support
+
+commit 7c6ae1d04de6fddd2e903a82b70cf33b3f34e149
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sat Aug 8 17:14:41 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sat Aug 8 17:14:41 2026 +1200
+
+    Add cutscene assets & scene; tweak player color
+    
+    Adds a new cutscene asset (assets/Cutscene.png) with its import settings and a new scene (scenes/CutScene.tscn) that references the texture and includes AnimationPlayer, ColorRect, and Sprite2D nodes. Also updates scenes/test_level.tscn to adjust Player2's modulate and add self_modulate to a lighter tint.
+
+commit b435fd3c05cd8f094c13b1a30f8a7d96a5ab4f19
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sat Aug 8 13:28:19 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sat Aug 8 13:28:19 2026 +1200
+
+    Implement gated gatling cancel window and launcher mechanics
+    
+    Add gatling cancel window gating system that requires both hit-confirm and an open cancel window (controlled by animation call method tracks) before follow-ups are allowed. Implement launcher knockback mechanics where is_launcher and launcher_strength properties now apply upward velocity and pending knockdown. Refactor gatling input buffering to be independent of cancel window status. Update move data: N8 becomes a launcher, N52 hitstun adjusted, S6 balance tuning. Add safety check to detect launcher_strength without is_launcher flag checked. Includes debug logging for hit resolution.
+
+commit 2df1739750b36d653a157eebdddb8f8e08924cfe
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sat Aug 8 12:41:39 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sat Aug 8 12:41:39 2026 +1200
+
+    Add S6 move, animations, and parallax bobbing
+    
+    Adds a new S6 move and its assets, plus a parallax bobbing effect and player tuning.
+    
+    - Add assets/S6.png and scripts/S6.tres (MoveData for S6) and wire into player.tscn (texture, Animation, Sprite, AnimationLibrary entries).
+    - Implement bobbing in scripts/parallax_background.gd with exported controls (amplitude, speed, phase, enabled) and a layer order constant; hook into _process.
+    - Expose bob parameters and camera smoothing in scenes/test_level.tscn.
+    - Tweak player physics in scripts/testplayer1.gd: increase jump_velocity and gravity, and raise gatling_buffer_frames.
+    - Minor cleanup/formatting in parallax script.
+
+commit d671eeb43f5e48b3c6d40bd0cce9ea37509dc85f
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Fri Aug 7 17:08:41 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Fri Aug 7 17:08:41 2026 +1200
+
+    Cleaned up the draw function to fix some issues there
+    
+    Draw function now only draws unique cards so we don't get duplicates in the draw pile. Needed to add a new function but it's fast and efficient. Also changed over the old test upgrades to the new upgrade files
+
+commit cf8da41b0ee390b2004fa058d5fe8b6730623047
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Thu Aug 6 17:56:43 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Thu Aug 6 17:56:43 2026 +1200
+
+    Quick note for bug
+
+commit 752c73d18b471ccb2591885d7a30f9b7d463464a
+Merge: 7bdbe1e a383624
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Thu Aug 6 17:44:39 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Aug 6 17:44:39 2026 +1200
+
+    Merge pull request #14 from Filkspline/leo-braden-cardtestandroundtest
+    
+    Add UpgradeData and polish upgrade UI/hand
+
+commit a383624d1fc063ef2479c31a513a61990adb670f
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Thu Aug 6 17:44:09 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Thu Aug 6 17:44:09 2026 +1200
+
+    Add UpgradeData and polish upgrade UI/hand
+    
+    Add UpgradeData resource/script and a template .tres. Refactor upgrade UI: remove curve-driven fan from scene, implement slot-based hand layout with per-card jitter, RNG, and new export properties (hand_width, min_card_spacing, vertical_jitter). Improve upgrade_card visuals (idle bob, hover/selection tweens, selection icon pop). Add GameManager p1_lose flag and debug inputs; pass p1_lose to pool drawing/selection. Disable auto-duplication call in UpgradePoolManager used for testing
+    
+    braden did all the scene changes and testing and leo did the new tweens and tres file template.
+    
+    Co-Authored-By: Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+
+commit 05f32f81f738435a458c3db929f083c323cd3e96
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Thu Aug 6 17:23:31 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Thu Aug 6 17:23:31 2026 +1200
+
+    Quick push, added debug buttons to change scene depending on which player lost
+
+commit 7bdbe1e36f0f3e0091dafbcad2596e42329a9c38
+Merge: a9a69fb df0c0f5
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Thu Aug 6 16:17:46 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Aug 6 16:17:46 2026 +1200
+
+    Merge pull request #13 from Filkspline/TempUIleo
+    
+    Add fight UI scene and script
+
+commit df0c0f5132ca2e463606ab7a3476a005859bbd4e
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Thu Aug 6 16:17:20 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Thu Aug 6 16:17:20 2026 +1200
+
+    Add fight UI scene and script
+    
+    Introduce a new Fight UI (scenes/fight_ui.tscn) and controller (scripts/fight_ui.gd + .uid). The UI is a CanvasLayer providing player health bars, names, round pips, a round timer, and floating damage/block numbers. The script hooks EventBus signals, exposes public APIs (award_round_win, reset_round, reset_match, spawn_damage_number), and includes camera world-to-screen mapping. test_level.tscn now instances the FightUI and wires player/camera node paths. Also set damage = 5.0 in scripts/N2.tres.
+
+commit a9a69fbf9aa4b9b9f64fc5751aae4026455e3162
+Merge: 8c6b217 80f2860
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Thu Aug 6 16:16:37 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Aug 6 16:16:37 2026 +1200
+
+    Merge pull request #12 from Filkspline/Braden-3082026-CardFunctionality
+    
+    Braden 3082026 card functionality
+
+commit 80f286064bbc465da68a34b5bc28746ff2d5510a
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Thu Aug 6 16:10:35 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Thu Aug 6 16:10:35 2026 +1200
+
+    Added a single comment
+
+commit 8c6b217bcacdc56096212bd1da35584d209f516e
+Merge: 4010830 ee5bab3
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Thu Aug 6 15:01:54 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Aug 6 15:01:54 2026 +1200
+
+    Merge pull request #11 from Filkspline/leosfullnormalplayer
+    
+    Add N2 attack move and improve gameplay mechanics
+
+commit ee5bab3d4d1ba5e7f07eff284844c138b26c56e2
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Thu Aug 6 15:00:48 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Thu Aug 6 15:00:48 2026 +1200
+
+    Add N2 attack move and improve gameplay mechanics
+    
+    Adds new N2 attack move with animation and sprite. Improves particle effects with scaling/growth animations. Fixes crouch handling and input direction logic. Balances movement speeds (walk backward now matches forward) and adjusts SA hit level. Updates various sprite visibility and animation timings.
+
+commit 4010830f5db0785d5b8bc908d52843dcef916d72
+Merge: 5792660 f55e459
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Aug 5 18:38:47 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Aug 5 18:38:47 2026 +1200
+
+    Merge pull request #10 from Filkspline/leotweaksandsuch
+    
+    Add parallax textures and decorative sprites
+
+commit f55e4598d59e3673b3933256c62ea9820d9e9094
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 5 18:38:14 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 5 18:38:14 2026 +1200
+
+    Add parallax textures and decorative sprites
+    
+    Add three new texture assets (HandyIdle-Sheet.png, image-Photoroom (5).png, setdressingpixel.png) and their .import metadata. Update scenes/parallax_background.tscn to reference the new textures, add a 'handy' Sprite2D (hframes=4) and a small set-dressing Sprite2D on the Platform layer. Also tweak background appearance: adjust several node modulate colors, minor offset values, and increase fog opacity from 0.34 to 0.39 for better visual balance.
+
+commit 9dd43acdfb6412a9de0053c52e8b95b170c6df96
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Aug 5 15:01:56 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Aug 5 15:01:56 2026 +1200
+
+    Draws from player-specific pools and also removes from the player pool
+
+commit b2566804dd6afa8ea6fd7177964c99d7e9713cba
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Aug 5 14:09:36 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Aug 5 14:09:36 2026 +1200
+
+    Quick push to get a look over of the upgrade pool
+
+commit 57926600497b41a5fc05f684c6f40856324658f8
+Merge: 8103d6a 10dcdde
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Wed Aug 5 13:59:11 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Aug 5 13:59:11 2026 +1200
+
+    Merge pull request #9 from Filkspline/leotweaksandsuch
+    
+    Leotweaksandsuch
+
+commit 10dcdde9eee2d076dbac9f6439a395f31886f8e6
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Aug 5 13:53:36 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Aug 5 13:53:36 2026 +1200
+
+    Fix player combat bugs; add fog shader
+    
+    Add a fog ShaderMaterial and ColorRect to parallax_background for visual fog. Refactor testplayer1.gd to fix multiple combat and gameplay bugs: duplicate shared CollisionShape2D and MoveData resources per instance; correct facing/input/forward/backward logic; implement health, knockdown and proper stun/block/hit resolution; unify stun timer handling and pushback directions; emit health/hit events; clean up debug logs and minor animation/input fixes. Also remove redundant null properties from player.tscn. These changes fix shared-resource side effects and many hit/block interaction issues.
+
+commit b74bbb62841c2eefe21132e9dc34175c8ccbb2f9
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Aug 4 15:27:50 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Aug 4 15:27:50 2026 +1200
+
+    Handled getting info from the cards and tres files
+    
+    Pain. But we now have a system to load cards into a full system now we just need to expand on upgrade functionality
+
+commit 90bb60d26f01a9a95dfe305cb894eac08c82e2f4
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Aug 4 14:37:07 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Aug 4 14:37:07 2026 +1200
+
+    Dynamic attack sprites; use 'up' move key
+    
+    Refactors attack-sprite handling: PlayerVisuals removes fixed @onready attack vars and builds an attack_sprites dictionary in setup(anim_player, move_names) by locating Sprite2D children; show/hide use that map. testplayer1 now builds the move lookup before calling sprites.setup and passes all_moves.keys(). Renames move key 'jumping' to 'up' (grounded Up+attack and airborne fallback) and updates resolve_move logic. Includes minor scene edits: player animation timing tweaks, serialized player properties set to null, and test_level fog visibility removed.
+
+commit 10981c1f8bf429fac29ccb03b253aec832e08773
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Aug 4 14:32:53 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Aug 4 14:32:53 2026 +1200
+
+    Add N8 attack sprite, animation and move data
+    
+    Adds a new N8 attack: imports assets/N8.png (and its .import), adds scripts/N8.tres MoveData, and integrates N8 into scenes/player.tscn (ext_resource, Animation subresource, AnimationLibrary entry, and a Sprite node). Updates PlayerVisuals.gd to expose n8_sprite and toggle its visibility in show/hide functions so the new attack is displayed correctly.
+
+commit 24b193534895eade54c86777145e3a2eb413ff87
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Aug 4 12:12:47 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Aug 4 12:12:47 2026 +1200
+
+    Adjust hit effect positioning and related parameters
+    
+    Refactor HitEffectManager to lerp effect spawn toward the defender: adds exported impact_x_influence and impact_y_influence (and a debug flag), updates spawn math to use defender/global impact lerp, and renames the _defender param to defender. Add comments and prefer a scene-local %EffectsLayer parent. Update HitEffectManager.tscn default impact_x_influence. Tweak hit particle alpha in hit_particle.tscn, change two animation keyframe Y values in player.tscn, and increase hurtbox_vertical_reduction from 50 to 80 in testplayer1.gd.
+
+commit 8103d6a6f6074c08a3366baa164a50ae9fac0e7e
+Merge: 0cc18dd 1c64a3b
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Tue Aug 4 11:44:18 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Aug 4 11:44:18 2026 +1200
+
+    Merge pull request #8 from Filkspline/leoanimationminorfix
+    
+    Leoanimationminorfix
+
+commit 1c64a3be39c88c1c646153fcb44b606bf2793ee0
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Aug 4 11:37:39 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Aug 4 11:37:39 2026 +1200
+
+    Add fog shader effect and flying buildings layer
+    
+    Adds a new fog shader system with configurable parameters (opacity, density, noise, scroll speed, softness) and integrates it into the test level. Adds a new BuildingsFlying parallax layer with hover asset for visual depth. Updates parallax background script to support the flying buildings layer speed control. Adjusts collision shapes and shadow positions in test level for improved visual composition.
+
+commit 753094756d0e84058951dfe7d11c72af299f4ad5
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Aug 3 21:27:16 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Aug 3 21:27:16 2026 +1200
+
+    Add walk sprites and adjust player/particles
+    
+    Add new walk sprites (walkbacknew.png, walkfowardnew.png) and their import metadata. Update player.tscn to use the new textures, add direction_buffer_time, and wire sprites. Reduce walk_forward/backward speeds from 200 to 170 in testplayer1.gd. Tweak hit_particle shader parameters for smaller core/glow and lower tear/fade values. Add impact shader/material and ColorRect areas (with collision shapes) to test_level.tscn to apply the tear/impact effect.
+
+commit 152f0aca7d7669abcb0275efb7c04a1092fd30a3
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Aug 3 17:06:41 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Aug 3 17:06:41 2026 +1200
+
+    Small commit before meeting, started card dict
+    
+    Added the anims for the selector and the beginnings of the dictionary for card upgrades. The card dictionary has started progress; I have no idea how .tres files work so that is for later
+
+commit 0cc18dd2af3916ab0292dcf3156daba9817bf6dd
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Aug 3 15:51:20 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Aug 3 15:51:20 2026 +1200
+
+    Edited some functions and cleaned up redundancies
+    
+    The upgrade card script has some of the shader work maybe done, but it doesn't work whatsoever, so that's being shelved for like the third time. Added some notes and comments in some other files
+
+commit 597f026e8c29e1c2429c6ca2e42e42ffa6c4b9f6
+Merge: 08d880f 7d5904b
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Mon Aug 3 13:46:04 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Aug 3 13:46:04 2026 +1200
+
+    Merge pull request #7 from Filkspline/leos_background_fix
+    
+    Add parallax background scene and assets
+
+commit 7d5904b7296e95631bba3dfd9d6ef80861f8f1e9
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Aug 3 13:45:29 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Aug 3 13:45:29 2026 +1200
+
+    Add parallax background scene and assets
+    
+    Introduce a parallax background system and related assets. Adds Skypixel, mountainsPixel, BuildingsPixel, and PlatformPixel textures with import settings, a new parallax_background.tscn and parallax_background.gd script (+ .uid). Instances the parallax scene in test_level.tscn (camera hookup) and hides the level TextureRect; adjusts StaticBody2D position and Shadow modulate/offsets. Minor tweaks: change HitParticle default color slightly and set Player.walk_backward_speed to 200. Removes an old JPG import and replaces its import metadata with the new BuildingsPixel mapping.
+
+commit 08d880f021c6e0f5313fb38da1956772db9521e2
+Merge: cbc8d61 c43c2ef
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Mon Aug 3 11:58:20 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Aug 3 11:58:20 2026 +1200
+
+    Merge pull request #5 from Filkspline/charlotte-parallax-background
+    
+    Added Parallax background scene
+
+commit cbc8d61f7c04cd7bd69c6dcb64cf0601abccc52b
+Merge: 5ba3029 fb90781
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Mon Aug 3 11:57:19 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Aug 3 11:57:19 2026 +1200
+
+    Merge pull request #6 from Filkspline/Shader-and-player-fixes
+    
+    Shader and player fixes
+    
+    Add impact_tear.gdshader and use it for HitParticle and a new BlockParticle effect (scripts, scenes). Register default_block_effect in HitEffectManager. Add jumpMv2png asset and update player.tscn (sprite/frames). Extend MoveData with knockback/launcher tags and add MoveTemplate.tres. Fix blocking logic in testplayer1.gd to respect hit levels and warn for unimplemented move tags. Move CRT ColorRect into its own CanvasLayer and add CRT shader/material tweaks; enable camera position smoothing and various particle/visual tuning.
+
+commit fb90781acd00cd8544e713aed54b45ed0fb8ce05
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Aug 3 11:55:52 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Aug 3 11:55:52 2026 +1200
+
+    Adjust player sprite visibility; remove CanvasLayer
+    
+    Moved `visible = false` from the Idle Sprite to the Jump Sprite so the Idle sprite is shown by default while Jump starts hidden. Also removed an unused CanvasLayer node from test_level.tscn. Cleans up scene files and fixes incorrect initial visibility.
+
+commit 1112b932de3e56065d929c9bf8a4f14dc12ceb4e
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Aug 3 11:35:56 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Aug 3 11:35:56 2026 +1200
+
+    Add impact tear shader, block particles & fixes
+    
+    Add impact_tear.gdshader and use it for HitParticle and a new BlockParticle effect (scripts, scenes). Register default_block_effect in HitEffectManager. Add jumpMv2png asset and update player.tscn (sprite/frames). Extend MoveData with knockback/launcher tags and add MoveTemplate.tres. Fix blocking logic in testplayer1.gd to respect hit levels and warn for unimplemented move tags. Move CRT ColorRect into its own CanvasLayer and add CRT shader/material tweaks; enable camera position smoothing and various particle/visual tuning.
+
+commit c43c2ef8faf2c16a8bab79b0e0a6defc6833039d
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Fri Jul 31 18:52:20 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Fri Jul 31 18:52:20 2026 +1200
+
+    Added Parallax background scene
+
+commit 5ba3029c975f42babee4f7f4f09eeddc32d25b13
+Merge: acdb5af e6df31a
+Author:     Braden-T-Thomas <132860328+Braden-T-Thomas@users.noreply.github.com>
+AuthorDate: Fri Jul 31 15:46:05 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Fri Jul 31 15:46:05 2026 +1200
+
+    Merge pull request #4 from Filkspline/Braden-27072026-CardUi
+    
+    Braden 27072026 card UI
+
+commit e6df31a459bf2b224af45dd196d37d47abda647a
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Fri Jul 31 15:41:39 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Fri Jul 31 15:41:39 2026 +1200
+
+    Fleshed out the anims for the cards
+    
+    Used more tweens for the animations to make the whole thing refined; also started some stuff with shaders, but that should probably be looked at by someone who actually knows how to use them. Bugs are still there, but the known ones have been marked with TODO
+
+commit acdb5af8cc193bd86ce451dd8f88e9b54a6ba263
+Merge: 3de6032 c91f432
+Author:     Filkspline <160081013+Filkspline@users.noreply.github.com>
+AuthorDate: Fri Jul 31 15:17:56 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Fri Jul 31 15:17:56 2026 +1200
+
+    Merge pull request #3 from Filkspline/player2test
+    
+    Add local 2-player support & refactor players
+
+commit c91f43224fe61529f968c728207d8e5354bc0da6
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Thu Jul 30 18:21:18 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Thu Jul 30 18:21:18 2026 +1200
+
+    Add local 2-player support & refactor players
+    
+    Add P2 input mappings and scene changes for local two-player support; wire Camera2D to two players. Refactor player systems to be per-player: EventBus signals now include player_id and continuous player state is stored in per-player dictionaries. DynamicCamera now uses inspector-assigned player_1/player_2 and improved tracking/shake handling. PlayerVisuals gained set_facing; shadow uses player_id and reads EventBus dictionaries. Player script (testplayer1.gd) received a major multiplayer rewrite: exported player_id, fixed facing, input-name helper (_action), per-player EventBus updates, hitbox/hurtbox duplication and mirroring, hit detection/debugging, and many input/animation fixes. GameManager handler signature updated to match new signal. Files changed: project.godot, scenes/test_level.tscn, scripts/DynamicCamera.gd, scripts/EventBus.gd, scripts/GameManager.gd, scripts/PlayerVisuals.gd, scripts/shadowtest.gd, scripts/testplayer1.gd.
+
+commit 3de60320e541cdda65686c633897f17c6431f1ac
+Merge: 97d80a5 4cbbbc5
+Author:     brownchar7 <cb4944251@gmail.com>
+AuthorDate: Thu Jul 30 14:17:08 2026 +1200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Jul 30 14:17:08 2026 +1200
+
+    Added Dynamic camera, merge branch
+    
+    Added dynamic camera that averages position between player. Added shakes for hits and blocks. Made it so current playable character cant walk out of frame (to be added to player two when made). Made camera a scene per request.
+
+commit fddda57584d09a045fc972df2b99a345e4833e18
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Wed Jul 29 17:34:11 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Wed Jul 29 17:34:11 2026 +1200
+
+    Started working on controller input for the card ui as well as keyboard input
+    
+    Currently got the selection and stuff done, need to test with a controller proper
+
+commit 4cbbbc553ed828e4d61e8aebcef54a2054f45e17
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Wed Jul 29 16:17:01 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Wed Jul 29 16:17:01 2026 +1200
+
+    made camera a scene
+
+commit 62fd5aee500cbad4ec9fc69258922e46157c07fd
+Author:     brownchar7 <brownchar7@myvuw.ac.nz>
+AuthorDate: Wed Jul 29 14:51:55 2026 +1200
+Commit:     brownchar7 <brownchar7@myvuw.ac.nz>
+CommitDate: Wed Jul 29 14:51:55 2026 +1200
+
+    Added dynamic camera
+
+commit 97d80a54f9df7fb6197c1c2241bfb5116a76e9f5
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Tue Jul 28 19:14:58 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Tue Jul 28 19:14:58 2026 +1200
+
+    Add N4 attack animation and visuals
+    
+    Add N4 sprite asset, import settings, and MoveData resource (scripts/N4.tres) for the new N4 attack (damage=5, advancing). Integrate N4 into scenes/player.tscn: add texture ext_resource, Animation subresource/tracks, AnimationLibrary entry, and a Sprite node. Update PlayerVisuals.gd to reference and show/hide the n4_sprite. Also tweak S5 animation timing and add several hitbox/hurtbox animation tracks. Reduce HitParticle lifetime from 0.35 to 0.15 for snappier effects.
+
+commit 73ed1b4e679bc618c53d8eed87b482b561864b16
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Tue Jul 28 18:17:38 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Tue Jul 28 18:17:38 2026 +1200
+
+    Added anims for cards and movements stuff
+
+commit 8dd56a2c5f47855146be9f14cbe5c612a91a4e23
+Author:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+AuthorDate: Mon Jul 27 21:09:00 2026 +1200
+Commit:     Braden-T-Thomas <thomasbrad1@myvuw.ac.nz>
+CommitDate: Mon Jul 27 21:09:00 2026 +1200
+
+    Implemented first prototype of the card system
+    
+    Cards display and highlight which one is being hovered over.
+    
+    Need to make it look a little prettier next time
+
+commit 08a8b311b7502ef5eb1ef4d7b3c99a03b201f2b2
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sun Jul 26 21:15:37 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sun Jul 26 21:15:37 2026 +1200
+
+    Add hit effect system with particles
+    
+    Implement visual feedback for combat hits with a new HitEffectManager autoload that spawns particle effects when attacks connect. Includes a hit_confirmed signal in EventBus to communicate hit events, custom particle effects with flash animation, and integration with the player combat system to emit hit data.
+
+commit 481df26341b574e3086c0673dbf2b010a5d275c8
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sun Jul 26 18:59:50 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sun Jul 26 18:59:50 2026 +1200
+
+    Add GameManager autoload for hitstop handling
+    
+    Add a new GameManager autoload (scripts/GameManager.gd + UID) and register it in project.godot. GameManager listens to EventBus.player_hit_landed and applies configurable hitstop (freeze-frame) by setting Engine.time_scale to 0 for a real-time duration. Exposes exported properties: enabled, hitstop_duration_hit, and hitstop_duration_blocked. Uses a timer with ignore_time_scale and a token counter to ensure overlapping hitstops extend correctly and only the latest timer restores time_scale.
+
+commit e43ea738820d62e2f49154f980fa92787f14e43e
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sun Jul 26 16:47:22 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sun Jul 26 16:47:22 2026 +1200
+
+    Extract player visuals to PlayerVisuals component
+    
+    Move all presentation logic (animations, sprites, visual effects) from Player into a dedicated PlayerVisuals class. This separates concerns: Player handles game logic and state, while PlayerVisuals manages how that state is displayed.
+    
+    Changes:
+    - Create PlayerVisuals.gd to own all Sprite2D nodes and AnimationPlayer control
+    - Convert animation constants to @export variables for easier tuning
+    - Move block warning, animation bounce, and sprite visibility logic to PlayerVisuals
+    - Update Player to call visuals methods instead of managing animations directly
+    - Reorganize animation path tracks in player.tscn (sprites now under Sprites node)
+    
+    PlayerVisuals now serves as the single authority for what's shown on screen, making the presentation layer more maintainable and testable.
+
+commit ba82aac124423243fc140320a5c5f0245cb5f320
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sat Jul 25 17:53:15 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sat Jul 25 17:53:15 2026 +1200
+
+    Add SA attack move with animation and bounce effect
+    
+    Add a new Standing Attack (SA) move including animation asset, 7-frame animation sequence, move data configuration with 5 damage, and a squash-and-stretch bounce effect when animations start. Also adjust crouch_down animation timing from 0.23s to 0.1s.
+
+commit 6ccd09fe3617ac67653a0a89a6667fcf2bab1b2c
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sat Jul 25 14:52:04 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sat Jul 25 14:52:04 2026 +1200
+
+    commenting
+
+commit eb2f17321d33afd04c47a0892537b5b4e169fc69
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Jul 24 13:12:41 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Jul 24 13:12:41 2026 +1200
+
+    Add hit reaction animations with stun mechanics
+    
+    Implement crouch_hit and mid_hit animations that play when the player is hit. Key changes:
+    
+    - Added new sprite assets (midhit.png, crouchhit.png) with animations
+    - Renamed collision shape nodes from 'CollisionShape2D' to 'MainHitbox'/'MainHurtbox' for clarity
+    - Added stun_just_started flag to prevent stun timers from expiring on the frame they're set, ensuring hit/block reactions are always fully visible
+    - Implemented _min_visible_stun_frames() to floor stun duration to animation length so short hitstuns don't skip the reaction animation
+    - Added landed and hitstun_finished signals with freeze_until_*() methods for animation hold patterns
+    - Deferred visual updates in take_hit() to avoid physics query flush conflicts
+    - Added centralized _dbg() function to silence all debug output with a single flag
+    - Updated animation tracks and crouch/blockstun logic to support new reaction system
+
+commit 143504e87841c958556334fc7f27349620d53d2c
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Thu Jul 23 19:30:46 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Thu Jul 23 19:30:46 2026 +1200
+
+    Add projectile and shadow test systems
+    
+    Adds new projectile and shadow testing systems with energy tear shader effects. Includes animation timing adjustments to player attack and jump animations, physics tuning for jump velocity and gravity, and new shader for visual effects. Note: includes a temporary .tscn backup file that should be removed.
+
+commit ec00e597eac3972f08b397adbc6822170a567cc6
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Thu Jul 23 14:26:41 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Thu Jul 23 14:26:41 2026 +1200
+
+    Fix block warning and jump animation visibility issues
+    
+    Add debug logging and fix two animation visibility bugs:
+    
+    1. Block warning sprite was being hidden externally by _play_anim()'s _hide_all_sprites() calls. Now re-assert visibility every frame during warning display to prevent unexpected hiding.
+    
+    2. Jump fall phase was incorrectly replaying the full jump_peak animation from frame 0 when entering fall from an attack. Now snaps directly to the held last frame instead.
+    
+    Includes extensive debug prints to track state transitions.
+
+commit 178ae1e548a66c58341f763b49956fcc33bbf889
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Thu Jul 23 14:16:46 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Thu Jul 23 14:16:46 2026 +1200
+
+    Add EventBus and refactor animations to AnimationPlayer
+    
+    Implement EventBus autoload for inter-system communication, emitting signals for player state changes, attacks, and hits. Refactor animation system from manual frame-stepping to AnimationPlayer, simplifying state management. Fix typo: WalkFoward → WalkForward. Improve crouch phase handling with better state transitions. Clean up unused animation constants and sprite nodes (BlockEffect, StateMachine, MoveDatabase).
+
+commit 16885c7d6ada92912e6491acd871071c2562480b
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Thu Jul 23 12:57:01 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Thu Jul 23 12:57:01 2026 +1200
+
+    Add player animations, AnimationTree, and shadow
+    
+    Add multiple Animation subresources and tracks to the player scene (idle, walk_forward, walk_backward, crouch variants, block_idle, jump_land, etc.) and register them in the AnimationLibrary. Attach the library to the AnimationPlayer and add an AnimationTree node for future blending/state machine use. Rename a TextureRect to "Shadow" and set default frames for shadow and the WalkFoward sprite; tweak MidBlockWarning/LowBlockWarning properties. Also add a small ColorRect to test_level.tscn. These changes prepare the player for animation-driven state logic and visuals.
+
+commit 64553ed2f600e4a75aef9c17d8957fe0f4bede64
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Wed Jul 22 12:00:05 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Wed Jul 22 12:00:05 2026 +1200
+
+    Add block assets, attack AI, and block visuals
+    
+    Add block-related assets and imports; enhance DefenseTester with a hitbox-driven attack system, attack states, timers, and debug visuals. Update player.tscn and defense_tester.tscn with gradients, hitbox, and block sprites/effects. test_level.tscn adjusted placement and mockup background. Expand testplayer1.gd to support block‑idle/effect sprites, block animations, blockstun visuals, pushback/air behavior, and related constants/state. Tweak NA.tres pushback_on_block value. Minor GDD wording fix.
+
+commit 84d364fc9aca93ed3d8d400e78606c9d8e07651b
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Jul 20 19:00:12 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Jul 20 19:00:12 2026 +1200
+
+    Refactor block-warning, move fallback, crouch fixes
+    
+    Update player scene and script to make block-warning visuals stance-aware and robust, add neutral-move fallback, and normalize crouch state during attacks/hits. Key changes:
+    
+    - scenes/player.tscn: add resource references used by new sprites/attacks.
+    - scripts/testplayer1.gd: introduce block_warning_is_crouching and _reset_block_warning(); rework _update_block_warning_visuals to handle stance changes correctly; allow attacks during crouch/landing; add fallback in _resolve_move to use neutral slot when direction slot is empty on floor; clear crouch state when starting an attack and when taking a hit; remove obsolete restore_from_stun.
+    
+    These changes prevent wrong warning sprites, avoid swallowed inputs, and keep visuals/mechanics consistent.
+
+commit 30f347e9f4bc8f7428698a6f17787b4c0448e6c5
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Jul 20 17:46:36 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Jul 20 17:46:36 2026 +1200
+
+    Replace BLOCK state with passive block-ready system
+    
+    Removes the explicit BLOCK state and implements a passive blocking system with visual warnings. Players now automatically block if they're in a block-ready position (standing/crouching with back held) when hit. Adds block-ready warning animations that display different sprites for standing vs crouching. Implements proper stun timing using frame counters converted to seconds. Also increases N52 advance speed from 120 to 220 for faster combo flow.
+
+commit 0f9d946455b885f4d550b2dabfb651fc578fbe51
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Mon Jul 20 15:06:40 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Mon Jul 20 15:06:40 2026 +1200
+
+    Add GDD and architecture documentation
+    
+    Add comprehensive Game Design Document (GDD.md) covering mechanics, scope, design pillars, upgrade system, and art direction. Add technical architecture reference (arch.md) detailing the fighter state machine, MoveData resource system, upgrade system architecture, and per-frame collision authoring.
+    
+    Also adjust move data: increase N52 advance_speed from 50 to 120, remove low_profile flag, and increase NA advance_speed from 50 to 300. Connect N6 move reference in player scene.
+
+commit d51a005d651e9a156f1d3c5bbe4a4f1fcb8f5f77
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sun Jul 19 23:02:15 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sun Jul 19 23:02:15 2026 +1200
+
+    Add aerial normal attack (NA) move
+    
+    Implement new aerial normal attack move with dedicated sprite and animation. Adds NA.tres MoveData resource and NA sprite sheet. Updates player script to automatically select aerial moves when airborne, includes proper physics handling with reduced fall speed during aerial attacks. Also adjusts gatling buffer from 36 to 16 frames and adds placeholder for SA (special aerial) move.
+
+commit 4ef144a4d7af47ec82682a4c9b3ff307954a0ea2
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sun Jul 19 21:28:04 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sun Jul 19 21:28:04 2026 +1200
+
+    minor adjustments
+
+commit 162b8e251a792f1d120862aa44b93c2e2a55cc88
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Sat Jul 18 11:15:59 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Sat Jul 18 11:15:59 2026 +1200
+
+    pushblock and advancing
+    
+    added pushblock on hit so you cant stay hugging the defender, and added advancing moves so certain attacks move you foward
+
+commit 6c8ab5b0a2f84b147e597def06dcf9098c58e8ee
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Jul 17 23:04:53 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Jul 17 23:04:53 2026 +1200
+
+    First commit
+    
+    just testing github desktop
+
+commit f6e457943e26e1a30c80885a7b92400887a5b976
+Author:     Filkspline <LeoRiginelli@gmail.com>
+AuthorDate: Fri Jul 17 22:57:11 2026 +1200
+Commit:     Filkspline <LeoRiginelli@gmail.com>
+CommitDate: Fri Jul 17 22:57:11 2026 +1200
+
+    Initial commit

@@ -122,7 +122,10 @@ func apply_display() -> void:
 # truth for how the window behaves instead of hardcoding it twice.
 func _restore_window_decoration() -> void:
 	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
-	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_POPUP, false)
+	# Deliberately NOT WINDOW_FLAG_POPUP. The main window can never be a popup,
+	# and asking for it throws "Main window can't be popup" from the platform
+	# layer on every launch. Clearing BORDERLESS alone is what brings the title
+	# bar and the taskbar entry back.
 	DisplayServer.window_set_flag(
 		DisplayServer.WINDOW_FLAG_RESIZE_DISABLED,
 		not bool(ProjectSettings.get_setting("display/window/size/resizable", false))

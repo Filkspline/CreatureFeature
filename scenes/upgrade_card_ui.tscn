@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://csk1pb7tn5x2w" path="res://scenes/skip_button.tscn" id="7_skip"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(469, 122)
+size = Vector2(469, 16)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1ifr4"]
 shader = ExtResource("4_ovphs")
@@ -70,7 +70,7 @@ script = ExtResource("1_l8650")
 position = Vector2(-92, -35)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Camera2D/hand/cardspawnarea" unique_id=468811304]
-position = Vector2(105.5, -5)
+position = Vector2(105.5, 2)
 shape = SubResource("RectangleShape2D_g4v7s")
 
 [node name="cardspawner" type="Marker2D" parent="Camera2D/hand" unique_id=558817203]

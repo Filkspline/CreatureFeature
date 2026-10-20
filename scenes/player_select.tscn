@@ -5,14 +5,7 @@
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_hx7tf"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="3_crtshader"]
 [ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="4_prompts"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
-bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 1)
+[ext_resource type="PackedScene" path="res://scenes/menu_button.tscn" id="6_menubtn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_character_box"]
 bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
@@ -70,25 +63,20 @@ theme_override_font_sizes/font_size = 42
 text = "INPUT SELECT"
 horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="." unique_id=639280847]
-visible = false
+[node name="Button" parent="." unique_id=639280847 instance=ExtResource("6_menubtn")]
+z_index = 1
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -46.0
-offset_right = 40.0
-offset_bottom = -11.0
+offset_left = -100.0
+offset_top = -68.0
+offset_right = 100.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 2
-theme_override_fonts/font = ExtResource("2_hx7tf")
-theme_override_styles/normal = SubResource("StyleBoxFlat_button")
-text = "START"
 
 [node name="DeviceLabels" type="Node" parent="." unique_id=51001]
 
@@ -147,13 +135,14 @@ horizontal_alignment = 1
 [node name="ControlPrompts" parent="Characters/Character1" unique_id=1008886496 instance=ExtResource("4_prompts")]
 visible = false
 layout_mode = 0
-offset_top = 150.0
-offset_right = 130.0
-offset_bottom = 300.0
+offset_top = 148.0
+offset_right = 170.0
+offset_bottom = 320.0
+preset = 2
 vertical = true
-icon_scale = 0.2
-entry_spacing = 14.0
-font_size = 13
+icon_scale = 0.24
+entry_spacing = 16.0
+font_size = 20
 reactive = false
 
 [node name="Character2" type="Panel" parent="Characters" unique_id=388186416]
@@ -183,14 +172,15 @@ horizontal_alignment = 1
 [node name="ControlPrompts" parent="Characters/Character2" unique_id=1670640276 instance=ExtResource("4_prompts")]
 visible = false
 layout_mode = 0
-offset_top = 150.0
-offset_right = 130.0
-offset_bottom = 300.0
+offset_top = 148.0
+offset_right = 170.0
+offset_bottom = 320.0
 player_id = 2
+preset = 2
 vertical = true
-icon_scale = 0.2
-entry_spacing = 14.0
-font_size = 13
+icon_scale = 0.24
+entry_spacing = 16.0
+font_size = 20
 reactive = false
 
 [node name="Cursors" type="Node" parent="." unique_id=31637593]
