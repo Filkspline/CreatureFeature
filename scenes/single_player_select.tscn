@@ -3,9 +3,9 @@
 [ext_resource type="Script" uid="uid://c5nrk3ih2m14m" path="res://scripts/single_player_select.gd" id="1_spsel"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_font"]
 [ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="3_prompts"]
-[ext_resource type="PackedScene" path="res://scenes/menu_button.tscn" id="6_menubtn"]
 [ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="4_crtscript"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="5_crtshader"]
+[ext_resource type="PackedScene" uid="uid://bqrfx6stuops3" path="res://scenes/menu_button.tscn" id="6_menubtn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
 bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
@@ -22,14 +22,6 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.79607844, 0.85882354, 0.9882353, 0.45)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_start"]
-bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
 shader = ExtResource("5_crtshader")
@@ -53,15 +45,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_spsel")
-cursor_size = Vector2(51, 46)
-cursor_icon_scale = 0.46
-tray_bay_spacing = 76.0
-open_border_color = Color(1, 1, 1, 1)
-claimed_border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-lock_punch_scale = 1.4
-lock_punch_duration = 0.3
-selected_label_pop_scale = 1.8
-selected_label_pop_duration = 0.35
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=2011000011]
 layout_mode = 1
@@ -79,7 +62,6 @@ offset_left = 120.0
 offset_top = 4.0
 offset_right = 520.0
 offset_bottom = 42.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("2_font")
@@ -107,7 +89,6 @@ offset_left = -50.0
 offset_right = 50.0
 offset_bottom = 23.0
 grow_horizontal = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("2_font")
@@ -122,7 +103,6 @@ offset_left = 250.0
 offset_top = 44.0
 offset_right = 390.0
 offset_bottom = 62.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("2_font")
@@ -137,7 +117,6 @@ offset_left = 170.0
 offset_top = 200.0
 offset_right = 470.0
 offset_bottom = 220.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("2_font")
@@ -148,7 +127,7 @@ vertical_alignment = 1
 
 [node name="Legends" type="Control" parent="." unique_id=2011000018]
 visible = false
-layout_mode = 0
+anchors_preset = 0
 mouse_filter = 2
 
 [node name="LabCaption" type="Label" parent="Legends" unique_id=2011000019]
@@ -157,7 +136,6 @@ offset_left = 24.0
 offset_top = 52.0
 offset_right = 232.0
 offset_bottom = 68.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_font")
@@ -183,7 +161,6 @@ offset_left = 408.0
 offset_top = 52.0
 offset_right = 616.0
 offset_bottom = 68.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_font")
@@ -205,7 +182,7 @@ font_size = 13
 reactive = false
 
 [node name="TrayArea" type="Control" parent="." unique_id=2011000023]
-layout_mode = 0
+anchors_preset = 0
 offset_left = 16.0
 offset_top = 240.0
 offset_right = 624.0
@@ -218,7 +195,6 @@ offset_left = 60.0
 offset_top = 222.0
 offset_right = 580.0
 offset_bottom = 238.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_font")
@@ -237,13 +213,13 @@ offset_bottom = 54.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_bay")
 
 [node name="StartButton" parent="." unique_id=2011000027 instance=ExtResource("6_menubtn")]
-visible = false
+z_index = 1
 layout_mode = 0
 offset_left = 220.0
-offset_top = 304.0
+offset_top = 296.0
 offset_right = 420.0
-offset_bottom = 360.0
-selector_offset = Vector2(-130, -6)
+offset_bottom = 356.0
+selector_offset = Vector2(0, -20)
 
 [node name="Cursors" type="Node" parent="." unique_id=2011000028]
 

@@ -5,7 +5,7 @@
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_hx7tf"]
 [ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="3_crtshader"]
 [ext_resource type="PackedScene" uid="uid://c0ntr0lpr0mts" path="res://scenes/control_prompts.tscn" id="4_prompts"]
-[ext_resource type="PackedScene" path="res://scenes/menu_button.tscn" id="6_menubtn"]
+[ext_resource type="PackedScene" uid="uid://bqrfx6stuops3" path="res://scenes/menu_button.tscn" id="6_menubtn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_character_box"]
 bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)

@@ -280,7 +280,8 @@ func _create_cursor_icon(device: PlayerInputDevice, cursor: Cursor) -> void:
 	icon.modulate = cursor.node.color
 	cursor.icon = icon
 	cursor_icons.add_child(icon)
-
+	
+	cursor.node.hide()
 
 # ── Per-cursor navigation / lock-in ──
 

@@ -80,12 +80,12 @@ position = Vector2(-276, 168)
 position = Vector2(-291, -125)
 
 [node name="skipmarker" type="Marker2D" parent="Camera2D/hand" unique_id=558817204]
-position = Vector2(-12.49, 87.78)
+position = Vector2(205, 77)
 
 [node name="skipbutton" parent="Camera2D/hand" unique_id=1366161825 instance=ExtResource("7_skip")]
 z_index = 60
-position = Vector2(-48, 92)
-scale = Vector2(0.635, 0.635)
+position = Vector2(204.99994, 76.99999)
+scale = Vector2(0.5, 0.5)
 
 [node name="title_label" type="Label" parent="." unique_id=612672962]
 layout_mode = 1

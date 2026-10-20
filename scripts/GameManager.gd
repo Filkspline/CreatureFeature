@@ -451,12 +451,13 @@ func _handle_pre_fight_info() -> void:
 
 		
 func _input(event: InputEvent) -> void:
-	# Dev shortcut: press 1 or 2 to simulate that player losing the round
-	# right now, without needing to fight all the way down to zero HP.
-	if not (event is InputEventKey and event.pressed):
-		return
+	if debug:
+		# Dev shortcut: press 1 or 2 to simulate that player losing the round
+		# right now, without needing to fight all the way down to zero HP.
+		if not (event is InputEventKey and event.pressed):
+			return
 
-	if event.keycode == KEY_1:
-		_end_round(1)
-	elif event.keycode == KEY_2:
-		_end_round(2)
+		if event.keycode == KEY_1:
+			_end_round(1)
+		elif event.keycode == KEY_2:
+			_end_round(2)
