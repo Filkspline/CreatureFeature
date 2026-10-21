@@ -37,4 +37,6 @@ func _end_screen_update() -> void:
 
 
 func _on_menu_button_pressed() -> void:
-	pass # Replace with function body.
+	GameManager.reset_player_select()
+	GameManager.start_match()
+	SceneTransition.change_scene("res://scenes/player_select.tscn")
