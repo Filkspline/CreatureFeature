@@ -6,6 +6,22 @@
 [ext_resource type="Texture2D" uid="uid://3un7q3t42ry6" path="res://assets/EndScreen/Player2WinsBackground.png" id="3_bh43f"]
 [ext_resource type="Texture2D" uid="uid://b727wo7veraei" path="res://assets/EndScreen/Player2WinsText.png" id="4_njecm"]
 [ext_resource type="PackedScene" uid="uid://bqrfx6stuops3" path="res://scenes/menu_button.tscn" id="6_bh43f"]
+[ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="7_crtscript"]
+[ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="8_crtshader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
+shader = ExtResource("8_crtshader")
+shader_parameter/curvature = 0.01
+shader_parameter/scanline_intensity = 0.05
+shader_parameter/scanline_count = 400.0
+shader_parameter/vignette_size = 0.08
+shader_parameter/brightness = 1.05
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 1.0
+shader_parameter/chromatic_aberration = 0.0004
+shader_parameter/noise_amount = 0.0015
+shader_parameter/flicker = 0.001
+shader_parameter/distortion = 0.006
 
 [node name="player_victory" type="Node2D" unique_id=335894208]
 script = ExtResource("1_o6b57")
@@ -13,6 +29,8 @@ script = ExtResource("1_o6b57")
 [node name="p1_win" type="Node2D" parent="." unique_id=549482018]
 
 [node name="p1_win_bg" type="Sprite2D" parent="p1_win" unique_id=342423843]
+position = Vector2(-4.4999914, -1.49998)
+scale = Vector2(1.0359375, 1.0583334)
 texture = ExtResource("1_rief1")
 
 [node name="p1_win_text" type="Sprite2D" parent="p1_win" unique_id=303612223 groups=["win_text"]]
@@ -21,19 +39,53 @@ texture = ExtResource("2_o6b57")
 [node name="p2_win" type="Node2D" parent="." unique_id=378866556]
 
 [node name="p2_win_bg" type="Sprite2D" parent="p2_win" unique_id=1900245276]
+position = Vector2(1.4999743, -1.5000083)
+scale = Vector2(1.0421875, 1.0527778)
 texture = ExtResource("3_bh43f")
 
 [node name="p2_win_text" type="Sprite2D" parent="p2_win" unique_id=2124072295 groups=["win_text"]]
 texture = ExtResource("4_njecm")
 
-[node name="MenuButton" parent="." unique_id=301944688 instance=ExtResource("6_bh43f")]
+[node name="PlayAgainButton" parent="." unique_id=301944689 instance=ExtResource("6_bh43f")]
+visible = false
 z_index = 1
-offset_left = -100.0
-offset_top = 110.0
-offset_right = 100.0
-offset_bottom = 170.0
+offset_left = -225.0
+offset_top = 46.0
+offset_right = -25.0
+offset_bottom = 106.0
+text = "PLAY AGAIN"
 selector_offset = Vector2(0, -20)
+selector_follows_focus = true
+
+[node name="MenuButton" parent="." unique_id=301944688 instance=ExtResource("6_bh43f")]
+visible = false
+z_index = 1
+offset_left = -225.0
+offset_top = 105.0
+offset_right = -25.0
+offset_bottom = 165.0
+text = "MAIN MENU"
+selector_offset = Vector2(0, -20)
+selector_follows_focus = true
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1915532903]
 
+[node name="TempCrtShader" type="ColorRect" parent="." unique_id=1915532904]
+z_index = 4
+offset_left = -321.0
+offset_top = -184.0
+offset_right = -281.0
+offset_bottom = -144.0
+mouse_filter = 2
+script = ExtResource("7_crtscript")
+shader_material = SubResource("ShaderMaterial_crt")
+curvature = 0.01
+scanline_intensity = 0.05
+scanline_count = 400.0
+distortion = 0.006
+flicker = 0.001
+noise_amount = 0.0015
+current_preset = 1
+
+[connection signal="pressed" from="PlayAgainButton" to="." method="_on_play_again_pressed"]
 [connection signal="pressed" from="MenuButton" to="." method="_on_menu_button_pressed"]

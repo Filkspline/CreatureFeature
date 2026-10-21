@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://csk1pb7tn5x2w" path="res://scenes/skip_button.tscn" id="7_skip"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
-size = Vector2(469, 16)
+size = Vector2(449, 34)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1ifr4"]
 shader = ExtResource("4_ovphs")
@@ -70,7 +70,7 @@ script = ExtResource("1_l8650")
 position = Vector2(-92, -35)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Camera2D/hand/cardspawnarea" unique_id=468811304]
-position = Vector2(105.5, 2)
+position = Vector2(100.5, -15)
 shape = SubResource("RectangleShape2D_g4v7s")
 
 [node name="cardspawner" type="Marker2D" parent="Camera2D/hand" unique_id=558817203]
@@ -80,11 +80,11 @@ position = Vector2(-276, 168)
 position = Vector2(-291, -125)
 
 [node name="skipmarker" type="Marker2D" parent="Camera2D/hand" unique_id=558817204]
-position = Vector2(205, 77)
+position = Vector2(-3, 82)
 
 [node name="skipbutton" parent="Camera2D/hand" unique_id=1366161825 instance=ExtResource("7_skip")]
 z_index = 60
-position = Vector2(204.99994, 76.99999)
+position = Vector2(19, 112)
 scale = Vector2(0.5, 0.5)
 
 [node name="title_label" type="Label" parent="." unique_id=612672962]
@@ -110,10 +110,10 @@ metadata/_edit_use_anchors_ = true
 layer = 3
 
 [node name="step_banner" type="Label" parent="step_banner_layer" unique_id=612672964]
-offset_left = 150.0
-offset_top = 42.0
-offset_right = 490.0
-offset_bottom = 82.0
+offset_left = 187.0
+offset_top = 80.0
+offset_right = 527.0
+offset_bottom = 133.0
 pivot_offset = Vector2(170, 20)
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.105882354, 0.10980392, 0.20392157, 1)

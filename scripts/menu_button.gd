@@ -30,6 +30,12 @@ extends Button
 ## range one sits against the bottom of the canvas) can move it to the side.
 @export var selector_offset : Vector2 = Vector2(0.0, -40.0)
 
+## When true the selector only shows while this button has focus, so a screen
+## with several of them shows ONE selector instead of one per button - which is
+## what makes it obvious which option is about to be pressed. The main menu works
+## the same way: one pointer that follows the focus owner.
+@export var selector_follows_focus : bool = false
+
 @onready var selection_pointer : Control = $SelectionPointer
 
 var _pop : Tween
@@ -43,6 +49,17 @@ func _ready() -> void:
 	selection_pointer.offset_right += selector_offset.x
 	selection_pointer.offset_top += selector_offset.y
 	selection_pointer.offset_bottom += selector_offset.y
+
+	if selector_follows_focus:
+		selection_pointer.hide()
+		focus_entered.connect(_set_selector_visible.bind(true))
+		focus_exited.connect(_set_selector_visible.bind(false))
+		if has_focus():
+			selection_pointer.show()
+
+
+func _set_selector_visible(focused: bool) -> void:
+	selection_pointer.visible = focused
 
 
 ## Bounces the button into view. Safe to call every time it is shown: a pop

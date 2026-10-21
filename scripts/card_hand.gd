@@ -23,7 +23,7 @@ const FIGHT_SCENE := "res://scenes/test_level.tscn"
 enum DraftStep { SPECIAL, NORMAL }
 
 @export var min_card_spacing : float = 70.0 # Smallest gap allowed between card slots, keeps scatter from overlapping
-@export var vertical_jitter : float = 90.0 # How far up/down cards can randomly sit, tab-scatter feel
+@export var vertical_jitter : float = 40.0 # How far up/down cards can randomly sit, tab-scatter feel
 @export var highlighted_scale : float = 1.35 # How much bigger a card gets while it's the highlighted one
 @export var highlight_tween_duration : float = 0.2
 @export var initial_spread_delay : float = 0.5 # Pause after cards spawn before the spread starts

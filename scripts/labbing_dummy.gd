@@ -118,6 +118,12 @@ var _barrier_is_crouching: bool = false
 # True while the horse's take_hit animation runs, so nothing overwrites it.
 var _playing_hit: bool = false
 
+# Every "take_hit*" variant the sheet carries, cycled one per hit so a run of
+# hits reads as a set of reactions instead of one pose on repeat. The base
+# take_hit holds the most frames, which is why it is the one worth leaning on.
+var _take_hit_anims: Array[String] = []
+var _last_take_hit: String = ""
+
 
 func _ready() -> void:
 	base_hurtbox_size = hurtbox_shape.size
@@ -131,6 +137,15 @@ func _ready() -> void:
 		push_warning("[SETUP] No opponent found in 'players' group.")
 
 	block_state = cycle_start_state
+
+	# Collect the sheet's take_hit variants up front rather than per hit, sorted
+	# so the cycle order is stable between runs.
+	for anim_name in horse_sprite.sprite_frames.get_animation_names():
+		if anim_name.begins_with("take_hit"):
+			_take_hit_anims.append(anim_name)
+	_take_hit_anims.sort()
+	if _take_hit_anims.is_empty():
+		_take_hit_anims.append("take_hit")
 	_apply_state_visuals()
 	_dbg("[color=green][HORSE] Registered opponent as: %s" % opponent)
 
@@ -390,11 +405,21 @@ func _direction_away_from(other: Node2D) -> float:
 
 
 func _hit_anim_resolve() -> void:
-	if not _has_animation("take_hit"):
+	if _take_hit_anims.is_empty():
+		return
+	# Idle is the sheet's default pose; this is the hit reaction on top of it.
+	# Picked at random rather than in sequence, and never the same pose twice in
+	# a row, so a long run of hits keeps reading as separate reactions.
+	var anim_name: String = _take_hit_anims[randi() % _take_hit_anims.size()]
+	if _take_hit_anims.size() > 1 and anim_name == _last_take_hit:
+		var next_index: int = (_take_hit_anims.find(anim_name) + 1) % _take_hit_anims.size()
+		anim_name = _take_hit_anims[next_index]
+	_last_take_hit = anim_name
+	if not _has_animation(anim_name):
 		return
 	# Held for the whole animation so no rest pose is played over it.
 	_playing_hit = true
-	horse_sprite.play("take_hit")
+	horse_sprite.play(anim_name)
 	await horse_sprite.animation_finished
 	_playing_hit = false
 	_play_state_animation()

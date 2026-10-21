@@ -109,14 +109,21 @@ func is_special_move_card(upgrade: UpgradeData) -> bool:
 func _draw_special_from_pool(player_id: int) -> Array[String]:
 	var pool: Array = pools.get(player_id, [])
 	var special_paths: Array[String] = []
+	# Only the special they CURRENTLY have is withheld - keeping it is the draft's
+	# own Skip button, not a card. Everything else they have picked during the
+	# match stays on offer, so a player who swaps can swap back to the special
+	# they set aside a round earlier.
+	var equipped : MoveData = GameManager.get_selected_special(player_id)
 	for path in pool:
 		var upgrade: UpgradeData = load(path)
-		if is_special_move_card(upgrade):
-			special_paths.append(path)
+		if not is_special_move_card(upgrade):
+			continue
+		if equipped != null and upgrade.unlocked_move != null \
+				and upgrade.unlocked_move.move_name == equipped.move_name:
+			continue
+		special_paths.append(path)
 	_shuffle_paths(special_paths)
 
-	# The current special's own card can still be in here; picking it means the
-	# same as Skip (see card_hand._is_keep_special_pick), which costs nothing.
 	var offered: Array[String] = []
 	for path in special_paths:
 		if offered.size() >= cards_offered:
@@ -157,7 +164,12 @@ func _on_upgrade_picked(player_id: int, upgrade: UpgradeData) -> void:
 	if picked_path == "":
 		print("[TRACE] WARNING: upgrade.resource_path is empty — this upgrade won't survive the scene reload replay")
 	current_upgrades[player_id].append(picked_path)
-	_remove_from_pool(picked_path, player_id)
+	# Specials stay in the pool. The only one that must not be offered is the one
+	# currently equipped, and _draw_special_from_pool filters that out: removing
+	# them here is what stopped a player swapping back to a special they had
+	# already used earlier in the match.
+	if not is_special_move_card(upgrade):
+		_remove_from_pool(picked_path, player_id)
 
 	if last_offer_player_id == player_id:
 		last_offer_player_id = -1

@@ -135,7 +135,7 @@ animations = [{
 }],
 "loop": 0,
 "name": &"take_hit",
-"speed": 18.0
+"speed": 14.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -144,7 +144,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_pp3uu")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"take_hit_2",
 "speed": 5.0
 }, {
@@ -155,7 +155,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_3c8dt")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"take_hit_3",
 "speed": 5.0
 }, {
@@ -166,7 +166,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_vd5aw")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"take_hit_4",
 "speed": 5.0
 }]
@@ -194,6 +194,8 @@ metadata/_custom_type_script = "uid://b1q73d0u8j2hl"
 position = Vector2(3, -0.9999995)
 scale = Vector2(1.0225, 1.0225)
 sprite_frames = SubResource("SpriteFrames_m2va7")
+frame = 1
+frame_progress = 0.1914833
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=567388899]
 
