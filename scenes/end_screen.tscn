@@ -29,6 +29,7 @@ grow_vertical = 2
 script = ExtResource("1_87vmq")
 
 [node name="background" type="ColorRect" parent="." unique_id=1780602640]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

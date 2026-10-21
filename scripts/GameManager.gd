@@ -65,7 +65,7 @@ var _music_player: AudioStreamPlayer
 var _music_volume_db : float = 0.0
 
 const CARD_SELECT_SCENE := "res://scenes/upgrade_card_ui.tscn"
-const MATCH_END_SCREEN_SCENE := "res://scenes/end_screen.tscn"
+const MATCH_END_SCREEN_SCENE := "res://scenes/player_victory.tscn"
 ## Intro cutscene played once per match, between the pre-fight card select
 ## and the first round. Only pre_fight_upgrade_hand.gd loads it; the
 ## round-loss draft is the CARD_SELECT_SCENE path above and never touches
@@ -98,6 +98,7 @@ const JOY_AXIS_DEADZONE := 0.2
 
 var p1_rounds_won: int = 0
 var p2_rounds_won: int = 0
+var win_id : int = 1
 
 signal round_won(winner_id: int, p1_rounds: int, p2_rounds: int)
 signal match_over(winner_id: int)
@@ -370,6 +371,7 @@ func _on_death_sequence_finished(player_id: int) -> void:
 # a round ends (their HP hit zero).
 func _end_round(loser_id: int) -> void:
 	var winner_id := _other_player_id(loser_id)
+	win_id = _other_player_id(loser_id)
 	_award_round_win(winner_id)
 	SfxManager.play_stream(round_end_sound, 1.0, round_end_pitch_variance, round_end_volume_db)
 

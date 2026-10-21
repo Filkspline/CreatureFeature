@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://btfepygsyjjbc"]
+
+[ext_resource type="Script" uid="uid://udb8muh186m6" path="res://scenes/player_victory_screen.gd" id="1_o6b57"]
+[ext_resource type="Texture2D" uid="uid://bk60g8fkhkw6u" path="res://assets/EndScreen/Player1WinsBackground.png" id="1_rief1"]
+[ext_resource type="Texture2D" uid="uid://bfs7kemuis1cf" path="res://assets/EndScreen/Player1WinsText.png" id="2_o6b57"]
+[ext_resource type="Texture2D" uid="uid://3un7q3t42ry6" path="res://assets/EndScreen/Player2WinsBackground.png" id="3_bh43f"]
+[ext_resource type="Texture2D" uid="uid://b727wo7veraei" path="res://assets/EndScreen/Player2WinsText.png" id="4_njecm"]
+[ext_resource type="PackedScene" uid="uid://bqrfx6stuops3" path="res://scenes/menu_button.tscn" id="6_bh43f"]
+
+[node name="player_victory" type="Node2D" unique_id=335894208]
+script = ExtResource("1_o6b57")
+
+[node name="p1_win" type="Node2D" parent="." unique_id=549482018]
+
+[node name="p1_win_bg" type="Sprite2D" parent="p1_win" unique_id=342423843]
+texture = ExtResource("1_rief1")
+
+[node name="p1_win_text" type="Sprite2D" parent="p1_win" unique_id=303612223 groups=["win_text"]]
+texture = ExtResource("2_o6b57")
+
+[node name="p2_win" type="Node2D" parent="." unique_id=378866556]
+
+[node name="p2_win_bg" type="Sprite2D" parent="p2_win" unique_id=1900245276]
+texture = ExtResource("3_bh43f")
+
+[node name="p2_win_text" type="Sprite2D" parent="p2_win" unique_id=2124072295 groups=["win_text"]]
+texture = ExtResource("4_njecm")
+
+[node name="MenuButton" parent="." unique_id=301944688 instance=ExtResource("6_bh43f")]
+z_index = 1
+offset_left = -100.0
+offset_top = 110.0
+offset_right = 100.0
+offset_bottom = 170.0
+selector_offset = Vector2(0, -20)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1915532903]
+
+[connection signal="pressed" from="MenuButton" to="." method="_on_menu_button_pressed"]
