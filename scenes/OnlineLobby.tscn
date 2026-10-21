@@ -2,6 +2,44 @@
 
 [ext_resource type="Script" uid="uid://dgolw2302axe3" path="res://scripts/OnlineLobby.gd" id="1_qyivh"]
 [ext_resource type="FontFile" uid="uid://bc0aavecw2ud2" path="res://assets/card_assets/m3x6.ttf" id="2_m3x6f"]
+[ext_resource type="Script" uid="uid://8ycr8r57t6p7" path="res://scripts/shaderrect.gd" id="3_60jau"]
+[ext_resource type="Shader" uid="uid://5vypctd5303i" path="res://scripts/testshader.gdshader" id="4_lgh4i"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input"]
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+bg_color = Color(0.078431375, 0.07450981, 0.1254902, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_readonly"]
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+bg_color = Color(0.078431375, 0.07450981, 0.1254902, 0.6)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 0.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_focus"]
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+bg_color = Color(0.078431375, 0.07450981, 0.1254902, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
 bg_color = Color(0.13333334, 0.1254902, 0.20392157, 1)
@@ -19,41 +57,19 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input"]
-content_margin_left = 8.0
-content_margin_top = 4.0
-content_margin_right = 8.0
-content_margin_bottom = 4.0
-bg_color = Color(0.078431375, 0.07450981, 0.1254902, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_focus"]
-content_margin_left = 8.0
-content_margin_top = 4.0
-content_margin_right = 8.0
-content_margin_bottom = 4.0
-bg_color = Color(0.078431375, 0.07450981, 0.1254902, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_readonly"]
-content_margin_left = 8.0
-content_margin_top = 4.0
-content_margin_right = 8.0
-content_margin_bottom = 4.0
-bg_color = Color(0.078431375, 0.07450981, 0.1254902, 0.6)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.79607844, 0.85882354, 0.9882353, 0.6)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_m0gx0"]
+shader = ExtResource("4_lgh4i")
+shader_parameter/curvature = 0.01
+shader_parameter/scanline_intensity = 0.05
+shader_parameter/scanline_count = 400.0
+shader_parameter/vignette_size = 0.08
+shader_parameter/brightness = 1.05
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 1.0
+shader_parameter/chromatic_aberration = 0.0004
+shader_parameter/noise_amount = 0.0015
+shader_parameter/flicker = 0.001
+shader_parameter/distortion = 0.006
 
 [node name="OnlineLobby" type="Control" unique_id=1118559412]
 layout_mode = 3
@@ -80,7 +96,6 @@ offset_left = 120.0
 offset_top = 8.0
 offset_right = 520.0
 offset_bottom = 48.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 3
 theme_override_fonts/font = ExtResource("2_m3x6f")
@@ -95,7 +110,6 @@ offset_left = 60.0
 offset_top = 50.0
 offset_right = 580.0
 offset_bottom = 68.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 0.8)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
@@ -114,8 +128,6 @@ theme_override_constants/separation = 12
 
 [node name="SessionLabel" type="Label" parent="SessionRow" unique_id=1118559417]
 layout_mode = 2
-size_flags_vertical = 4
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
@@ -133,8 +145,8 @@ theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_input")
-theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
 theme_override_styles/read_only = SubResource("StyleBoxFlat_input_readonly")
+theme_override_styles/focus = SubResource("StyleBoxFlat_input_focus")
 placeholder_text = "TYPE THE OTHER PLAYER'S SESSION ID"
 alignment = 1
 max_length = 5
@@ -144,15 +156,15 @@ visible = false
 custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_active")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_active")
 theme_override_styles/focus = SubResource("StyleBoxFlat_button_active")
 text = "COPY"
 
@@ -169,15 +181,15 @@ alignment = 1
 custom_minimum_size = Vector2(150, 36)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_active")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_active")
 theme_override_styles/focus = SubResource("StyleBoxFlat_button_active")
 text = "HOST GAME"
 
@@ -185,15 +197,15 @@ text = "HOST GAME"
 custom_minimum_size = Vector2(150, 36)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_active")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_active")
 theme_override_styles/focus = SubResource("StyleBoxFlat_button_active")
 text = "JOIN GAME"
 
@@ -203,7 +215,6 @@ offset_left = 60.0
 offset_top = 172.0
 offset_right = 580.0
 offset_bottom = 236.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
@@ -220,19 +231,37 @@ offset_top = 306.0
 offset_right = 390.0
 offset_bottom = 342.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
-theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_colors/font_focus_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_pressed_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
+theme_override_colors/font_hover_color = Color(0.79607844, 0.85882354, 0.9882353, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("2_m3x6f")
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button_active")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_active")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_active")
 theme_override_styles/focus = SubResource("StyleBoxFlat_button_active")
 text = "BACK"
 
+[node name="TempCrtShader" type="ColorRect" parent="." unique_id=152499804]
+z_index = 4
+layout_mode = 0
+offset_left = -321.0
+offset_top = -184.0
+offset_right = -281.0
+offset_bottom = -144.0
+mouse_filter = 2
+script = ExtResource("3_60jau")
+shader_material = SubResource("ShaderMaterial_m0gx0")
+curvature = 0.01
+scanline_intensity = 0.05
+scanline_count = 400.0
+distortion = 0.006
+flicker = 0.001
+noise_amount = 0.0015
+current_preset = 1
+
+[connection signal="pressed" from="SessionRow/CopyButton" to="." method="_on_copy_button_pressed"]
 [connection signal="pressed" from="Buttons/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="Buttons/JoinButton" to="." method="_on_join_button_pressed"]
-[connection signal="pressed" from="SessionRow/CopyButton" to="." method="_on_copy_button_pressed"]
 [connection signal="pressed" from="BackButton" to="." method="_on_back_button_pressed"]
