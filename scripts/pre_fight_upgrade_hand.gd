@@ -111,10 +111,13 @@ func _on_arrays_recieved(move_array : Array[UpgradeData], upgrade_array : Array[
 
 
 func _draw_hands() -> void:
-	p1_unlock = _build_column(p1_hand_unlock, unlock_array)
-	p1_upgrade = _build_column(p1_hand_upgrade, stat_upgrade_array)
-	p2_unlock = _build_column(p2_hand_unlock, unlock_array)
-	p2_upgrade = _build_column(p2_hand_upgrade, stat_upgrade_array)
+	# Each player gets their OWN shuffled copy of the hands, so the cards do not
+	# always land in the same order, and the two players' columns are shuffled
+	# separately rather than sharing one order.
+	p1_unlock = _build_column(p1_hand_unlock, _shuffled_for(unlock_array, 1))
+	p1_upgrade = _build_column(p1_hand_upgrade, _shuffled_for(stat_upgrade_array, 1))
+	p2_unlock = _build_column(p2_hand_unlock, _shuffled_for(unlock_array, 2))
+	p2_upgrade = _build_column(p2_hand_upgrade, _shuffled_for(stat_upgrade_array, 2))
 
 	_layout_column(p1_unlock, false)
 	_layout_column(p1_upgrade, false)
@@ -123,6 +126,31 @@ func _draw_hands() -> void:
 
 	p1_unlock.cards[0].selection_icon.show()
 	p2_unlock.cards[0].selection_icon.show()
+
+
+## A shuffled copy of one player's hand.
+##
+## Seeded from the session id online, so both machines lay the cards out in the
+## same order - a different order on each screen would be a different draft - and
+## random per run offline. Seeded per player as well, so player 1 and player 2 do
+## not end up with mirrored columns.
+func _shuffled_for(cards: Array[UpgradeData], player_id: int) -> Array[UpgradeData]:
+	var copy: Array[UpgradeData] = []
+	for card in cards:
+		copy.append(card)
+
+	var rng := RandomNumberGenerator.new()
+	if GameManager.online_mode:
+		rng.seed = hash(MultiplayerManager.session_id) + player_id * 7919
+	else:
+		rng.randomize()
+
+	for i in range(copy.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var swap: UpgradeData = copy[i]
+		copy[i] = copy[j]
+		copy[j] = swap
+	return copy
 
 
 func _build_column(anchor : Node2D, upgrades : Array[UpgradeData]) -> UpgradeColumn:
