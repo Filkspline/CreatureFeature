@@ -1,139 +1,248 @@
 extends Node
 
 # ──────────────────────────────────────────────────────────────────
-#  NetInput (autoload)
+#  NetInput (autoload) - lockstep input relay for online matches
 #
-#  The input relay for online matches.
+#  TICK MODEL (deliberately simple - no clock estimation):
+#    * Both machines announce themselves with a reliable "hello" and then a
+#      reliable "ready", each retried until acknowledged. Tick 0 only begins once
+#      both sides have each other's hello AND ready, so both start at tick 0
+#      together rather than by coincidence.
+#    * From then on both machines run the same ticks in the same order, and an
+#      input sampled at tick N is applied at tick N + delay_frames on BOTH
+#      machines. There is no offset between the counters, because the handshake
+#      removes the reason for one.
+#    * The first delay_frames ticks are pre-filled with "nothing pressed" for both
+#      players on both machines, so the very first steps have inputs to run on.
+#    * A tick only runs when both players' inputs for it are in hand. If the other
+#      machine's are missing, this machine does not advance at all - a visible
+#      stall instead of a divergence.
 #
-#  Both machines simulate BOTH characters, exactly as they do offline, so they
-#  have to apply the same buttons on the same frame or the two fights drift
-#  apart and the players stop seeing the same match. Offline each character
-#  reads its own actions straight from the InputMap, and online that cannot
-#  work: the character belonging to the other machine has no device bound on
-#  this one - player select deliberately leaves the remote slot's actions empty
-#  - so its actions would read as "nothing held" forever and the opponent would
-#  stand still and never press anything.
+#  Inputs are sent "reliable" and ordered: a lockstep game cannot tolerate a lost
+#  input packet, and reliable delivery is cheaper to reason about than redundancy.
 #
-#  So while an online match is running, every player's buttons come from here:
-#
-#    * this machine samples its own device every physics frame,
-#    * sends that frame's buttons to the other machine, and
-#    * applies every player's buttons delay_frames later, its own included.
-#
-#  The delay is the point. A press is applied on the same logical frame on both
-#  machines, instead of immediately here and one network trip later there. The
-#  two frame counters are aligned once, from the first packet, so it does not
-#  matter that the two machines did not reach the fight on the same frame.
-#
-#  Offline this does nothing at all: active() is false, and the player script
-#  reads the InputMap exactly as it always did.
+#  STAGES: on entering the fight, five checks run and report pass/fail both in the
+#  log and on screen, so a single run says which layer is broken.
 # ──────────────────────────────────────────────────────────────────
 
-## Buttons relayed, by their InputMap base names ("LeftP1", "NormalP2", ...).
 const BASES: Array[String] = ["Left", "Right", "Up", "Down", "Normal", "Special", "Jump"]
 
-## The input delay every player's presses are held back by, in frames, this
-## machine's included. Set from measured latency when a match starts and then
-## kept: a delay that keeps moving is worse than one a frame too generous,
-## because moving it shifts the timing of every press already in flight.
-##
-## Both machines use the same value - the host picks it and tells the other -
-## because it is the number of frames the two simulations have to agree on.
-@export var delay_frames : int = 5
+const RPC_PATH := "/root/NetInput"
 
-@export_group("Delay from latency")
-## Bounds on the delay. The point of measuring is to sit at the bottom of this
-## range on a good connection - 2 frames is a same-machine or LAN match - and to
-## climb only as far as a bad one actually needs.
+## Ticks of input delay, this machine's included.
+@export var delay_frames : int = 5
 @export var min_delay_frames : int = 2
 @export var max_delay_frames : int = 12
 
-## Added to half the measured round trip before rounding up. This is the jitter
-## headroom, and it is the part that decides whether a press arrives before the
-## frame that needs it.
-@export var jitter_margin_frames : int = 2
+@export_group("Debug")
+## Master debug toggle: staged startup report on screen and in the log, plus
+## packet and stall logging.
+@export var debug : bool = true
 
-## How much of each new measurement to take. A single sample is as likely to be
-## a hitch as a measurement, so the estimate moves a quarter of the way at a
-## time.
-@export var ping_smoothing : float = 0.25
+@export_group("Desync check")
+@export var checksum_interval_seconds : float = 0.5
 
-## How often the round trip is measured, in seconds. Pings are unreliable on
-## purpose: a lost one just means the estimate is a little older.
-@export var ping_interval_seconds : float = 0.5
-
-## Print every relayed frame. Noisy, but it is how you check packets arrive.
-## The line it prints per packet reads "N frames from now", which is the delay
-## that packet is actually being applied with - the number to watch if a fight
-## ever feels slow to respond.
-@export var log_frames : bool = false
-
-@export_group("Resync")
-## How often the host re-sends the match's health and round counts, in seconds.
-## The two machines simulate the fight independently, so they can drift apart -
-## and a round that ends differently on the two screens is the one desync a
-## player actually sees.
-@export var state_sync_resend_seconds : float = 0.25
-
-@export_group("Relaying")
-## How much longer than delay_frames a relayed press may ever wait before it is
-## dropped instead of obeyed. This is the safety net: the two machines' frame
-## counters do NOT stay in step (one window unfocused, one instance behind on
-## frames, a pause on one side), and an estimate of the difference between them
-## that is not re-checked turns straight into input delay. The bound is what
-## stops that becoming a fight that reacts seconds late.
-@export var extra_slack_frames : int = 2
+## Stage names, in order.
+const STAGES := [
+	"1 session + roles",
+	"2 fight scene + players",
+	"3 hello round trip",
+	"4 ready handshake",
+	"5 inputs flowing",
+]
 
 var _tick : int = 0
-## tick -> { player_id: mask }, applied when _tick reaches that tick.
 var _scheduled : Dictionary = {}
-## player_id -> the mask applied for this tick, and for the previous tick, which
-## is what makes "just pressed" work for a relayed player.
 var _held : Dictionary = {}
 var _previous : Dictionary = {}
-## Aligns the two machines' frame counters, worked out from the first packet.
-## Either machine can be ahead, so this can be negative.
-var _remote_clock_offset : int = 0
-var _clock_aligned : bool = false
-var _packets : int = 0
-## Seconds since the last resync was sent.
-var _sync_timer : float = 0.0
-## Smoothed round trip in frames, and time since the last ping.
-var _rtt_frames : float = 0.0
-var _ping_timer : float = 0.0
-## Whether this match has settled on a delay yet.
-var _delay_decided : bool = false
+var _packets_sent : int = 0
+var _packets_received : int = 0
+var _highest_remote_tick : int = -1
+
+var _stalled : bool = false
+var _stall_seconds : float = 0.0
+var _longest_stall : float = 0.0
+var _stall_log_timer : float = 0.0
+
+## Set once stage 4 passes and tick 0 has been run.
+var _running : bool = false
+var _hello_in : bool = false
+var _hello_out : bool = false
+var _ready_in : bool = false
+var _ready_out : bool = false
+var _handshake_timer : float = 0.0
+var _checksum_timer : float = 0.0
+
+## Per-stage result: -1 pending, 0 failed, 1 passed.
+var _stages : Array[int] = [-1, -1, -1, -1, -1]
+var _stage_notes : Array[String] = ["", "", "", "", ""]
+
+var _indicator_layer : CanvasLayer
+var _indicator : Label
+var _stage_labels : Array[Label] = []
 
 
 func _ready() -> void:
 	_clear()
-	# A new opponent means a new frame-offset to work out.
 	MultiplayerManager.peer_connected.connect(_on_peer_connected)
+	MultiplayerManager.peer_disconnected.connect(_on_peer_disconnected)
 
 
 func _physics_process(delta: float) -> void:
 	if not active():
 		return
-	# Autoloads process before the scene, so the buttons for this frame are in
-	# place before either character reads them.
-	_tick += 1
-	_apply_scheduled()
+
+	if fight_active() and not _running:
+		_run_startup_stages()
+		if not _running:
+			_stalled = true
+			_stall_seconds += delta
+			_update_overlay()
+			return
+
+	# Sampling always happens, stalled or not, or nothing could ever unstick.
 	_sample_and_send()
 
-	_ping_timer += delta
-	if _ping_timer >= ping_interval_seconds:
-		_ping_timer = 0.0
-		_measure_latency()
+	_checksum_timer += delta
+	if _checksum_timer >= checksum_interval_seconds:
+		_checksum_timer = 0.0
+		_exchange_checksum()
 
-	_sync_timer += delta
-	if _sync_timer >= state_sync_resend_seconds:
-		_sync_timer = 0.0
-		_send_state_snapshot()
+	if not _running:
+		_stalled = true
+		_update_overlay()
+		return
+
+	if ready_to_step():
+		if _stalled and _stall_seconds > 0.05:
+			_log("stall ended after %.2fs at tick %d" % [_stall_seconds, _tick])
+		_stalled = false
+		_stall_seconds = 0.0
+		_stall_log_timer = 0.0
+		_tick += 1
+		_apply_scheduled()
+	else:
+		if not _stalled:
+			_log("STALL at tick %d, waiting for tick %d" % [_tick, _tick + 1])
+			_stall_seconds = 0.0
+			_stall_log_timer = 0.0
+		_stalled = true
+		_stall_seconds += delta
+		_longest_stall = maxf(_longest_stall, _stall_seconds)
+		_stall_log_timer += delta
+		if debug and _stall_log_timer >= 0.5:
+			_stall_log_timer = 0.0
+			_log_stall_detail()
+
+	_update_overlay()
 
 
-# ── What the player script asks ──
+# ── Staged startup ──
 
-## True while an online match is being played on this machine.
+func _run_startup_stages() -> void:
+	_handshake_timer += get_physics_process_delta_time()
+
+	# Stage 1: session, peer ids, roles.
+	if _stages[0] != 1:
+		var slot := GameManager.online_player_id
+		if slot == 1 or slot == 2:
+			_set_stage(0, 1, "me=P%d peer=%d role=%s" % [
+				slot, multiplayer.get_unique_id(),
+				"host" if multiplayer.is_server() else "client"
+			])
+		else:
+			_set_stage(0, 0, "online_player_id is %d" % slot)
+			return
+
+	# Stage 2: fight scene and its two characters.
+	if _stages[1] != 1:
+		var scene_path := str(get_tree().current_scene.scene_file_path) if get_tree().current_scene else "<none>"
+		var p1 := GameManager.p1_node
+		var p2 := GameManager.p2_node
+		if p1 == null or p2 == null:
+			_set_stage(1, 0, "p1=%s p2=%s scene=%s" % [str(p1), str(p2), scene_path])
+			return
+		var p1_ok := p1.is_inside_tree() and p1.is_visible_in_tree()
+		var p2_ok := p2.is_inside_tree() and p2.is_visible_in_tree()
+		if not (p1_ok and p2_ok):
+			_set_stage(1, 0, "in_tree/visible p1=%s p2=%s scene=%s" % [
+				str(p1_ok), str(p2_ok), scene_path
+			])
+			return
+		_set_stage(1, 1, "scene=%s p1=%s p2=%s" % [
+			scene_path, p1.global_position, p2.global_position
+		])
+
+	# Stages 3 and 4: hello and ready, retried until both directions land.
+	if not _hello_out:
+		_hello.rpc(multiplayer.get_unique_id(), get_path())
+		_hello_out = true
+		_log("stage3: sent hello (rpc node path %s, my path %s)" % [RPC_PATH, str(get_path())])
+
+	if _hello_in and _ready_out == false and _stages[2] == 1:
+		_ready_to_fight.rpc(multiplayer.get_unique_id())
+		_ready_out = true
+		_log("stage4: sent ready")
+
+	if _hello_in and _ready_in:
+		_set_stage(3, 1, "both sides ready")
+		_begin_running()
+		return
+
+	# Not ready yet: come back to this every frame, don't advance ticks.
+	_stalled = true
+	_stall_seconds += get_physics_process_delta_time()
+
+
+func _begin_running() -> void:
+	_running = true
+	_tick = 0
+	_scheduled.clear()
+	_held.clear()
+	_previous.clear()
+	var window : int = maxi(delay_frames, 1)
+	for t in range(1, window + 1):
+		_schedule(t, 1, 0)
+		_schedule(t, 2, 0)
+	_log("stage5: BEGIN at tick 0, delay=%d, pre-filled ticks 1..%d" % [delay_frames, window])
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _hello(their_id: int, their_path: String) -> void:
+	if not active():
+		return
+	_hello_in = true
+	var peer_id := multiplayer.get_remote_sender_id()
+	_set_stage(2, 1, "their id=%d sender=%d their node path=%s" % [their_id, peer_id, their_path])
+	if debug:
+		_log("stage3: HELLO RECEIVED from %d (node path %s)" % [their_id, their_path])
+	# Acknowledge with our own hello if we have not sent one yet.
+	if not _hello_out:
+		_hello_out = true
+		_hello.rpc(multiplayer.get_unique_id(), get_path())
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _ready_to_fight(their_id: int) -> void:
+	if not active():
+		return
+	_ready_in = true
+	if debug:
+		_log("stage4: READY RECEIVED from %d" % their_id)
+
+
+func _set_stage(index: int, result: int, note: String) -> void:
+	if _stages[index] == result:
+		return
+	_stages[index] = result
+	_stage_notes[index] = note
+	var verdict := "pass" if result == 1 else "FAIL"
+	_log("STAGE %s %s - %s" % [STAGES[index], verdict, note])
+	_update_overlay()
+
+
+# ── Fight queries ──
+
 func active() -> bool:
 	if not GameManager.online_mode:
 		return false
@@ -142,15 +251,23 @@ func active() -> bool:
 	return multiplayer.has_multiplayer_peer()
 
 
-## True when this character's buttons are relayed rather than read from a device
-## plugged into this machine. Online that is every character, the local one
-## included: both machines have to delay it by the same amount, or the fights
-## drift apart.
+func fight_active() -> bool:
+	return active() and GameManager.p1_node != null and GameManager.p2_node != null
+
+
 func active_for(_player_id: int) -> bool:
 	return active()
 
 
-## Whether this player is holding a relayed button on this frame.
+func is_stalled() -> bool:
+	return _stalled
+
+
+func ready_to_step() -> bool:
+	var slot : Dictionary = _scheduled.get(_tick + 1, {})
+	return slot.has(1) and slot.has(2)
+
+
 func held(player_id: int, base: String) -> bool:
 	var index := BASES.find(base)
 	if index < 0:
@@ -159,9 +276,6 @@ func held(player_id: int, base: String) -> bool:
 	return (mask & (1 << index)) != 0
 
 
-## Whether this player pressed a relayed button on this frame, in the frame the
-## relay actually applies it on - which is the frame the character's own timers
-## and buffers are counting on.
 func just_pressed(player_id: int, base: String) -> bool:
 	var index := BASES.find(base)
 	if index < 0:
@@ -172,23 +286,28 @@ func just_pressed(player_id: int, base: String) -> bool:
 	return (now & bit) != 0 and (before & bit) == 0
 
 
-## How many relayed packets have arrived. Useful for checking the link is alive.
-func packet_count() -> int:
-	return _packets
+func longest_stall_seconds() -> float:
+	return _longest_stall
 
 
-## Forget the buttons being held, so a new match cannot start with the last
-## one's buttons stuck down. The frame counter and the clock alignment are
-## deliberately KEPT: they are what keeps the two machines applying the same
-## frame, they stay valid for the whole session, and re-aligning them mid-session
-## would move every following frame. The fight scene calls this as it loads.
 func reset() -> void:
+	_running = false
+	_hello_in = false
+	_hello_out = false
+	_ready_in = false
+	_ready_out = false
+	_handshake_timer = 0.0
+	_stages = [-1, -1, -1, -1, -1]
+	_stage_notes = ["", "", "", "", ""]
 	_clear()
 
 
 func _on_peer_connected(_peer_id) -> void:
-	_clock_aligned = false
-	_clear()
+	reset()
+
+
+func _on_peer_disconnected(_peer_id) -> void:
+	reset()
 
 
 # ── Relaying ──
@@ -200,7 +319,10 @@ func _sample_and_send() -> void:
 		if Input.is_action_pressed(_action(BASES[i], player_id)):
 			mask |= 1 << i
 	_schedule(_tick + delay_frames, player_id, mask)
+	if debug and _running:
+		_log("send tick %d mask %d" % [_tick, mask])
 	_send_input.rpc(_tick, mask)
+	_packets_sent += 1
 
 
 func _action(base: String, player_id: int) -> StringName:
@@ -214,16 +336,9 @@ func _schedule(tick: int, player_id: int, mask: int) -> void:
 
 
 func _apply_scheduled() -> void:
-	# Frames that have already gone by are never applied: a stall or a pause
-	# must not make a stale press fire later. Neither is anything scheduled
-	# further ahead than the relay is allowed to delay - that only happens once
-	# the two counters have drifted apart, and obeying those frames is exactly
-	# the multi-second lag the bound exists to prevent.
-	var latest_allowed : int = _tick + delay_frames + extra_slack_frames
 	for tick in _scheduled.keys():
-		if tick < _tick or tick > latest_allowed:
+		if tick < _tick:
 			_scheduled.erase(tick)
-
 	var slot : Dictionary = _scheduled.get(_tick, {})
 	if slot.is_empty():
 		return
@@ -236,169 +351,173 @@ func _apply_scheduled() -> void:
 func _send_input(tick: int, mask: int) -> void:
 	if not active():
 		return
-
 	var sender := multiplayer.get_remote_sender_id()
-	# The session's server peer is always 1 and is player 1, so the sender's id
-	# says which character these buttons belong to.
 	var player_id := 1 if sender == 1 else 2
 	if player_id == GameManager.online_player_id:
 		return
 
-	# The difference between the two counters is re-measured on EVERY packet
-	# instead of being trusted from the first one. The two machines do not tick
-	# at the same rate for long: one window is unfocused, one instance is behind
-	# on frames, someone pauses. A difference measured once is only correct
-	# until then, and afterwards every frame of error is applied input delay -
-	# which is how a five-frame relay turned into a fight that reacted seconds
-	# late on whichever machine had fallen behind.
-	_remote_clock_offset = _tick - tick
-	_clock_aligned = true
+	_packets_received += 1
+	_highest_remote_tick = maxi(_highest_remote_tick, tick)
 
-	# ...and the result is bounded, so a wrong estimate can never hold a press
-	# back for longer than the relay is meant to delay anything at all. Losing
-	# the odd frame of timing is a much better failure than a fight that stops
-	# responding.
-	var apply_at : int = tick + _remote_clock_offset + delay_frames
-	var latest_allowed : int = _tick + delay_frames + extra_slack_frames
+	# No offset: after the ready handshake both machines are on the same tick
+	# numbering, so an input sampled at their tick N is applied at N + delay here.
+	var apply_at : int = tick + delay_frames
+	var latest_allowed : int = _tick + delay_frames + 4
 	if apply_at > latest_allowed:
 		apply_at = latest_allowed
 	if apply_at <= _tick:
-		# Arrived too late to be used on its own frame - typically the first
-		# packet or a hitch. Use it on the next frame rather than dropping it,
-		# so a press is never lost outright.
 		apply_at = _tick + 1
 	_schedule(apply_at, player_id, mask)
-	_packets += 1
 
-	if log_frames:
-		print("[NetInput] their frame %d -> our frame %d (in %d frames, offset %d)" % [
-			tick, apply_at, apply_at - _tick, _remote_clock_offset
-		])
+	if debug and _running:
+		_log("recv tick %d mask %d from P%d -> run at %d" % [tick, mask, player_id, apply_at])
 
 
 func _clear() -> void:
 	_scheduled.clear()
 	_held.clear()
 	_previous.clear()
+	_stalled = false
+	_stall_seconds = 0.0
+	_stall_log_timer = 0.0
 
 
-# ── Resync ──
-# Both machines simulate the fight, so they can drift: one can land the killing
-# hit a frame before the other, and then the two screens disagree about who won
-# the round. Instead of trying to make two independent simulations perfectly
-# identical, the host is treated as the authority for the two values that decide
-# a round - health and rounds won - and re-sends them a few times a second, so a
-# fight that drifted is pulled back together rather than ending differently.
-#
-# Positions are deliberately NOT synced. They are driven every frame by input
-# both machines already agree on, so they track each other closely, and snapping
-# them would show as a stutter to fix a difference nobody can see. Health is the
-# one that changes who wins.
-
-func _send_state_snapshot() -> void:
-	# The session's server peer is player 1, and is the authority.
-	if not multiplayer.is_server():
+func _log(message: String) -> void:
+	if not debug:
 		return
-	_state_snapshot.rpc(
-		_health_of(GameManager.p1_node),
-		_health_of(GameManager.p2_node),
-		GameManager.p1_rounds_won,
-		GameManager.p2_rounds_won
-	)
+	print("[NetInput P%d peer%d %s] %s" % [
+		GameManager.online_player_id,
+		multiplayer.get_unique_id(),
+		"host" if multiplayer.is_server() else "client",
+		message,
+	])
 
 
-# "authority", not "any_peer": the host is the node's multiplayer authority, so
-# only the machine that owns the truth is allowed to send this.
-@rpc("authority", "call_remote", "reliable")
-func _state_snapshot(p1_health: float, p2_health: float, p1_rounds: int, p2_rounds: int) -> void:
-	_apply_health(GameManager.p1_node, p1_health)
-	_apply_health(GameManager.p2_node, p2_health)
-	GameManager.p1_rounds_won = p1_rounds
-	GameManager.p2_rounds_won = p2_rounds
+func _log_stall_detail() -> void:
+	var slot : Dictionary = _scheduled.get(_tick + 1, {})
+	var missing := "none"
+	if not slot.has(1) and not slot.has(2):
+		missing = "P1+P2"
+	elif not slot.has(1):
+		missing = "P1"
+	elif not slot.has(2):
+		missing = "P2"
+	var ticks : Array = _scheduled.keys()
+	ticks.sort()
+	_log("stalled %.2fs tick=%d waiting=%d missing=%s sent=%d recv=%d highest_remote=%d scheduled=%s" % [
+		_stall_seconds, _tick, _tick + 1, missing,
+		_packets_sent, _packets_received, _highest_remote_tick, str(ticks.slice(0, 8)),
+	])
 
 
-# -1.0 means "there is no such character here to sync", which is true between
-# rounds, while a scene change is in flight.
-func _health_of(player_node: Node) -> float:
-	if player_node == null or not player_node.has_method("set_health_from_network"):
-		return -1.0
-	var health : float = player_node.get("current_health")
-	return health
+# ── On-screen overlay: stage list + live tick readout ──
 
-
-# Asked for rather than assumed, the same way the rest of the project treats
-# anything that can take a hit: the node arrives as a plain Node.
-func _apply_health(player_node: Node, health: float) -> void:
-	if health < 0.0:
+func _update_overlay() -> void:
+	if not active():
+		if _indicator_layer != null:
+			_indicator_layer.visible = false
 		return
-	if player_node != null and player_node.has_method("set_health_from_network"):
-		player_node.call("set_health_from_network", health)
+	if _indicator_layer == null:
+		_build_overlay()
+
+	_indicator_layer.visible = debug
+	_indicator.visible = _stalled and (not _running or _stall_seconds >= 0.1)
+	_indicator.text = "WAITING FOR OPPONENT..." if _running else "STARTING FIGHT..."
+
+	for i in _stage_labels.size():
+		var label := _stage_labels[i]
+		var result := _stages[i]
+		var mark := "[ ]" if result == -1 else ("[OK]" if result == 1 else "[X]")
+		label.text = "%s %s  %s" % [mark, STAGES[i], _stage_notes[i]]
+		if result == 0:
+			label.add_theme_color_override("font_color", Color(1, 0.45, 0.45, 1))
+		elif result == 1:
+			label.add_theme_color_override("font_color", Color(0.6, 1, 0.6, 1))
+		else:
+			label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+
+	_stage_labels[_stage_labels.size() - 1].text += "   tick=%d remote=%d sent=%d recv=%d %s" % [
+		_tick, _highest_remote_tick, _packets_sent, _packets_received,
+		"STALLED" if _stalled else "running",
+	]
 
 
-# ── Input delay from measured latency ──
-# A fixed delay is either too small - the other player's press arrives after the
-# frame that needed it, and the two machines disagree about that frame - or too
-# large, and the game feels heavy for no reason. So the delay is derived from
-# the round trip actually being made: half of it is the one-way trip a press has
-# to survive, plus a margin for jitter, rounded up to whole frames.
-#
-# The HOST decides it and tells the other machine, because both simulations have
-# to hold inputs back by the same number of frames. A delay differing by one
-# frame between the machines would be exactly the disagreement the delay is
-# there to prevent.
-#
-# It is only ever raised during a match, never lowered: the first estimate can
-# be too optimistic and needs to loosen, but tightening mid-match would shift
-# the timing of presses already in flight for no gain the player can feel.
-#
-# Measured in frames rather than milliseconds, so it needs no wall clock and
-# agrees with the numbering the inputs themselves use.
+func _build_overlay() -> void:
+	_indicator_layer = CanvasLayer.new()
+	_indicator_layer.layer = 50
+	add_child(_indicator_layer)
 
-func _measure_latency() -> void:
-	_ping.rpc(_tick)
+	var font : Font = preload("res://assets/card_assets/m3x6.ttf")
+	var outline := Color(0.03529412, 0.03137255, 0.05490196, 1)
+
+	_indicator = Label.new()
+	_indicator.text = "STARTING FIGHT..."
+	_indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_indicator.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_indicator.offset_top = 8.0
+	_indicator.offset_left = -220.0
+	_indicator.offset_right = 220.0
+	_indicator.add_theme_font_override("font", font)
+	_indicator.add_theme_font_size_override("font_size", 16)
+	_indicator.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	_indicator.add_theme_constant_override("outline_size", 3)
+	_indicator.add_theme_color_override("font_outline_color", outline)
+	_indicator_layer.add_child(_indicator)
+
+	_stage_labels.clear()
+	for i in STAGES.size():
+		var label := Label.new()
+		label.text = "[ ] " + STAGES[i]
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		label.offset_left = 4.0
+		label.offset_top = 26.0 + i * 13.0
+		label.offset_right = 636.0
+		label.add_theme_font_override("font", font)
+		label.add_theme_font_size_override("font_size", 11)
+		label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+		label.add_theme_constant_override("outline_size", 2)
+		label.add_theme_color_override("font_outline_color", outline)
+		_indicator_layer.add_child(label)
+		_stage_labels.append(label)
+
+
+# ── Desync check ──
+
+func _exchange_checksum() -> void:
+	if not _running:
+		return
+	_checksum.rpc(_tick, _state_checksum())
 
 
 @rpc("any_peer", "call_remote", "unreliable")
-func _ping(their_frame: int) -> void:
-	if not active():
+func _checksum(their_tick: int, their_sum: int) -> void:
+	if not _running:
 		return
-	# Straight back: the sender measures the trip on its own counter, so nothing
-	# here needs to know anything about their clock.
-	_pong.rpc(their_frame)
-
-
-@rpc("any_peer", "call_remote", "unreliable")
-func _pong(our_frame: int) -> void:
-	if not active():
+	if their_tick != _tick:
 		return
-	var sample := float(_tick - our_frame)
-	if _rtt_frames <= 0.0:
-		_rtt_frames = sample
-	else:
-		_rtt_frames = lerpf(_rtt_frames, sample, ping_smoothing)
-	if multiplayer.is_server():
-		_choose_delay()
-
-
-## Turns the measured round trip into a delay, and tells the other machine when
-## it changes. Host only.
-func _choose_delay() -> void:
-	var wanted : int = clampi(
-		int(ceil(_rtt_frames * 0.5)) + jitter_margin_frames,
-		min_delay_frames,
-		max_delay_frames
-	)
-	if not _delay_decided:
-		_delay_decided = true
-		delay_frames = wanted
-		_set_delay.rpc(wanted)
+	if their_sum == _state_checksum():
 		return
-	if wanted > delay_frames:
-		delay_frames = wanted
-		_set_delay.rpc(wanted)
+	push_warning("[NetInput] DESYNC at tick %d" % _tick)
+	for node in [GameManager.p1_node, GameManager.p2_node]:
+		if node == null:
+			print("  player node missing")
+			continue
+		print("  P%s pos=%s hp=%.2f state=%s" % [
+			node.get("player_id"), str(node.get("global_position")),
+			float(node.get("current_health")), str(node.get("state")),
+		])
 
 
-@rpc("authority", "call_remote", "reliable")
-func _set_delay(frames: int) -> void:
-	delay_frames = clampi(frames, min_delay_frames, max_delay_frames)
-	_delay_decided = true
+func _state_checksum() -> int:
+	var parts := [GameManager.p1_rounds_won, GameManager.p2_rounds_won]
+	for node in [GameManager.p1_node, GameManager.p2_node]:
+		if node == null:
+			parts.append(-1)
+			continue
+		var pos : Vector2 = node.get("global_position")
+		parts.append(int(round(pos.x)))
+		parts.append(int(round(pos.y)))
+		parts.append(int(round(float(node.get("current_health")) * 10.0)))
+		parts.append(int(node.get("state")))
+	return hash(parts)

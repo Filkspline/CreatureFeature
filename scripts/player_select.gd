@@ -196,9 +196,14 @@ func _detect_input_modes() -> void:
 			_create_cursor(PlayerInputDevice.make_joypad(joy_id))
 
 func _detect_online_input_mode() -> void:
-	var suffix := "P%d" % GameManager.online_player_id
-
-	if not _created_keyboard.get(suffix, false):
+	# BOTH keyboard layouts are offered online, not just the one matching this
+	# player's slot. They are only WASD and the arrow keys on the same physical
+	# keyboard, so restricting the client to "the P2 layout" stopped them using
+	# the host's scheme for no reason. The device carries its own layout suffix,
+	# so whichever one is claimed is the one bound to this player's slot.
+	for suffix in KEYBOARD_LAYOUTS:
+		if _created_keyboard.get(suffix, false):
+			continue
 		if _keyboard_layout_has_input(suffix):
 			_created_keyboard[suffix] = true
 			_create_cursor(

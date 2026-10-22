@@ -244,6 +244,11 @@ func reset_player_select() -> void:
 func clear_online_state() -> void:
 	online_mode = false
 	online_player_id = 0
+	# Whatever froze the clock - an online hitstop, a KO freeze, quitting out
+	# mid-hit - must not follow the player back into the menus or into a later
+	# match. Every route back to the main menu goes through here.
+	Engine.time_scale = 1.0
+	death_freeze_active = false
 
 
 
@@ -357,6 +362,15 @@ func _on_player_registered(player_id: int, player_node: Node) -> void:
 
 
 func _on_player_defeated(player_id: int) -> void:
+	# The death freeze uses the same global clock as hitstop, so it has the same
+	# problem online and is skipped there for the same reason. The death SEQUENCE
+	# is unaffected: it is driven by the player's own animation and ends in
+	# _on_death_sequence_finished, which is what ends the round.
+	if online_mode:
+		death_freeze_active = false
+		Engine.time_scale = 1.0
+		return
+
 	death_freeze_active = true
 	Engine.time_scale = 0.0
 
@@ -431,6 +445,14 @@ func _apply_shake_for_hit(move_data: MoveData, was_blocked: bool) -> void:
 
 func _apply_hitstop(duration: float) -> void:
 	if duration <= 0.0:
+		return
+
+	# Online the FREEZE is skipped, not the rest of the hit feedback: camera
+	# shake, particles and sounds are fired by the caller and are untouched. The
+	# freeze is Engine.time_scale, which is global and machine-local - freezing it
+	# while the other machine keeps ticking is a desync by construction. Local
+	# multiplayer and single player keep the freeze exactly as it was.
+	if online_mode:
 		return
 
 	Engine.time_scale = 0.0
