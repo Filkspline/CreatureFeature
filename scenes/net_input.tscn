@@ -5,5 +5,4 @@
 [node name="NetInput" type="Node" unique_id=1980010001]
 script = ExtResource("1_netin")
 delay_frames = 5
-log_frames = false
-extra_slack_frames = 2
+debug = false

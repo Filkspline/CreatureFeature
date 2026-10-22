@@ -7,7 +7,7 @@
 [sub_resource type="Resource" id="Resource_b5hyx"]
 script = ExtResource("3_42hhv")
 app_id = "goJa|IrOItTY]T("
-trackers_urls = Array[String](["wss://tracker.androodev.com", "wss://tracker.openwebtorrent.com", "wss://tracker.btorrent.xyz/", "wss://tracker.ghostchu-services.top:443/announce"])
+trackers_urls = Array[String](["wss://tracker.webtorrent.dev", "wss://open.ftorrent.com", "wss://tracker.openwebtorrent.com", "wss://tracker.androodev.com"])
 stun_servers_urls = Array[String](["stun:stun.l.google.com:19302", "stun:stun.cloudflare.com:3478"])
 metadata/_custom_type_script = "uid://t4pe7yqc3pnt"
 

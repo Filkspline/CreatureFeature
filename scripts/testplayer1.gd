@@ -862,6 +862,14 @@ func _consume_buffer(action: String) -> bool:
 
 
 func _physics_process(delta: float) -> void:
+	# Online lockstep: while the other machine's buttons for this tick have not
+	# arrived, this frame is skipped outright. Nothing the simulation owns
+	# advances - not movement, not stun timers, not attack frames - so the two
+	# machines cannot drift apart however slow the link is. The relay puts a
+	# "waiting for opponent" label on screen while this is true.
+	if NetInput.active_for(player_id) and NetInput.is_stalled():
+		return
+
 	_capture_buffered_inputs()
 
 	# Keep speed_scale in sync every frame, not just once in _ready().

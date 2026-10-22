@@ -163,4 +163,14 @@ func _on_peer_connected(peer_id):
 
 func _on_peer_disconnected(peer_id):
 	print("PEER DISCONNECTED: ", peer_id)
+	# An opponent vanishing mid-match is a forfeit, not a crash: whoever is still
+	# here is sent to the victory screen as the winner, and the session closes.
+	# Before a match starts (in the lobby) there is nobody to award the match to,
+	# so the lobby gets the signal and shows its own "they left" state.
+	if GameManager.online_mode:
+		GameManager.win_id = GameManager.online_player_id
+		print("Opponent gone - awarding the match to player %d" % GameManager.win_id)
+		GameManager.clear_online_state()
+		SceneTransition.change_scene("res://scenes/player_victory.tscn")
+		return
 	peer_disconnected.emit(peer_id)
